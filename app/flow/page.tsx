@@ -126,7 +126,8 @@ function Bullets({ items, small }: { items?: string[]; small?: boolean }) {
 
 export default function FlowPage() {
   const [input, setInput] = useState("");
-  const [productId, setProductId] = useState(PRODUCTS[0].id);
+  const [productId, setProductId] = useState("__new__");
+  const [newName, setNewName] = useState("");
   const [region, setRegion] = useState("All regions");
   const [selected, setSelected] = useState<FlowActionKey[]>(DEFAULT_ON);
   const [loading, setLoading] = useState(false);
@@ -160,7 +161,13 @@ export default function FlowPage() {
       const res = await fetch("/api/flow", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ input, productId, region, actions }),
+        body: JSON.stringify({
+          input,
+          productId: productId === "__new__" ? undefined : productId,
+          newName: productId === "__new__" ? newName : undefined,
+          region,
+          actions,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Something went wrong");
@@ -218,6 +225,7 @@ export default function FlowPage() {
             <label className="block">
               <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-faint">Programme</span>
               <select value={productId} onChange={(e) => setProductId(e.target.value)} className="mt-1 w-full rounded-lg border border-line bg-bg-soft px-2.5 py-1.5 text-sm text-ink focus:outline-none">
+                <option value="__new__" className="bg-bg-soft">＋ New programme (not in catalogue)</option>
                 {PRODUCTS.map((p) => (
                   <option key={p.id} value={p.id} className="bg-bg-soft">{p.name} · {p.campus}</option>
                 ))}
@@ -232,6 +240,15 @@ export default function FlowPage() {
               </select>
             </label>
           </div>
+
+          {productId === "__new__" && (
+            <input
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              placeholder="New programme name (e.g. Junior Summer Camp — Dubai)"
+              className="w-full rounded-lg border border-accent-teal/40 bg-bg-soft px-2.5 py-2 text-sm text-ink placeholder:text-ink-faint focus:outline-none"
+            />
+          )}
 
           <div>
             <SectionLabel>Steps to run</SectionLabel>

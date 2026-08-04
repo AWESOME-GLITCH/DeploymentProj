@@ -58,26 +58,6 @@ export const SHOWCASE: Record<string, Showcase> = {
       ],
     },
   },
-  pricing: {
-    steps: [
-      { title: "Record costs", detail: "Teacher cost/hour, room, materials, ATHE registration — your true unit economics." },
-      { title: "Research the market", detail: "Agent scans public competitor pricing (Dubai & London language schools) with confidence flags." },
-      { title: "Recommend", detail: "A price with the full rationale chain: value → cost floor → competitive band → margin check." },
-    ],
-    capabilities: [
-      "Cost & margin model per course (contribution, break-even class size)",
-      "Competitor price bands with source + confidence (opaque pricing flagged, not faked)",
-      "Value & willingness-to-pay framing per segment",
-      "Bundle economics (e.g. ATHE Diploma = tuition + Careers + AI Module)",
-    ],
-    guardrail:
-      "Competitor 'custom / on-request' pricing is genuinely unscrapeable — the agent labels it low-confidence and never invents a number. The final price is always your call.",
-    sample: {
-      kind: "pricing",
-      title: "Sample · ATHE Business & Management Diploma",
-      note: "$17,000 bundle · up to $3,000 discount. Agent checks it against Dubai study-abroad + UK pathway comparables.",
-    },
-  },
   feedback: {
     steps: [
       { title: "Ingest feedback", detail: "Surveys, course reviews, focus-group transcripts, enquiry notes — any text stream." },

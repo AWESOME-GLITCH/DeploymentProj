@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
 
   const plan = buildPlan(actions, region);
   const producing = actions.filter((a) => ARTIFACT_SPEC[a]);
-  const productName = product?.name || "New offering";
+  const productName = product?.name || (typeof body.newName === "string" && body.newName.trim()) || "New offering";
 
   if (producing.length === 0) {
     return NextResponse.json({ artifacts: {}, plan, demo: !hasLiveAgents() });
@@ -61,7 +61,9 @@ Return ONE JSON object containing exactly these keys:
 ${specs}
 }`;
 
-  const knowledge = product ? JSON.stringify(product, null, 2) : "(no specific programme selected)";
+  const knowledge = product
+    ? JSON.stringify(product, null, 2)
+    : `(new programme not yet in the catalogue — named "${productName}". Base it on the PM's input below and ES World's model; use [TBC] for unknown specifics.)`;
   try {
     const artifacts = await runJsonAgent<Record<string, any>>({
       system,

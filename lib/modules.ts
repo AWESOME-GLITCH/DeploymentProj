@@ -95,10 +95,10 @@ export const MODULES: ModuleDef[] = [
     icon: "Tags",
     accent: "text-accent-amber",
     glow: "255,181,71",
-    tagline: "Cost + market → informed price",
+    tagline: "Cost + live market research → informed price",
     description:
-      "Records your costs & unit economics, runs competitor research (with confidence flags), and recommends pricing with the full rationale chain.",
-    status: "beta",
+      "Plug in your costs for live unit economics (contribution, margin, break-even), then the agent researches the market and recommends a price with the full rationale chain and confidence flags.",
+    status: "live",
     group: "core",
     agent: "Pricing Analyst",
   },
