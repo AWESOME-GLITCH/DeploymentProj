@@ -192,13 +192,22 @@ export default function KnowledgePage() {
               <div>
                 <SectionLabel>Documents ({viewing.documents.length})</SectionLabel>
                 <div className="space-y-1.5">
-                  {viewing.documents.map((d, i) => (
-                    <div key={i} className="flex items-center gap-2 rounded-xl border border-line bg-bg-soft/60 px-3 py-2">
-                      <Icon name="FileText" className="h-4 w-4 shrink-0 text-brand-soft" />
-                      <span className="flex-1 truncate text-sm text-ink-soft">{d.name}</span>
-                      <span className="rounded-full bg-bg-hover px-2 py-0.5 text-[10px] uppercase tracking-wide text-ink-faint">{d.type}</span>
-                    </div>
-                  ))}
+                  {viewing.documents.map((d, i) => {
+                    const inner = (
+                      <>
+                        <Icon name={d.url ? "ArrowUpRight" : "FileText"} className="h-4 w-4 shrink-0 text-brand-soft" />
+                        <span className="flex-1 truncate text-sm text-ink-soft">{d.name}</span>
+                        <span className="rounded-full bg-bg-hover px-2 py-0.5 text-[10px] uppercase tracking-wide text-ink-faint">{d.type}</span>
+                      </>
+                    );
+                    return d.url ? (
+                      <a key={i} href={d.url} target="_blank" rel="noreferrer" className="flex items-center gap-2 rounded-xl border border-brand/30 bg-brand/5 px-3 py-2 transition-colors hover:bg-brand/10">
+                        {inner}
+                      </a>
+                    ) : (
+                      <div key={i} className="flex items-center gap-2 rounded-xl border border-line bg-bg-soft/60 px-3 py-2">{inner}</div>
+                    );
+                  })}
                 </div>
               </div>
             ) : null}
