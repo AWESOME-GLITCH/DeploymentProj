@@ -94,29 +94,6 @@ export const SHOWCASE: Record<string, Showcase> = {
       "Sentiment is never a floating number — it's attached to a theme and drillable to quotes. Small or skewed samples get flagged for a follow-up, not a conclusion.",
     sample: { kind: "feedback", title: "Sample · CELTA cohort feedback" },
   },
-  portfolio: {
-    steps: [
-      { title: "See everything", detail: "All 11 programmes across Dubai & London on one cockpit — stage, health, revenue." },
-      { title: "Compare", detail: "Invest / scale / hold / sunset signals per programme, with capacity and dependencies." },
-      { title: "Decide", detail: "Where to put the next teacher, marketing dollar, or campus slot." },
-    ],
-    capabilities: [
-      "Cross-programme health & lifecycle view",
-      "Invest / scale / hold / sunset recommendations",
-      "Capacity & dependency mapping across campuses",
-      "Flag programmes on the watch list (lower health)",
-    ],
-    guardrail: "The #1 gap for a 20+ programme operator — this is where your leverage lives. Queued as the next build.",
-    sample: {
-      kind: "roadmap",
-      title: "What it will show",
-      items: [
-        { name: "Scale", detail: "ATHE Diploma (flagship, strong health) — add a January intake?" },
-        { name: "Hold", detail: "CELTA — stable, established; maintain 9 runs/year." },
-        { name: "Watch", detail: "Flex Evening (Dubai & London) — new, lower health; nurture demand." },
-      ],
-    },
-  },
   roadmap: {
     steps: [
       { title: "Pull priorities", detail: "Take the ranked opportunities from Prioritization + Feedback." },

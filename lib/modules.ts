@@ -136,13 +136,13 @@ export const MODULES: ModuleDef[] = [
     name: "Portfolio Manager",
     short: "Portfolio",
     icon: "LayoutGrid",
-    accent: "text-ink-soft",
+    accent: "text-brand-soft",
     glow: "255,131,0",
-    tagline: "Invest · scale · kill, across 20+ products",
+    tagline: "Invest · scale · hold across Dubai & London",
     description:
-      "The cross-product cockpit: lifecycle stage, investment, capacity, and dependencies for your whole portfolio in one view.",
-    status: "next",
-    group: "planned",
+      "The cross-programme cockpit: lifecycle stage, health, and a recommended invest/scale/hold/watch action for every programme in one view.",
+    status: "live",
+    group: "core",
     agent: "Portfolio Strategist",
   },
   {
