@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { getModule } from "@/lib/modules";
 import { PRODUCTS } from "@/lib/knowledge";
+import { useProducts } from "@/lib/store";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, Button, SectionLabel, ConfidenceBadge } from "@/components/ui";
 import { Icon } from "@/components/Icon";
@@ -58,6 +59,35 @@ export default function PricingPage() {
   const [demo, setDemo] = useState(false);
   const [step, setStep] = useState(0);
 
+  // Price-list generator
+  const { products: catalog } = useProducts();
+  const [mode, setMode] = useState<"analyse" | "pricelist">("analyse");
+  const [year, setYear] = useState("2027");
+  const [pct, setPct] = useState(5);
+  const [overrides, setOverrides] = useState<Record<string, string>>({});
+
+  function uplift(price: string) {
+    return price.replace(/[\d][\d,]*(\.\d+)?/g, (m) => {
+      const n = Number(m.replace(/,/g, ""));
+      if (!n) return m;
+      return Math.round(n * (1 + pct / 100)).toLocaleString();
+    });
+  }
+  const newPrice = (p: (typeof catalog)[number]) => overrides[p.id] ?? uplift(p.price);
+  const prevYear = String(Number(year) - 1);
+  function pricelistHtml() {
+    return (
+      H.brandTitle(`Price List ${year} — ES World`, `Generated with a ${pct}% uplift · VAT-inclusive`) +
+      "<table><tr><th>Programme</th><th>Campus</th><th>" + prevYear + "</th><th>" + year + "</th></tr>" +
+      catalog.map((p) => `<tr><td>${p.name}</td><td>${p.campus}</td><td>${p.price}</td><td>${newPrice(p)}</td></tr>`).join("") +
+      "</table>"
+    );
+  }
+  const pricelistRows = () => [
+    ["Programme", "Campus", prevYear, year],
+    ...catalog.map((p) => [p.name, p.campus, p.price, newPrice(p)] as string[]),
+  ];
+
   function onPick(id: string) {
     setPid(id);
     const p = PRODUCTS.find((x) => x.id === id)!;
@@ -98,9 +128,73 @@ export default function PricingPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-8 py-10">
-      <PageHeader icon={M.icon} accent={M.accent} glow={M.glow} title={M.name} tagline={M.tagline} status={M.status} agent={M.agent} />
+      <PageHeader
+        icon={M.icon}
+        accent={M.accent}
+        glow={M.glow}
+        title={M.name}
+        tagline={M.tagline}
+        status={M.status}
+        agent={M.agent}
+        right={
+          <div className="flex rounded-full border border-line bg-bg-card p-1">
+            {(["analyse", "pricelist"] as const).map((mm) => (
+              <button key={mm} onClick={() => setMode(mm)} className={`rounded-full px-4 py-1.5 text-sm transition-colors ${mode === mm ? "bg-brand text-white" : "text-ink-soft hover:text-ink"}`}>
+                {mm === "analyse" ? "Analyse" : "Price list"}
+              </button>
+            ))}
+          </div>
+        }
+      />
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      {mode === "pricelist" && (
+        <div className="animate-rise">
+          <Card className="mb-4 p-4">
+            <div className="flex flex-wrap items-end gap-4">
+              <label className="block">
+                <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-faint">New year</span>
+                <input value={year} onChange={(e) => setYear(e.target.value)} className="mt-1 w-24 rounded-lg border border-line bg-bg-soft px-2.5 py-1.5 text-sm text-ink focus:outline-none" />
+              </label>
+              <label className="block">
+                <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-faint">Uplift %</span>
+                <input type="number" value={pct} onChange={(e) => { setPct(Number(e.target.value)); setOverrides({}); }} className="mt-1 w-24 rounded-lg border border-line bg-bg-soft px-2.5 py-1.5 text-sm text-ink focus:outline-none" />
+              </label>
+              <p className="max-w-sm text-xs text-ink-faint">Applies {pct}% to every price. Non-numeric prices (“On request”, “Membership”) stay as-is. Edit any cell to override.</p>
+              <div className="ml-auto">
+                <ExportMenu title={`ES World Price List ${year}`} html={pricelistHtml} rows={pricelistRows} />
+              </div>
+            </div>
+          </Card>
+          <Card className="overflow-hidden p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-line text-left text-ink-faint">
+                    <th className="px-4 py-3 font-medium">Programme</th>
+                    <th className="px-4 py-3 font-medium">Campus</th>
+                    <th className="px-4 py-3 font-medium">{prevYear}</th>
+                    <th className="px-4 py-3 font-medium">{year}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {catalog.map((p, i) => (
+                    <tr key={p.id} className={i % 2 ? "bg-bg-soft/40" : ""}>
+                      <td className="px-4 py-2.5 text-ink">{p.name}</td>
+                      <td className="px-4 py-2.5 text-ink-faint">{p.campus}</td>
+                      <td className="px-4 py-2.5 text-ink-soft">{p.price}</td>
+                      <td className="px-4 py-2">
+                        <input value={newPrice(p)} onChange={(e) => setOverrides({ ...overrides, [p.id]: e.target.value })} className="w-full rounded-lg border border-line bg-bg-soft px-2 py-1 font-medium text-brand-soft focus:border-brand/40 focus:outline-none" />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      <div className={mode === "pricelist" ? "hidden" : "grid gap-6 lg:grid-cols-2"}>
         {/* Cost inputs + economics */}
         <div className="space-y-4">
           <Card className="p-4">
