@@ -6,7 +6,25 @@ import { PRODUCTS } from "@/lib/knowledge";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, Button, SectionLabel, ConfidenceBadge } from "@/components/ui";
 import { Icon } from "@/components/Icon";
+import { ExportMenu } from "@/components/ExportMenu";
+import { H } from "@/lib/export";
 import type { PricingAnalysis } from "../api/pricing/route";
+
+function pricingHtml(name: string, a: PricingAnalysis) {
+  return (
+    H.brandTitle(`Pricing — ${name}`, "ES World") +
+    H.kv("Recommended", a.recommendedPrice) +
+    H.p(a.recommendation) +
+    H.muted(a.positioning) +
+    H.h2("Rationale") + H.ul(a.rationale) +
+    H.h2("Competitors (researched)") +
+    "<table><tr><th>Name</th><th>Price</th><th>Confidence</th><th>Note</th></tr>" +
+    a.competitors.map((c) => `<tr><td>${c.name}</td><td>${c.price}</td><td>${c.confidence}</td><td>${c.note}</td></tr>`).join("") +
+    "</table>" +
+    H.h2("Market trends") + H.ul(a.trends.map((t) => `${t.note} (${t.confidence})`)) +
+    H.h2("Risks") + H.ul(a.risks)
+  );
+}
 
 const M = getModule("pricing")!;
 
@@ -157,6 +175,13 @@ export default function PricingPage() {
                   <Icon name="AlertTriangle" className="mt-0.5 h-3.5 w-3.5 shrink-0" /> Demo mode — add an ANTHROPIC_API_KEY for live research.
                 </div>
               )}
+              <div className="flex justify-end">
+                <ExportMenu
+                  title={`Pricing ${product.name}`}
+                  html={() => pricingHtml(product.name, analysis)}
+                  rows={() => [["Competitor", "Price", "Confidence", "Note"], ...analysis.competitors.map((c) => [c.name, c.price, c.confidence, c.note] as string[])]}
+                />
+              </div>
               <Card glow={M.glow} className="p-4">
                 <div className="text-[11px] font-semibold uppercase tracking-wide text-ink-faint">Recommended</div>
                 <div className="text-xl font-semibold text-brand-soft">{analysis.recommendedPrice}</div>

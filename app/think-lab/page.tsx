@@ -5,7 +5,27 @@ import { getModule } from "@/lib/modules";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, Button, SectionLabel, ConfidenceBadge } from "@/components/ui";
 import { Icon } from "@/components/Icon";
+import { ExportMenu } from "@/components/ExportMenu";
+import { H } from "@/lib/export";
 import type { Concept } from "../api/think-lab/route";
+
+function conceptHtml(c: Concept) {
+  return (
+    H.brandTitle(c.concept, "Think Lab · ES World") +
+    H.kv("Opportunity fit", c.opportunity.fit) +
+    H.h2("Problem") + H.p(c.problemStatement) +
+    H.h2("Hypothesis") + H.p(c.hypothesis) +
+    H.h2("Jobs to be done") + H.ul(c.jobsToBeDone) +
+    H.h2("Assumptions to validate") + H.ul(c.assumptions.map((a) => `${a.text} — <b>${a.risk} risk</b>`)) +
+    H.h2("MVP · Build") + H.ul(c.mvp.build) +
+    H.h2("MVP · Measure") + H.ul(c.mvp.measure) +
+    H.h2("MVP · Learn") + H.ul(c.mvp.learn) +
+    H.h2("Run this first") + H.p(c.firstExperiment) +
+    H.h2("Success metrics") + H.ul(c.successMetrics) +
+    H.h2("Already known (Knowledge hub)") + H.ul(c.knownFromKnowledge) +
+    H.h2("Research pass") + H.ul(c.researchNotes.map((r) => `${r.claim} — ${r.confidence} (${r.source})`))
+  );
+}
 
 const M = getModule("think-lab")!;
 
@@ -153,6 +173,9 @@ export default function ThinkLabPage() {
               Demo mode — add an ANTHROPIC_API_KEY to structure your real idea.
             </div>
           )}
+          <div className="flex justify-end">
+            <ExportMenu title={c.concept || "Think Lab concept"} html={() => conceptHtml(c)} />
+          </div>
 
           {/* Concept header */}
           <Card glow={M.glow} className="p-5">

@@ -7,7 +7,24 @@ import { BRAND_STANDARDS } from "@/lib/brand";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, Button, SectionLabel } from "@/components/ui";
 import { Icon } from "@/components/Icon";
+import { ExportMenu } from "@/components/ExportMenu";
+import { H } from "@/lib/export";
 import type { MarketingDraft, CourseField } from "../api/marketing/route";
+
+function draftHtml(d: MarketingDraft) {
+  return (
+    H.brandTitle(d.headline, d.subheadline) +
+    H.muted(d.docCode) +
+    d.sections.map((s) => H.h2(s.heading) + H.p(s.body)).join("") +
+    H.h2("Call to action") + H.p(d.cta)
+  );
+}
+function courseHtml(fields: CourseField[]) {
+  return (
+    H.brandTitle("Website Course Page", "ES World") +
+    fields.map((f) => `<h3>${f.field}</h3>` + H.p(String(f.value).replace(/\n/g, "<br/>"))).join("")
+  );
+}
 
 const M = getModule("marketing")!;
 const TYPES = ["Course page", "Website", "Flyer", "Presentation", "Social post", "Email"];
@@ -173,8 +190,11 @@ export default function MarketingPage() {
                     Demo mode — add an ANTHROPIC_API_KEY for live copy.
                   </div>
                 )}
-                <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-soft">
-                  Website Course Template · ES World
+                <div className="flex items-center justify-between">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-soft">
+                    Website Course Template · ES World
+                  </div>
+                  <ExportMenu title="ES World Course Page" html={() => courseHtml(coursePage)} />
                 </div>
                 {coursePage.map((f, i) => (
                   <div key={i} className="rounded-xl border border-line bg-bg-soft/50 p-3">
@@ -193,7 +213,10 @@ export default function MarketingPage() {
                     Demo mode — add an ANTHROPIC_API_KEY for live copy.
                   </div>
                 )}
-                <div className="text-[11px] font-mono text-ink-faint">{draft.docCode}</div>
+                <div className="flex items-center justify-between">
+                  <div className="text-[11px] font-mono text-ink-faint">{draft.docCode}</div>
+                  <ExportMenu title={`ES World ${type}`} html={() => draftHtml(draft)} />
+                </div>
                 <div>
                   <h2 className="text-xl font-semibold text-brand-soft">{draft.headline}</h2>
                   <p className="mt-1 text-sm text-ink-soft">{draft.subheadline}</p>

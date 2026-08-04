@@ -23,6 +23,41 @@ body {
   line-height: 1.5;
 }
 
+/* Smooth, consistent micro-interactions everywhere */
+a,
+button,
+input,
+select,
+textarea,
+[role="button"] {
+  transition:
+    color 0.18s ease,
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.2s ease,
+    transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:focus-visible {
+  outline: 2px solid rgba(255, 131, 0, 0.6);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Gen-Z gradient headline accent */
+.text-gradient {
+  background: linear-gradient(115deg, #ff8300 10%, #ff5d8f 75%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.hover-lift {
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-3px);
+}
+
 /* Headings use the display face with tight, modern tracking */
 h1,
 h2,

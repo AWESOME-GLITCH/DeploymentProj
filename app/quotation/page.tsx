@@ -7,6 +7,8 @@ import { ADDONS } from "@/lib/addons";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, Button, SectionLabel } from "@/components/ui";
 import { Icon } from "@/components/Icon";
+import { ExportMenu } from "@/components/ExportMenu";
+import { H } from "@/lib/export";
 
 const M = getModule("quotation")!;
 
@@ -45,6 +47,26 @@ export default function QuotationPage() {
   // UAE VAT is 5% and is INCLUDED in ES World 2026 prices, so back it out for display.
   const vatPortion = vatIncluded ? total * (5 / 105) : 0;
 
+  function quoteHtml() {
+    return (
+      H.brandTitle(`Quotation ${quoteNo}`, `Prepared for ${client || "—"}`) +
+      `<p class="muted">Date: ${date || "—"} · Valid until: ${validUntil || "—"}${clientDetail ? " · " + clientDetail : ""}</p>` +
+      "<table><tr><th>Description</th><th>Qty</th><th>Unit</th><th>Amount</th></tr>" +
+      lines.map((l) => `<tr><td>${l.desc}</td><td>${l.qty}</td><td>${fmt(l.price, sym)}</td><td>${fmt(l.qty * l.price, sym)}</td></tr>`).join("") +
+      "</table>" +
+      `<p><b>Subtotal:</b> ${fmt(subtotal, sym)}</p>` +
+      (discount > 0 ? `<p><b>Discount (${discount}%):</b> −${fmt(discountAmt, sym)}</p>` : "") +
+      `<p><b>Total:</b> ${fmt(total, sym)}</p>` +
+      (vatIncluded ? `<p class="muted">Incl. 5% VAT: ${fmt(vatPortion, sym)}</p>` : "") +
+      (notes ? H.h2("Notes & terms") + H.p(notes) : "")
+    );
+  }
+  const quoteRows = () => [
+    ["Description", "Qty", "Unit", "Amount"],
+    ...lines.map((l) => [l.desc, l.qty, l.price, l.qty * l.price] as (string | number)[]),
+    ["", "", "Total", total],
+  ];
+
   function update(id: number, patch: Partial<Line>) {
     setLines((ls) => ls.map((l) => (l.id === id ? { ...l, ...patch } : l)));
   }
@@ -80,10 +102,13 @@ export default function QuotationPage() {
           status={M.status}
           agent={M.agent}
           right={
-            <Button onClick={() => window.print()}>
-              <Icon name="Printer" className="h-4 w-4" />
-              Print / Save PDF
-            </Button>
+            <div className="flex items-center gap-2">
+              <ExportMenu title={`Quotation ${quoteNo}`} html={quoteHtml} rows={quoteRows} />
+              <Button onClick={() => window.print()}>
+                <Icon name="Printer" className="h-4 w-4" />
+                Print / PDF
+              </Button>
+            </div>
           }
         />
       </div>

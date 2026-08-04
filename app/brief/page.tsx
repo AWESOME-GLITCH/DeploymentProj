@@ -5,8 +5,42 @@ import { getModule } from "@/lib/modules";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, Button, SectionLabel } from "@/components/ui";
 import { Icon } from "@/components/Icon";
+import { ExportMenu } from "@/components/ExportMenu";
+import { H } from "@/lib/export";
 import type { Brief } from "../api/brief/route";
 import type { Proposal } from "../api/proposal/route";
+
+function briefHtml(b: Brief) {
+  return (
+    H.brandTitle(b.title, "Product Brief · ES World") +
+    H.p(b.summary) +
+    H.h2("Problem") + H.p(b.problem) +
+    H.kv("Audience", b.targetAudience) +
+    H.h2("Goals") + H.ul(b.goals) +
+    H.h2("Non-goals") + H.ul(b.nonGoals) +
+    H.h2("Key features") + H.ul(b.keyFeatures) +
+    H.h2("Risks to validate") + H.ul(b.risks) +
+    H.h2("Success metrics") + H.ul(b.successMetrics) +
+    H.h2("Open questions") + H.ul(b.openQuestions)
+  );
+}
+function proposalHtml(p: Proposal) {
+  return (
+    H.brandTitle(p.title, "Product / Service Proposal · ES World") +
+    H.p(p.summary) +
+    H.kv("Product / Service", p.productName) + H.kv("Category", p.category) + H.kv("Campus", p.campus) +
+    H.h2("Problem / Opportunity") + H.p(p.problemOpportunity) +
+    H.h2("Proposed solution") + H.p(p.proposedSolution) +
+    H.kv("Target audience", p.targetAudience) +
+    H.h2("Differentiators") + H.ul(p.differentiators) +
+    H.h2("Pricing") + H.p(`${p.pricing.model} · ${p.pricing.price}. ${p.pricing.notes}`) +
+    H.h2("Costs / resources") + H.ul(p.costsResources) +
+    H.h2("Success metrics") + H.ul(p.successMetrics) +
+    H.h2("Risks & dependencies") + H.ul(p.risks) +
+    H.kv("Timeline", p.timeline) + H.kv("Proposed by", p.proposedBy) +
+    H.h2("Recommendation") + H.p(p.recommendation)
+  );
+}
 
 const M = getModule("brief")!;
 type Mode = "brief" | "proposal";
@@ -187,6 +221,9 @@ export default function BriefPage() {
             {!loading && brief && (
               <div className="animate-rise space-y-5">
                 {demo && <DemoNote />}
+                <div className="flex justify-end">
+                  <ExportMenu title={brief.title || "Product Brief"} html={() => briefHtml(brief)} />
+                </div>
                 <div>
                   <h2 className="text-lg font-semibold text-ink">{brief.title}</h2>
                   <p className="mt-1 text-sm leading-relaxed text-ink-soft">{brief.summary}</p>
@@ -213,6 +250,9 @@ export default function BriefPage() {
             {!loading && proposal && (
               <div className="animate-rise space-y-4">
                 {demo && <DemoNote />}
+                <div className="flex justify-end">
+                  <ExportMenu title={proposal.title || "Proposal"} html={() => proposalHtml(proposal)} />
+                </div>
                 <div className="border-b border-line pb-3">
                   <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-soft">
                     Product / Service Proposal · ES World

@@ -6,6 +6,8 @@ import { PRODUCTS, CATEGORIES, BRAND, type Product } from "@/lib/knowledge";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, SectionLabel } from "@/components/ui";
 import { Icon } from "@/components/Icon";
+import { ExportMenu } from "@/components/ExportMenu";
+import { H } from "@/lib/export";
 
 const M = getModule("knowledge")!;
 const CAMPUSES = ["All", "Dubai", "London"] as const;
@@ -159,10 +161,19 @@ export default function KnowledgePage() {
         status={M.status}
         agent={M.agent}
         right={
-          <div className="hidden text-right sm:block">
-            <div className="text-2xl font-semibold text-ink">{PRODUCTS.length}</div>
-            <div className="text-xs text-ink-faint">programmes indexed</div>
-          </div>
+          <ExportMenu
+            title="ES World Catalogue"
+            html={() =>
+              H.brandTitle("Course Catalogue — ES World", "Dubai & London") +
+              "<table><tr><th>Programme</th><th>Campus</th><th>Category</th><th>Levels</th><th>Format</th><th>Price</th></tr>" +
+              PRODUCTS.map((p) => `<tr><td>${p.name}</td><td>${p.campus}</td><td>${p.category}</td><td>${p.levels || ""}</td><td>${p.format}</td><td>${p.price}</td></tr>`).join("") +
+              "</table>"
+            }
+            rows={() => [
+              ["Programme", "Campus", "Category", "Levels", "Format", "Price"],
+              ...PRODUCTS.map((p) => [p.name, p.campus, p.category, p.levels || "", p.format, p.price] as (string | number)[]),
+            ]}
+          />
         }
       />
 

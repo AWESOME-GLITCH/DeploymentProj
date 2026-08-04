@@ -84,12 +84,12 @@ export function Button({
   className?: string;
 }) {
   const base =
-    "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed";
+    "inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-all active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed";
   const variants = {
     primary:
-      "bg-brand text-white hover:bg-brand-soft shadow-[0_8px_30px_-12px_rgba(124,108,255,0.9)]",
+      "bg-gradient-to-b from-brand to-brand-glow text-white shadow-[0_10px_26px_-10px_rgba(255,131,0,0.75)] hover:brightness-110",
     ghost: "text-ink-soft hover:text-ink hover:bg-bg-hover",
-    subtle: "border border-line bg-bg-soft text-ink hover:bg-bg-hover",
+    subtle: "border border-line bg-bg-soft text-ink hover:bg-bg-hover hover:border-brand/30",
   }[variant];
   return (
     <button type={type} onClick={onClick} disabled={disabled} className={`${base} ${variants} ${className}`}>

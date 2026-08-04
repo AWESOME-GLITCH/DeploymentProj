@@ -26,8 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${inter.variable} ${display.variable}`}>
       <body className="min-h-screen bg-bg font-sans text-ink antialiased">
-        <div className="pointer-events-none fixed inset-0 -z-10 bg-grid-faint [background-size:44px_44px] print:hidden" />
-        <div className="pointer-events-none fixed left-1/2 top-[-10%] -z-10 h-[420px] w-[720px] -translate-x-1/2 rounded-full bg-brand/20 blur-[140px] print:hidden" />
+        <div className="pointer-events-none fixed left-1/2 top-[-20%] -z-10 h-[520px] w-[820px] -translate-x-1/2 rounded-full bg-brand/[0.07] blur-[160px] print:hidden" />
         <Sidebar />
         <main className="ml-64 min-h-screen">{children}</main>
       </body>

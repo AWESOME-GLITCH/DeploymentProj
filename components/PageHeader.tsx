@@ -25,14 +25,14 @@ export function PageHeader({
     <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
       <div className="flex items-start gap-4">
         <div
-          className="flex h-12 w-12 items-center justify-center rounded-2xl border border-line bg-bg-card"
-          style={{ boxShadow: `0 0 30px -8px rgba(${glow},0.5)` }}
+          className="flex h-12 w-12 items-center justify-center rounded-2xl bg-bg-soft"
+          style={{ boxShadow: `inset 0 0 0 1px rgba(${glow},0.15)` }}
         >
           <Icon name={icon} className={`h-6 w-6 ${accent}`} />
         </div>
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-semibold tracking-tight text-ink">{title}</h1>
+            <h1 className="text-[26px] font-bold tracking-tight text-ink">{title}</h1>
             {status && <StatusPill status={status} />}
           </div>
           <p className="mt-1 max-w-2xl text-sm text-ink-soft">{tagline}</p>

@@ -6,6 +6,8 @@ import { PRODUCTS, type Product } from "@/lib/knowledge";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, SectionLabel } from "@/components/ui";
 import { Icon } from "@/components/Icon";
+import { ExportMenu } from "@/components/ExportMenu";
+import { H } from "@/lib/export";
 
 const M = getModule("portfolio")!;
 
@@ -113,6 +115,21 @@ export default function PortfolioPage() {
         tagline="Every programme across Dubai & London, with a recommended action for each."
         status={M.status}
         agent={M.agent}
+        right={
+          <ExportMenu
+            title="ES World Portfolio"
+            html={() =>
+              H.brandTitle("Portfolio — ES World") +
+              "<table><tr><th>Programme</th><th>Campus</th><th>Category</th><th>Stage</th><th>Health</th><th>Action</th><th>Price</th></tr>" +
+              PRODUCTS.map((p) => `<tr><td>${p.name}</td><td>${p.campus}</td><td>${p.category}</td><td>${p.stage}</td><td>${p.health}</td><td>${actionFor(p)}</td><td>${p.price}</td></tr>`).join("") +
+              "</table>"
+            }
+            rows={() => [
+              ["Programme", "Campus", "Category", "Stage", "Health", "Action", "Price"],
+              ...PRODUCTS.map((p) => [p.name, p.campus, p.category, p.stage, p.health, actionFor(p), p.price] as (string | number)[]),
+            ]}
+          />
+        }
       />
 
       {/* Stats */}

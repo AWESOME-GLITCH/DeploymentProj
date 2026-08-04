@@ -7,6 +7,36 @@ import { FLOW_ACTIONS, SALES_REGIONS, type FlowActionKey, type PlanItem } from "
 import { PageHeader } from "@/components/PageHeader";
 import { Card, Button, SectionLabel } from "@/components/ui";
 import { Icon } from "@/components/Icon";
+import { ExportMenu } from "@/components/ExportMenu";
+import { H } from "@/lib/export";
+
+function artifactToHtml(k: string, v: any): string {
+  switch (k) {
+    case "brief":
+      return H.h2("Product Brief") + H.p(v.summary) + H.kv("Problem", v.problem) + H.kv("Audience", v.audience) + H.ul(v.goals || []);
+    case "pricing":
+      return H.h2("Pricing") + H.kv("Price", v.pricePoint) + H.p(v.recommendation) + H.p(v.rationale) + H.muted(v.marketNote);
+    case "flyer":
+      return H.h2("Marketing Flyer") + `<h3>${v.headline}</h3>` + H.p(v.subhead) + H.ul(v.bullets || []) + H.kv("CTA", v.cta);
+    case "presentation":
+      return H.h2("Presentation: " + (v.title || "")) + (v.slides || []).map((s: any) => `<h3>${s.title}</h3>` + H.ul(s.points || [])).join("");
+    case "website":
+      return H.h2("Website Course Page") + (v.fields || []).map((f: any) => `<h3>${f.field}</h3>` + H.p(f.value)).join("");
+    case "proposal":
+      return H.h2("Proposal") + H.p(v.summary) + H.kv("Opportunity", v.problemOpportunity) + H.kv("Pricing", v.pricing) + H.kv("Recommendation", v.recommendation);
+    default:
+      return "";
+  }
+}
+function flowHtml(artifacts: Record<string, any> | null, plan: any[] | null) {
+  let s = H.brandTitle("Launch Flow — ES World");
+  if (plan && plan.length) {
+    s += H.h2("Who does what") + "<table><tr><th>Person</th><th>Role</th><th>Task</th><th>Step</th></tr>" +
+      plan.map((p) => `<tr><td>${p.name}</td><td>${p.role}</td><td>${p.task}</td><td>${p.action}</td></tr>`).join("") + "</table>";
+  }
+  if (artifacts) for (const [k, v] of Object.entries(artifacts)) s += artifactToHtml(k, v);
+  return s;
+}
 
 const M = getModule("flow")!;
 const DEFAULT_ON: FlowActionKey[] = ["brief", "pricing", "flyer", "website", "sales"];
@@ -301,6 +331,13 @@ export default function FlowPage() {
                   Demo mode — add an ANTHROPIC_API_KEY for live, researched output.
                 </div>
               )}
+              <div className="flex justify-end">
+                <ExportMenu
+                  title="ES World Launch Flow"
+                  html={() => flowHtml(artifacts, plan)}
+                  rows={plan ? () => [["Person", "Role", "Task", "Step"], ...plan.map((p) => [p.name, p.role, p.task, p.action] as string[])] : undefined}
+                />
+              </div>
 
               {/* Action board */}
               {board.length > 0 && (

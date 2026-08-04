@@ -18,15 +18,9 @@ function Stat({ label, value, sub, accent }: { label: string; value: string; sub
 function ModuleCard({ slug, name, icon, accent, glow, tagline, description, status, agent }: (typeof CORE_MODULES)[number]) {
   return (
     <Link href={`/${slug}`}>
-      <Card
-        glow={status !== "next" ? glow : undefined}
-        className="group h-full p-5 transition-all hover:-translate-y-0.5 hover:border-brand/30"
-      >
+      <Card className="hover-lift group h-full p-5 hover:border-brand/40">
         <div className="flex items-start justify-between">
-          <div
-            className="flex h-11 w-11 items-center justify-center rounded-xl border border-line bg-bg-soft"
-            style={{ boxShadow: `0 0 24px -10px rgba(${glow},0.6)` }}
-          >
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-bg-soft transition-colors group-hover:bg-brand/10">
             <Icon name={icon} className={`h-5 w-5 ${accent}`} />
           </div>
           <StatusPill status={status} />
@@ -57,12 +51,12 @@ export default function Hub() {
           <span className="h-1.5 w-1.5 rounded-full bg-brand animate-pulse-dot" />
           ES World · AI-native · hub-and-spoke · human-in-the-loop
         </div>
-        <h1 className="mt-4 text-4xl font-semibold tracking-tight text-ink">
-          ES World Product OS
+        <h1 className="mt-5 text-5xl font-bold leading-[1.04] tracking-tight text-ink">
+          ES World <span className="text-gradient">Product OS</span>
         </h1>
-        <p className="mt-2 max-w-2xl text-ink-soft">
-          Seven modules, one source of truth — seeded with your real Dubai &amp; London catalogue.
-          Trained agents do the heavy lifting; you stay in the loop on every decision.
+        <p className="mt-3 max-w-2xl text-lg text-ink-soft">
+          One source of truth, agents that do the heavy lifting, and a full launch flow —
+          seeded with your real Dubai &amp; London catalogue.
         </p>
       </div>
 
