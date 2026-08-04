@@ -28,6 +28,22 @@ export type Product = {
   assets: number; // marketing/knowledge assets on file
   internal?: boolean;
   updated: string;
+
+  // ---- Rich PM detail (all optional) ----
+  overview?: string;
+  prerequisites?: string;
+  outcomes?: string[];
+  outline?: string[]; // modules / topics
+  schedule?: string; // timetables
+  materials?: string;
+  assessment?: string; // assessment & certification
+  accreditation?: string;
+  intakes?: string; // start dates
+  enrolment?: string[]; // enrolment steps
+  whyChoose?: string[];
+  capacity?: string;
+  owner?: string;
+  documents?: { name: string; type: string; url?: string }[];
 };
 
 export const BRAND = {
@@ -63,6 +79,35 @@ export const PRODUCTS: Product[] = [
     health: 86,
     assets: 6,
     updated: "Apr 2026",
+    overview:
+      "A one-year, UK-accredited business qualification in Dubai. Combines the ATHE Level 4 & 5 Extended Diploma with a structured Career Accelerator internship and an AI Module, on a UAE study visa — with a guaranteed progression route to a UK university (De Montfort).",
+    prerequisites: "17+; secondary school completion; English at IELTS 5.5+ or internal assessment.",
+    outcomes: [
+      "A UK-recognised Level 4 & 5 business qualification",
+      "Direct progression to a UK bachelor's (top-up year)",
+      "Real UAE work experience via the Career Accelerator",
+      "Practical AI-for-business skills",
+    ],
+    outline: [
+      "Level 4 — business environment, people & communication, finance, marketing",
+      "Level 5 — strategy, management, research project",
+      "Career Accelerator — internship placement (LOI, host match, offer)",
+      "AI Module",
+    ],
+    accreditation: "ATHE (UK, Ofqual-regulated). University progression: De Montfort University (letters of recognition & progression on file).",
+    intakes: "September 2026 (main intake).",
+    enrolment: ["Enquiry & eligibility check", "Application + documents", "Offer + visa processing", "Enrolment & induction"],
+    whyChoose: ["UK qualification without leaving Dubai", "Internship + AI module bundled", "Guaranteed university progression", "Up to $3,000 scholarships"],
+    owner: "Ryan (Academic) · Ivana/Josef (Admissions)",
+    documents: [
+      { name: "ATHE Level 4 & 5 Extended Diploma Brochure", type: "Brochure" },
+      { name: "ATHE Diploma Presentation", type: "Deck" },
+      { name: "ATHE Price List (Apr 2026)", type: "Price list" },
+      { name: "ATHE Level 5 Combined Specification v2.0", type: "Spec" },
+      { name: "DMU Letter of Recognition", type: "Letter" },
+      { name: "DMU Progression Letter", type: "Letter" },
+      { name: "Sample Certificate — ATHE Level 5", type: "Sample" },
+    ],
   },
   {
     id: "uae-pathways",
@@ -82,6 +127,27 @@ export const PRODUCTS: Product[] = [
     health: 80,
     assets: 3,
     updated: "2026",
+    overview:
+      "Free placement service into top international universities in the UAE, with guaranteed scholarships and full application support. Study in Dubai for an internationally recognised degree, with the option to transfer abroad.",
+    outline: [
+      "University of Wollongong Dubai",
+      "Heriot-Watt University Dubai",
+      "Middlesex University Dubai",
+      "Rochester Institute of Technology (RIT) Dubai",
+      "Murdoch University Dubai",
+      "SAE Institute Dubai",
+      "Canadian University Dubai",
+      "Emirates Academy of Hospitality",
+    ],
+    intakes: "January & September.",
+    enrolment: ["Free consultation & shortlist", "Application to partner university", "Scholarship & offer", "Visa & enrolment"],
+    whyChoose: ["Guaranteed scholarships (10–40%)", "100% free application support", "Stay in Dubai, degree recognised globally", "Transfer-abroad option"],
+    owner: "Admissions (Ivana/Josef)",
+    documents: [
+      { name: "ES Pathway Guaranteed Scholarships (Students)", type: "Flyer" },
+      { name: "ES Pathway Guaranteed Scholarships (Agents)", type: "Flyer" },
+      { name: "University Applications Process", type: "Guide" },
+    ],
   },
   {
     id: "dxb-tailored",
@@ -100,6 +166,16 @@ export const PRODUCTS: Product[] = [
     health: 82,
     assets: 3,
     updated: "2026",
+    overview:
+      "Fully personalised one-to-one English, built entirely around the learner's goals — IELTS, interview prep, business communication, academic writing or fluency. 45-minute lessons with a dedicated teacher and flexible scheduling.",
+    prerequisites: "Any level (A1–C2); an initial evaluation sets the starting point.",
+    outcomes: ["Faster progress on a specific goal (exam, work, fluency)", "A tailored syllabus and a dedicated teacher"],
+    schedule: "45-minute lessons scheduled around the learner (daytime or evening).",
+    materials: "Bespoke materials selected to the goal; course book optional (extra).",
+    whyChoose: ["100% tailored to your goal", "Dedicated teacher", "Flexible timing", "Fast results"],
+    enrolment: ["Initial evaluation", "Agree goals & schedule", "Book lessons (AED 250 first 9 · AED 200 from the 10th)", "Start"],
+    owner: "Nicky/Majid (Academic, Dubai)",
+    documents: [{ name: "Dubai Tailor-Made General English Course 2026", type: "Course PDF" }],
   },
   {
     id: "dxb-speaking",
@@ -118,6 +194,12 @@ export const PRODUCTS: Product[] = [
     health: 78,
     assets: 2,
     updated: "Jul 2026",
+    overview: "A small-group daytime speaking course focused purely on conversational confidence — three days a week, real-world topics, structured by level.",
+    schedule: "3 days/week, daytime · 9 lessons · minimum 4 weeks.",
+    outcomes: ["Speak with more confidence", "Better fluency and pronunciation"],
+    enrolment: ["Level check", "Choose weeks (promo pricing)", "Enrol (UAE residents, Emirates ID)", "Start"],
+    owner: "Nicky/Majid (Academic, Dubai)",
+    documents: [{ name: "Dubai Speaking Class Promotion 2026", type: "Flyer" }],
   },
   {
     id: "dxb-general",
@@ -225,6 +307,18 @@ export const PRODUCTS: Product[] = [
     health: 67,
     assets: 6,
     updated: "2026",
+    overview:
+      "A globally recognised Digital Marketing certification, accredited by the Digital Marketing Institute (DMI). Blended delivery on the MyDMI platform plus taught sessions, including the official DMI exam voucher.",
+    outline: ["SEO & SEM", "Social media marketing", "Content & email", "Analytics", "Digital strategy", "DMI exam preparation"],
+    assessment: "Official DMI certification exam (voucher included).",
+    intakes: "Rolling · 6-week semi-intensive.",
+    documents: [
+      { name: "ES Digital Marketing Course PPT", type: "Deck" },
+      { name: "New Flyer — Digital Marketing 2026", type: "Flyer" },
+      { name: "Detailed Course Outline (on request)", type: "Outline" },
+      { name: "DMI Registration + Exam Voucher", type: "Guide" },
+      { name: "Sample Certificate — DMI", type: "Sample" },
+    ],
   },
   {
     id: "dxb-celta",
@@ -243,6 +337,18 @@ export const PRODUCTS: Product[] = [
     health: 80,
     assets: 4,
     updated: "2026",
+    overview:
+      "The Cambridge CELTA — the world's most recognised initial qualification for teaching English. A 4-week full-time face-to-face course or a 10-week part-time online course, with assessed teaching practice throughout.",
+    prerequisites: "18+; English at C1 (≈ IELTS 7); no prior teaching experience needed.",
+    outline: ["Foundations of ELT", "Core teaching skills", "Advanced methods", "Assessed teaching practice & written assignments"],
+    assessment: "Continuous assessment — assessed teaching practice plus written assignments, Cambridge-moderated.",
+    intakes: "9 course runs across 2026.",
+    owner: "Ryan (Academic Director)",
+    documents: [
+      { name: "ES CELTA Course Flyer 2026", type: "Flyer" },
+      { name: "CELTA Institutional Presentation", type: "Deck (internal)" },
+      { name: "New CELTA Course Flyer + Offer", type: "Flyer" },
+    ],
   },
   {
     id: "dxb-careers",

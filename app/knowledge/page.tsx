@@ -154,21 +154,54 @@ export default function KnowledgePage() {
               <div className="text-xs text-ink-faint">{viewing.campus} · {viewing.category} · updated {viewing.updated}</div>
             </div>
           </div>
-          <p className="mt-4 text-sm text-ink-soft">{viewing.oneLiner}</p>
+          <p className="mt-4 text-sm leading-relaxed text-ink-soft">{viewing.overview || viewing.oneLiner}</p>
+
           <div className="mt-5 space-y-3">
-            {viewing.audience && <KV label="Audience">{viewing.audience}</KV>}
-            {viewing.levels && <KV label="Levels">{viewing.levels}</KV>}
-            <KV label="Format">{viewing.format}</KV>
             <div className="rounded-2xl border border-brand/25 bg-brand/10 p-3">
               <SectionLabel>Price</SectionLabel>
               <p className="text-lg font-semibold text-brand-soft">{viewing.price}</p>
               {viewing.priceNote && <p className="mt-1 text-xs text-ink-soft">{viewing.priceNote}</p>}
             </div>
+
+            {viewing.audience && <KV label="Who it's for">{viewing.audience}</KV>}
+            <div className="grid grid-cols-2 gap-3">
+              {viewing.levels && <KV label="Levels">{viewing.levels}</KV>}
+              {viewing.schedule && <KV label="Schedule">{viewing.schedule}</KV>}
+              <KV label="Format">{viewing.format}</KV>
+              {viewing.intakes && <KV label="Intakes">{viewing.intakes}</KV>}
+              {viewing.prerequisites && <KV label="Prerequisites">{viewing.prerequisites}</KV>}
+              {viewing.capacity && <KV label="Capacity">{viewing.capacity}</KV>}
+            </div>
+
+            {viewing.outcomes?.length ? <Bul label="Learning outcomes" items={viewing.outcomes} /> : null}
+            {viewing.outline?.length ? <Bul label="Course outline" items={viewing.outline} /> : null}
+            {viewing.whyChoose?.length ? <Bul label="Why choose it" items={viewing.whyChoose} /> : null}
+            {viewing.enrolment?.length ? <Bul label="Enrolment process" items={viewing.enrolment} numbered /> : null}
+            {viewing.materials && <KV label="Study materials">{viewing.materials}</KV>}
+            {viewing.assessment && <KV label="Assessment & certification">{viewing.assessment}</KV>}
+            {viewing.accreditation && <KV label="Accreditation">{viewing.accreditation}</KV>}
+            {viewing.owner && <KV label="Owner">{viewing.owner}</KV>}
+
             {viewing.focus && (
               <div className="flex flex-wrap gap-1.5">
                 {viewing.focus.map((f) => <span key={f} className="rounded-full border border-line bg-bg-card px-2.5 py-1 text-xs text-ink-soft">{f}</span>)}
               </div>
             )}
+
+            {viewing.documents?.length ? (
+              <div>
+                <SectionLabel>Documents ({viewing.documents.length})</SectionLabel>
+                <div className="space-y-1.5">
+                  {viewing.documents.map((d, i) => (
+                    <div key={i} className="flex items-center gap-2 rounded-xl border border-line bg-bg-soft/60 px-3 py-2">
+                      <Icon name="FileText" className="h-4 w-4 shrink-0 text-brand-soft" />
+                      <span className="flex-1 truncate text-sm text-ink-soft">{d.name}</span>
+                      <span className="rounded-full bg-bg-hover px-2 py-0.5 text-[10px] uppercase tracking-wide text-ink-faint">{d.type}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
           <div className="mt-6 flex gap-2">
             <Button variant="subtle" onClick={() => openEdit(viewing)}><Icon name="FileText" className="h-4 w-4" /> Edit</Button>
@@ -199,6 +232,23 @@ export default function KnowledgePage() {
             </div>
             <Fld label="Format"><input value={draft.format} onChange={(e) => setDraft({ ...draft, format: e.target.value })} className={inp} /></Fld>
             <Fld label="Tags (comma separated)"><input value={draft.tags.join(", ")} onChange={(e) => setDraft({ ...draft, tags: e.target.value.split(",").map((t) => t.trim()).filter(Boolean) })} className={inp} /></Fld>
+
+            <div className="pt-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-soft">Detail</div>
+            <Fld label="Overview"><textarea value={draft.overview || ""} onChange={(e) => setDraft({ ...draft, overview: e.target.value })} className={`${inp} h-20 resize-none`} /></Fld>
+            <Fld label="Price note"><input value={draft.priceNote || ""} onChange={(e) => setDraft({ ...draft, priceNote: e.target.value })} className={inp} /></Fld>
+            <div className="grid grid-cols-2 gap-3">
+              <Fld label="Schedule"><input value={draft.schedule || ""} onChange={(e) => setDraft({ ...draft, schedule: e.target.value })} className={inp} /></Fld>
+              <Fld label="Intakes"><input value={draft.intakes || ""} onChange={(e) => setDraft({ ...draft, intakes: e.target.value })} className={inp} /></Fld>
+              <Fld label="Prerequisites"><input value={draft.prerequisites || ""} onChange={(e) => setDraft({ ...draft, prerequisites: e.target.value })} className={inp} /></Fld>
+              <Fld label="Owner"><input value={draft.owner || ""} onChange={(e) => setDraft({ ...draft, owner: e.target.value })} className={inp} /></Fld>
+            </div>
+            <Fld label="Learning outcomes (one per line)"><textarea value={(draft.outcomes || []).join("\n")} onChange={(e) => setDraft({ ...draft, outcomes: lines(e.target.value) })} className={`${inp} h-16 resize-none`} /></Fld>
+            <Fld label="Course outline (one per line)"><textarea value={(draft.outline || []).join("\n")} onChange={(e) => setDraft({ ...draft, outline: lines(e.target.value) })} className={`${inp} h-20 resize-none`} /></Fld>
+            <Fld label="Why choose (one per line)"><textarea value={(draft.whyChoose || []).join("\n")} onChange={(e) => setDraft({ ...draft, whyChoose: lines(e.target.value) })} className={`${inp} h-16 resize-none`} /></Fld>
+            <Fld label="Enrolment steps (one per line)"><textarea value={(draft.enrolment || []).join("\n")} onChange={(e) => setDraft({ ...draft, enrolment: lines(e.target.value) })} className={`${inp} h-16 resize-none`} /></Fld>
+            <Fld label="Study materials"><input value={draft.materials || ""} onChange={(e) => setDraft({ ...draft, materials: e.target.value })} className={inp} /></Fld>
+            <Fld label="Assessment & certification"><input value={draft.assessment || ""} onChange={(e) => setDraft({ ...draft, assessment: e.target.value })} className={inp} /></Fld>
+            <Fld label="Accreditation"><input value={draft.accreditation || ""} onChange={(e) => setDraft({ ...draft, accreditation: e.target.value })} className={inp} /></Fld>
           </div>
           <div className="mt-6 flex gap-2">
             <Button onClick={save}><Icon name="Check" className="h-4 w-4" /> Save</Button>
@@ -211,6 +261,27 @@ export default function KnowledgePage() {
 }
 
 const inp = "w-full rounded-xl border border-line bg-bg-soft px-3 py-2 text-sm text-ink placeholder:text-ink-faint focus:border-brand/40 focus:outline-none";
+const lines = (s: string) => s.split("\n").map((t) => t.trim()).filter(Boolean);
+
+function Bul({ label, items, numbered }: { label: string; items: string[]; numbered?: boolean }) {
+  return (
+    <div>
+      <SectionLabel>{label}</SectionLabel>
+      <ul className="space-y-1">
+        {items.map((it, i) => (
+          <li key={i} className="flex gap-2 text-sm text-ink-soft">
+            {numbered ? (
+              <span className="shrink-0 font-semibold text-brand-soft">{i + 1}.</span>
+            ) : (
+              <Icon name="Circle" className="mt-1.5 h-1 w-1 shrink-0 fill-current text-brand-soft" />
+            )}
+            <span>{it}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 function Fld({ label, children }: { label: string; children: React.ReactNode }) {
   return (
