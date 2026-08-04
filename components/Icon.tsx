@@ -1,0 +1,65 @@
+import {
+  FileText,
+  Library,
+  Megaphone,
+  LineChart,
+  Tags,
+  MessagesSquare,
+  FlaskConical,
+  LayoutGrid,
+  Map,
+  ListChecks,
+  Target,
+  Sparkles,
+  ArrowRight,
+  ArrowUpRight,
+  Circle,
+  Check,
+  ShieldCheck,
+  Quote,
+  Activity,
+  Zap,
+  Search,
+  Command,
+  ChevronRight,
+  Loader2,
+  AlertTriangle,
+  TrendingUp,
+  type LucideProps,
+} from "lucide-react";
+
+const MAP = {
+  FileText,
+  Library,
+  Megaphone,
+  LineChart,
+  Tags,
+  MessagesSquare,
+  FlaskConical,
+  LayoutGrid,
+  Map,
+  ListChecks,
+  Target,
+  Sparkles,
+  ArrowRight,
+  ArrowUpRight,
+  Circle,
+  Check,
+  ShieldCheck,
+  Quote,
+  Activity,
+  Zap,
+  Search,
+  Command,
+  ChevronRight,
+  Loader2,
+  AlertTriangle,
+  TrendingUp,
+} as const;
+
+export type IconName = keyof typeof MAP;
+
+export function Icon({ name, ...props }: { name: string } & LucideProps) {
+  const Cmp = MAP[name as IconName] ?? Circle;
+  return <Cmp {...props} />;
+}

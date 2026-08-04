@@ -1,0 +1,50 @@
+import { ReactNode } from "react";
+import { Icon } from "./Icon";
+import { StatusPill } from "./ui";
+
+export function PageHeader({
+  icon,
+  accent,
+  glow,
+  title,
+  tagline,
+  status,
+  agent,
+  right,
+}: {
+  icon: string;
+  accent: string;
+  glow: string;
+  title: string;
+  tagline: string;
+  status?: "live" | "beta" | "next";
+  agent?: string;
+  right?: ReactNode;
+}) {
+  return (
+    <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
+      <div className="flex items-start gap-4">
+        <div
+          className="flex h-12 w-12 items-center justify-center rounded-2xl border border-line bg-bg-card"
+          style={{ boxShadow: `0 0 30px -8px rgba(${glow},0.5)` }}
+        >
+          <Icon name={icon} className={`h-6 w-6 ${accent}`} />
+        </div>
+        <div>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-semibold tracking-tight text-ink">{title}</h1>
+            {status && <StatusPill status={status} />}
+          </div>
+          <p className="mt-1 max-w-2xl text-sm text-ink-soft">{tagline}</p>
+          {agent && (
+            <div className="mt-2 inline-flex items-center gap-1.5 text-xs text-brand-soft">
+              <Icon name="Sparkles" className="h-3.5 w-3.5" />
+              Powered by the <span className="font-medium">{agent}</span> agent
+            </div>
+          )}
+        </div>
+      </div>
+      {right}
+    </div>
+  );
+}

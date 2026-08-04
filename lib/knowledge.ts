@@ -1,0 +1,287 @@
+// Single source of truth — seeded from ES World's real course catalogue.
+// (Dubai + London campuses. Extracted from uploaded course materials.)
+
+export type Campus = "Dubai" | "London" | "Online";
+export type Category =
+  | "English"
+  | "Spanish"
+  | "Teacher Training"
+  | "Higher Education"
+  | "Professional"
+  | "Careers";
+
+export type Product = {
+  id: string;
+  name: string;
+  campus: Campus;
+  category: Category;
+  stage: "Flagship" | "Growth" | "Established" | "New" | "Promo";
+  oneLiner: string;
+  audience: string;
+  levels?: string;
+  format: string;
+  price: string;
+  priceNote?: string;
+  focus?: string[];
+  tags: string[];
+  health: number; // programme health 0-100
+  assets: number; // marketing/knowledge assets on file
+  internal?: boolean;
+  updated: string;
+};
+
+export const BRAND = {
+  name: "ES World",
+  motif: "Experience · Grow · Enjoy",
+  site: "esworld.com",
+  proof: [
+    "106+ nationalities",
+    "Student support in 20+ languages",
+    "Dedicated careers office",
+    "Cambridge CELTA centre",
+  ],
+};
+
+export const PRODUCTS: Product[] = [
+  {
+    id: "athe-diploma",
+    name: "Business & Management Diploma",
+    campus: "Dubai",
+    category: "Higher Education",
+    stage: "Flagship",
+    oneLiner:
+      "ATHE Level 4 & 5 Extended Diploma with a university progression pathway (De Montfort).",
+    audience: "International students (17+) seeking a UK-accredited business qualification + UAE study visa.",
+    levels: "ATHE Level 4 & 5",
+    format: "1-year programme · September 2026 intake",
+    price: "$17,000",
+    priceNote: "Bundles tuition + Career Accelerator + AI Module + ATHE registration. Up to $3,000 discounts.",
+    focus: ["Business & Management", "University progression", "Study visa", "Career Accelerator", "AI Module"],
+    tags: ["diploma", "study-abroad", "visa", "flagship", "DMU pathway"],
+    health: 86,
+    assets: 6,
+    updated: "Apr 2026",
+  },
+  {
+    id: "dxb-tailored",
+    name: "Tailor-Made General English (1-1)",
+    campus: "Dubai",
+    category: "English",
+    stage: "Growth",
+    oneLiner: "Fully personalised one-to-one English, built around each learner's goals.",
+    audience: "Professionals & residents needing flexible, goal-specific English.",
+    levels: "A1–C2",
+    format: "45-min private lessons · flexible scheduling",
+    price: "AED 200–250 / lesson",
+    priceNote: "AED 250 (1–9 lessons) · AED 200 (10+ lessons).",
+    focus: ["IELTS", "Academic Writing", "Business English", "Public Speaking", "Interview Skills", "Fluency"],
+    tags: ["1-1", "general-english", "flexible"],
+    health: 82,
+    assets: 3,
+    updated: "2026",
+  },
+  {
+    id: "dxb-speaking",
+    name: "Speaking Class (English for All)",
+    campus: "Dubai",
+    category: "English",
+    stage: "Promo",
+    oneLiner: "Small-group daytime speaking course for real conversational confidence.",
+    audience: "A2–C1 learners wanting to speak, not just study.",
+    levels: "Lower A2/B1 · Mid B1–B1+ · Higher B2–C1",
+    format: "3 days/week daytime · 9 lessons · min 4 weeks",
+    price: "AED 320–430 / week",
+    priceNote: "430 (4–8w) · 350 (9–16w) · 320 (17w+). Promo to 31 Jul 2026, UAE residents.",
+    focus: ["Speaking", "Fluency", "Confidence"],
+    tags: ["group", "speaking", "promo", "daytime"],
+    health: 78,
+    assets: 2,
+    updated: "Jul 2026",
+  },
+  {
+    id: "dxb-ielts",
+    name: "IELTS Preparation",
+    campus: "Dubai",
+    category: "English",
+    stage: "New",
+    oneLiner: "Focused IELTS preparation to reach your target band — Pre-Intermediate & Intermediate entry.",
+    audience: "Students & professionals needing IELTS for university, migration, or work.",
+    levels: "Pre-Intermediate (B1) · Intermediate (B1+–B2)",
+    format: "Group preparation course · Dubai campus",
+    price: "On request",
+    focus: ["Listening", "Reading", "Writing", "Speaking", "Exam strategy", "Band targeting"],
+    tags: ["ielts", "exam-prep", "group", "new-launch"],
+    health: 66,
+    assets: 4,
+    updated: "2026",
+  },
+  {
+    id: "dxb-flex",
+    name: "Flex Evening Lessons",
+    campus: "Dubai",
+    category: "English",
+    stage: "New",
+    oneLiner: "Membership-based, standalone evening speaking sessions — attend at your own pace.",
+    audience: "Working professionals who want real-world English around a busy schedule.",
+    levels: "A2/B1 (guided) · B2/C1 (discussion-led)",
+    format: "Weekday evenings 6:30–8pm · JLT campus · 15–20 per session",
+    price: "Membership",
+    priceNote: "First session free. Not eligible for credit/weeks transfer or visa sponsorship.",
+    focus: ["Presentations", "Debate", "Negotiation", "Storytelling", "Workplace communication"],
+    tags: ["membership", "evening", "flexible", "jlt"],
+    health: 64,
+    assets: 4,
+    updated: "2026",
+  },
+  {
+    id: "dxb-spanish",
+    name: "Private Spanish Lessons",
+    campus: "Dubai",
+    category: "Spanish",
+    stage: "Growth",
+    oneLiner: "One-to-one Spanish with native-level tutors, tailored to your pace.",
+    audience: "Residents & travellers learning Spanish.",
+    levels: "A1–C1",
+    format: "Private lessons · flexible scheduling",
+    price: "On request",
+    focus: ["Conversation", "Travel Spanish", "Grammar"],
+    tags: ["spanish", "1-1", "languages"],
+    health: 70,
+    assets: 2,
+    updated: "2026",
+  },
+  {
+    id: "dxb-dmi",
+    name: "Digital Marketing Course (DMI)",
+    campus: "Dubai",
+    category: "Professional",
+    stage: "New",
+    oneLiner: "Globally recognised Digital Marketing certification, accredited by the Digital Marketing Institute.",
+    audience: "Professionals & career-changers wanting an industry-recognised digital marketing credential.",
+    levels: "Professional certification",
+    format: "Blended · MyDMI platform + taught sessions · includes DMI exam voucher",
+    price: "On request",
+    focus: ["SEO & SEM", "Social media", "Content & email", "Analytics", "Strategy", "DMI exam prep"],
+    tags: ["dmi", "digital-marketing", "certification", "professional"],
+    health: 67,
+    assets: 6,
+    updated: "2026",
+  },
+  {
+    id: "dxb-celta",
+    name: "CELTA Teacher Training",
+    campus: "Dubai",
+    category: "Teacher Training",
+    stage: "Established",
+    oneLiner: "Cambridge CELTA — the world-recognised English teaching qualification.",
+    audience: "Aspiring & current English teachers (C1+, 18+). No prior experience needed.",
+    levels: "Requires English C1 (≈IELTS 7)",
+    format: "Face-to-face full-time 4wk OR online part-time 10wk · 9 runs in 2026",
+    price: "On request",
+    focus: ["Teaching methodology", "Assessed teaching practice", "Cambridge certification"],
+    tags: ["celta", "cambridge", "teacher-training", "certification"],
+    health: 80,
+    assets: 4,
+    updated: "2026",
+  },
+  {
+    id: "dxb-careers",
+    name: "Career Accelerator (Study & Work)",
+    campus: "Dubai",
+    category: "Careers",
+    stage: "Growth",
+    oneLiner: "English study paired with a structured internship placement in the UAE.",
+    audience: "International students seeking UAE work experience.",
+    format: "Study + guided internship (LOI, host match, offer)",
+    price: "Bundled / on request",
+    priceNote: "Included in the ATHE Diploma; also available standalone.",
+    focus: ["Internship placement", "Employability", "Work experience"],
+    tags: ["careers", "internship", "study-work"],
+    health: 68,
+    assets: 4,
+    internal: true,
+    updated: "2026",
+  },
+  {
+    id: "ldn-tailored",
+    name: "Tailor-Made General English (1-1)",
+    campus: "London",
+    category: "English",
+    stage: "Growth",
+    oneLiner: "London one-to-one English tailored to each learner's goals.",
+    audience: "Professionals & visitors studying English in London.",
+    levels: "A1–C2",
+    format: "Private lessons · flexible scheduling",
+    price: "On request",
+    focus: ["IELTS", "Business English", "Conversation"],
+    tags: ["1-1", "london", "general-english"],
+    health: 75,
+    assets: 2,
+    updated: "2026",
+  },
+  {
+    id: "ldn-business",
+    name: "Business English Course",
+    campus: "London",
+    category: "English",
+    stage: "Growth",
+    oneLiner: "Executive Business English for professionals working in English.",
+    audience: "Working professionals & teams needing sharper business communication.",
+    levels: "B1–C1",
+    format: "Structured course · London campus",
+    price: "On request",
+    focus: ["Meetings", "Presentations", "Negotiation", "Email & reports"],
+    tags: ["business-english", "london", "professional"],
+    health: 74,
+    assets: 3,
+    updated: "2026",
+  },
+  {
+    id: "ldn-flex",
+    name: "Flex Evening Lessons",
+    campus: "London",
+    category: "English",
+    stage: "New",
+    oneLiner: "Flexible evening group English around a working schedule.",
+    audience: "London-based working professionals.",
+    levels: "A2–C1",
+    format: "Weekday evenings · flexible attendance",
+    price: "Membership",
+    tags: ["membership", "evening", "london"],
+    health: 61,
+    assets: 2,
+    updated: "2026",
+  },
+  {
+    id: "ldn-celta",
+    name: "Teacher Training (CELTA)",
+    campus: "London",
+    category: "Teacher Training",
+    stage: "Established",
+    oneLiner: "London-based Cambridge CELTA teacher training.",
+    audience: "Aspiring & current English teachers (C1+).",
+    format: "Full-time / part-time options",
+    price: "On request",
+    focus: ["Teaching methodology", "Assessed practice", "Cambridge certification"],
+    tags: ["celta", "london", "teacher-training"],
+    health: 77,
+    assets: 3,
+    updated: "2026",
+  },
+];
+
+export const CATEGORIES: Category[] = [
+  "Higher Education",
+  "English",
+  "Professional",
+  "Spanish",
+  "Teacher Training",
+  "Careers",
+];
+
+export const PORTFOLIO_STATS = {
+  programmes: PRODUCTS.length,
+  campuses: 2,
+  flagship: "$17K",
+  atRisk: PRODUCTS.filter((p) => p.health < 65).length,
+};
