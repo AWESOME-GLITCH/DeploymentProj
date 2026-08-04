@@ -37,19 +37,28 @@ export async function runJsonAgent<T>({
   maxSearches?: number;
 }): Promise<T> {
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  const fullSystem =
+    system +
+    "\n\nWhen research would improve accuracy (competitors, current prices, market facts), use web search first, then respond with ONLY a single valid JSON object — no prose, no markdown fences.";
 
-  const msg = await client.messages.create({
-    model: AGENT_MODEL,
-    max_tokens: maxTokens,
-    system:
-      system +
-      "\n\nWhen research would improve accuracy (competitors, current prices, market facts), use web search first, then respond with ONLY a single valid JSON object — no prose, no markdown fences.",
-    tools: webSearch
-      ? ([{ type: "web_search_20250305", name: "web_search", max_uses: maxSearches }] as any)
-      : undefined,
-    messages: [{ role: "user", content: user }],
-  });
+  async function once(useTools: boolean): Promise<T> {
+    const msg = await client.messages.create({
+      model: AGENT_MODEL,
+      max_tokens: maxTokens,
+      system: fullSystem,
+      tools: useTools ? ([{ type: "web_search_20250305", name: "web_search", max_uses: maxSearches }] as any) : undefined,
+      messages: [{ role: "user", content: user }],
+    });
+    const text = msg.content.map((b) => (b.type === "text" ? b.text : "")).join("");
+    return JSON.parse(extractJson(text)) as T;
+  }
 
-  const text = msg.content.map((b) => (b.type === "text" ? b.text : "")).join("");
-  return JSON.parse(extractJson(text)) as T;
+  try {
+    return await once(webSearch);
+  } catch (e) {
+    // If web search isn't enabled on the account (or errored), retry without it
+    // so a valid key still produces live output instead of falling back to demo.
+    if (webSearch) return await once(false);
+    throw e;
+  }
 }
