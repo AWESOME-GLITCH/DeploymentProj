@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { getModule } from "@/lib/modules";
 import { PRODUCTS } from "@/lib/knowledge";
+import { ADDONS } from "@/lib/addons";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, Button, SectionLabel } from "@/components/ui";
 import { Icon } from "@/components/Icon";
@@ -58,6 +59,14 @@ export default function QuotationPage() {
     if (!p) return;
     setLines((ls) => [...ls, { id: nextId++, desc: `${p.name} (${p.campus})`, qty: 1, price: 0 }]);
   }
+  function addAddon(id: string) {
+    const a = ADDONS.find((x) => x.id === id);
+    if (!a) return;
+    const suffix = a.unit === "one-off" ? "" : ` (${a.unit})`;
+    setLines((ls) => [...ls, { id: nextId++, desc: `${a.label}${suffix}`, qty: 1, price: a.price }]);
+  }
+
+  const addonGroups = Array.from(new Set(ADDONS.filter((a) => a.currency === currency).map((a) => a.group)));
 
   return (
     <div className="mx-auto max-w-6xl px-8 py-10">
@@ -101,23 +110,48 @@ export default function QuotationPage() {
           </Card>
 
           <Card className="p-4">
-            <div className="mb-2 flex items-center justify-between">
+            <div className="mb-2">
               <SectionLabel>Line items</SectionLabel>
-              <select
-                onChange={(e) => {
-                  if (e.target.value) addProduct(e.target.value);
-                  e.target.value = "";
-                }}
-                className="rounded-lg border border-line bg-bg-soft px-2 py-1 text-xs text-ink-soft focus:outline-none"
-                defaultValue=""
-              >
-                <option value="" className="bg-bg-soft">+ Add from catalogue</option>
-                {PRODUCTS.map((p) => (
-                  <option key={p.id} value={p.id} className="bg-bg-soft">
-                    {p.name} · {p.campus}
-                  </option>
-                ))}
-              </select>
+              <div className="mt-1 flex flex-wrap gap-2">
+                <select
+                  onChange={(e) => {
+                    if (e.target.value) addProduct(e.target.value);
+                    e.target.value = "";
+                  }}
+                  className="rounded-lg border border-line bg-bg-soft px-2 py-1 text-xs text-ink-soft focus:outline-none"
+                  defaultValue=""
+                >
+                  <option value="" className="bg-bg-soft">＋ Course from catalogue</option>
+                  {PRODUCTS.map((p) => (
+                    <option key={p.id} value={p.id} className="bg-bg-soft">
+                      {p.name} · {p.campus}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  onChange={(e) => {
+                    if (e.target.value) addAddon(e.target.value);
+                    e.target.value = "";
+                  }}
+                  className="rounded-lg border border-line bg-bg-soft px-2 py-1 text-xs text-ink-soft focus:outline-none"
+                  defaultValue=""
+                >
+                  <option value="" className="bg-bg-soft">＋ Add-on / fee ({currency})</option>
+                  {addonGroups.map((g) => (
+                    <optgroup key={g} label={g}>
+                      {ADDONS.filter((a) => a.currency === currency && a.group === g).map((a) => (
+                        <option key={a.id} value={a.id} className="bg-bg-soft">
+                          {a.label} — {a.price}
+                          {a.unit === "per week" ? "/wk" : a.unit === "per level" ? "/lvl" : ""}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
+              </div>
+              {addonGroups.length === 0 && (
+                <div className="mt-1 text-[11px] text-ink-faint">Add-ons are priced in USD (Dubai) & GBP (London) — switch currency to load them.</div>
+              )}
             </div>
 
             <div className="space-y-2">
