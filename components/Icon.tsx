@@ -31,6 +31,10 @@ import {
   Trash2,
   Building2,
   Download,
+  Workflow,
+  Users,
+  ClipboardList,
+  ChevronDown,
   type LucideProps,
 } from "lucide-react";
 
@@ -67,6 +71,10 @@ const MAP = {
   Trash2,
   Building2,
   Download,
+  Workflow,
+  Users,
+  ClipboardList,
+  ChevronDown,
 } as const;
 
 export type IconName = keyof typeof MAP;

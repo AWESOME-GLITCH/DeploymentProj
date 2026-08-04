@@ -19,6 +19,20 @@ export type ModuleDef = {
 
 export const MODULES: ModuleDef[] = [
   {
+    slug: "flow",
+    name: "Launch Flow",
+    short: "Flow",
+    icon: "Workflow",
+    accent: "text-accent-teal",
+    glow: "51,214,192",
+    tagline: "One input → every asset + who does what",
+    description:
+      "Feed it once, then run any or all steps — brief, pricing, flyer, presentation, website, proposal — and get a per-person action board for your whole team.",
+    status: "live",
+    group: "core",
+    agent: "Flow Orchestrator",
+  },
+  {
     slug: "brief",
     name: "Product Brief",
     short: "Brief",

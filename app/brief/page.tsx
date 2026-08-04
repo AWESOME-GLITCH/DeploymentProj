@@ -140,6 +140,15 @@ export default function BriefPage() {
                 </>
               )}
             </Button>
+            <a
+              href="/flow"
+              onClick={() => {
+                if (typeof window !== "undefined" && input.trim()) window.localStorage.setItem("es-flow-input", input);
+              }}
+              className="inline-flex items-center gap-1 text-xs text-accent-teal hover:underline"
+            >
+              Run full flow <Icon name="ArrowRight" className="h-3 w-3" />
+            </a>
             {input && (
               <button onClick={() => setInput("")} className="text-xs text-ink-faint hover:text-ink-soft">
                 Clear
