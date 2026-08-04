@@ -64,6 +64,44 @@ export function useProducts() {
   return { products: merge(o), add, update, remove, reset, customIds: o.added.map((a) => a.id) };
 }
 
+// ---- Saved work items (per-programme dossier) ----
+export type SavedItem = { id: string; productId: string; kind: string; title: string; html?: string };
+const ITEMS_KEY = "es-items-v1";
+
+function readItems(): SavedItem[] {
+  if (typeof window === "undefined") return [];
+  try {
+    return JSON.parse(localStorage.getItem(ITEMS_KEY) || "[]") as SavedItem[];
+  } catch {
+    return [];
+  }
+}
+function writeItems(items: SavedItem[]) {
+  localStorage.setItem(ITEMS_KEY, JSON.stringify(items));
+  window.dispatchEvent(new Event("es-items-changed"));
+}
+
+export function useItems() {
+  const [items, setItems] = useState<SavedItem[]>([]);
+  useEffect(() => {
+    const sync = () => setItems(readItems());
+    sync();
+    window.addEventListener("es-items-changed", sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener("es-items-changed", sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
+  const add = useCallback((item: SavedItem) => {
+    const cur = readItems();
+    writeItems([item, ...cur]);
+  }, []);
+  const remove = useCallback((id: string) => writeItems(readItems().filter((i) => i.id !== id)), []);
+  const forProduct = useCallback((pid: string) => readItems().filter((i) => i.productId === pid), []);
+  return { items, add, remove, forProduct };
+}
+
 export function newId() {
   // deterministic-ish unique id without Date.now/Math.random (blocked in some envs → use perf/time-safe fallback)
   return "cus-" + Math.abs(Array.from(String(typeof performance !== "undefined" ? performance.now() : ""))

@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { Card, Button, SectionLabel } from "@/components/ui";
 import { Icon } from "@/components/Icon";
 import { ExportMenu } from "@/components/ExportMenu";
+import { SaveToProgramme } from "@/components/SaveToProgramme";
 import { H } from "@/lib/export";
 import type { MarketingDraft, CourseField } from "../api/marketing/route";
 
@@ -194,7 +195,10 @@ export default function MarketingPage() {
                   <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-soft">
                     Website Course Template · ES World
                   </div>
-                  <ExportMenu title="ES World Course Page" html={() => courseHtml(coursePage)} />
+                  <div className="flex gap-2">
+                    <SaveToProgramme kind="Course page" title={`Course page — ${PRODUCTS.find((p) => p.id === productId)?.name || ""}`} getHtml={() => courseHtml(coursePage)} />
+                    <ExportMenu title="ES World Course Page" html={() => courseHtml(coursePage)} />
+                  </div>
                 </div>
                 {coursePage.map((f, i) => (
                   <div key={i} className="rounded-xl border border-line bg-bg-soft/50 p-3">
@@ -215,7 +219,10 @@ export default function MarketingPage() {
                 )}
                 <div className="flex items-center justify-between">
                   <div className="text-[11px] font-mono text-ink-faint">{draft.docCode}</div>
-                  <ExportMenu title={`ES World ${type}`} html={() => draftHtml(draft)} />
+                  <div className="flex gap-2">
+                    <SaveToProgramme kind={type} title={`${type} — ${PRODUCTS.find((p) => p.id === productId)?.name || ""}`} getHtml={() => draftHtml(draft)} />
+                    <ExportMenu title={`ES World ${type}`} html={() => draftHtml(draft)} />
+                  </div>
                 </div>
                 <div>
                   <h2 className="text-xl font-semibold text-brand-soft">{draft.headline}</h2>

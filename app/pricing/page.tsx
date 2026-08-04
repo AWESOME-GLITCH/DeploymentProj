@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { Card, Button, SectionLabel, ConfidenceBadge } from "@/components/ui";
 import { Icon } from "@/components/Icon";
 import { ExportMenu } from "@/components/ExportMenu";
+import { SaveToProgramme } from "@/components/SaveToProgramme";
 import { H } from "@/lib/export";
 import type { PricingAnalysis } from "../api/pricing/route";
 
@@ -175,7 +176,8 @@ export default function PricingPage() {
                   <Icon name="AlertTriangle" className="mt-0.5 h-3.5 w-3.5 shrink-0" /> Demo mode — add an ANTHROPIC_API_KEY for live research.
                 </div>
               )}
-              <div className="flex justify-end">
+              <div className="flex justify-end gap-2">
+                <SaveToProgramme kind="Pricing" title={`Pricing — ${product.name}`} getHtml={() => pricingHtml(product.name, analysis)} />
                 <ExportMenu
                   title={`Pricing ${product.name}`}
                   html={() => pricingHtml(product.name, analysis)}

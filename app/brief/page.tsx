@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { Card, Button, SectionLabel } from "@/components/ui";
 import { Icon } from "@/components/Icon";
 import { ExportMenu } from "@/components/ExportMenu";
+import { SaveToProgramme } from "@/components/SaveToProgramme";
 import { H } from "@/lib/export";
 import type { Brief } from "../api/brief/route";
 import type { Proposal } from "../api/proposal/route";
@@ -221,7 +222,8 @@ export default function BriefPage() {
             {!loading && brief && (
               <div className="animate-rise space-y-5">
                 {demo && <DemoNote />}
-                <div className="flex justify-end">
+                <div className="flex justify-end gap-2">
+                  <SaveToProgramme kind="Brief" title={brief.title || "Brief"} getHtml={() => briefHtml(brief)} />
                   <ExportMenu title={brief.title || "Product Brief"} html={() => briefHtml(brief)} />
                 </div>
                 <div>
@@ -250,7 +252,8 @@ export default function BriefPage() {
             {!loading && proposal && (
               <div className="animate-rise space-y-4">
                 {demo && <DemoNote />}
-                <div className="flex justify-end">
+                <div className="flex justify-end gap-2">
+                  <SaveToProgramme kind="Proposal" title={proposal.title || "Proposal"} getHtml={() => proposalHtml(proposal)} />
                   <ExportMenu title={proposal.title || "Proposal"} html={() => proposalHtml(proposal)} />
                 </div>
                 <div className="border-b border-line pb-3">

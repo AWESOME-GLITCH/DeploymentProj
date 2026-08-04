@@ -3,12 +3,12 @@
 import { useMemo, useState } from "react";
 import { getModule } from "@/lib/modules";
 import { CATEGORIES, BRAND, type Product, type Campus, type Category } from "@/lib/knowledge";
-import { useProducts, newId } from "@/lib/store";
+import { useProducts, useItems, newId } from "@/lib/store";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, SectionLabel, Button } from "@/components/ui";
 import { Icon } from "@/components/Icon";
 import { ExportMenu } from "@/components/ExportMenu";
-import { H } from "@/lib/export";
+import { H, exportPDF } from "@/lib/export";
 
 const M = getModule("knowledge")!;
 const CAMPUSES = ["All", "Dubai", "London"] as const;
@@ -33,6 +33,7 @@ function blank(): Product {
 
 export default function KnowledgePage() {
   const { products, add, update, remove } = useProducts();
+  const { items: savedItems, remove: removeItem } = useItems();
   const [campus, setCampus] = useState<(typeof CAMPUSES)[number]>("All");
   const [cat, setCat] = useState<string>("All");
   const [q, setQ] = useState("");
@@ -209,6 +210,30 @@ export default function KnowledgePage() {
                 </div>
               </div>
             ) : null}
+
+            {savedItems.filter((i) => i.productId === viewing.id).length > 0 && (
+              <div className="sm:col-span-2">
+                <SectionLabel>Saved work ({savedItems.filter((i) => i.productId === viewing.id).length})</SectionLabel>
+                <div className="space-y-1.5">
+                  {savedItems
+                    .filter((i) => i.productId === viewing.id)
+                    .map((w) => (
+                      <div key={w.id} className="flex items-center gap-2 rounded-xl border border-line bg-bg-soft/60 px-3 py-2">
+                        <span className="rounded-full bg-brand/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-brand-soft">{w.kind}</span>
+                        <span className="flex-1 truncate text-sm text-ink-soft">{w.title}</span>
+                        {w.html && (
+                          <button onClick={() => exportPDF(w.title, w.html!)} className="text-xs text-brand-soft hover:underline">
+                            Open
+                          </button>
+                        )}
+                        <button onClick={() => removeItem(w.id)} className="text-ink-faint hover:text-accent-rose">
+                          <Icon name="Trash2" className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
           </div>
           <div className="mt-6 flex gap-2">
             <Button variant="subtle" onClick={() => openEdit(viewing)}><Icon name="FileText" className="h-4 w-4" /> Edit</Button>

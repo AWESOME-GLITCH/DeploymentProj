@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { Card, Button, SectionLabel, ConfidenceBadge } from "@/components/ui";
 import { Icon } from "@/components/Icon";
 import { ExportMenu } from "@/components/ExportMenu";
+import { SaveToProgramme } from "@/components/SaveToProgramme";
 import { H } from "@/lib/export";
 import type { Concept } from "../api/think-lab/route";
 
@@ -173,7 +174,8 @@ export default function ThinkLabPage() {
               Demo mode — add an ANTHROPIC_API_KEY to structure your real idea.
             </div>
           )}
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-2">
+            <SaveToProgramme kind="Concept" title={c.concept || "Concept"} getHtml={() => conceptHtml(c)} />
             <ExportMenu title={c.concept || "Think Lab concept"} html={() => conceptHtml(c)} />
           </div>
 

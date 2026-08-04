@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { Card, Button, SectionLabel } from "@/components/ui";
 import { Icon } from "@/components/Icon";
 import { ExportMenu } from "@/components/ExportMenu";
+import { SaveToProgramme } from "@/components/SaveToProgramme";
 import { H } from "@/lib/export";
 
 const M = getModule("quotation")!;
@@ -103,6 +104,7 @@ export default function QuotationPage() {
           agent={M.agent}
           right={
             <div className="flex items-center gap-2">
+              <SaveToProgramme kind="Quotation" title={`Quotation ${quoteNo}`} getHtml={quoteHtml} />
               <ExportMenu title={`Quotation ${quoteNo}`} html={quoteHtml} rows={quoteRows} />
               <Button onClick={() => window.print()}>
                 <Icon name="Printer" className="h-4 w-4" />
