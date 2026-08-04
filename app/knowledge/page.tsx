@@ -146,7 +146,7 @@ export default function KnowledgePage() {
 
       {/* View drawer */}
       {viewing && (
-        <Drawer onClose={() => setViewing(null)}>
+        <Drawer wide onClose={() => setViewing(null)}>
           <div className="flex items-start justify-between">
             <div>
               <span className={`rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${stageCls[viewing.stage]}`}>{viewing.stage}</span>
@@ -156,42 +156,40 @@ export default function KnowledgePage() {
           </div>
           <p className="mt-4 text-sm leading-relaxed text-ink-soft">{viewing.overview || viewing.oneLiner}</p>
 
-          <div className="mt-5 space-y-3">
-            <div className="rounded-2xl border border-brand/25 bg-brand/10 p-3">
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <div className="rounded-2xl border border-brand/25 bg-brand/10 p-3 sm:col-span-2">
               <SectionLabel>Price</SectionLabel>
               <p className="text-lg font-semibold text-brand-soft">{viewing.price}</p>
               {viewing.priceNote && <p className="mt-1 text-xs text-ink-soft">{viewing.priceNote}</p>}
             </div>
 
-            {viewing.audience && <KV label="Who it's for">{viewing.audience}</KV>}
-            <div className="grid grid-cols-2 gap-3">
-              {viewing.levels && <KV label="Levels">{viewing.levels}</KV>}
-              {viewing.schedule && <KV label="Schedule">{viewing.schedule}</KV>}
-              <KV label="Format">{viewing.format}</KV>
-              {viewing.intakes && <KV label="Intakes">{viewing.intakes}</KV>}
-              {viewing.prerequisites && <KV label="Prerequisites">{viewing.prerequisites}</KV>}
-              {viewing.capacity && <KV label="Capacity">{viewing.capacity}</KV>}
-            </div>
+            {viewing.audience && <div className="sm:col-span-2"><KV label="Who it's for">{viewing.audience}</KV></div>}
+            {viewing.levels && <KV label="Levels">{viewing.levels}</KV>}
+            {viewing.schedule && <KV label="Schedule">{viewing.schedule}</KV>}
+            <KV label="Format">{viewing.format}</KV>
+            {viewing.intakes && <KV label="Intakes">{viewing.intakes}</KV>}
+            {viewing.prerequisites && <KV label="Prerequisites">{viewing.prerequisites}</KV>}
+            {viewing.capacity && <KV label="Capacity">{viewing.capacity}</KV>}
 
-            {viewing.outcomes?.length ? <Bul label="Learning outcomes" items={viewing.outcomes} /> : null}
-            {viewing.outline?.length ? <Bul label="Course outline" items={viewing.outline} /> : null}
-            {viewing.whyChoose?.length ? <Bul label="Why choose it" items={viewing.whyChoose} /> : null}
-            {viewing.enrolment?.length ? <Bul label="Enrolment process" items={viewing.enrolment} numbered /> : null}
+            {viewing.outcomes?.length ? <div className="sm:col-span-2"><Bul label="Learning outcomes" items={viewing.outcomes} /></div> : null}
+            {viewing.outline?.length ? <div><Bul label="Course outline" items={viewing.outline} /></div> : null}
+            {viewing.whyChoose?.length ? <div><Bul label="Why choose it" items={viewing.whyChoose} /></div> : null}
+            {viewing.enrolment?.length ? <div className="sm:col-span-2"><Bul label="Enrolment process" items={viewing.enrolment} numbered /></div> : null}
             {viewing.materials && <KV label="Study materials">{viewing.materials}</KV>}
             {viewing.assessment && <KV label="Assessment & certification">{viewing.assessment}</KV>}
-            {viewing.accreditation && <KV label="Accreditation">{viewing.accreditation}</KV>}
+            {viewing.accreditation && <div className="sm:col-span-2"><KV label="Accreditation">{viewing.accreditation}</KV></div>}
             {viewing.owner && <KV label="Owner">{viewing.owner}</KV>}
 
             {viewing.focus && (
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap gap-1.5 sm:col-span-2">
                 {viewing.focus.map((f) => <span key={f} className="rounded-full border border-line bg-bg-card px-2.5 py-1 text-xs text-ink-soft">{f}</span>)}
               </div>
             )}
 
             {viewing.documents?.length ? (
-              <div>
+              <div className="sm:col-span-2">
                 <SectionLabel>Documents ({viewing.documents.length})</SectionLabel>
-                <div className="space-y-1.5">
+                <div className="grid gap-1.5 sm:grid-cols-2">
                   {viewing.documents.map((d, i) => {
                     const inner = (
                       <>
@@ -308,10 +306,10 @@ function KV({ label, children }: { label: string; children: React.ReactNode }) {
     </div>
   );
 }
-function Drawer({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
+function Drawer({ children, onClose, wide }: { children: React.ReactNode; onClose: () => void; wide?: boolean }) {
   return (
     <div className="fixed inset-0 z-40 flex justify-end bg-black/60 backdrop-blur-sm" onClick={onClose}>
-      <div className="h-full w-full max-w-md overflow-y-auto border-l border-line bg-bg-soft p-6 animate-rise" onClick={(e) => e.stopPropagation()}>
+      <div className={`h-full w-full ${wide ? "max-w-3xl" : "max-w-md"} overflow-y-auto border-l border-line bg-bg-soft p-8 animate-rise`} onClick={(e) => e.stopPropagation()}>
         <button onClick={onClose} className="mb-3 rounded-full p-1 text-ink-faint hover:bg-bg-hover hover:text-ink">
           <Icon name="ArrowRight" className="h-5 w-5" />
         </button>
