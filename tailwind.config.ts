@@ -10,16 +10,17 @@ const config: Config = {
     extend: {
       colors: {
         bg: {
-          DEFAULT: "#0a0b0f",
-          soft: "#101219",
-          card: "#141722",
-          hover: "#1a1e2b",
+          DEFAULT: "#0a0a0c",
+          soft: "#121216",
+          card: "#17171c",
+          hover: "#20202a",
+          orange: "#1c130a",
         },
-        line: "#232838",
+        line: "#26262e",
         ink: {
-          DEFAULT: "#e7eaf3",
-          soft: "#a4acc4",
-          faint: "#6b7391",
+          DEFAULT: "#f5f5f7",
+          soft: "#a2a2ad",
+          faint: "#6a6a76",
         },
         brand: {
           DEFAULT: "#ff8300",

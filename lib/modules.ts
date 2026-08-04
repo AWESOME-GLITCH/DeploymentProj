@@ -1,5 +1,4 @@
-// Single source of truth for the module registry.
-// The sidebar, hub dashboard, and routing all read from here.
+// Module registry. Copy is deliberately short and plain — no jargon.
 
 export type ModuleStatus = "live" | "beta" | "next";
 
@@ -7,14 +6,14 @@ export type ModuleDef = {
   slug: string;
   name: string;
   short: string;
-  icon: string; // lucide-react icon name
-  accent: string; // tailwind text color class for the accent
-  glow: string; // rgba for glow
+  icon: string;
+  accent: string;
+  glow: string;
   tagline: string;
   description: string;
   status: ModuleStatus;
   group: "core" | "planned";
-  agent: string; // the agent that powers it
+  agent: string;
 };
 
 export const MODULES: ModuleDef[] = [
@@ -23,98 +22,91 @@ export const MODULES: ModuleDef[] = [
     name: "Launch Flow",
     short: "Flow",
     icon: "Workflow",
-    accent: "text-accent-teal",
-    glow: "51,214,192",
-    tagline: "One input → every asset + who does what",
-    description:
-      "Feed it once, then run any or all steps — brief, pricing, flyer, presentation, website, proposal — and get a per-person action board for your whole team.",
+    accent: "text-brand-soft",
+    glow: "255,131,0",
+    tagline: "One brief, every step",
+    description: "Run the brief, pricing, flyer, website and more in one go — with owners assigned.",
     status: "live",
     group: "core",
-    agent: "Flow Orchestrator",
+    agent: "Flow",
   },
   {
     slug: "brief",
-    name: "Product Brief",
+    name: "Brief",
     short: "Brief",
     icon: "FileText",
-    accent: "text-accent-blue",
-    glow: "91,157,255",
-    tagline: "Messy input → structured brief",
-    description:
-      "Feed it unstructured notes, transcripts, or a data dump. It returns a clean, structured product brief — problem, audience, goals, scope, risks.",
+    accent: "text-brand-soft",
+    glow: "255,131,0",
+    tagline: "Notes → clean brief",
+    description: "Paste messy notes. Get a structured brief or a shareable proposal.",
     status: "live",
     group: "core",
-    agent: "Brief Synthesizer",
+    agent: "Brief",
   },
   {
     slug: "knowledge",
-    name: "Product Knowledge",
+    name: "Knowledge",
     short: "Knowledge",
     icon: "Library",
     accent: "text-brand-soft",
     glow: "255,131,0",
-    tagline: "One source of truth for 20+ products",
-    description:
-      "The hub. Every product's context, specs, decisions, and positioning in one searchable place that every other module reads from and writes to.",
+    tagline: "All courses, one place",
+    description: "Your full Dubai & London catalogue — searchable, editable, always in sync.",
     status: "live",
     group: "core",
-    agent: "Knowledge Librarian",
+    agent: "Knowledge",
   },
   {
     slug: "marketing",
-    name: "Marketing Studio",
+    name: "Marketing",
     short: "Marketing",
     icon: "Megaphone",
-    accent: "text-accent-rose",
-    glow: "255,107,139",
-    tagline: "Templates + knowledge → ready content",
-    description:
-      "Fill in the fields; it drafts website copy, flyers, and presentation content using your templates and pulling facts from Knowledge & Briefs.",
-    status: "beta",
+    accent: "text-brand-soft",
+    glow: "255,131,0",
+    tagline: "On-brand copy, fast",
+    description: "Flyers, web pages and decks in your brand, built from the catalogue.",
+    status: "live",
     group: "core",
-    agent: "Marketing Writer",
-  },
-  {
-    slug: "analytics",
-    name: "Trends & Analytics",
-    short: "Analytics",
-    icon: "LineChart",
-    accent: "text-accent-teal",
-    glow: "51,214,192",
-    tagline: "Data in → patterns, honestly",
-    description:
-      "Cohorts, funnels, retention, trend & anomaly detection. Every insight ships with sample size, confidence, and a correlation-vs-causation label.",
-    status: "beta",
-    group: "core",
-    agent: "Analytics Scientist",
+    agent: "Marketing",
   },
   {
     slug: "pricing",
-    name: "Pricing Intelligence",
+    name: "Pricing",
     short: "Pricing",
     icon: "Tags",
-    accent: "text-accent-amber",
-    glow: "255,181,71",
-    tagline: "Cost + live market research → informed price",
-    description:
-      "Plug in your costs for live unit economics (contribution, margin, break-even), then the agent researches the market and recommends a price with the full rationale chain and confidence flags.",
+    accent: "text-brand-soft",
+    glow: "255,131,0",
+    tagline: "Price with real data",
+    description: "Live unit economics plus researched competitor prices.",
     status: "live",
     group: "core",
-    agent: "Pricing Analyst",
+    agent: "Pricing",
   },
   {
-    slug: "feedback",
-    name: "Feedback Analysis",
-    short: "Feedback",
-    icon: "MessagesSquare",
-    accent: "text-accent-blue",
-    glow: "91,157,255",
-    tagline: "Surveys & focus groups → decisions",
-    description:
-      "Themes tied to real quotes, sentiment bound to themes, NPS/CSAT/CES together, and focus-group bias flags. Evidence-preserving by design.",
-    status: "beta",
+    slug: "quotation",
+    name: "Quotation",
+    short: "Quotation",
+    icon: "ReceiptText",
+    accent: "text-brand-soft",
+    glow: "255,131,0",
+    tagline: "Quotes in seconds",
+    description: "Bundle courses, housing and fees into a branded quote.",
+    status: "live",
     group: "core",
-    agent: "Insight Synthesizer",
+    agent: "Quote",
+  },
+  {
+    slug: "portfolio",
+    name: "Portfolio",
+    short: "Portfolio",
+    icon: "LayoutGrid",
+    accent: "text-brand-soft",
+    glow: "255,131,0",
+    tagline: "Every course at a glance",
+    description: "Health and a clear next action for each programme.",
+    status: "live",
+    group: "core",
+    agent: "Portfolio",
   },
   {
     slug: "think-lab",
@@ -123,83 +115,77 @@ export const MODULES: ModuleDef[] = [
     icon: "FlaskConical",
     accent: "text-brand-soft",
     glow: "255,131,0",
-    tagline: "Raw idea → MVP you can test",
-    description:
-      "Dump a company-level concept. It structures it using the whole tool's knowledge + live research into a problem, hypothesis, risks, and a defined MVP.",
-    status: "beta",
-    group: "core",
-    agent: "Strategy Partner",
-  },
-  {
-    slug: "quotation",
-    name: "Quotation Designer",
-    short: "Quotation",
-    icon: "ReceiptText",
-    accent: "text-accent-teal",
-    glow: "51,214,192",
-    tagline: "Programmes + prices → a branded quote",
-    description:
-      "Build a clean, branded ES World quotation in seconds — pick programmes, set prices, discounts and client details, then print or share.",
+    tagline: "Idea → MVP",
+    description: "Turn a rough idea into a testable plan.",
     status: "live",
     group: "core",
-    agent: "Quote Builder",
+    agent: "Strategy",
   },
-  // ---- Planned (from the gap analysis) — visible so the full vision shows ----
   {
-    slug: "portfolio",
-    name: "Portfolio Manager",
-    short: "Portfolio",
-    icon: "LayoutGrid",
+    slug: "analytics",
+    name: "Analytics",
+    short: "Analytics",
+    icon: "LineChart",
     accent: "text-brand-soft",
     glow: "255,131,0",
-    tagline: "Invest · scale · hold across Dubai & London",
-    description:
-      "The cross-programme cockpit: lifecycle stage, health, and a recommended invest/scale/hold/watch action for every programme in one view.",
-    status: "live",
+    tagline: "Patterns in your data",
+    description: "Cohorts, funnels and trends — with confidence, not guesses.",
+    status: "beta",
     group: "core",
-    agent: "Portfolio Strategist",
+    agent: "Analytics",
   },
   {
+    slug: "feedback",
+    name: "Feedback",
+    short: "Feedback",
+    icon: "MessagesSquare",
+    accent: "text-brand-soft",
+    glow: "255,131,0",
+    tagline: "Feedback → decisions",
+    description: "Themes, sentiment and NPS/CSAT/CES from your surveys.",
+    status: "beta",
+    group: "core",
+    agent: "Feedback",
+  },
+  // Soon
+  {
     slug: "roadmap",
-    name: "Roadmap & Planning",
+    name: "Roadmap",
     short: "Roadmap",
     icon: "Map",
     accent: "text-ink-soft",
     glow: "255,131,0",
-    tagline: "From signal to a sequenced plan",
-    description:
-      "Turn prioritized opportunities into visual roadmaps and release plans — the canonical PM artifact.",
+    tagline: "Plan releases",
+    description: "Turn priorities into a sequenced plan.",
     status: "next",
     group: "planned",
-    agent: "Roadmap Planner",
+    agent: "Roadmap",
   },
   {
     slug: "prioritization",
-    name: "Prioritization Engine",
+    name: "Prioritize",
     short: "Prioritize",
     icon: "ListChecks",
     accent: "text-ink-soft",
     glow: "255,131,0",
-    tagline: "RICE · Kano · opportunity scoring",
-    description:
-      "The connective logic between Feedback, Analytics, and the Roadmap — score and rank what to build next.",
+    tagline: "Rank what's next",
+    description: "Score ideas so the roadmap writes itself.",
     status: "next",
     group: "planned",
-    agent: "Prioritization Assistant",
+    agent: "Prioritization",
   },
   {
     slug: "strategy",
-    name: "Strategy & OKRs",
+    name: "Strategy",
     short: "Strategy",
     icon: "Target",
     accent: "text-ink-soft",
     glow: "255,131,0",
-    tagline: "Link every module to outcomes",
-    description:
-      "Vision, OKRs, and goal alignment so every brief, price, and roadmap ties back to a business outcome.",
+    tagline: "Goals & OKRs",
+    description: "Tie every decision to an outcome.",
     status: "next",
     group: "planned",
-    agent: "Strategy Partner",
+    agent: "Strategy",
   },
 ];
 

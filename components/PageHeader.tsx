@@ -36,12 +36,6 @@ export function PageHeader({
             {status && <StatusPill status={status} />}
           </div>
           <p className="mt-1 max-w-2xl text-sm text-ink-soft">{tagline}</p>
-          {agent && (
-            <div className="mt-2 inline-flex items-center gap-1.5 text-xs text-brand-soft">
-              <Icon name="Sparkles" className="h-3.5 w-3.5" />
-              Powered by the <span className="font-medium">{agent}</span> agent
-            </div>
-          )}
         </div>
       </div>
       {right}

@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { getModule } from "@/lib/modules";
-import { PRODUCTS } from "@/lib/knowledge";
+import type { Product } from "@/lib/knowledge";
+import { useProducts, newId } from "@/lib/store";
 import { FLOW_ACTIONS, SALES_REGIONS, type FlowActionKey, type PlanItem } from "@/lib/team";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, Button, SectionLabel } from "@/components/ui";
@@ -155,10 +156,33 @@ function Bullets({ items, small }: { items?: string[]; small?: boolean }) {
 }
 
 export default function FlowPage() {
+  const { products, add } = useProducts();
   const [input, setInput] = useState("");
   const [productId, setProductId] = useState("__new__");
   const [newName, setNewName] = useState("");
   const [region, setRegion] = useState("All regions");
+  const [saved, setSaved] = useState(false);
+
+  function saveNewProgramme() {
+    if (!newName.trim()) return;
+    const p: Product = {
+      id: newId(),
+      name: newName.trim(),
+      campus: "Dubai",
+      category: "English",
+      stage: "New",
+      oneLiner: input.slice(0, 140),
+      audience: "",
+      format: "[TBC]",
+      price: "On request",
+      tags: ["new", "from-flow"],
+      health: 60,
+      assets: 0,
+      updated: "2026",
+    };
+    add(p);
+    setSaved(true);
+  }
   const [selected, setSelected] = useState<FlowActionKey[]>(DEFAULT_ON);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(0);
@@ -256,7 +280,7 @@ export default function FlowPage() {
               <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-faint">Programme</span>
               <select value={productId} onChange={(e) => setProductId(e.target.value)} className="mt-1 w-full rounded-lg border border-line bg-bg-soft px-2.5 py-1.5 text-sm text-ink focus:outline-none">
                 <option value="__new__" className="bg-bg-soft">＋ New programme (not in catalogue)</option>
-                {PRODUCTS.map((p) => (
+                {products.map((p) => (
                   <option key={p.id} value={p.id} className="bg-bg-soft">{p.name} · {p.campus}</option>
                 ))}
               </select>
@@ -331,7 +355,13 @@ export default function FlowPage() {
                   Demo mode — add an ANTHROPIC_API_KEY for live, researched output.
                 </div>
               )}
-              <div className="flex justify-end">
+              <div className="flex justify-end gap-2">
+                {productId === "__new__" && newName.trim() && (
+                  <Button variant="subtle" onClick={saveNewProgramme} disabled={saved}>
+                    <Icon name={saved ? "Check" : "Plus"} className="h-4 w-4" />
+                    {saved ? "Saved to Knowledge" : "Save to catalogue"}
+                  </Button>
+                )}
                 <ExportMenu
                   title="ES World Launch Flow"
                   html={() => flowHtml(artifacts, plan)}

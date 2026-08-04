@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { getModule } from "@/lib/modules";
-import { PRODUCTS, type Product } from "@/lib/knowledge";
+import { type Product } from "@/lib/knowledge";
+import { useProducts } from "@/lib/store";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, SectionLabel } from "@/components/ui";
 import { Icon } from "@/components/Icon";
@@ -85,19 +86,20 @@ function Row({ p }: { p: Product }) {
 }
 
 export default function PortfolioPage() {
+  const { products } = useProducts();
   const [groupBy, setGroupBy] = useState<"Action" | "Campus" | "Category">("Action");
 
-  const enriched = useMemo(() => PRODUCTS.map((p) => ({ p, action: actionFor(p) })), []);
-  const avgHealth = Math.round(PRODUCTS.reduce((s, p) => s + p.health, 0) / PRODUCTS.length);
-  const categories = new Set(PRODUCTS.map((p) => p.category)).size;
+  const enriched = useMemo(() => products.map((p) => ({ p, action: actionFor(p) })), [products]);
+  const avgHealth = products.length ? Math.round(products.reduce((s, p) => s + p.health, 0) / products.length) : 0;
+  const categories = new Set(products.map((p) => p.category)).size;
   const actionCounts = ORDER.map((a) => ({ a, n: enriched.filter((e) => e.action === a).length }));
 
   const groups = useMemo(() => {
     const map = new Map<string, Product[]>();
     const keyer = (p: Product) => (groupBy === "Action" ? actionFor(p) : groupBy === "Campus" ? p.campus : p.category);
     const order =
-      groupBy === "Action" ? ORDER : groupBy === "Campus" ? ["Dubai", "London", "Online"] : Array.from(new Set(PRODUCTS.map((p) => p.category)));
-    for (const p of PRODUCTS) {
+      groupBy === "Action" ? ORDER : groupBy === "Campus" ? ["Dubai", "London", "Online"] : Array.from(new Set(products.map((p) => p.category)));
+    for (const p of products) {
       const k = keyer(p) as string;
       if (!map.has(k)) map.set(k, []);
       map.get(k)!.push(p);
@@ -121,12 +123,12 @@ export default function PortfolioPage() {
             html={() =>
               H.brandTitle("Portfolio — ES World") +
               "<table><tr><th>Programme</th><th>Campus</th><th>Category</th><th>Stage</th><th>Health</th><th>Action</th><th>Price</th></tr>" +
-              PRODUCTS.map((p) => `<tr><td>${p.name}</td><td>${p.campus}</td><td>${p.category}</td><td>${p.stage}</td><td>${p.health}</td><td>${actionFor(p)}</td><td>${p.price}</td></tr>`).join("") +
+              products.map((p) => `<tr><td>${p.name}</td><td>${p.campus}</td><td>${p.category}</td><td>${p.stage}</td><td>${p.health}</td><td>${actionFor(p)}</td><td>${p.price}</td></tr>`).join("") +
               "</table>"
             }
             rows={() => [
               ["Programme", "Campus", "Category", "Stage", "Health", "Action", "Price"],
-              ...PRODUCTS.map((p) => [p.name, p.campus, p.category, p.stage, p.health, actionFor(p), p.price] as (string | number)[]),
+              ...products.map((p) => [p.name, p.campus, p.category, p.stage, p.health, actionFor(p), p.price] as (string | number)[]),
             ]}
           />
         }
@@ -134,7 +136,7 @@ export default function PortfolioPage() {
 
       {/* Stats */}
       <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-5">
-        <Stat label="Programmes" value={`${PRODUCTS.length}`} accent="text-ink" />
+        <Stat label="Programmes" value={`${products.length}`} accent="text-ink" />
         <Stat label="Campuses" value="2" sub="Dubai · London" accent="text-accent-teal" />
         <Stat label="Categories" value={`${categories}`} accent="text-accent-blue" />
         <Stat label="Avg health" value={`${avgHealth}`} accent={healthColor(avgHealth)} />
