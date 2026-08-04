@@ -7,10 +7,10 @@ import { BRAND_STANDARDS } from "@/lib/brand";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, Button, SectionLabel } from "@/components/ui";
 import { Icon } from "@/components/Icon";
-import type { MarketingDraft } from "../api/marketing/route";
+import type { MarketingDraft, CourseField } from "../api/marketing/route";
 
 const M = getModule("marketing")!;
-const TYPES = ["Website", "Flyer", "Presentation", "Social post", "Email"];
+const TYPES = ["Course page", "Website", "Flyer", "Presentation", "Social post", "Email"];
 
 const THINKING = [
   "Loading brand standards…",
@@ -21,10 +21,11 @@ const THINKING = [
 ];
 
 export default function MarketingPage() {
-  const [type, setType] = useState("Flyer");
+  const [type, setType] = useState("Course page");
   const [productId, setProductId] = useState(PRODUCTS[0].id);
   const [brief, setBrief] = useState("");
   const [draft, setDraft] = useState<MarketingDraft | null>(null);
+  const [coursePage, setCoursePage] = useState<CourseField[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [demo, setDemo] = useState(false);
   const [step, setStep] = useState(0);
@@ -32,6 +33,7 @@ export default function MarketingPage() {
   async function generate() {
     setLoading(true);
     setDraft(null);
+    setCoursePage(null);
     const timer = setInterval(() => setStep((s) => (s + 1) % THINKING.length), 700);
     try {
       const res = await fetch("/api/marketing", {
@@ -40,7 +42,8 @@ export default function MarketingPage() {
         body: JSON.stringify({ contentType: type, productId, brief }),
       });
       const data = await res.json();
-      setDraft(data.draft);
+      if (data.coursePage) setCoursePage(data.coursePage);
+      else setDraft(data.draft);
       setDemo(Boolean(data.demo));
     } finally {
       clearInterval(timer);
@@ -48,6 +51,8 @@ export default function MarketingPage() {
       setStep(0);
     }
   }
+
+  const hasOutput = draft || coursePage;
 
   return (
     <div className="mx-auto max-w-5xl px-8 py-10">
@@ -150,10 +155,33 @@ export default function MarketingPage() {
               </div>
             )}
 
-            {!loading && !draft && (
+            {!loading && !hasOutput && (
               <div className="flex h-64 flex-col items-center justify-center gap-3 text-center text-ink-faint">
                 <Icon name="Megaphone" className="h-8 w-8" />
                 <div className="text-sm">Your brand-compliant draft appears here.</div>
+                {type === "Course page" && (
+                  <div className="max-w-xs text-xs">Fills the official ES World website Course Template, auto-populated from Knowledge.</div>
+                )}
+              </div>
+            )}
+
+            {!loading && coursePage && (
+              <div className="animate-rise space-y-3">
+                {demo && (
+                  <div className="flex items-start gap-2 rounded-lg border border-accent-amber/30 bg-accent-amber/10 px-3 py-2 text-xs text-accent-amber">
+                    <Icon name="AlertTriangle" className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                    Demo mode — add an ANTHROPIC_API_KEY for live copy.
+                  </div>
+                )}
+                <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-soft">
+                  Website Course Template · ES World
+                </div>
+                {coursePage.map((f, i) => (
+                  <div key={i} className="rounded-xl border border-line bg-bg-soft/50 p-3">
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-faint">{f.field}</div>
+                    <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-ink-soft">{f.value}</p>
+                  </div>
+                ))}
               </div>
             )}
 
