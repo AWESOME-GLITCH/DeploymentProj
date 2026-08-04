@@ -117,6 +117,7 @@ export async function POST(req: NextRequest) {
         system: COURSE_SYSTEM,
         user: `Emphasis from the PM: ${brief || "(none)"}\n\nProduct knowledge (single source of truth):\n${knowledge}\n\nFill the Course Template now.`,
         maxTokens: 2200,
+        webSearch: true,
       });
       return NextResponse.json({ coursePage: out.fields, demo: false });
     }
@@ -130,6 +131,7 @@ ${knowledge}
 
 Write the ${contentType} content now.`,
       maxTokens: 2200,
+      webSearch: true,
     });
     return NextResponse.json({ draft, demo: false });
   } catch {

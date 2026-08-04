@@ -88,6 +88,7 @@ export async function POST(req: NextRequest) {
       system: SYSTEM,
       user: `Here is the messy input. Synthesize it into a structured product brief:\n\n${input}`,
       maxTokens: 2000,
+      webSearch: true,
     });
     return NextResponse.json({ brief, demo: false });
   } catch (err) {

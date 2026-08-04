@@ -25,6 +25,12 @@ import {
   Loader2,
   AlertTriangle,
   TrendingUp,
+  ReceiptText,
+  Printer,
+  Plus,
+  Trash2,
+  Building2,
+  Download,
   type LucideProps,
 } from "lucide-react";
 
@@ -55,6 +61,12 @@ const MAP = {
   Loader2,
   AlertTriangle,
   TrendingUp,
+  ReceiptText,
+  Printer,
+  Plus,
+  Trash2,
+  Building2,
+  Download,
 } as const;
 
 export type IconName = keyof typeof MAP;

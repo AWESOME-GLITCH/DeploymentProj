@@ -116,6 +116,20 @@ export const MODULES: ModuleDef[] = [
     group: "core",
     agent: "Strategy Partner",
   },
+  {
+    slug: "quotation",
+    name: "Quotation Designer",
+    short: "Quotation",
+    icon: "ReceiptText",
+    accent: "text-accent-teal",
+    glow: "51,214,192",
+    tagline: "Programmes + prices → a branded quote",
+    description:
+      "Build a clean, branded ES World quotation in seconds — pick programmes, set prices, discounts and client details, then print or share.",
+    status: "live",
+    group: "core",
+    agent: "Quote Builder",
+  },
   // ---- Planned (from the gap analysis) — visible so the full vision shows ----
   {
     slug: "portfolio",

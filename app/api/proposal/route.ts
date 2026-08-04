@@ -82,6 +82,7 @@ export async function POST(req: NextRequest) {
       system: SYSTEM,
       user: `Turn this into a complete ES World Product/Service Proposal:\n\n${input}`,
       maxTokens: 2500,
+      webSearch: true,
     });
     return NextResponse.json({ proposal, demo: false });
   } catch {

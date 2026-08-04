@@ -14,6 +14,21 @@ body {
 
 * {
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-feature-settings: "cv11", "ss01";
+  letter-spacing: -0.006em;
+  line-height: 1.5;
+}
+
+/* Headings use the display face with tight, modern tracking */
+h1,
+h2,
+h3 {
+  font-family: var(--font-display), var(--font-sans), system-ui, sans-serif;
+  letter-spacing: -0.02em;
 }
 
 ::selection {
@@ -66,6 +81,27 @@ body {
   );
   background-size: 800px 100%;
   animation: shimmer 1.6s linear infinite;
+}
+
+@media print {
+  aside,
+  .no-print {
+    display: none !important;
+  }
+  main {
+    margin: 0 !important;
+  }
+  html,
+  body {
+    background: #fff !important;
+  }
+  .print-area {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+  @page {
+    margin: 12mm;
+  }
 }
 
 @keyframes rise {

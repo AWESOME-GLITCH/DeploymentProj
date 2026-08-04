@@ -1,6 +1,20 @@
 import type { Metadata } from "next";
+import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Sidebar } from "@/components/Sidebar";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+const display = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-display",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "ES World · Product Operating System",
@@ -10,10 +24,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-bg text-ink">
-        <div className="pointer-events-none fixed inset-0 -z-10 bg-grid-faint [background-size:44px_44px]" />
-        <div className="pointer-events-none fixed left-1/2 top-[-10%] -z-10 h-[420px] w-[720px] -translate-x-1/2 rounded-full bg-brand/20 blur-[140px]" />
+    <html lang="en" className={`${inter.variable} ${display.variable}`}>
+      <body className="min-h-screen bg-bg font-sans text-ink antialiased">
+        <div className="pointer-events-none fixed inset-0 -z-10 bg-grid-faint [background-size:44px_44px] print:hidden" />
+        <div className="pointer-events-none fixed left-1/2 top-[-10%] -z-10 h-[420px] w-[720px] -translate-x-1/2 rounded-full bg-brand/20 blur-[140px] print:hidden" />
         <Sidebar />
         <main className="ml-64 min-h-screen">{children}</main>
       </body>

@@ -6,19 +6,35 @@ export function hasLiveAgents(): boolean {
   return Boolean(process.env.ANTHROPIC_API_KEY);
 }
 
+/** Pull the JSON object out of a model response that may also contain
+ *  research commentary or citations. Grabs the outermost { ... } block. */
+function extractJson(text: string): string {
+  const cleaned = text.trim().replace(/^```(?:json)?/i, "").replace(/```$/i, "").trim();
+  const first = cleaned.indexOf("{");
+  const last = cleaned.lastIndexOf("}");
+  if (first !== -1 && last !== -1 && last > first) {
+    return cleaned.slice(first, last + 1);
+  }
+  return cleaned;
+}
+
 /**
- * Runs a single agent turn that MUST return JSON matching the shape the caller
- * asks for. Returns the parsed object. Throws if the model output can't be
- * parsed — callers decide whether to surface the error or fall back to demo.
+ * Runs a single agent turn that returns JSON. When `webSearch` is true the
+ * agent can search the live web (Anthropic server-side web_search tool) before
+ * answering — this is what gives every module its research ability.
  */
 export async function runJsonAgent<T>({
   system,
   user,
   maxTokens = 2000,
+  webSearch = false,
+  maxSearches = 4,
 }: {
   system: string;
   user: string;
   maxTokens?: number;
+  webSearch?: boolean;
+  maxSearches?: number;
 }): Promise<T> {
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -27,19 +43,13 @@ export async function runJsonAgent<T>({
     max_tokens: maxTokens,
     system:
       system +
-      "\n\nRespond with ONLY a single valid JSON object. No prose, no markdown fences.",
+      "\n\nWhen research would improve accuracy (competitors, current prices, market facts), use web search first, then respond with ONLY a single valid JSON object — no prose, no markdown fences.",
+    tools: webSearch
+      ? ([{ type: "web_search_20250305", name: "web_search", max_uses: maxSearches }] as any)
+      : undefined,
     messages: [{ role: "user", content: user }],
   });
 
-  const text = msg.content
-    .map((b) => (b.type === "text" ? b.text : ""))
-    .join("");
-
-  const cleaned = text
-    .trim()
-    .replace(/^```(?:json)?/i, "")
-    .replace(/```$/i, "")
-    .trim();
-
-  return JSON.parse(cleaned) as T;
+  const text = msg.content.map((b) => (b.type === "text" ? b.text : "")).join("");
+  return JSON.parse(extractJson(text)) as T;
 }

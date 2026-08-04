@@ -114,6 +114,7 @@ export async function POST(req: NextRequest) {
       system: SYSTEM,
       user: `Structure this raw company-level idea into a testable MVP:\n\n${input}`,
       maxTokens: 2500,
+      webSearch: true,
     });
     return NextResponse.json({ concept, demo: false });
   } catch {
