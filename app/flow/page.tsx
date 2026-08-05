@@ -14,6 +14,8 @@ import { Icon } from "@/components/Icon";
 import { ExportMenu } from "@/components/ExportMenu";
 import { FileDrop } from "@/components/FileDrop";
 import { ClarifyPanel } from "@/components/ClarifyPanel";
+import { FlyerView } from "@/components/FlyerView";
+import { flyerToHtml } from "@/lib/flyer";
 import { H } from "@/lib/export";
 
 function artifactToHtml(k: string, v: any): string {
@@ -23,7 +25,7 @@ function artifactToHtml(k: string, v: any): string {
     case "pricing":
       return H.h2("Pricing") + H.kv("Price", v.pricePoint) + H.p(v.recommendation) + H.p(v.rationale) + H.muted(v.marketNote);
     case "flyer":
-      return H.h2("Marketing Flyer") + `<h3>${v.headline}</h3>` + H.p(v.subhead) + (v.keyFacts?.length ? H.p(v.keyFacts.join(" · ")) : "") + H.ul(v.benefits || []) + H.kv("CTA", v.cta);
+      return flyerToHtml(v);
     case "presentation":
       return H.h2("Presentation: " + (v.title || "")) + (v.slides || []).map((s: any) => `<h3>${s.title}</h3>` + H.ul(s.points || [])).join("");
     case "website":
@@ -122,21 +124,7 @@ function ArtifactCard({ k, data, onFix, fixing }: { k: string; data: any; onFix:
             <p className="text-xs text-ink-faint">🔎 {data.marketNote}</p>
           </>
         )}
-        {k === "flyer" && (
-          <>
-            <div className="text-base font-semibold text-brand-soft">{data.headline}</div>
-            <p>{data.subhead}</p>
-            {data.keyFacts?.length ? (
-              <div className="flex flex-wrap gap-1.5">
-                {data.keyFacts.map((f: string, i: number) => (
-                  <span key={i} className="rounded-full border border-line bg-bg-soft px-2 py-0.5 text-xs text-ink-soft">{f}</span>
-                ))}
-              </div>
-            ) : null}
-            <Bullets items={data.benefits} />
-            <div className="text-xs text-accent-teal">CTA: {data.cta}</div>
-          </>
-        )}
+        {k === "flyer" && <FlyerView f={data} />}
         {k === "presentation" && (
           <>
             <div className="font-medium text-ink">{data.title}</div>

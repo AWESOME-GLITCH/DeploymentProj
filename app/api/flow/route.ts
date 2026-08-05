@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { hasLiveAgents, runJsonAgent } from "@/lib/agent";
 import { BRAND_SYSTEM_FRAGMENT } from "@/lib/brand";
 import { COMPANY_MEMORY } from "@/lib/company";
+import { FLYER_SPEC, flyerFromProduct } from "@/lib/flyer";
 import { PRODUCTS, type Product } from "@/lib/knowledge";
 import { buildPlan, FlowActionKey } from "@/lib/team";
 
@@ -23,7 +24,7 @@ const COURSE_FIELDS = [
 const ARTIFACT_SPEC: Record<string, string> = {
   brief: `"brief": { "summary": string, "problem": string, "audience": string, "goals": string[] (3) }`,
   pricing: `"pricing": { "recommendation": string, "pricePoint": string, "rationale": string, "marketNote": string }`,
-  flyer: `"flyer": { "headline": string, "subhead": string, "keyFacts": string[] (2-4 short facts: levels, schedule, price, intake), "benefits": string[] (3-4 why-choose points), "cta": string (include esworld.com) }`,
+  flyer: FLYER_SPEC,
   presentation: `"presentation": { "title": string, "slides": [ { "title": string, "points": string[] (2-3) } ] (3-4 slides) }`,
   website: `"website": { "fields": [ { "field": string, "value": string } ] } — fill ES World's website Course Template, ONE entry per field in THIS EXACT ORDER: ${COURSE_FIELDS.map((f) => `"${f}"`).join(", ")}. "Overview of the Course" = 3-5 sentences. "Why should you choose" = a short paragraph then 3-4 bullet lines each starting with "• ". "The Enrolment Process" = numbered steps. Use the product knowledge; write "[TBC]" if a fact is missing.`,
   proposal: `"proposal": { "summary": string, "problemOpportunity": string, "pricing": string, "recommendation": string }`,
@@ -52,7 +53,7 @@ function demoArtifacts(keys: string[], p?: Product) {
   const all: Record<string, any> = {
     brief: { summary: p?.overview || p?.oneLiner || `Brief for ${name}.`, problem: `Give prospects a clear reason to choose ${name}.`, audience: p?.audience || "[TBC]", goals: (p?.outcomes || ["[TBC]"]).slice(0, 3) },
     pricing: { recommendation: "Hold the list price; add an early-bird offer.", pricePoint: p?.price || "[TBC]", rationale: "Aligned to the 2026 price list.", marketNote: "Set ENABLE_WEB_SEARCH=1 for live competitor data." },
-    flyer: { headline: `${name} — Experience · Grow · Enjoy`, subhead: p?.oneLiner || "", keyFacts: [p?.levels, p?.schedule || p?.format, p?.price, p?.intakes].filter(Boolean) as string[], benefits: (p?.whyChoose || p?.focus || []).slice(0, 4), cta: "Book a free consultation at esworld.com" },
+    flyer: flyerFromProduct(p),
     presentation: { title: `${name} — Overview`, slides: [{ title: "Why this course", points: (p?.whyChoose || p?.outcomes || []).slice(0, 3) }, { title: "What's included", points: [p?.levels, p?.format].filter(Boolean) }, { title: "Next steps", points: ["Enrol", "Contact esworld.com"] }] },
     website: { fields: COURSE_FIELDS.map((f) => ({ field: f, value: courseVal(f, p) })) },
     proposal: { summary: p?.overview || p?.oneLiner || "", problemOpportunity: "[TBC]", pricing: p?.price || "[TBC]", recommendation: "Approve a pilot intake." },

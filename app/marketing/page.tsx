@@ -10,6 +10,8 @@ import { Icon } from "@/components/Icon";
 import { ExportMenu } from "@/components/ExportMenu";
 import { SaveToProgramme } from "@/components/SaveToProgramme";
 import { FileDrop } from "@/components/FileDrop";
+import { FlyerView } from "@/components/FlyerView";
+import { FLYER_TEMPLATE, flyerToHtml, type Flyer } from "@/lib/flyer";
 import { H } from "@/lib/export";
 import type { MarketingDraft, CourseField } from "../api/marketing/route";
 
@@ -45,6 +47,7 @@ export default function MarketingPage() {
   const [brief, setBrief] = useState("");
   const [draft, setDraft] = useState<MarketingDraft | null>(null);
   const [coursePage, setCoursePage] = useState<CourseField[] | null>(null);
+  const [flyer, setFlyer] = useState<Flyer | null>(null);
   const [loading, setLoading] = useState(false);
   const [demo, setDemo] = useState(false);
   const [step, setStep] = useState(0);
@@ -53,6 +56,7 @@ export default function MarketingPage() {
     setLoading(true);
     setDraft(null);
     setCoursePage(null);
+    setFlyer(null);
     const timer = setInterval(() => setStep((s) => (s + 1) % THINKING.length), 700);
     try {
       const res = await fetch("/api/marketing", {
@@ -62,6 +66,7 @@ export default function MarketingPage() {
       });
       const data = await res.json();
       if (data.coursePage) setCoursePage(data.coursePage);
+      else if (data.flyer) setFlyer(data.flyer);
       else setDraft(data.draft);
       setDemo(Boolean(data.demo));
     } finally {
@@ -71,7 +76,7 @@ export default function MarketingPage() {
     }
   }
 
-  const hasOutput = draft || coursePage;
+  const hasOutput = draft || coursePage || flyer;
 
   return (
     <div className="mx-auto max-w-5xl px-8 py-10">
@@ -177,13 +182,31 @@ export default function MarketingPage() {
               </div>
             )}
 
-            {!loading && !hasOutput && (
+            {!loading && !hasOutput && type !== "Flyer" && (
               <div className="flex h-64 flex-col items-center justify-center gap-3 text-center text-ink-faint">
                 <Icon name="Megaphone" className="h-8 w-8" />
                 <div className="text-sm">Your brand-compliant draft appears here.</div>
                 {type === "Course page" && (
                   <div className="max-w-xs text-xs">Fills the official ES World website Course Template, auto-populated from Knowledge.</div>
                 )}
+              </div>
+            )}
+
+            {!loading && !hasOutput && type === "Flyer" && (
+              <div className="animate-rise">
+                <div className="mb-2 flex items-center gap-2">
+                  <Icon name="ClipboardList" className="h-4 w-4 text-brand-soft" />
+                  <div className="text-sm font-semibold text-ink">ES World flyer template</div>
+                </div>
+                <p className="mb-3 text-xs text-ink-faint">Every flyer is built to this exact template, auto-filled from your Knowledge. This is the information a flyer needs:</p>
+                <ol className="space-y-1.5">
+                  {FLYER_TEMPLATE.map((f, i) => (
+                    <li key={f.key} className="flex gap-2.5 rounded-lg border border-line bg-bg-soft/50 px-2.5 py-1.5">
+                      <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-brand/15 text-[10px] font-bold text-brand-soft">{i + 1}</span>
+                      <span className="text-sm text-ink"><span className="font-medium">{f.label}</span> <span className="text-ink-faint">— {f.hint}</span></span>
+                    </li>
+                  ))}
+                </ol>
               </div>
             )}
 
@@ -210,6 +233,27 @@ export default function MarketingPage() {
                     <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-ink-soft">{f.value}</p>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {!loading && flyer && (
+              <div className="animate-rise space-y-3">
+                {demo && (
+                  <div className="flex items-start gap-2 rounded-lg border border-accent-amber/30 bg-accent-amber/10 px-3 py-2 text-xs text-accent-amber">
+                    <Icon name="AlertTriangle" className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                    Demo mode — add an ANTHROPIC_API_KEY for live copy.
+                  </div>
+                )}
+                <div className="flex items-center justify-between">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-soft">
+                    ES World Flyer Template
+                  </div>
+                  <div className="flex gap-2">
+                    <SaveToProgramme kind="Flyer" title={`Flyer — ${flyer.courseName}`} getHtml={() => flyerToHtml(flyer)} />
+                    <ExportMenu title={`ES World Flyer — ${flyer.courseName}`} html={() => flyerToHtml(flyer)} />
+                  </div>
+                </div>
+                <FlyerView f={flyer} />
               </div>
             )}
 

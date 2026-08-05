@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { hasLiveAgents, runJsonAgent } from "@/lib/agent";
 import { BRAND_SYSTEM_FRAGMENT } from "@/lib/brand";
 import { COMPANY_MEMORY } from "@/lib/company";
+import { FLYER_SPEC, flyerFromProduct, type Flyer } from "@/lib/flyer";
 import { PRODUCTS } from "@/lib/knowledge";
 
 export type MarketingDraft = {
@@ -57,6 +58,13 @@ Field guidance:
 Return a JSON object with exactly this key:
 - fields: array of { field: string, value: string } — one entry per template field, in this exact order: ${COURSE_PAGE_FIELDS.join(", ")}.`;
 
+const FLYER_SYSTEM = `You are the Marketing Writer, ES World's brand-compliant copywriter, producing a FLYER to ES World's standard flyer template.
+${BRAND_SYSTEM_FRAGMENT}
+Use ONLY the provided product knowledge. Copy prices exactly or write "[TBC]" — never invent prices, dates or guarantees. Only list accreditations/trust marks that genuinely apply.
+
+Return a JSON object with exactly this key:
+- ${FLYER_SPEC}`;
+
 function demoDraft(type: string, productName: string): MarketingDraft {
   const code = { Website: "WEB", Flyer: "FLY", Presentation: "PPT", "Social post": "SOC", Email: "EML" }[type] || "GEN";
   return {
@@ -106,12 +114,13 @@ export async function POST(req: NextRequest) {
   }
 
   const isCoursePage = contentType === "Course page";
+  const isFlyer = contentType === "Flyer";
   const knowledge = JSON.stringify(product, null, 2);
 
   if (!hasLiveAgents()) {
-    return isCoursePage
-      ? NextResponse.json({ coursePage: demoCoursePage(product), demo: true })
-      : NextResponse.json({ draft: demoDraft(contentType, product.name), demo: true });
+    if (isCoursePage) return NextResponse.json({ coursePage: demoCoursePage(product), demo: true });
+    if (isFlyer) return NextResponse.json({ flyer: flyerFromProduct(product), demo: true });
+    return NextResponse.json({ draft: demoDraft(contentType, product.name), demo: true });
   }
 
   try {
@@ -123,6 +132,15 @@ export async function POST(req: NextRequest) {
         webSearch: true,
       });
       return NextResponse.json({ coursePage: out.fields, demo: false });
+    }
+    if (isFlyer) {
+      const out = await runJsonAgent<{ flyer: Flyer }>({
+        system: FLYER_SYSTEM,
+        user: `Emphasis from the PM: ${brief || "(none)"}\n\nProduct knowledge (single source of truth):\n${knowledge}\n\nProduce the flyer to the template now.`,
+        maxTokens: 1800,
+        webSearch: true,
+      });
+      return NextResponse.json({ flyer: out.flyer, demo: false });
     }
     const draft = await runJsonAgent<MarketingDraft>({
       system: SYSTEM,
@@ -138,8 +156,8 @@ Write the ${contentType} content now.`,
     });
     return NextResponse.json({ draft, demo: false });
   } catch {
-    return isCoursePage
-      ? NextResponse.json({ coursePage: demoCoursePage(product), demo: true, note: "Live agent errored; showing demo output." })
-      : NextResponse.json({ draft: demoDraft(contentType, product.name), demo: true, note: "Live agent errored; showing demo output." });
+    if (isCoursePage) return NextResponse.json({ coursePage: demoCoursePage(product), demo: true, note: "Live agent errored; showing demo output." });
+    if (isFlyer) return NextResponse.json({ flyer: flyerFromProduct(product), demo: true, note: "Live agent errored; showing demo output." });
+    return NextResponse.json({ draft: demoDraft(contentType, product.name), demo: true, note: "Live agent errored; showing demo output." });
   }
 }
