@@ -43,9 +43,9 @@ export async function runJsonAgent<T>({
   maxSearches?: number;
 }): Promise<T> {
   const client = new Anthropic({ apiKey: apiKey() });
-  // Web search is powerful but costs more — off unless ENABLE_WEB_SEARCH=1.
-  // Agents still work well from the provided product knowledge.
-  const useTools = webSearch && process.env.ENABLE_WEB_SEARCH === "1";
+  // Research is ON by default so tools return real, sourced content.
+  // Set DISABLE_WEB_SEARCH=1 in the env only if you need to cut cost.
+  const useTools = webSearch && process.env.DISABLE_WEB_SEARCH !== "1";
   const fullSystem =
     system +
     (useTools ? "\n\nUse web search only if it clearly improves accuracy." : "") +
