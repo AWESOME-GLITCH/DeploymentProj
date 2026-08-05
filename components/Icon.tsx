@@ -35,6 +35,7 @@ import {
   Users,
   ClipboardList,
   ChevronDown,
+  Boxes,
   type LucideProps,
 } from "lucide-react";
 
@@ -75,6 +76,7 @@ const MAP = {
   Users,
   ClipboardList,
   ChevronDown,
+  Boxes,
 } as const;
 
 export type IconName = keyof typeof MAP;

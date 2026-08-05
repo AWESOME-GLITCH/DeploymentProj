@@ -2,8 +2,13 @@ import Anthropic from "@anthropic-ai/sdk";
 
 export const AGENT_MODEL = process.env.PM_AGENT_MODEL || "claude-sonnet-5";
 
+// Accept the standard name or the PRD_OS name used in this deployment.
+export function apiKey(): string {
+  return process.env.ANTHROPIC_API_KEY || process.env.PRD_OS || "";
+}
+
 export function hasLiveAgents(): boolean {
-  return Boolean(process.env.ANTHROPIC_API_KEY);
+  return Boolean(apiKey());
 }
 
 /** Pull the JSON object out of a model response that may also contain
@@ -36,7 +41,7 @@ export async function runJsonAgent<T>({
   webSearch?: boolean;
   maxSearches?: number;
 }): Promise<T> {
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  const client = new Anthropic({ apiKey: apiKey() });
   const fullSystem =
     system +
     "\n\nWhen research would improve accuracy (competitors, current prices, market facts), use web search first, then respond with ONLY a single valid JSON object — no prose, no markdown fences.";

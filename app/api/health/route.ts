@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const hasKey = !!process.env.ANTHROPIC_API_KEY;
+  const hasKey = !!(process.env.ANTHROPIC_API_KEY || process.env.PRD_OS);
   console.log(`[keycheck] hasKey=${hasKey}`);
   return NextResponse.json({
     hasKey,
