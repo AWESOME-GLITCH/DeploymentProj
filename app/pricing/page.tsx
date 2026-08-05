@@ -66,15 +66,18 @@ export default function PricingPage() {
   const [pct, setPct] = useState(5);
   const [overrides, setOverrides] = useState<Record<string, string>>({});
 
+  const BASE_YEAR = 2026;
+  const yearsAhead = Math.max(0, (Number(year) || BASE_YEAR) - BASE_YEAR);
   function uplift(price: string) {
+    const mult = Math.pow(1 + pct / 100, yearsAhead);
     return price.replace(/[\d][\d,]*(\.\d+)?/g, (m) => {
       const n = Number(m.replace(/,/g, ""));
       if (!n) return m;
-      return Math.round(n * (1 + pct / 100)).toLocaleString();
+      return Math.round(n * mult).toLocaleString();
     });
   }
   const newPrice = (p: (typeof catalog)[number]) => overrides[p.id] ?? uplift(p.price);
-  const prevYear = String(Number(year) - 1);
+  const prevYear = String(BASE_YEAR);
   function pricelistHtml() {
     return (
       H.brandTitle(`Price List ${year} — ES World`, `Generated with a ${pct}% uplift · VAT-inclusive`) +
@@ -151,15 +154,25 @@ export default function PricingPage() {
         <div className="animate-rise">
           <Card className="mb-4 p-4">
             <div className="flex flex-wrap items-end gap-4">
+              <div>
+                <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-faint">Target year</span>
+                <div className="mt-1 flex gap-1.5">
+                  {["2027", "2028", "2029", "2030"].map((y) => (
+                    <button
+                      key={y}
+                      onClick={() => { setYear(y); setOverrides({}); }}
+                      className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${year === y ? "border-brand/40 bg-brand/10 text-brand-soft" : "border-line text-ink-soft hover:text-ink"}`}
+                    >
+                      {y}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <label className="block">
-                <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-faint">New year</span>
-                <input value={year} onChange={(e) => setYear(e.target.value)} className="mt-1 w-24 rounded-lg border border-line bg-bg-soft px-2.5 py-1.5 text-sm text-ink focus:outline-none" />
-              </label>
-              <label className="block">
-                <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-faint">Uplift %</span>
+                <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-faint">Uplift % / year</span>
                 <input type="number" value={pct} onChange={(e) => { setPct(Number(e.target.value)); setOverrides({}); }} className="mt-1 w-24 rounded-lg border border-line bg-bg-soft px-2.5 py-1.5 text-sm text-ink focus:outline-none" />
               </label>
-              <p className="max-w-sm text-xs text-ink-faint">Applies {pct}% to every price. Non-numeric prices (“On request”, “Membership”) stay as-is. Edit any cell to override.</p>
+              <p className="max-w-xs text-xs text-ink-faint">Compounds {pct}%/yr from {BASE_YEAR} → {year} ({yearsAhead} {yearsAhead === 1 ? "year" : "years"}). Non-numeric prices stay as-is; edit any cell to override.</p>
               <div className="ml-auto">
                 <ExportMenu title={`ES World Price List ${year}`} html={pricelistHtml} rows={pricelistRows} />
               </div>

@@ -128,17 +128,20 @@ export default function KnowledgePage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((p) => (
           <button key={p.id} onClick={() => setViewing(p)} className="text-left">
-            <Card className="hover-lift group h-full p-5 hover:border-brand/40">
-              <div className="flex items-start justify-between gap-2">
+            <Card className="hover-lift group flex h-full flex-col p-5 hover:border-brand/40">
+              <div className="flex items-center justify-between gap-2">
+                <span className="rounded-full bg-bg-hover px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-ink-faint">{p.campus}</span>
                 <span className={`rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${stageCls[p.stage]}`}>{p.stage}</span>
+              </div>
+              <h3 className="mt-3 text-lg font-semibold leading-snug text-ink">{p.name || "Untitled"}</h3>
+              <div className="mt-1 text-xs font-medium text-brand-soft">{p.category}</div>
+              <p className="mt-2 line-clamp-2 flex-1 text-sm leading-relaxed text-ink-soft">{p.oneLiner}</p>
+              <div className="mt-4 flex items-center justify-between border-t border-line pt-3">
+                <span className="text-sm font-semibold text-ink">{p.price}</span>
                 <span className="inline-flex items-center gap-1 text-[11px] text-ink-faint">
                   <Icon name="Circle" className={`h-2 w-2 fill-current ${healthColor(p.health)}`} /> {p.health}
                 </span>
               </div>
-              <h3 className="mt-3 text-lg font-semibold text-ink">{p.name || "Untitled"}</h3>
-              <div className="mt-0.5 text-[11px] text-ink-faint">{p.campus} · {p.category}</div>
-              <p className="mt-2 text-sm leading-relaxed text-ink-soft">{p.oneLiner}</p>
-              <div className="mt-4 border-t border-line pt-3 text-sm font-medium text-brand-soft">{p.price}</div>
             </Card>
           </button>
         ))}

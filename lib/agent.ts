@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 
-export const AGENT_MODEL = process.env.PM_AGENT_MODEL || "claude-sonnet-5";
+// Cheap + capable by default. Override with PM_AGENT_MODEL if you want more power.
+export const AGENT_MODEL = process.env.PM_AGENT_MODEL || "claude-haiku-4-5-20251001";
 
 // Accept the standard name or the PRD_OS name used in this deployment.
 export function apiKey(): string {
@@ -42,16 +43,20 @@ export async function runJsonAgent<T>({
   maxSearches?: number;
 }): Promise<T> {
   const client = new Anthropic({ apiKey: apiKey() });
+  // Web search is powerful but costs more — off unless ENABLE_WEB_SEARCH=1.
+  // Agents still work well from the provided product knowledge.
+  const useTools = webSearch && process.env.ENABLE_WEB_SEARCH === "1";
   const fullSystem =
     system +
-    "\n\nWhen research would improve accuracy (competitors, current prices, market facts), use web search first, then respond with ONLY a single valid JSON object — no prose, no markdown fences.";
+    (useTools ? "\n\nUse web search only if it clearly improves accuracy." : "") +
+    "\n\nRespond with ONLY a single valid JSON object — no prose, no markdown fences.";
 
-  async function once(useTools: boolean): Promise<T> {
+  async function once(tools: boolean): Promise<T> {
     const msg = await client.messages.create({
       model: AGENT_MODEL,
       max_tokens: maxTokens,
       system: fullSystem,
-      tools: useTools ? ([{ type: "web_search_20250305", name: "web_search", max_uses: maxSearches }] as any) : undefined,
+      tools: tools ? ([{ type: "web_search_20250305", name: "web_search", max_uses: maxSearches }] as any) : undefined,
       messages: [{ role: "user", content: user }],
     });
     const text = msg.content.map((b) => (b.type === "text" ? b.text : "")).join("");
@@ -59,11 +64,17 @@ export async function runJsonAgent<T>({
   }
 
   try {
-    return await once(webSearch);
+    return await once(useTools);
   } catch (e) {
-    // If web search isn't enabled on the account (or errored), retry without it
-    // so a valid key still produces live output instead of falling back to demo.
-    if (webSearch) return await once(false);
+    console.error("[agent] failed:", (e as Error)?.message || String(e));
+    if (useTools) {
+      try {
+        return await once(false);
+      } catch (e2) {
+        console.error("[agent] retry failed:", (e2 as Error)?.message || String(e2));
+        throw e2;
+      }
+    }
     throw e;
   }
 }
