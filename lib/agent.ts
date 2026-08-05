@@ -12,6 +12,29 @@ export function hasLiveAgents(): boolean {
   return Boolean(apiKey());
 }
 
+/** A web source the agent actually consulted (from the web_search tool). */
+export type Source = { url: string; title: string; age?: string };
+
+/** Pull the real sources out of a response's web_search result + citation blocks. */
+export function extractSources(content: any[]): Source[] {
+  const out: Source[] = [];
+  const seen = new Set<string>();
+  const add = (url?: string, title?: string, age?: string) => {
+    if (!url || seen.has(url)) return;
+    seen.add(url);
+    out.push({ url, title: title || url, age });
+  };
+  for (const b of content || []) {
+    if (b?.type === "web_search_tool_result" && Array.isArray(b.content)) {
+      for (const r of b.content) if (r?.type === "web_search_result") add(r.url, r.title, r.page_age);
+    }
+    if (b?.type === "text" && Array.isArray(b.citations)) {
+      for (const c of b.citations) add(c.url, c.title);
+    }
+  }
+  return out;
+}
+
 /** Pull the JSON object out of a model response that may also contain
  *  research commentary or citations. Grabs the outermost { ... } block. */
 function extractJson(text: string): string {
@@ -29,19 +52,22 @@ function extractJson(text: string): string {
  * agent can search the live web (Anthropic server-side web_search tool) before
  * answering — this is what gives every module its research ability.
  */
-export async function runJsonAgent<T>({
-  system,
-  user,
-  maxTokens = 2000,
-  webSearch = false,
-  maxSearches = 4,
-}: {
-  system: string;
-  user: string;
-  maxTokens?: number;
-  webSearch?: boolean;
-  maxSearches?: number;
-}): Promise<T> {
+export async function runJsonAgent<T>(
+  {
+    system,
+    user,
+    maxTokens = 2000,
+    webSearch = false,
+    maxSearches = 4,
+  }: {
+    system: string;
+    user: string;
+    maxTokens?: number;
+    webSearch?: boolean;
+    maxSearches?: number;
+  },
+  sink?: { sources?: Source[]; searched?: boolean }
+): Promise<T> {
   const client = new Anthropic({ apiKey: apiKey() });
   // Research is ON by default so tools return real, sourced content.
   // Set DISABLE_WEB_SEARCH=1 in the env only if you need to cut cost.
@@ -59,6 +85,10 @@ export async function runJsonAgent<T>({
       tools: tools ? ([{ type: "web_search_20250305", name: "web_search", max_uses: maxSearches }] as any) : undefined,
       messages: [{ role: "user", content: user }],
     });
+    if (sink) {
+      sink.sources = extractSources(msg.content as any[]);
+      sink.searched = tools;
+    }
     const text = msg.content.map((b) => (b.type === "text" ? b.text : "")).join("");
     return JSON.parse(extractJson(text)) as T;
   }

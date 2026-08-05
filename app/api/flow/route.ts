@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { hasLiveAgents, runJsonAgent } from "@/lib/agent";
+import { hasLiveAgents, runJsonAgent, type Source } from "@/lib/agent";
 import { BRAND_SYSTEM_FRAGMENT } from "@/lib/brand";
 import { COMPANY_MEMORY } from "@/lib/company";
 import { FLYER_SPEC, flyerFromProduct } from "@/lib/flyer";
@@ -104,14 +104,18 @@ ${specs}
   const knowledge = product
     ? JSON.stringify(product, null, 2)
     : `(new programme not yet in the catalogue — "${productName}". Base it on the PM's input and ES World's model; use [TBC] for unknowns.)`;
+  const sink: { sources?: Source[]; searched?: boolean } = {};
   try {
-    const artifacts = await runJsonAgent<Record<string, any>>({
-      system,
-      user: `Programme: ${productName}\n\nProduct knowledge (single source of truth — use these real facts):\n${knowledge}\n\nWhat the PM is launching / doing:\n${input}\n\nProduce all requested artifacts now, using ES World's formats and the real facts above.`,
-      maxTokens: 3000,
-      webSearch: true,
-    });
-    return NextResponse.json({ artifacts, plan, demo: false });
+    const artifacts = await runJsonAgent<Record<string, any>>(
+      {
+        system,
+        user: `Programme: ${productName}\n\nProduct knowledge (single source of truth — use these real facts):\n${knowledge}\n\nWhat the PM is launching / doing:\n${input}\n\nProduce all requested artifacts now, using ES World's formats and the real facts above.`,
+        maxTokens: 3000,
+        webSearch: true,
+      },
+      sink
+    );
+    return NextResponse.json({ artifacts, plan, demo: false, sources: sink.sources || [], searched: Boolean(sink.searched) });
   } catch {
     return NextResponse.json({ artifacts: demoArtifacts(producing, product), plan, demo: true, note: "Live agent errored; showing demo output." });
   }

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { hasLiveAgents, runJsonAgent } from "@/lib/agent";
+import { hasLiveAgents, runJsonAgent, type Source } from "@/lib/agent";
 import { memoryBlock } from "@/lib/memory";
 
 export type PricingAnalysis = {
@@ -62,19 +62,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ analysis: demo(name, currentPrice), demo: true });
   }
   const memory = memoryBlock(null, b.corrections);
+  const sink: { sources?: Source[]; searched?: boolean } = {};
   try {
-    const analysis = await runJsonAgent<PricingAnalysis>({
-      system: SYSTEM,
-      user: `Programme: ${name} (${campus || "—"})
+    const analysis = await runJsonAgent<PricingAnalysis>(
+      {
+        system: SYSTEM,
+        user: `Programme: ${name} (${campus || "—"})
 Current price: ${currentPrice || "—"}
 Target market / region: ${market || "general"}
 Unit economics entered by the PM: ${economics || "not provided"}${memory}
 
 Research the live market and recommend pricing now.`,
-      maxTokens: 2500,
-      webSearch: true,
-    });
-    return NextResponse.json({ analysis, demo: false });
+        maxTokens: 2500,
+        webSearch: true,
+      },
+      sink
+    );
+    return NextResponse.json({ analysis, demo: false, sources: sink.sources || [], searched: Boolean(sink.searched) });
   } catch {
     return NextResponse.json({ analysis: demo(name, currentPrice), demo: true, note: "Live agent errored; showing demo output." });
   }

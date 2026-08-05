@@ -18,6 +18,7 @@ import { FlyerView } from "@/components/FlyerView";
 import { flyerToHtml } from "@/lib/flyer";
 import { ProposalFormView } from "@/components/ProposalFormView";
 import { proposalFormToHtml } from "@/lib/proposalForm";
+import { Sources, type Source } from "@/components/Sources";
 import { H } from "@/lib/export";
 
 function artifactToHtml(k: string, v: any): string {
@@ -303,6 +304,8 @@ export default function FlowPage() {
   const [artifacts, setArtifacts] = useState<Record<string, any> | null>(null);
   const [plan, setPlan] = useState<PlanItem[] | null>(null);
   const [demo, setDemo] = useState(false);
+  const [sources, setSources] = useState<Source[]>([]);
+  const [searched, setSearched] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -344,6 +347,8 @@ export default function FlowPage() {
       if (!res.ok) throw new Error(data.error || "Something went wrong");
       setArtifacts(data.artifacts || {});
       setPlan(data.plan || []);
+      setSources(data.sources || []);
+      setSearched(Boolean(data.searched));
       setDemo(Boolean(data.demo));
     } catch (e: any) {
       setError(e.message);
@@ -553,6 +558,9 @@ export default function FlowPage() {
               />
             </div>
           </div>
+
+          {/* Provenance for the whole run */}
+          {!demo && (searched || sources.length > 0) && <Sources sources={sources} searched={searched} />}
 
           {/* Assets tab */}
           {tab === "assets" && (

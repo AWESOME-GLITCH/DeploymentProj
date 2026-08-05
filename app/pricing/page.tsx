@@ -9,10 +9,11 @@ import { Card, Button, SectionLabel, ConfidenceBadge } from "@/components/ui";
 import { Icon } from "@/components/Icon";
 import { ExportMenu } from "@/components/ExportMenu";
 import { SaveToProgramme } from "@/components/SaveToProgramme";
+import { Sources, type Source } from "@/components/Sources";
 import { H } from "@/lib/export";
 import type { PricingAnalysis } from "../api/pricing/route";
 
-function pricingHtml(name: string, a: PricingAnalysis) {
+function pricingHtml(name: string, a: PricingAnalysis, sources: Source[] = []) {
   return (
     H.brandTitle(`Pricing — ${name}`, "ES World") +
     H.kv("Recommended", a.recommendedPrice) +
@@ -24,7 +25,10 @@ function pricingHtml(name: string, a: PricingAnalysis) {
     a.competitors.map((c) => `<tr><td>${c.name}</td><td>${c.price}</td><td>${c.confidence}</td><td>${c.note}</td></tr>`).join("") +
     "</table>" +
     H.h2("Market trends") + H.ul(a.trends.map((t) => `${t.note} (${t.confidence})`)) +
-    H.h2("Risks") + H.ul(a.risks)
+    H.h2("Risks") + H.ul(a.risks) +
+    (sources.length
+      ? H.h2("Sources") + "<ol>" + sources.map((s) => `<li><a href="${s.url}">${s.title}</a> — ${s.url}</li>`).join("") + "</ol>"
+      : "")
   );
 }
 
@@ -55,6 +59,8 @@ export default function PricingPage() {
   const [market, setMarket] = useState("");
 
   const [analysis, setAnalysis] = useState<PricingAnalysis | null>(null);
+  const [sources, setSources] = useState<Source[]>([]);
+  const [searched, setSearched] = useState(false);
   const [loading, setLoading] = useState(false);
   const [demo, setDemo] = useState(false);
   const [step, setStep] = useState(0);
@@ -121,6 +127,8 @@ export default function PricingPage() {
       });
       const data = await res.json();
       setAnalysis(data.analysis);
+      setSources(data.sources || []);
+      setSearched(Boolean(data.searched));
       setDemo(Boolean(data.demo));
     } finally {
       clearInterval(timer);
@@ -284,10 +292,10 @@ export default function PricingPage() {
                 </div>
               )}
               <div className="flex justify-end gap-2">
-                <SaveToProgramme kind="Pricing" title={`Pricing — ${product.name}`} getHtml={() => pricingHtml(product.name, analysis)} />
+                <SaveToProgramme kind="Pricing" title={`Pricing — ${product.name}`} getHtml={() => pricingHtml(product.name, analysis, sources)} />
                 <ExportMenu
                   title={`Pricing ${product.name}`}
-                  html={() => pricingHtml(product.name, analysis)}
+                  html={() => pricingHtml(product.name, analysis, sources)}
                   rows={() => [["Competitor", "Price", "Confidence", "Note"], ...analysis.competitors.map((c) => [c.name, c.price, c.confidence, c.note] as string[])]}
                 />
               </div>
@@ -343,6 +351,9 @@ export default function PricingPage() {
                   </ul>
                 </Card>
               </div>
+
+              {/* Provenance — where the researched figures came from */}
+              {!demo && <Sources sources={sources} searched={searched} />}
             </div>
           )}
         </div>
