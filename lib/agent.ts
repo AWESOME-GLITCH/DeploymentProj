@@ -35,16 +35,29 @@ export function extractSources(content: any[]): Source[] {
   return out;
 }
 
-/** Pull the JSON object out of a model response that may also contain
- *  research commentary or citations. Grabs the outermost { ... } block. */
+/** Pull the FIRST balanced JSON object out of a model response that may wrap it
+ *  in prose ("I need to…"), code fences, or trailing commentary/citations.
+ *  Scans brace depth while respecting strings, so preamble/postamble can't break it. */
 function extractJson(text: string): string {
   const cleaned = text.trim().replace(/^```(?:json)?/i, "").replace(/```$/i, "").trim();
-  const first = cleaned.indexOf("{");
-  const last = cleaned.lastIndexOf("}");
-  if (first !== -1 && last !== -1 && last > first) {
-    return cleaned.slice(first, last + 1);
+  const start = cleaned.indexOf("{");
+  if (start === -1) return cleaned;
+  let depth = 0, inStr = false, esc = false;
+  for (let i = start; i < cleaned.length; i++) {
+    const c = cleaned[i];
+    if (inStr) {
+      if (esc) esc = false;
+      else if (c === "\\") esc = true;
+      else if (c === '"') inStr = false;
+    } else if (c === '"') inStr = true;
+    else if (c === "{") depth++;
+    else if (c === "}") {
+      depth--;
+      if (depth === 0) return cleaned.slice(start, i + 1);
+    }
   }
-  return cleaned;
+  // Unbalanced (truncated) — return best effort from the first brace.
+  return cleaned.slice(start);
 }
 
 /**
@@ -58,7 +71,7 @@ export async function runJsonAgent<T>(
     user,
     maxTokens = 2000,
     webSearch = false,
-    maxSearches = 4,
+    maxSearches = 2,
   }: {
     system: string;
     user: string;
@@ -69,9 +82,9 @@ export async function runJsonAgent<T>(
   sink?: { sources?: Source[]; searched?: boolean }
 ): Promise<T> {
   const client = new Anthropic({ apiKey: apiKey() });
-  // Research is ON by default so tools return real, sourced content.
-  // Set DISABLE_WEB_SEARCH=1 in the env only if you need to cut cost.
-  const useTools = webSearch && process.env.DISABLE_WEB_SEARCH !== "1";
+  // Research (web search) is OFF by default — it's the costly part. Agents still
+  // work from your Knowledge. Turn live research on deliberately: ENABLE_WEB_SEARCH=1.
+  const useTools = webSearch && process.env.ENABLE_WEB_SEARCH === "1";
   const fullSystem =
     system +
     (useTools ? "\n\nUse web search only if it clearly improves accuracy." : "") +

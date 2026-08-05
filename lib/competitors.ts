@@ -59,7 +59,7 @@ export async function researchMatrix(): Promise<MatrixResult> {
   const sink: { sources?: Source[]; searched?: boolean } = {};
   try {
     const matrix = await runJsonAgent<CompetitorMatrix>(
-      { system: SYSTEM, user: "Build the current ES World competitor feature/gap matrix and pricing snapshot now. Research live where you can.", maxTokens: 3000, webSearch: true },
+      { system: SYSTEM, user: "Build the current ES World competitor feature/gap matrix and pricing snapshot now. Research live where you can.", maxTokens: 4096, webSearch: true },
       sink
     );
     return { matrix, demo: false, sources: sink.sources || [], searched: Boolean(sink.searched) };

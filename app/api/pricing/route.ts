@@ -73,7 +73,7 @@ Target market / region: ${market || "general"}
 Unit economics entered by the PM: ${economics || "not provided"}${memory}
 
 Research the live market and recommend pricing now.`,
-        maxTokens: 2500,
+        maxTokens: 4096,
         webSearch: true,
       },
       sink

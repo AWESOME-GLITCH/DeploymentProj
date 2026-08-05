@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
     const brief = await runJsonAgent<Brief>({
       system: SYSTEM,
       user: `Here is the messy input. Synthesize it into a structured product brief.${memory}\n\nThe PM's input:\n${input}`,
-      maxTokens: 2000,
+      maxTokens: 3000,
       webSearch: true,
     });
     return NextResponse.json({ brief, demo: false });

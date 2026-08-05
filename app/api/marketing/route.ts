@@ -128,7 +128,7 @@ export async function POST(req: NextRequest) {
       const out = await runJsonAgent<{ fields: CourseField[] }>({
         system: COURSE_SYSTEM,
         user: `Emphasis from the PM: ${brief || "(none)"}\n\nProduct knowledge (single source of truth):\n${knowledge}\n\nFill the Course Template now.`,
-        maxTokens: 2200,
+        maxTokens: 3000,
         webSearch: true,
       });
       return NextResponse.json({ coursePage: out.fields, demo: false });
@@ -151,7 +151,7 @@ Product knowledge (single source of truth — use only these facts):
 ${knowledge}
 
 Write the ${contentType} content now.`,
-      maxTokens: 2200,
+      maxTokens: 3000,
       webSearch: true,
     });
     return NextResponse.json({ draft, demo: false });

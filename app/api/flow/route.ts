@@ -110,7 +110,7 @@ ${specs}
       {
         system,
         user: `Programme: ${productName}\n\nProduct knowledge (single source of truth — use these real facts):\n${knowledge}\n\nWhat the PM is launching / doing:\n${input}\n\nProduce all requested artifacts now, using ES World's formats and the real facts above.`,
-        maxTokens: 3000,
+        maxTokens: 8000,
         webSearch: true,
       },
       sink

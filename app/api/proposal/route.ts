@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     const proposal = await runJsonAgent<ProposalForm>({
       system: SYSTEM,
       user: `Fill the Product Proposal Form from this input.${memory}\n\nThe PM's input:\n${input}`,
-      maxTokens: 3000,
+      maxTokens: 5000,
       webSearch: true,
     });
     return NextResponse.json({ proposal, demo: false });

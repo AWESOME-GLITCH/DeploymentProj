@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
     const analysis = await runJsonAgent<FeedbackAnalysis>({
       system: SYSTEM,
       user: `Analyse this feedback. Preserve verbatim quotes; do not invent anything.\n\n${input.slice(0, 24000)}`,
-      maxTokens: 3000,
+      maxTokens: 4096,
     });
     return NextResponse.json({ analysis, demo: false });
   } catch {
