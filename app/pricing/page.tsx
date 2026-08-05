@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getModule } from "@/lib/modules";
 import { PRODUCTS } from "@/lib/knowledge";
 import { useProducts } from "@/lib/store";
@@ -68,6 +68,12 @@ export default function PricingPage() {
   // Price-list generator
   const { products: catalog } = useProducts();
   const [mode, setMode] = useState<"analyse" | "pricelist">("analyse");
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.localStorage.getItem("es-pricing-mode") === "pricelist") {
+      setMode("pricelist");
+      window.localStorage.removeItem("es-pricing-mode");
+    }
+  }, []);
   const [year, setYear] = useState("2027");
   const [pct, setPct] = useState(5);
   const [overrides, setOverrides] = useState<Record<string, string>>({});

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getModule } from "@/lib/modules";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, Button, SectionLabel } from "@/components/ui";
@@ -78,6 +78,12 @@ export default function BriefPage() {
   const [productId, setProductId] = useState("");
   const { corrections } = useCorrections(productId || undefined);
   const [input, setInput] = useState("");
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.localStorage.getItem("es-brief-mode") === "proposal") {
+      setMode("proposal");
+      window.localStorage.removeItem("es-brief-mode");
+    }
+  }, []);
   const [brief, setBrief] = useState<Brief | null>(null);
   const [proposal, setProposal] = useState<Proposal | null>(null);
   const [loading, setLoading] = useState(false);

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Sidebar } from "@/components/Sidebar";
+import { CommandBar } from "@/components/CommandBar";
+import { SynthesisBar } from "@/components/SynthesisBar";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -28,7 +30,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen bg-bg font-sans text-ink antialiased">
         <div className="pointer-events-none fixed left-1/2 top-[-20%] -z-10 h-[520px] w-[820px] -translate-x-1/2 rounded-full bg-brand/[0.07] blur-[160px] print:hidden" />
         <Sidebar />
-        <main className="ml-64 min-h-screen">{children}</main>
+        <CommandBar />
+        <main className="ml-64 min-h-screen">
+          <SynthesisBar />
+          {children}
+        </main>
       </body>
     </html>
   );

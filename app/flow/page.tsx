@@ -105,7 +105,7 @@ function ArtifactCard({ k, data, onFix, fixing }: { k: string; data: any; onFix:
           />
           <div className="flex gap-2">
             <button onClick={submit} disabled={fixing || note.trim().length < 3} className="inline-flex items-center gap-1.5 rounded-full bg-accent-rose px-3 py-1.5 text-xs font-semibold text-white hover:brightness-110 disabled:opacity-40">
-              <Icon name={fixing ? "Loader2" : "Sparkles"} className={`h-3.5 w-3.5 ${fixing ? "animate-spin" : ""}`} /> Save &amp; redo this step
+              <Icon name={fixing ? "Loader2" : "Sparkles"} className={`h-3.5 w-3.5 ${fixing ? "animate-spin" : ""}`} /> Save &amp; update the whole flow
             </button>
             <button onClick={() => { setOpen(false); setNote(""); }} className="rounded-full px-3 py-1.5 text-xs text-ink-faint hover:text-ink">Cancel</button>
           </div>
@@ -194,16 +194,18 @@ export default function FlowPage() {
   const [savedLib, setSavedLib] = useState(false);
   const { corrections, add: addCorrection, remove: removeCorrection } = useCorrections(productId);
   const [fixingKey, setFixingKey] = useState<string | null>(null);
-  const [flowStale, setFlowStale] = useState(false);
-  const [refreshingAll, setRefreshingAll] = useState(false);
+  const [propagating, setPropagating] = useState(false);
   const [tab, setTab] = useState<"assets" | "team">("assets");
 
-  // Re-run every currently-generated artifact with all corrections applied,
-  // so a single fix propagates across the whole flow and stays consistent.
-  async function refreshFlow() {
-    if (!artifacts) return;
-    const keys = Object.keys(artifacts);
-    setRefreshingAll(true);
+  // AUTOMATIC PROPAGATION: save the PM's correction, then regenerate EVERY
+  // generated asset with all corrections applied — so one fix flows through the
+  // whole flow on its own. No manual "update" button.
+  async function fixArtifact(kind: string, note: string) {
+    addCorrection({ productId, kind, note });
+    setFixingKey(kind);
+    setPropagating(true);
+    const applied = [...corrections.map((c) => ({ kind: c.kind, note: c.note })), { kind, note }];
+    const keys = Object.keys(artifacts || {});
     try {
       const res = await fetch("/api/flow", {
         method: "POST",
@@ -214,51 +216,21 @@ export default function FlowPage() {
           newName: productId === "__new__" ? newName : undefined,
           region,
           actions: keys,
-          corrections: corrections.map((c) => ({ kind: c.kind, note: c.note })),
+          corrections: applied,
         }),
       });
       const data = await res.json();
       if (res.ok && data.artifacts) {
         setArtifacts((prev) => ({ ...(prev || {}), ...data.artifacts }));
-        setFlowStale(false);
+        setSources(data.sources || []);
+        setSearched(Boolean(data.searched));
         setSavedLib(false);
       }
     } catch {
-      /* keep what we have */
-    } finally {
-      setRefreshingAll(false);
-    }
-  }
-
-  // Save the PM's correction, then regenerate just that one artifact with all corrections applied.
-  async function fixArtifact(kind: string, note: string) {
-    addCorrection({ productId, kind, note });
-    setFixingKey(kind);
-    const applied = [...corrections.map((c) => ({ kind: c.kind, note: c.note })), { kind, note }];
-    try {
-      const res = await fetch("/api/flow", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          input,
-          productId: productId === "__new__" ? undefined : productId,
-          newName: productId === "__new__" ? newName : undefined,
-          region,
-          actions: [kind],
-          corrections: applied,
-        }),
-      });
-      const data = await res.json();
-      if (res.ok && data.artifacts && data.artifacts[kind]) {
-        setArtifacts((prev) => ({ ...(prev || {}), [kind]: data.artifacts[kind] }));
-        setSavedLib(false);
-        // Other assets may rely on the same fact — offer to refresh them.
-        if (Object.keys(artifacts || {}).length > 1) setFlowStale(true);
-      }
-    } catch {
-      /* keep the old artifact if the redo fails */
+      /* keep what we have if the propagation fails */
     } finally {
       setFixingKey(null);
+      setPropagating(false);
     }
   }
 
@@ -328,7 +300,6 @@ export default function FlowPage() {
     setArtifacts(null);
     setPlan(null);
     setSavedLib(false);
-    setFlowStale(false);
     const timer = setInterval(() => setStep((s) => (s + 1) % THINKING.length), 800);
     try {
       const res = await fetch("/api/flow", {
@@ -509,15 +480,10 @@ export default function FlowPage() {
               Demo mode — add an ANTHROPIC_API_KEY for live, researched output.
             </div>
           )}
-          {flowStale && (
-            <div className="flex flex-wrap items-center gap-3 rounded-xl border border-brand/30 bg-brand/[0.06] px-3 py-2.5">
-              <Icon name="Workflow" className="h-4 w-4 shrink-0 text-brand-soft" />
-              <span className="flex-1 text-sm text-ink-soft">You corrected one asset. Refresh the rest so the whole flow matches.</span>
-              <Button variant="subtle" onClick={refreshFlow} disabled={refreshingAll}>
-                <Icon name={refreshingAll ? "Loader2" : "Workflow"} className={`h-4 w-4 ${refreshingAll ? "animate-spin" : ""}`} />
-                {refreshingAll ? "Updating flow…" : "Update the full flow"}
-              </Button>
-              <button onClick={() => setFlowStale(false)} className="text-xs text-ink-faint hover:text-ink">Dismiss</button>
+          {propagating && (
+            <div className="flex items-center gap-3 rounded-xl border border-brand/30 bg-brand/[0.06] px-3 py-2.5">
+              <Icon name="Loader2" className="h-4 w-4 shrink-0 animate-spin text-brand-soft" />
+              <span className="text-sm text-ink-soft">Your correction is propagating across every asset so the whole flow stays consistent…</span>
             </div>
           )}
 
