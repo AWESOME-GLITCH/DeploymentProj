@@ -19,45 +19,6 @@ export type Showcase = {
 };
 
 export const SHOWCASE: Record<string, Showcase> = {
-  analytics: {
-    steps: [
-      { title: "Feed data", detail: "Upload enrolments, attendance, enquiry logs, or a spreadsheet export." },
-      { title: "Agent analyses", detail: "Cohorts, funnels, retention, trend & anomaly detection — decomposed properly." },
-      { title: "Honest insights", detail: "Every card carries sample size, confidence, and a correlation-vs-causation label." },
-    ],
-    capabilities: [
-      "Cohort analysis (by campus, course, level, intake)",
-      "Enquiry → consult → enrolment funnels with drop-off detection",
-      "Retention / re-enrolment curves (spot the leaky bucket)",
-      "Seasonally-aware trend & anomaly detection",
-    ],
-    guardrail:
-      "The agent refuses to state causation from correlation, flags small samples, and never presents one 'significant' slice out of many as the finding.",
-    sample: {
-      kind: "insights",
-      title: "Sample insights · Dubai courses",
-      items: [
-        {
-          claim: "Speaking Class enrolments dip ~22% in Jun–Aug vs. term-time.",
-          confidence: "high",
-          meta: "n = 3 years of intake data · seasonally decomposed",
-          label: "seasonal pattern",
-        },
-        {
-          claim: "Flex Lessons students who attend a free first session enrol at a higher rate.",
-          confidence: "medium",
-          meta: "n = 48 · observational",
-          label: "correlation — not causation",
-        },
-        {
-          claim: "CELTA enquiries spike 2–3 weeks after each intake opens.",
-          confidence: "medium",
-          meta: "n = 9 course runs",
-          label: "trend candidate — verify",
-        },
-      ],
-    },
-  },
   feedback: {
     steps: [
       { title: "Ingest feedback", detail: "Surveys, course reviews, focus-group transcripts, enquiry notes — any text stream." },
