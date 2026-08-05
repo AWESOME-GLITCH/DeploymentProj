@@ -50,34 +50,18 @@ function flowHtml(artifacts: Record<string, any> | null, plan: any[] | null) {
 }
 
 const M = getModule("flow")!;
-const DEFAULT_ON: FlowActionKey[] = ["brief", "pricing", "flyer", "website", "sales"];
-// Logical reading order for the deliverables, and which ones read best full-width.
-const ASSET_ORDER = ["brief", "pricing", "flyer", "presentation", "website", "proposal"];
-const WIDE_ASSETS = new Set(["website", "proposal"]);
+const DEFAULT_ON: FlowActionKey[] = ["brief", "pricing", "flyer", "website"];
+// The producing steps in the order the pipeline runs them.
+const STEP_ORDER = ["brief", "pricing", "flyer", "presentation", "website", "proposal"];
 const ASSET_TITLE: Record<string, string> = { brief: "Product Brief", pricing: "Pricing", flyer: "Marketing Flyer", presentation: "Presentation", website: "Website Course Page", proposal: "Proposal" };
 
-const THINKING = [
-  "Reading your input…",
-  "Pulling programme facts from Knowledge…",
-  "Researching the market…",
-  "Drafting each asset…",
-  "Assigning owners across the team…",
-  "Assembling the action board…",
-];
+const THINKING = ["Reading your input…", "Pulling programme facts…", "Drafting this asset…", "Formatting it…", "Almost there…"];
 
-function ArtifactCard({ k, data, onFix, fixing }: { k: string; data: any; onFix: (kind: string, note: string) => void; fixing: boolean }) {
-  const title: Record<string, string> = {
-    brief: "Product Brief",
-    pricing: "Pricing",
-    flyer: "Marketing Flyer",
-    presentation: "Presentation",
-    website: "Website Course Page",
-    proposal: "Proposal",
-  };
+function ArtifactCard({ k, data, onFix, fixing }: { k: string; data: any; onFix?: (kind: string, note: string) => void; fixing?: boolean }) {
   const [open, setOpen] = useState(false);
   const [note, setNote] = useState("");
   function submit() {
-    if (!note.trim()) return;
+    if (!note.trim() || !onFix) return;
     onFix(k, note.trim());
     setNote("");
     setOpen(false);
@@ -86,26 +70,28 @@ function ArtifactCard({ k, data, onFix, fixing }: { k: string; data: any; onFix:
     <Card glow="51,214,192" className="p-4">
       <div className="mb-2 flex items-center gap-2">
         <Icon name={fixing ? "Loader2" : "Check"} className={`h-4 w-4 text-accent-teal ${fixing ? "animate-spin" : ""}`} />
-        <h4 className="font-semibold text-ink">{title[k] ?? k}</h4>
-        <button
-          onClick={() => setOpen((v) => !v)}
-          className="ml-auto inline-flex items-center gap-1 rounded-full border border-line px-2.5 py-1 text-[11px] text-ink-faint transition-colors hover:border-accent-rose/40 hover:text-accent-rose"
-        >
-          <Icon name="Flag" className="h-3 w-3" /> This is wrong
-        </button>
+        <h4 className="font-semibold text-ink">{ASSET_TITLE[k] ?? k}</h4>
+        {onFix && (
+          <button
+            onClick={() => setOpen((v) => !v)}
+            className="ml-auto inline-flex items-center gap-1 rounded-full border border-line px-2.5 py-1 text-[11px] text-ink-faint transition-colors hover:border-accent-rose/40 hover:text-accent-rose"
+          >
+            <Icon name="Flag" className="h-3 w-3" /> This is wrong
+          </button>
+        )}
       </div>
-      {open && (
+      {open && onFix && (
         <div className="mb-3 space-y-2 rounded-xl border border-accent-rose/25 bg-accent-rose/[0.06] p-3">
           <div className="text-[11px] font-semibold uppercase tracking-wide text-accent-rose">What's wrong? Give the correct version — it's remembered</div>
           <textarea
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            placeholder="e.g. The price is wrong — the Diploma is AED 18,900 incl. VAT, not 'On request'. And the audience is career-changers 25-40, not students."
+            placeholder="e.g. The price is wrong — the Diploma is AED 18,900 incl. VAT. And the audience is career-changers 25-40."
             className="h-24 w-full resize-none rounded-lg border border-line bg-bg-soft px-2.5 py-2 text-sm text-ink placeholder:text-ink-faint focus:border-accent-rose/40 focus:outline-none"
           />
           <div className="flex gap-2">
             <button onClick={submit} disabled={fixing || note.trim().length < 3} className="inline-flex items-center gap-1.5 rounded-full bg-accent-rose px-3 py-1.5 text-xs font-semibold text-white hover:brightness-110 disabled:opacity-40">
-              <Icon name={fixing ? "Loader2" : "Sparkles"} className={`h-3.5 w-3.5 ${fixing ? "animate-spin" : ""}`} /> Save &amp; update the whole flow
+              <Icon name={fixing ? "Loader2" : "Sparkles"} className={`h-3.5 w-3.5 ${fixing ? "animate-spin" : ""}`} /> Save &amp; redo this step
             </button>
             <button onClick={() => { setOpen(false); setNote(""); }} className="rounded-full px-3 py-1.5 text-xs text-ink-faint hover:text-ink">Cancel</button>
           </div>
@@ -137,9 +123,7 @@ function ArtifactCard({ k, data, onFix, fixing }: { k: string; data: any; onFix:
             <div className="font-medium text-ink">{data.title}</div>
             {(data.slides || []).map((s: any, i: number) => (
               <div key={i} className="rounded-lg border border-line bg-bg-soft/50 p-2">
-                <div className="text-xs font-semibold text-ink">
-                  {i + 1}. {s.title}
-                </div>
+                <div className="text-xs font-semibold text-ink">{i + 1}. {s.title}</div>
                 <Bullets items={s.points} small />
               </div>
             ))}
@@ -183,6 +167,8 @@ function Bullets({ items, small }: { items?: string[]; small?: boolean }) {
   );
 }
 
+type Phase = "idle" | "running" | "review" | "done";
+
 export default function FlowPage() {
   const { products, add } = useProducts();
   const { add: addItem } = useItems();
@@ -190,22 +176,43 @@ export default function FlowPage() {
   const [productId, setProductId] = useState("athe-diploma");
   const [newName, setNewName] = useState("");
   const [region, setRegion] = useState("All regions");
-  const [saved, setSaved] = useState(false);
-  const [savedLib, setSavedLib] = useState(false);
+  const [selected, setSelected] = useState<FlowActionKey[]>(DEFAULT_ON);
   const { corrections, add: addCorrection, remove: removeCorrection } = useCorrections(productId);
-  const [fixingKey, setFixingKey] = useState<string | null>(null);
-  const [propagating, setPropagating] = useState(false);
-  const [tab, setTab] = useState<"assets" | "team">("assets");
 
-  // AUTOMATIC PROPAGATION: save the PM's correction, then regenerate EVERY
-  // generated asset with all corrections applied — so one fix flows through the
-  // whole flow on its own. No manual "update" button.
-  async function fixArtifact(kind: string, note: string) {
-    addCorrection({ productId, kind, note });
-    setFixingKey(kind);
-    setPropagating(true);
-    const applied = [...corrections.map((c) => ({ kind: c.kind, note: c.note })), { kind, note }];
-    const keys = Object.keys(artifacts || {});
+  // step-by-step engine
+  const [queue, setQueue] = useState<string[]>([]);
+  const [artifacts, setArtifacts] = useState<Record<string, any>>({});
+  const [activeIdx, setActiveIdx] = useState(0);
+  const [phase, setPhase] = useState<Phase>("idle");
+  const [plan, setPlan] = useState<PlanItem[] | null>(null);
+  const [demo, setDemo] = useState(false);
+  const [sources, setSources] = useState<Source[]>([]);
+  const [searched, setSearched] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [tick, setTick] = useState(0);
+  const [savedLib, setSavedLib] = useState(false);
+
+  useEffect(() => {
+    const stash = typeof window !== "undefined" ? window.localStorage.getItem("es-flow-input") : null;
+    if (stash) { setInput(stash); window.localStorage.removeItem("es-flow-input"); }
+  }, []);
+
+  const programmeName = products.find((p) => p.id === productId)?.name || (productId === "__new__" ? newName : "") || "New offering";
+  const currentKey = queue[activeIdx];
+  const isLast = activeIdx >= queue.length - 1;
+  const started = phase !== "idle";
+
+  function toggle(k: FlowActionKey) {
+    setSelected((s) => (s.includes(k) ? s.filter((x) => x !== k) : [...s, k]));
+  }
+
+  // Generate exactly ONE step (one cheap API call). Nothing else runs.
+  async function generateStep(q: string[], idx: number, extraCorrections?: { kind: string; note: string }[]) {
+    const key = q[idx];
+    if (!key) return;
+    setPhase("running");
+    setError(null);
+    const timer = setInterval(() => setTick((t) => (t + 1) % THINKING.length), 800);
     try {
       const res = await fetch("/api/flow", {
         method: "POST",
@@ -215,122 +222,70 @@ export default function FlowPage() {
           productId: productId === "__new__" ? undefined : productId,
           newName: productId === "__new__" ? newName : undefined,
           region,
-          actions: keys,
-          corrections: applied,
+          actions: [key],
+          corrections: extraCorrections ?? corrections.map((c) => ({ kind: c.kind, note: c.note })),
         }),
       });
       const data = await res.json();
-      if (res.ok && data.artifacts) {
-        setArtifacts((prev) => ({ ...(prev || {}), ...data.artifacts }));
-        setSources(data.sources || []);
-        setSearched(Boolean(data.searched));
-        setSavedLib(false);
-      }
-    } catch {
-      /* keep what we have if the propagation fails */
+      if (!res.ok) throw new Error(data.error || "Something went wrong");
+      setArtifacts((prev) => ({ ...prev, [key]: data.artifacts?.[key] }));
+      if (data.plan) setPlan(data.plan);
+      setDemo(Boolean(data.demo));
+      setSources(data.sources || []);
+      setSearched(Boolean(data.searched));
+      setPhase("review");
+    } catch (e: any) {
+      setError(e.message);
+      setPhase("review");
     } finally {
-      setFixingKey(null);
-      setPropagating(false);
+      clearInterval(timer);
+      setTick(0);
     }
   }
 
+  function start() {
+    const q = STEP_ORDER.filter((k) => selected.includes(k as FlowActionKey));
+    if (!q.length) { setError("Pick at least one asset to build."); return; }
+    setQueue(q);
+    setArtifacts({});
+    setActiveIdx(0);
+    setSavedLib(false);
+    generateStep(q, 0);
+  }
+  function approve() {
+    if (isLast) { setPhase("done"); return; }
+    const next = activeIdx + 1;
+    setActiveIdx(next);
+    generateStep(queue, next);
+  }
+  function redo() {
+    generateStep(queue, activeIdx);
+  }
+  function correctAndRedo(kind: string, note: string) {
+    addCorrection({ productId, kind, note });
+    generateStep(queue, activeIdx, [...corrections.map((c) => ({ kind: c.kind, note: c.note })), { kind, note }]);
+  }
+  function stopHere() { setPhase("done"); }
+  function restart() { setPhase("idle"); setQueue([]); setArtifacts({}); setActiveIdx(0); setSavedLib(false); setError(null); }
+
   function saveAll() {
-    if (!artifacts) return;
+    if (!Object.keys(artifacts).length) return;
     let pid = productId;
-    let pname = products.find((p) => p.id === productId)?.name || newName || "New offering";
+    let pname = programmeName;
     if (productId === "__new__") {
       pid = newId();
-      add({ id: pid, name: (newName || "New offering").trim(), campus: "Dubai", category: "English", stage: "New", oneLiner: input.slice(0, 140), audience: "", format: "[TBC]", price: "On request", tags: ["new", "from-flow"], health: 60, assets: 0, updated: "2026" });
+      add({ id: pid, name: (newName || "New offering").trim(), campus: "Dubai", category: "English", stage: "New", oneLiner: input.slice(0, 140), audience: "", format: "[TBC]", price: "On request", tags: ["new", "from-flow"], health: 60, assets: 0, updated: "2026" } as Product);
       pname = newName || "New offering";
     }
     for (const [k, v] of Object.entries(artifacts)) {
+      if (!v) continue;
       const label = KLABEL[k] || k;
       addItem({ id: newId(), productId: pid, kind: label, title: `${label} — ${pname}`, html: artifactToHtml(k, v) });
     }
     setSavedLib(true);
   }
 
-  function saveNewProgramme() {
-    if (!newName.trim()) return;
-    const p: Product = {
-      id: newId(),
-      name: newName.trim(),
-      campus: "Dubai",
-      category: "English",
-      stage: "New",
-      oneLiner: input.slice(0, 140),
-      audience: "",
-      format: "[TBC]",
-      price: "On request",
-      tags: ["new", "from-flow"],
-      health: 60,
-      assets: 0,
-      updated: "2026",
-    };
-    add(p);
-    setSaved(true);
-  }
-  const [selected, setSelected] = useState<FlowActionKey[]>(DEFAULT_ON);
-  const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState(0);
-  const [artifacts, setArtifacts] = useState<Record<string, any> | null>(null);
-  const [plan, setPlan] = useState<PlanItem[] | null>(null);
-  const [demo, setDemo] = useState(false);
-  const [sources, setSources] = useState<Source[]>([]);
-  const [searched, setSearched] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const stash = typeof window !== "undefined" ? window.localStorage.getItem("es-flow-input") : null;
-    if (stash) {
-      setInput(stash);
-      window.localStorage.removeItem("es-flow-input");
-    }
-  }, []);
-
-  function toggle(k: FlowActionKey) {
-    setSelected((s) => (s.includes(k) ? s.filter((x) => x !== k) : [...s, k]));
-  }
-
-  async function run(all: boolean) {
-    const actions = all ? FLOW_ACTIONS.map((a) => a.key) : selected;
-    if (all) setSelected(actions);
-    setLoading(true);
-    setError(null);
-    setArtifacts(null);
-    setPlan(null);
-    setSavedLib(false);
-    const timer = setInterval(() => setStep((s) => (s + 1) % THINKING.length), 800);
-    try {
-      const res = await fetch("/api/flow", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          input,
-          productId: productId === "__new__" ? undefined : productId,
-          newName: productId === "__new__" ? newName : undefined,
-          region,
-          actions,
-          corrections: corrections.map((c) => ({ kind: c.kind, note: c.note })),
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Something went wrong");
-      setArtifacts(data.artifacts || {});
-      setPlan(data.plan || []);
-      setSources(data.sources || []);
-      setSearched(Boolean(data.searched));
-      setDemo(Boolean(data.demo));
-    } catch (e: any) {
-      setError(e.message);
-    } finally {
-      clearInterval(timer);
-      setLoading(false);
-      setStep(0);
-    }
-  }
-
-  // group plan by person
+  // group plan by person for the team board
   const board = useMemo(() => {
     if (!plan) return [];
     const map = new Map<string, { role: string; tasks: { task: string; action: string }[] }>();
@@ -341,47 +296,44 @@ export default function FlowPage() {
     return Array.from(map.entries()).map(([name, v]) => ({ name, ...v }));
   }, [plan]);
 
-  const progName = products.find((p) => p.id === productId)?.name || (productId === "__new__" ? newName : "") || "";
-  const orderedAssets = artifacts
-    ? Object.entries(artifacts).sort((a, b) => ASSET_ORDER.indexOf(a[0]) - ASSET_ORDER.indexOf(b[0]))
-    : [];
+  const madeCount = Object.values(artifacts).filter(Boolean).length;
 
   return (
-    <div className="mx-auto max-w-7xl px-8 py-10">
+    <div className="mx-auto max-w-5xl px-8 py-10">
       <PageHeader
         icon={M.icon}
         accent={M.accent}
         glow={M.glow}
         title={M.name}
-        tagline="Feed it once → run any or all steps → get every asset plus who does what."
+        tagline="One asset at a time — approve each before the next runs. Nothing extra is generated, so you never pay for output you don't want."
         status={M.status}
         agent={M.agent}
       />
 
-      {/* Controls — one compact full-width panel */}
+      {/* Setup */}
       <Card className="p-5">
         <div className="grid gap-5 lg:grid-cols-2">
-          {/* Input */}
           <div>
             <SectionLabel>What are we launching / doing?</SectionLabel>
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
+              disabled={started}
               placeholder="e.g. Launch the Dubai IELTS group course for the September intake, target Thailand + Japan, promo pricing…"
-              className="h-28 w-full resize-none rounded-xl border border-line bg-bg-soft p-3 text-sm text-ink placeholder:text-ink-faint focus:border-brand/40 focus:outline-none"
+              className="h-28 w-full resize-none rounded-xl border border-line bg-bg-soft p-3 text-sm text-ink placeholder:text-ink-faint focus:border-brand/40 focus:outline-none disabled:opacity-60"
             />
-            <div className="mt-2 space-y-2">
-              <FileDrop onText={(t) => setInput((p) => (p ? p + "\n\n" + t : t))} label="Drop a brief, filled form or notes — any format" />
-              <ClarifyPanel input={input} context="ES World launch flow — brief, pricing, flyer, website, sales plan" onApply={(t) => setInput((p) => (p ? p + "\n\n" + t : t))} />
-            </div>
+            {!started && (
+              <div className="mt-2 space-y-2">
+                <FileDrop onText={(t) => setInput((p) => (p ? p + "\n\n" + t : t))} label="Drop a brief, filled form or notes — any format" />
+                <ClarifyPanel input={input} context="ES World launch flow" onApply={(t) => setInput((p) => (p ? p + "\n\n" + t : t))} />
+              </div>
+            )}
           </div>
-
-          {/* Options */}
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <label className="block">
-                <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-faint">Programme</span>
-                <select value={productId} onChange={(e) => setProductId(e.target.value)} className="mt-1 w-full rounded-lg border border-line bg-bg-soft px-2.5 py-2 text-sm text-ink focus:outline-none">
+                <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-faint">Programme (the course this is for)</span>
+                <select value={productId} onChange={(e) => setProductId(e.target.value)} disabled={started} className="mt-1 w-full rounded-lg border border-line bg-bg-soft px-2.5 py-2 text-sm text-ink focus:outline-none disabled:opacity-60">
                   <option value="__new__" className="bg-bg-soft">＋ New programme (not in catalogue)</option>
                   {products.map((p) => (
                     <option key={p.id} value={p.id} className="bg-bg-soft">{p.name} · {p.campus}</option>
@@ -390,42 +342,35 @@ export default function FlowPage() {
               </label>
               <label className="block">
                 <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-faint">Target region (sales)</span>
-                <select value={region} onChange={(e) => setRegion(e.target.value)} className="mt-1 w-full rounded-lg border border-line bg-bg-soft px-2.5 py-2 text-sm text-ink focus:outline-none">
-                  {["All regions", ...SALES_REGIONS].map((r) => (
-                    <option key={r} value={r} className="bg-bg-soft">{r}</option>
-                  ))}
+                <select value={region} onChange={(e) => setRegion(e.target.value)} disabled={started} className="mt-1 w-full rounded-lg border border-line bg-bg-soft px-2.5 py-2 text-sm text-ink focus:outline-none disabled:opacity-60">
+                  {["All regions", ...SALES_REGIONS].map((r) => (<option key={r} value={r} className="bg-bg-soft">{r}</option>))}
                 </select>
               </label>
             </div>
-
-            {productId === "__new__" && (
-              <input
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-                placeholder="New programme name (e.g. Junior Summer Camp — Dubai)"
-                className="w-full rounded-lg border border-accent-teal/40 bg-bg-soft px-2.5 py-2 text-sm text-ink placeholder:text-ink-faint focus:outline-none"
-              />
+            {productId === "__new__" && !started && (
+              <input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="New programme name (e.g. Junior Summer Camp — Dubai)" className="w-full rounded-lg border border-accent-teal/40 bg-bg-soft px-2.5 py-2 text-sm text-ink placeholder:text-ink-faint focus:outline-none" />
             )}
-
             <div>
-              <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-faint">Steps to run</span>
+              <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-faint">Assets to build (each is a step)</span>
               <div className="mt-1 grid grid-cols-2 gap-2 sm:grid-cols-3">
-                {FLOW_ACTIONS.map((a) => (
-                  <label key={a.key} className={`flex cursor-pointer items-center gap-2 rounded-lg border px-2.5 py-2 text-sm transition-colors ${selected.includes(a.key) ? "border-accent-teal/40 bg-accent-teal/10 text-ink" : "border-line text-ink-soft hover:text-ink"}`}>
+                {FLOW_ACTIONS.filter((a) => STEP_ORDER.includes(a.key)).map((a) => (
+                  <label key={a.key} className={`flex cursor-pointer items-center gap-2 rounded-lg border px-2.5 py-2 text-sm transition-colors ${selected.includes(a.key) ? "border-accent-teal/40 bg-accent-teal/10 text-ink" : "border-line text-ink-soft hover:text-ink"} ${started ? "pointer-events-none opacity-60" : ""}`}>
                     <input type="checkbox" checked={selected.includes(a.key)} onChange={() => toggle(a.key)} className="accent-[#33d6c0]" />
                     {a.label}
                   </label>
                 ))}
               </div>
             </div>
-
             <div className="flex flex-wrap gap-3 pt-1">
-              <Button onClick={() => run(true)} disabled={loading || input.trim().length < 4}>
-                {loading ? <><Icon name="Loader2" className="h-4 w-4 animate-spin" /> Running…</> : <><Icon name="Workflow" className="h-4 w-4" /> Run full flow</>}
-              </Button>
-              <Button variant="subtle" onClick={() => run(false)} disabled={loading || input.trim().length < 4 || selected.length === 0}>
-                Run selected ({selected.length})
-              </Button>
+              {phase === "idle" ? (
+                <Button onClick={start} disabled={input.trim().length < 4}>
+                  <Icon name="Workflow" className="h-4 w-4" /> Start — one step at a time
+                </Button>
+              ) : (
+                <Button variant="subtle" onClick={restart}>
+                  <Icon name="ArrowRight" className="h-4 w-4 rotate-180" /> Start over
+                </Button>
+              )}
             </div>
             {error && <div className="text-sm text-accent-rose">{error}</div>}
           </div>
@@ -436,16 +381,14 @@ export default function FlowPage() {
             <div className="mb-2 flex items-center gap-2">
               <Icon name="GraduationCap" className="h-4 w-4 text-brand-soft" />
               <h3 className="text-sm font-semibold text-ink">What Flow has learned</h3>
-              <span className="ml-auto text-[11px] text-ink-faint">{corrections.length} correction{corrections.length > 1 ? "s" : ""} · applied every run</span>
+              <span className="ml-auto text-[11px] text-ink-faint">{corrections.length} correction{corrections.length > 1 ? "s" : ""} · applied every step</span>
             </div>
             <div className="grid gap-1.5 sm:grid-cols-2">
               {corrections.map((c) => (
                 <div key={c.id} className="flex items-start gap-2 rounded-lg border border-line bg-bg-soft/50 px-2.5 py-1.5">
                   <span className="mt-0.5 shrink-0 rounded border border-brand/25 bg-brand/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-brand-soft">{c.kind}</span>
                   <span className="flex-1 text-xs text-ink-soft">{c.note}</span>
-                  <button onClick={() => removeCorrection(c.id)} className="shrink-0 text-ink-faint hover:text-accent-rose" title="Forget this">
-                    <Icon name="Trash2" className="h-3.5 w-3.5" />
-                  </button>
+                  <button onClick={() => removeCorrection(c.id)} className="shrink-0 text-ink-faint hover:text-accent-rose" title="Forget this"><Icon name="Trash2" className="h-3.5 w-3.5" /></button>
                 </div>
               ))}
             </div>
@@ -453,67 +396,46 @@ export default function FlowPage() {
         )}
       </Card>
 
-      {/* Results — full width */}
-      {loading && (
-        <Card glow="51,214,192" className="mt-6 flex h-64 flex-col items-center justify-center gap-3 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-teal/15">
-            <Icon name="Workflow" className="h-6 w-6 animate-pulse text-accent-teal" />
-          </div>
-          <div className="text-sm text-ink-soft">{THINKING[step]}</div>
-          <div className="h-1 w-44 overflow-hidden rounded-full bg-bg-hover"><div className="shimmer h-full w-full" /></div>
-        </Card>
-      )}
-
-      {!loading && !artifacts && !plan && (
-        <Card className="mt-6 flex h-52 flex-col items-center justify-center gap-3 text-center text-ink-faint">
-          <Icon name="Workflow" className="h-8 w-8" />
-          <div className="text-sm">Your assets and the team action board will appear here.</div>
-          <div className="max-w-md text-xs">Pick your steps above, then Run full flow — every asset generated together, plus an owner for every part.</div>
-        </Card>
-      )}
-
-      {!loading && (artifacts || plan) && (
-        <div className="animate-rise mt-6 space-y-4">
+      {/* Pipeline */}
+      {started && (
+        <div className="animate-rise mt-6 space-y-5">
           {demo && (
             <div className="flex items-start gap-2 rounded-lg border border-accent-amber/30 bg-accent-amber/10 px-3 py-2 text-xs text-accent-amber">
-              <Icon name="AlertTriangle" className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              Demo mode — add an ANTHROPIC_API_KEY for live, researched output.
-            </div>
-          )}
-          {propagating && (
-            <div className="flex items-center gap-3 rounded-xl border border-brand/30 bg-brand/[0.06] px-3 py-2.5">
-              <Icon name="Loader2" className="h-4 w-4 shrink-0 animate-spin text-brand-soft" />
-              <span className="text-sm text-ink-soft">Your correction is propagating across every asset so the whole flow stays consistent…</span>
+              <Icon name="AlertTriangle" className="mt-0.5 h-3.5 w-3.5 shrink-0" /> Demo mode — add an ANTHROPIC_API_KEY for live output.
             </div>
           )}
 
-          {/* Results header: title + tabs + actions */}
+          {/* Step map */}
+          <Card className="p-4">
+            <div className="mb-3 flex items-center gap-2">
+              <Icon name="Workflow" className="h-4 w-4 text-brand-soft" />
+              <h3 className="text-sm font-semibold text-ink">Steps</h3>
+              <span className="ml-auto text-[11px] text-ink-faint">{madeCount} of {queue.length} approved{phase === "done" ? " · finished" : ""}</span>
+            </div>
+            <div className="flex flex-wrap items-center gap-1.5">
+              {queue.map((k, i) => {
+                const done = i < activeIdx || (i === activeIdx && phase === "done");
+                const current = i === activeIdx && phase !== "done";
+                return (
+                  <div key={k} className="flex items-center gap-1.5">
+                    <div className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs ${done ? "border-accent-teal/40 bg-accent-teal/10 text-accent-teal" : current ? "border-brand/50 bg-brand/10 text-brand-soft" : "border-line text-ink-faint"}`}>
+                      <span className={`flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold ${done ? "bg-accent-teal text-white" : current ? "bg-brand text-white" : "bg-bg-hover text-ink-faint"}`}>
+                        {done ? "✓" : i + 1}
+                      </span>
+                      {ASSET_TITLE[k]}
+                    </div>
+                    {i < queue.length - 1 && <Icon name="ChevronRight" className="h-3.5 w-3.5 text-ink-faint" />}
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+
+          {/* Header actions */}
           <div className="flex flex-wrap items-center gap-3 border-b border-line pb-3">
-            <div>
-              <h2 className="text-lg font-semibold text-ink">
-                {orderedAssets.length} asset{orderedAssets.length === 1 ? "" : "s"}{progName ? <> · <span className="text-brand-soft">{progName}</span></> : null}
-              </h2>
-              <p className="text-xs text-ink-faint">Generated together and kept consistent. Fix any one and refresh the rest.</p>
-            </div>
-            <div className="flex rounded-xl border border-line bg-bg-card p-1">
-              {([["assets", "Assets", String(orderedAssets.length)], ["team", "Team", String(board.length)]] as const).map(([key, label, count]) => (
-                <button
-                  key={key}
-                  onClick={() => setTab(key)}
-                  className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${tab === key ? "bg-brand text-white" : "text-ink-soft hover:text-ink"}`}
-                >
-                  {label} <span className={tab === key ? "text-white/80" : "text-ink-faint"}>{count}</span>
-                </button>
-              ))}
-            </div>
+            <h2 className="text-lg font-semibold text-ink">{programmeName}</h2>
             <div className="ml-auto flex gap-2">
-              {productId === "__new__" && newName.trim() && (
-                <Button variant="subtle" onClick={saveNewProgramme} disabled={saved}>
-                  <Icon name={saved ? "Check" : "Plus"} className="h-4 w-4" />
-                  {saved ? "Saved" : "Save to catalogue"}
-                </Button>
-              )}
-              <Button variant="subtle" onClick={saveAll} disabled={savedLib}>
+              <Button variant="subtle" onClick={saveAll} disabled={savedLib || madeCount === 0}>
                 <Icon name={savedLib ? "Check" : "Boxes"} className="h-4 w-4" />
                 {savedLib ? "Saved to Library" : "Save to Library"}
               </Button>
@@ -525,53 +447,112 @@ export default function FlowPage() {
             </div>
           </div>
 
-          {/* Provenance for the whole run */}
-          {!demo && (searched || sources.length > 0) && <Sources sources={sources} searched={searched} />}
+          {/* Approved assets (read-only) */}
+          {queue.slice(0, activeIdx).map((k) => (artifacts[k] ? <ArtifactCard key={k} k={k} data={artifacts[k]} /> : null))}
 
-          {/* Assets tab */}
-          {tab === "assets" && (
-            orderedAssets.length > 0 ? (
-              <div className="grid grid-cols-1 items-start gap-5 xl:grid-cols-2">
-                {orderedAssets.map(([k, v]) => (
-                  <div key={k} className={WIDE_ASSETS.has(k) ? "xl:col-span-2" : ""}>
-                    <ArtifactCard k={k} data={v} onFix={fixArtifact} fixing={fixingKey === k} />
+          {/* Current step */}
+          {phase === "running" && (
+            <Card glow="51,214,192" className="flex h-48 flex-col items-center justify-center gap-3 text-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-teal/15"><Icon name="Loader2" className="h-6 w-6 animate-spin text-accent-teal" /></div>
+              <div className="text-sm text-ink-soft">Building <span className="font-medium text-ink">{ASSET_TITLE[currentKey]}</span> — {THINKING[tick]}</div>
+            </Card>
+          )}
+
+          {phase === "review" && currentKey && artifacts[currentKey] && (
+            <div className="space-y-3">
+              <ArtifactCard k={currentKey} data={artifacts[currentKey]} onFix={correctAndRedo} />
+              {!demo && (searched || sources.length > 0) && <Sources sources={sources} searched={searched} />}
+              <Card className="flex flex-wrap items-center gap-3 p-3">
+                <span className="text-sm text-ink-soft">Happy with the {ASSET_TITLE[currentKey]}?</span>
+                <div className="ml-auto flex flex-wrap gap-2">
+                  <Button onClick={approve}>
+                    <Icon name="Check" className="h-4 w-4" /> {isLast ? "Approve & finish" : `Approve & next → ${ASSET_TITLE[queue[activeIdx + 1]]}`}
+                  </Button>
+                  <Button variant="subtle" onClick={redo}><Icon name="Loader2" className="h-4 w-4" /> Redo this step</Button>
+                  {!isLast && <button onClick={stopHere} className="rounded-full px-3 py-2 text-sm text-ink-faint hover:text-ink">Stop here</button>}
+                </div>
+              </Card>
+            </div>
+          )}
+
+          {phase === "review" && currentKey && !artifacts[currentKey] && (
+            <Card className="flex flex-wrap items-center gap-3 p-4">
+              <Icon name="AlertTriangle" className="h-4 w-4 text-accent-rose" />
+              <span className="text-sm text-ink-soft">{error || "That step didn't return anything."}</span>
+              <Button variant="subtle" onClick={redo} className="ml-auto"><Icon name="Loader2" className="h-4 w-4" /> Try again</Button>
+            </Card>
+          )}
+
+          {phase === "done" && (
+            <Card glow="51,214,192" className="flex flex-wrap items-center gap-3 p-4">
+              <Icon name="Check" className="h-5 w-5 text-accent-teal" />
+              <span className="text-sm text-ink">Finished — {madeCount} asset{madeCount === 1 ? "" : "s"} approved. Save them to the Library, or start over.</span>
+              <Button variant="subtle" onClick={restart} className="ml-auto">New flow</Button>
+            </Card>
+          )}
+
+          {/* Requests & assets table */}
+          {madeCount > 0 && (
+            <Card className="p-0">
+              <div className="border-b border-line px-4 py-3"><SectionLabel>Every request &amp; the asset it produced</SectionLabel></div>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[560px] border-collapse text-sm">
+                  <thead>
+                    <tr className="text-[11px] uppercase tracking-wide text-ink-faint">
+                      <th className="px-4 py-2 text-left font-semibold">#</th>
+                      <th className="px-3 py-2 text-left font-semibold">Step</th>
+                      <th className="px-3 py-2 text-left font-semibold">Request</th>
+                      <th className="px-3 py-2 text-left font-semibold">Asset</th>
+                      <th className="px-4 py-2 text-right font-semibold">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {queue.map((k, i) => {
+                      const has = Boolean(artifacts[k]);
+                      const done = i < activeIdx || (i === activeIdx && phase === "done");
+                      const current = i === activeIdx && phase !== "done";
+                      return (
+                        <tr key={k} className="border-t border-line">
+                          <td className="px-4 py-2.5 font-mono text-ink-faint">{i + 1}</td>
+                          <td className="px-3 py-2.5 text-ink">{ASSET_TITLE[k]}</td>
+                          <td className="px-3 py-2.5 text-ink-soft">Make the {ASSET_TITLE[k].toLowerCase()} for {programmeName}</td>
+                          <td className="px-3 py-2.5 text-ink-soft">{has ? "✓ created" : "—"}</td>
+                          <td className="px-4 py-2.5 text-right">
+                            <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${done ? "bg-accent-teal/15 text-accent-teal" : current ? "bg-brand/15 text-brand-soft" : "bg-bg-hover text-ink-faint"}`}>
+                              {done ? "APPROVED" : current ? (phase === "running" ? "BUILDING" : "REVIEW") : "PENDING"}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+          )}
+
+          {/* Team board when finished */}
+          {phase === "done" && board.length > 0 && (
+            <Card className="p-4">
+              <div className="mb-3 flex items-center gap-2">
+                <Icon name="Users" className="h-4 w-4 text-brand-soft" />
+                <h3 className="font-semibold text-ink">Who does what</h3>
+                <span className="ml-auto text-[11px] text-ink-faint">{board.length} people</span>
+              </div>
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                {board.map((b) => (
+                  <div key={b.name} className="rounded-xl border border-line bg-bg-soft/50 p-3">
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-brand/15 text-xs font-bold text-brand-soft">{b.name.slice(0, 2)}</div>
+                      <div className="min-w-0"><div className="truncate text-sm font-medium text-ink">{b.name}</div><div className="truncate text-[11px] text-ink-faint">{b.role}</div></div>
+                    </div>
+                    <ul className="mt-2 space-y-1">
+                      {b.tasks.map((t, i) => (<li key={i} className="flex gap-2 text-xs text-ink-soft"><Icon name="ClipboardList" className="mt-0.5 h-3 w-3 shrink-0 text-accent-teal" /><span>{t.task}</span></li>))}
+                    </ul>
                   </div>
                 ))}
               </div>
-            ) : (
-              <Card className="p-6 text-center text-sm text-ink-faint">No document assets in this run — see the Team tab for the action board.</Card>
-            )
-          )}
-
-          {/* Team tab */}
-          {tab === "team" && (
-            board.length > 0 ? (
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {board.map((b) => (
-                  <Card key={b.name} className="p-3">
-                    <div className="flex items-center gap-2">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand/15 text-xs font-bold text-brand-soft">
-                        {b.name.slice(0, 2)}
-                      </div>
-                      <div className="min-w-0">
-                        <div className="truncate text-sm font-medium text-ink">{b.name}</div>
-                        <div className="truncate text-[11px] text-ink-faint">{b.role}</div>
-                      </div>
-                    </div>
-                    <ul className="mt-2 space-y-1">
-                      {b.tasks.map((t, i) => (
-                        <li key={i} className="flex gap-2 text-xs text-ink-soft">
-                          <Icon name="ClipboardList" className="mt-0.5 h-3 w-3 shrink-0 text-accent-teal" />
-                          <span>{t.task} <span className="text-ink-faint">· {t.action}</span></span>
-                        </li>
-                      ))}
-                    </ul>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <Card className="p-6 text-center text-sm text-ink-faint">Add the Sales / Ops steps to generate a team action board.</Card>
-            )
+            </Card>
           )}
         </div>
       )}
