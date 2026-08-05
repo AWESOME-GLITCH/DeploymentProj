@@ -44,6 +44,8 @@ export type Product = {
   capacity?: string;
   owner?: string;
   documents?: { name: string; type: string; url?: string }[];
+  positioning?: string;
+  personas?: { who: string; need: string }[];
 };
 
 export const BRAND = {
@@ -99,6 +101,12 @@ export const PRODUCTS: Product[] = [
     enrolment: ["Enquiry & eligibility check", "Application + documents", "Offer + visa processing", "Enrolment & induction"],
     whyChoose: ["UK qualification without leaving Dubai", "Internship + AI module bundled", "Guaranteed university progression", "Up to $3,000 scholarships"],
     owner: "Ryan (Academic) · Ivana/Josef (Admissions)",
+    positioning: "The only route in Dubai to a UK-accredited business qualification with a guaranteed university progression path — bundled with real work experience and AI skills.",
+    personas: [
+      { who: "Ambitious school-leaver", need: "A globally recognised qualification and a clear path to a UK degree, without leaving the region." },
+      { who: "Career-switcher", need: "A fast, credible business credential plus hands-on UAE work experience." },
+      { who: "Parent / sponsor", need: "Value for money, real accreditation, and a safe, supported study-abroad experience." },
+    ],
     documents: [
       { name: "ATHE Level 4 & 5 Extended Diploma Brochure", type: "Brochure" },
       { name: "ATHE Diploma Presentation", type: "Deck" },
@@ -143,6 +151,11 @@ export const PRODUCTS: Product[] = [
     enrolment: ["Free consultation & shortlist", "Application to partner university", "Scholarship & offer", "Visa & enrolment"],
     whyChoose: ["Guaranteed scholarships (10–40%)", "100% free application support", "Stay in Dubai, degree recognised globally", "Transfer-abroad option"],
     owner: "Admissions (Ivana/Josef)",
+    positioning: "A free, guaranteed-scholarship gateway into top UAE universities — study in Dubai, get a globally recognised degree, and transfer abroad if you choose.",
+    personas: [
+      { who: "Value-seeking undergraduate", need: "A recognised degree in Dubai with the biggest possible scholarship." },
+      { who: "Postgraduate", need: "A flexible PG option with visa continuity and UAE career prospects." },
+    ],
     documents: [
       { name: "University Pathways — Application Form", type: "Form", url: "https://esworld.jotform.com/242453955321961" },
       { name: "ES Pathway Guaranteed Scholarships (Students)", type: "Flyer" },
