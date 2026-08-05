@@ -50,6 +50,7 @@ export default function CompetitorsPage() {
   const [demo, setDemo] = useState(false);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(0);
+  const [meta, setMeta] = useState<{ capturedAt?: string; changed?: boolean; cached?: boolean }>({});
 
   const run = useCallback(async () => {
     setLoading(true);
@@ -61,6 +62,7 @@ export default function CompetitorsPage() {
       setSources(data.sources || []);
       setSearched(Boolean(data.searched));
       setDemo(Boolean(data.demo));
+      setMeta({ cached: false });
     } finally {
       clearInterval(timer);
       setLoading(false);
@@ -68,7 +70,26 @@ export default function CompetitorsPage() {
     }
   }, []);
 
-  useEffect(() => { run(); }, [run]);
+  // On load, prefer the cron-cached snapshot (no tokens); fall back to live research.
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("/api/competitors");
+        const data = await res.json();
+        if (data.cached && data.matrix) {
+          setM(data.matrix);
+          setSources(data.sources || []);
+          setSearched(Boolean(data.searched));
+          setDemo(Boolean(data.demo));
+          setMeta({ capturedAt: data.capturedAt, changed: data.changed, cached: true });
+          return;
+        }
+      } catch {
+        /* fall through to live */
+      }
+      run();
+    })();
+  }, [run]);
 
   return (
     <div className="mx-auto max-w-6xl px-8 py-10">
@@ -110,8 +131,12 @@ export default function CompetitorsPage() {
           <Card glow={M.glow} className="p-4">
             <div className="flex items-start gap-2">
               <Icon name="Target" className="mt-0.5 h-4 w-4 shrink-0 text-brand-soft" />
-              <p className="text-sm text-ink">{m.headline}</p>
+              <p className="flex-1 text-sm text-ink">{m.headline}</p>
+              {meta.changed && <span className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold" style={{ background: "#f5b23b22", color: "#f5b23b" }}>CHANGED</span>}
             </div>
+            {meta.cached && meta.capturedAt && (
+              <div className="mt-1.5 pl-6 text-[11px] text-ink-faint">Auto-refreshed {new Date(meta.capturedAt).toLocaleString()} · press “Refresh research” for a live pull.</div>
+            )}
           </Card>
 
           {/* Matrix */}
