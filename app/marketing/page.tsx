@@ -9,6 +9,7 @@ import { Card, Button, SectionLabel } from "@/components/ui";
 import { Icon } from "@/components/Icon";
 import { ExportMenu } from "@/components/ExportMenu";
 import { SaveToProgramme } from "@/components/SaveToProgramme";
+import { FileDrop } from "@/components/FileDrop";
 import { H } from "@/lib/export";
 import type { MarketingDraft, CourseField } from "../api/marketing/route";
 
@@ -144,6 +145,9 @@ export default function MarketingPage() {
                 className="h-28 w-full resize-none rounded-xl bg-transparent p-3 text-sm text-ink placeholder:text-ink-faint focus:outline-none"
               />
             </Card>
+            <div className="mt-2">
+              <FileDrop onText={(t) => setBrief((p) => (p ? p + "\n\n" + t : t))} label="Drop the filled Course Template, a flyer or brief — we'll read it" />
+            </div>
           </div>
 
           <Button onClick={generate} disabled={loading}>

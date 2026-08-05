@@ -7,6 +7,8 @@ import { Card, Button, SectionLabel, ConfidenceBadge } from "@/components/ui";
 import { Icon } from "@/components/Icon";
 import { ExportMenu } from "@/components/ExportMenu";
 import { SaveToProgramme } from "@/components/SaveToProgramme";
+import { FileDrop } from "@/components/FileDrop";
+import { ClarifyPanel } from "@/components/ClarifyPanel";
 import { H } from "@/lib/export";
 import type { Concept } from "../api/think-lab/route";
 
@@ -120,6 +122,10 @@ export default function ThinkLabPage() {
             className="h-36 w-full resize-none rounded-xl bg-transparent p-4 text-sm text-ink placeholder:text-ink-faint focus:outline-none"
           />
         </Card>
+        <div className="mt-3 space-y-2">
+          <FileDrop onText={(t) => setInput((p) => (p ? p + "\n\n" + t : t))} />
+          <ClarifyPanel input={input} context="ES World company-level concept / Think Lab MVP" onApply={(t) => setInput((p) => (p ? p + "\n\n" + t : t))} />
+        </div>
         <div className="mt-3 flex items-center gap-3">
           <Button onClick={run} disabled={loading || input.trim().length < 4}>
             {loading ? (

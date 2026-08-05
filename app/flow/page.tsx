@@ -11,6 +11,8 @@ import { PageHeader } from "@/components/PageHeader";
 import { Card, Button, SectionLabel } from "@/components/ui";
 import { Icon } from "@/components/Icon";
 import { ExportMenu } from "@/components/ExportMenu";
+import { FileDrop } from "@/components/FileDrop";
+import { ClarifyPanel } from "@/components/ClarifyPanel";
 import { H } from "@/lib/export";
 
 function artifactToHtml(k: string, v: any): string {
@@ -301,6 +303,10 @@ export default function FlowPage() {
                 className="h-32 w-full resize-none rounded-xl bg-transparent p-3 text-sm text-ink placeholder:text-ink-faint focus:outline-none"
               />
             </Card>
+            <div className="mt-2 space-y-2">
+              <FileDrop onText={(t) => setInput((p) => (p ? p + "\n\n" + t : t))} label="Drop a brief, filled form or notes — any format" />
+              <ClarifyPanel input={input} context="ES World launch flow — brief, pricing, flyer, website, sales plan" onApply={(t) => setInput((p) => (p ? p + "\n\n" + t : t))} />
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">

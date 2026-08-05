@@ -7,6 +7,8 @@ import { Card, Button, SectionLabel } from "@/components/ui";
 import { Icon } from "@/components/Icon";
 import { ExportMenu } from "@/components/ExportMenu";
 import { SaveToProgramme } from "@/components/SaveToProgramme";
+import { FileDrop } from "@/components/FileDrop";
+import { ClarifyPanel } from "@/components/ClarifyPanel";
 import { H } from "@/lib/export";
 import type { Brief } from "../api/brief/route";
 import type { Proposal } from "../api/proposal/route";
@@ -161,6 +163,10 @@ export default function BriefPage() {
               className="h-72 w-full resize-none rounded-xl bg-transparent p-4 text-sm text-ink placeholder:text-ink-faint focus:outline-none"
             />
           </Card>
+          <div className="mt-3 space-y-2">
+            <FileDrop onText={(t) => setInput((p) => (p ? p + "\n\n" + t : t))} />
+            <ClarifyPanel input={input} context={`ES World ${mode === "brief" ? "product brief" : "product / service proposal"}`} onApply={(t) => setInput((p) => (p ? p + "\n\n" + t : t))} />
+          </div>
           <div className="mt-3 flex items-center gap-3">
             <Button onClick={generate} disabled={loading || input.trim().length < 4}>
               {loading ? (
