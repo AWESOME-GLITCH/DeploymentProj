@@ -11,6 +11,8 @@ import { FileDrop } from "@/components/FileDrop";
 import { ClarifyPanel } from "@/components/ClarifyPanel";
 import { useProducts, useItems } from "@/lib/store";
 import { useCorrections } from "@/lib/corrections";
+import { ProposalFormView } from "@/components/ProposalFormView";
+import { proposalFormToHtml } from "@/lib/proposalForm";
 import { H } from "@/lib/export";
 import type { Brief } from "../api/brief/route";
 import type { Proposal } from "../api/proposal/route";
@@ -30,21 +32,7 @@ function briefHtml(b: Brief) {
   );
 }
 function proposalHtml(p: Proposal) {
-  return (
-    H.brandTitle(p.title, "Product / Service Proposal · ES World") +
-    H.p(p.summary) +
-    H.kv("Product / Service", p.productName) + H.kv("Category", p.category) + H.kv("Campus", p.campus) +
-    H.h2("Problem / Opportunity") + H.p(p.problemOpportunity) +
-    H.h2("Proposed solution") + H.p(p.proposedSolution) +
-    H.kv("Target audience", p.targetAudience) +
-    H.h2("Differentiators") + H.ul(p.differentiators) +
-    H.h2("Pricing") + H.p(`${p.pricing.model} · ${p.pricing.price}. ${p.pricing.notes}`) +
-    H.h2("Costs / resources") + H.ul(p.costsResources) +
-    H.h2("Success metrics") + H.ul(p.successMetrics) +
-    H.h2("Risks & dependencies") + H.ul(p.risks) +
-    H.kv("Timeline", p.timeline) + H.kv("Proposed by", p.proposedBy) +
-    H.h2("Recommendation") + H.p(p.recommendation)
-  );
+  return proposalFormToHtml(p);
 }
 
 const M = getModule("brief")!;
@@ -286,7 +274,7 @@ export default function BriefPage() {
               </div>
             )}
 
-            {/* Proposal output */}
+            {/* Proposal output — the official Product Proposal Form */}
             {!loading && proposal && (
               <div className="animate-rise space-y-4">
                 {demo && <DemoNote />}
@@ -294,48 +282,7 @@ export default function BriefPage() {
                   <SaveToProgramme kind="Proposal" title={proposal.title || "Proposal"} getHtml={() => proposalHtml(proposal)} />
                   <ExportMenu title={proposal.title || "Proposal"} html={() => proposalHtml(proposal)} />
                 </div>
-                <div className="border-b border-line pb-3">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-soft">
-                    Product / Service Proposal · ES World
-                  </div>
-                  <h2 className="mt-1 text-lg font-semibold text-ink">{proposal.title}</h2>
-                  <p className="mt-1 text-sm text-ink-soft">{proposal.summary}</p>
-                </div>
-                <div className="grid gap-3 sm:grid-cols-3">
-                  <Field label="Product / Service">{proposal.productName}</Field>
-                  <Field label="Category">{proposal.category}</Field>
-                  <Field label="Campus">{proposal.campus}</Field>
-                </div>
-                <Field label="Problem / Opportunity">{proposal.problemOpportunity}</Field>
-                <Field label="Proposed solution">{proposal.proposedSolution}</Field>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <Field label="Target audience">{proposal.targetAudience}</Field>
-                  <Field label="Market & competitors">{proposal.marketCompetitors}</Field>
-                </div>
-                <div>
-                  <SectionLabel>Differentiators</SectionLabel>
-                  <List items={proposal.differentiators} accent="text-accent-teal" />
-                </div>
-                <div className="rounded-xl border border-brand/25 bg-brand/10 p-3">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-soft">Pricing</div>
-                  <div className="mt-1 text-sm text-ink">
-                    <span className="font-medium">{proposal.pricing.model}</span> · {proposal.pricing.price}
-                  </div>
-                  <div className="text-xs text-ink-soft">{proposal.pricing.notes}</div>
-                </div>
-                <div className="grid gap-5 sm:grid-cols-2">
-                  <div><SectionLabel>Costs / resources</SectionLabel><List items={proposal.costsResources} accent="text-accent-amber" /></div>
-                  <div><SectionLabel>Success metrics</SectionLabel><List items={proposal.successMetrics} accent="text-accent-blue" /></div>
-                </div>
-                <div><SectionLabel>Risks & dependencies</SectionLabel><List items={proposal.risks} accent="text-accent-rose" /></div>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <Field label="Timeline / intake">{proposal.timeline}</Field>
-                  <Field label="Proposed by">{proposal.proposedBy}</Field>
-                </div>
-                <div className="rounded-xl border border-accent-teal/25 bg-accent-teal/10 p-3">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-accent-teal">Recommendation</div>
-                  <p className="mt-1 text-sm text-ink">{proposal.recommendation}</p>
-                </div>
+                <ProposalFormView f={proposal} />
                 <SaveRow />
               </div>
             )}

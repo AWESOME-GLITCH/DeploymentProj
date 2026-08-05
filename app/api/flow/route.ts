@@ -3,6 +3,7 @@ import { hasLiveAgents, runJsonAgent } from "@/lib/agent";
 import { BRAND_SYSTEM_FRAGMENT } from "@/lib/brand";
 import { COMPANY_MEMORY } from "@/lib/company";
 import { FLYER_SPEC, flyerFromProduct } from "@/lib/flyer";
+import { PROPOSAL_FORM_SPEC, demoProposalForm } from "@/lib/proposalForm";
 import { PRODUCTS, type Product } from "@/lib/knowledge";
 import { buildPlan, FlowActionKey } from "@/lib/team";
 
@@ -27,7 +28,7 @@ const ARTIFACT_SPEC: Record<string, string> = {
   flyer: FLYER_SPEC,
   presentation: `"presentation": { "title": string, "slides": [ { "title": string, "points": string[] (2-3) } ] (3-4 slides) }`,
   website: `"website": { "fields": [ { "field": string, "value": string } ] } — fill ES World's website Course Template, ONE entry per field in THIS EXACT ORDER: ${COURSE_FIELDS.map((f) => `"${f}"`).join(", ")}. "Overview of the Course" = 3-5 sentences. "Why should you choose" = a short paragraph then 3-4 bullet lines each starting with "• ". "The Enrolment Process" = numbered steps. Use the product knowledge; write "[TBC]" if a fact is missing.`,
-  proposal: `"proposal": { "summary": string, "problemOpportunity": string, "pricing": string, "recommendation": string }`,
+  proposal: `"proposal": ${PROPOSAL_FORM_SPEC}`,
 };
 
 function courseVal(field: string, p?: Product): string {
@@ -56,7 +57,7 @@ function demoArtifacts(keys: string[], p?: Product) {
     flyer: flyerFromProduct(p),
     presentation: { title: `${name} — Overview`, slides: [{ title: "Why this course", points: (p?.whyChoose || p?.outcomes || []).slice(0, 3) }, { title: "What's included", points: [p?.levels, p?.format].filter(Boolean) }, { title: "Next steps", points: ["Enrol", "Contact esworld.com"] }] },
     website: { fields: COURSE_FIELDS.map((f) => ({ field: f, value: courseVal(f, p) })) },
-    proposal: { summary: p?.overview || p?.oneLiner || "", problemOpportunity: "[TBC]", pricing: p?.price || "[TBC]", recommendation: "Approve a pilot intake." },
+    proposal: demoProposalForm(name),
   };
   const out: Record<string, any> = {};
   for (const k of keys) if (all[k]) out[k] = all[k];

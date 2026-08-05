@@ -16,6 +16,8 @@ import { FileDrop } from "@/components/FileDrop";
 import { ClarifyPanel } from "@/components/ClarifyPanel";
 import { FlyerView } from "@/components/FlyerView";
 import { flyerToHtml } from "@/lib/flyer";
+import { ProposalFormView } from "@/components/ProposalFormView";
+import { proposalFormToHtml } from "@/lib/proposalForm";
 import { H } from "@/lib/export";
 
 function artifactToHtml(k: string, v: any): string {
@@ -31,7 +33,7 @@ function artifactToHtml(k: string, v: any): string {
     case "website":
       return H.h2("Website Course Page") + (v.fields || []).map((f: any) => `<h3>${f.field}</h3>` + H.p(f.value)).join("");
     case "proposal":
-      return H.h2("Proposal") + H.p(v.summary) + H.kv("Opportunity", v.problemOpportunity) + H.kv("Pricing", v.pricing) + H.kv("Recommendation", v.recommendation);
+      return proposalFormToHtml(v);
     default:
       return "";
   }
@@ -148,17 +150,7 @@ function ArtifactCard({ k, data, onFix, fixing }: { k: string; data: any; onFix:
             ))}
           </div>
         )}
-        {k === "proposal" && (
-          <>
-            <p>{data.summary}</p>
-            <Mini label="Opportunity">{data.problemOpportunity}</Mini>
-            <Mini label="Pricing">{data.pricing}</Mini>
-            <div className="rounded-lg border border-accent-teal/25 bg-accent-teal/10 p-2 text-ink">
-              <span className="font-medium text-accent-teal">Recommendation: </span>
-              {data.recommendation}
-            </div>
-          </>
-        )}
+        {k === "proposal" && <ProposalFormView f={data} />}
       </div>
     </Card>
   );
