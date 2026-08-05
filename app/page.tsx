@@ -5,6 +5,7 @@ import { CORE_MODULES, PLANNED_MODULES, getModule } from "@/lib/modules";
 import { useProducts } from "@/lib/store";
 import { Icon } from "@/components/Icon";
 import { Card } from "@/components/ui";
+import { SynthesisPanel } from "@/components/SynthesisPanel";
 
 const flow = getModule("flow")!;
 const gridModules = CORE_MODULES.filter((m) => m.slug !== "flow");
@@ -34,6 +35,9 @@ export default function Home() {
           Briefs, pricing, marketing, quotes and launches — with agents doing the work.
         </p>
       </div>
+
+      {/* Executive synthesis — the live read, up top */}
+      <SynthesisPanel />
 
       {/* Hero action card — Launch Flow */}
       <Link href="/flow" className="group mb-10 block">
