@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { hasLiveAgents, runJsonAgent } from "@/lib/agent";
 import { BRAND_SYSTEM_FRAGMENT } from "@/lib/brand";
+import { COMPANY_MEMORY } from "@/lib/company";
 import { PRODUCTS, type Product } from "@/lib/knowledge";
 import { buildPlan, FlowActionKey } from "@/lib/team";
 
@@ -89,6 +90,8 @@ export async function POST(req: NextRequest) {
   const system = `You are the Flow Orchestrator for ES World (Dubai & London language education).
 You produce several coordinated ES World artifacts at once, using ES World's OWN formats.
 GROUND EVERYTHING IN THE PROVIDED PRODUCT KNOWLEDGE — reflect its real facts faithfully (name, campus, price, levels, format, schedule, intakes, audience, learning outcomes, course outline, personas). Do NOT invent facts that contradict it, and never invent prices — copy the price from the knowledge or write "[TBC]".
+
+${COMPANY_MEMORY}
 ${BRAND_SYSTEM_FRAGMENT}${correctionBlock}
 
 Return ONE JSON object containing exactly these keys:

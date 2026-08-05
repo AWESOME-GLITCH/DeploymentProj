@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { hasLiveAgents, runJsonAgent } from "@/lib/agent";
+import { memoryBlock } from "@/lib/memory";
 
 export type PricingAnalysis = {
   positioning: string;
@@ -60,13 +61,14 @@ export async function POST(req: NextRequest) {
   if (!hasLiveAgents()) {
     return NextResponse.json({ analysis: demo(name, currentPrice), demo: true });
   }
+  const memory = memoryBlock(null, b.corrections);
   try {
     const analysis = await runJsonAgent<PricingAnalysis>({
       system: SYSTEM,
       user: `Programme: ${name} (${campus || "—"})
 Current price: ${currentPrice || "—"}
 Target market / region: ${market || "general"}
-Unit economics entered by the PM: ${economics || "not provided"}
+Unit economics entered by the PM: ${economics || "not provided"}${memory}
 
 Research the live market and recommend pricing now.`,
       maxTokens: 2500,

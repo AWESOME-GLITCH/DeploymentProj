@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { hasLiveAgents, runJsonAgent } from "@/lib/agent";
 import { BRAND_SYSTEM_FRAGMENT } from "@/lib/brand";
+import { COMPANY_MEMORY } from "@/lib/company";
 import { PRODUCTS } from "@/lib/knowledge";
 
 export type MarketingDraft = {
@@ -31,6 +32,8 @@ export type CourseField = { field: string; value: string };
 
 const SYSTEM = `You are the Marketing Writer, ES World's brand-compliant copywriter.
 You draft marketing content (website copy, flyers, presentation content, social posts, emails) for language courses, pulling facts ONLY from the provided product knowledge.
+
+${COMPANY_MEMORY}
 ${BRAND_SYSTEM_FRAGMENT}
 
 Return a JSON object with exactly these keys:
