@@ -67,6 +67,7 @@ export async function POST(req: NextRequest) {
   const actions: FlowActionKey[] = Array.isArray(body.actions) ? body.actions : [];
   const region: string | undefined = body.region;
   const product = PRODUCTS.find((p) => p.id === body.productId);
+  const corrections: { kind: string; note: string }[] = Array.isArray(body.corrections) ? body.corrections : [];
 
   if (!input || input.trim().length < 4 || actions.length === 0) {
     return NextResponse.json({ error: "Add some input and choose at least one step." }, { status: 400 });
@@ -80,10 +81,15 @@ export async function POST(req: NextRequest) {
   if (!hasLiveAgents()) return NextResponse.json({ artifacts: demoArtifacts(producing, product), plan, demo: true });
 
   const specs = producing.map((k) => ARTIFACT_SPEC[k]).join(",\n");
+  const correctionBlock = corrections.length
+    ? `\n\nPM CORRECTIONS — GROUND TRUTH. The product manager reviewed earlier output and gave these corrections. They OVERRIDE everything else, including the product knowledge, whenever they conflict. Obey every one exactly; do not repeat the mistakes they describe:\n${corrections
+        .map((c, i) => `${i + 1}. [${c.kind}] ${c.note}`)
+        .join("\n")}`
+    : "";
   const system = `You are the Flow Orchestrator for ES World (Dubai & London language education).
 You produce several coordinated ES World artifacts at once, using ES World's OWN formats.
 GROUND EVERYTHING IN THE PROVIDED PRODUCT KNOWLEDGE — reflect its real facts faithfully (name, campus, price, levels, format, schedule, intakes, audience, learning outcomes, course outline, personas). Do NOT invent facts that contradict it, and never invent prices — copy the price from the knowledge or write "[TBC]".
-${BRAND_SYSTEM_FRAGMENT}
+${BRAND_SYSTEM_FRAGMENT}${correctionBlock}
 
 Return ONE JSON object containing exactly these keys:
 {
