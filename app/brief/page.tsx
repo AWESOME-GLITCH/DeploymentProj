@@ -9,7 +9,7 @@ import { ExportMenu } from "@/components/ExportMenu";
 import { SaveToProgramme } from "@/components/SaveToProgramme";
 import { FileDrop } from "@/components/FileDrop";
 import { ClarifyPanel } from "@/components/ClarifyPanel";
-import { useProducts } from "@/lib/store";
+import { useProducts, useItems } from "@/lib/store";
 import { useCorrections } from "@/lib/corrections";
 import { H } from "@/lib/export";
 import type { Brief } from "../api/brief/route";
@@ -85,6 +85,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 export default function BriefPage() {
   const { products } = useProducts();
+  const { forProduct } = useItems();
   const [mode, setMode] = useState<Mode>("brief");
   const [productId, setProductId] = useState("");
   const { corrections } = useCorrections(productId || undefined);
@@ -104,10 +105,13 @@ export default function BriefPage() {
     const timer = setInterval(() => setStep((s) => (s + 1) % THINKING.length), 700);
     try {
       const product = products.find((p) => p.id === productId);
+      const savedWork = productId
+        ? forProduct(productId).map((i) => ({ kind: i.kind, title: i.title, html: i.html }))
+        : [];
       const res = await fetch(mode === "brief" ? "/api/brief" : "/api/proposal", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ input, product, corrections: corrections.map((c) => ({ kind: c.kind, note: c.note })) }),
+        body: JSON.stringify({ input, product, corrections: corrections.map((c) => ({ kind: c.kind, note: c.note })), savedWork }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Something went wrong");
@@ -171,7 +175,9 @@ export default function BriefPage() {
             </select>
             {productId && (
               <p className="mt-1 text-[11px] text-ink-faint">
-                Memory on: real facts, pricing{corrections.length ? ` + ${corrections.length} correction${corrections.length > 1 ? "s" : ""}` : ""} from this programme.
+                Memory on: ES World strategy + this programme's facts &amp; pricing
+                {forProduct(productId).length ? ` + ${forProduct(productId).length} saved item${forProduct(productId).length > 1 ? "s" : ""} from the Library` : ""}
+                {corrections.length ? ` + ${corrections.length} correction${corrections.length > 1 ? "s" : ""}` : ""}.
               </p>
             )}
           </div>

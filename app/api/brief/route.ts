@@ -73,7 +73,7 @@ function demoBrief(input: string): Brief {
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
   const input: string = body.input || "";
-  const memory = memoryBlock(body.product, body.corrections);
+  const memory = memoryBlock(body.product, body.corrections, body.savedWork);
 
   if (!input || typeof input !== "string" || input.trim().length < 4) {
     return NextResponse.json(
