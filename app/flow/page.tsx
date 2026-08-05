@@ -3,7 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { getModule } from "@/lib/modules";
 import type { Product } from "@/lib/knowledge";
-import { useProducts, newId } from "@/lib/store";
+import { useProducts, useItems, newId } from "@/lib/store";
+
+const KLABEL: Record<string, string> = { brief: "Brief", pricing: "Pricing", flyer: "Flyer", presentation: "Presentation", website: "Website", proposal: "Proposal" };
 import { FLOW_ACTIONS, SALES_REGIONS, type FlowActionKey, type PlanItem } from "@/lib/team";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, Button, SectionLabel } from "@/components/ui";
@@ -18,7 +20,7 @@ function artifactToHtml(k: string, v: any): string {
     case "pricing":
       return H.h2("Pricing") + H.kv("Price", v.pricePoint) + H.p(v.recommendation) + H.p(v.rationale) + H.muted(v.marketNote);
     case "flyer":
-      return H.h2("Marketing Flyer") + `<h3>${v.headline}</h3>` + H.p(v.subhead) + H.ul(v.bullets || []) + H.kv("CTA", v.cta);
+      return H.h2("Marketing Flyer") + `<h3>${v.headline}</h3>` + H.p(v.subhead) + (v.keyFacts?.length ? H.p(v.keyFacts.join(" · ")) : "") + H.ul(v.benefits || []) + H.kv("CTA", v.cta);
     case "presentation":
       return H.h2("Presentation: " + (v.title || "")) + (v.slides || []).map((s: any) => `<h3>${s.title}</h3>` + H.ul(s.points || [])).join("");
     case "website":
@@ -90,7 +92,14 @@ function ArtifactCard({ k, data }: { k: string; data: any }) {
           <>
             <div className="text-base font-semibold text-brand-soft">{data.headline}</div>
             <p>{data.subhead}</p>
-            <Bullets items={data.bullets} />
+            {data.keyFacts?.length ? (
+              <div className="flex flex-wrap gap-1.5">
+                {data.keyFacts.map((f: string, i: number) => (
+                  <span key={i} className="rounded-full border border-line bg-bg-soft px-2 py-0.5 text-xs text-ink-soft">{f}</span>
+                ))}
+              </div>
+            ) : null}
+            <Bullets items={data.benefits} />
             <div className="text-xs text-accent-teal">CTA: {data.cta}</div>
           </>
         )}
@@ -157,11 +166,29 @@ function Bullets({ items, small }: { items?: string[]; small?: boolean }) {
 
 export default function FlowPage() {
   const { products, add } = useProducts();
+  const { add: addItem } = useItems();
   const [input, setInput] = useState("");
-  const [productId, setProductId] = useState("__new__");
+  const [productId, setProductId] = useState("athe-diploma");
   const [newName, setNewName] = useState("");
   const [region, setRegion] = useState("All regions");
   const [saved, setSaved] = useState(false);
+  const [savedLib, setSavedLib] = useState(false);
+
+  function saveAll() {
+    if (!artifacts) return;
+    let pid = productId;
+    let pname = products.find((p) => p.id === productId)?.name || newName || "New offering";
+    if (productId === "__new__") {
+      pid = newId();
+      add({ id: pid, name: (newName || "New offering").trim(), campus: "Dubai", category: "English", stage: "New", oneLiner: input.slice(0, 140), audience: "", format: "[TBC]", price: "On request", tags: ["new", "from-flow"], health: 60, assets: 0, updated: "2026" });
+      pname = newName || "New offering";
+    }
+    for (const [k, v] of Object.entries(artifacts)) {
+      const label = KLABEL[k] || k;
+      addItem({ id: newId(), productId: pid, kind: label, title: `${label} — ${pname}`, html: artifactToHtml(k, v) });
+    }
+    setSavedLib(true);
+  }
 
   function saveNewProgramme() {
     if (!newName.trim()) return;
@@ -210,6 +237,7 @@ export default function FlowPage() {
     setError(null);
     setArtifacts(null);
     setPlan(null);
+    setSavedLib(false);
     const timer = setInterval(() => setStep((s) => (s + 1) % THINKING.length), 800);
     try {
       const res = await fetch("/api/flow", {
@@ -362,6 +390,10 @@ export default function FlowPage() {
                     {saved ? "Saved to Knowledge" : "Save to catalogue"}
                   </Button>
                 )}
+                <Button variant="subtle" onClick={saveAll} disabled={savedLib}>
+                  <Icon name={savedLib ? "Check" : "Boxes"} className="h-4 w-4" />
+                  {savedLib ? "Saved to Library" : "Save to Library"}
+                </Button>
                 <ExportMenu
                   title="ES World Launch Flow"
                   html={() => flowHtml(artifacts, plan)}

@@ -1,27 +1,60 @@
 import { NextRequest, NextResponse } from "next/server";
 import { hasLiveAgents, runJsonAgent } from "@/lib/agent";
 import { BRAND_SYSTEM_FRAGMENT } from "@/lib/brand";
-import { PRODUCTS } from "@/lib/knowledge";
+import { PRODUCTS, type Product } from "@/lib/knowledge";
 import { buildPlan, FlowActionKey } from "@/lib/team";
 
-// JSON shape requested from the agent for each artifact-producing action.
+// The real ES World website Course Template (from the digital-marketing .docx).
+const COURSE_FIELDS = [
+  "Course Name",
+  "Course Availability",
+  "Course Duration",
+  "Course Levels",
+  "Timetables",
+  "Overview of the Course",
+  "How the Intensity Works",
+  "Why should you choose",
+  "Learning Locations",
+  "The Enrolment Process",
+  "Study Materials",
+];
+
 const ARTIFACT_SPEC: Record<string, string> = {
   brief: `"brief": { "summary": string, "problem": string, "audience": string, "goals": string[] (3) }`,
-  pricing: `"pricing": { "recommendation": string, "pricePoint": string, "rationale": string, "marketNote": string (competitor/market context from web research, with a confidence word) }`,
-  flyer: `"flyer": { "headline": string, "subhead": string, "bullets": string[] (3-4), "cta": string }`,
+  pricing: `"pricing": { "recommendation": string, "pricePoint": string, "rationale": string, "marketNote": string }`,
+  flyer: `"flyer": { "headline": string, "subhead": string, "keyFacts": string[] (2-4 short facts: levels, schedule, price, intake), "benefits": string[] (3-4 why-choose points), "cta": string (include esworld.com) }`,
   presentation: `"presentation": { "title": string, "slides": [ { "title": string, "points": string[] (2-3) } ] (3-4 slides) }`,
-  website: `"website": { "fields": [ { "field": string, "value": string } ] } filling: Course Name, Overview of the Course, Why should you choose, The Enrolment Process`,
+  website: `"website": { "fields": [ { "field": string, "value": string } ] } — fill ES World's website Course Template, ONE entry per field in THIS EXACT ORDER: ${COURSE_FIELDS.map((f) => `"${f}"`).join(", ")}. "Overview of the Course" = 3-5 sentences. "Why should you choose" = a short paragraph then 3-4 bullet lines each starting with "• ". "The Enrolment Process" = numbered steps. Use the product knowledge; write "[TBC]" if a fact is missing.`,
   proposal: `"proposal": { "summary": string, "problemOpportunity": string, "pricing": string, "recommendation": string }`,
 };
 
-function demoArtifacts(keys: string[], productName: string) {
+function courseVal(field: string, p?: Product): string {
+  if (!p) return "[TBC]";
+  const map: Record<string, string | undefined> = {
+    "Course Name": p.name,
+    "Course Availability": `${p.campus} campus`,
+    "Course Duration": p.format,
+    "Course Levels": p.levels,
+    Timetables: p.schedule,
+    "Overview of the Course": p.overview || p.oneLiner,
+    "How the Intensity Works": p.format,
+    "Why should you choose": (p.whyChoose || []).map((w) => `• ${w}`).join("\n"),
+    "Learning Locations": p.campus,
+    "The Enrolment Process": (p.enrolment || []).map((s, i) => `${i + 1}. ${s}`).join("\n"),
+    "Study Materials": p.materials,
+  };
+  return map[field] || "[TBC]";
+}
+
+function demoArtifacts(keys: string[], p?: Product) {
+  const name = p?.name || "New offering";
   const all: Record<string, any> = {
-    brief: { summary: `[Demo] Structured brief for “${productName}”. Add an ANTHROPIC_API_KEY for live output.`, problem: "The core problem this addresses.", audience: "Who it's for.", goals: ["Goal one", "Goal two", "Goal three"] },
-    pricing: { recommendation: "Hold current price; add an early-bird bundle.", pricePoint: "From USD 225 / week (VAT-incl.)", rationale: "Aligned to the 2026 list; bundle lifts value perception.", marketNote: "Dubai group English clusters USD 200–300/wk (medium confidence)." },
-    flyer: { headline: `${productName} — Experience · Grow · Enjoy`, subhead: "A short benefit-led subhead.", bullets: ["Key benefit one", "Key benefit two", "Key benefit three"], cta: "Book a free consultation at esworld.com" },
-    presentation: { title: `${productName} — Overview`, slides: [{ title: "Why this course", points: ["Benefit", "Proof"] }, { title: "What's included", points: ["Format", "Levels"] }, { title: "Next steps", points: ["Enrol", "Contact"] }] },
-    website: { fields: [{ field: "Course Name", value: productName }, { field: "Overview of the Course", value: "[Demo] 3–5 sentence overview, filled from Knowledge in live mode." }, { field: "Why should you choose", value: "A short paragraph + bullets." }, { field: "The Enrolment Process", value: "Enquire → consult → confirm → start" }] },
-    proposal: { summary: "[Demo] Executive summary.", problemOpportunity: "The opportunity.", pricing: "Proposed pricing model.", recommendation: "Approve a pilot." },
+    brief: { summary: p?.overview || p?.oneLiner || `Brief for ${name}.`, problem: `Give prospects a clear reason to choose ${name}.`, audience: p?.audience || "[TBC]", goals: (p?.outcomes || ["[TBC]"]).slice(0, 3) },
+    pricing: { recommendation: "Hold the list price; add an early-bird offer.", pricePoint: p?.price || "[TBC]", rationale: "Aligned to the 2026 price list.", marketNote: "Set ENABLE_WEB_SEARCH=1 for live competitor data." },
+    flyer: { headline: `${name} — Experience · Grow · Enjoy`, subhead: p?.oneLiner || "", keyFacts: [p?.levels, p?.schedule || p?.format, p?.price, p?.intakes].filter(Boolean) as string[], benefits: (p?.whyChoose || p?.focus || []).slice(0, 4), cta: "Book a free consultation at esworld.com" },
+    presentation: { title: `${name} — Overview`, slides: [{ title: "Why this course", points: (p?.whyChoose || p?.outcomes || []).slice(0, 3) }, { title: "What's included", points: [p?.levels, p?.format].filter(Boolean) }, { title: "Next steps", points: ["Enrol", "Contact esworld.com"] }] },
+    website: { fields: COURSE_FIELDS.map((f) => ({ field: f, value: courseVal(f, p) })) },
+    proposal: { summary: p?.overview || p?.oneLiner || "", problemOpportunity: "[TBC]", pricing: p?.price || "[TBC]", recommendation: "Approve a pilot intake." },
   };
   const out: Record<string, any> = {};
   for (const k of keys) if (all[k]) out[k] = all[k];
@@ -43,17 +76,13 @@ export async function POST(req: NextRequest) {
   const producing = actions.filter((a) => ARTIFACT_SPEC[a]);
   const productName = product?.name || (typeof body.newName === "string" && body.newName.trim()) || "New offering";
 
-  if (producing.length === 0) {
-    return NextResponse.json({ artifacts: {}, plan, demo: !hasLiveAgents() });
-  }
-
-  if (!hasLiveAgents()) {
-    return NextResponse.json({ artifacts: demoArtifacts(producing, productName), plan, demo: true });
-  }
+  if (producing.length === 0) return NextResponse.json({ artifacts: {}, plan, demo: !hasLiveAgents() });
+  if (!hasLiveAgents()) return NextResponse.json({ artifacts: demoArtifacts(producing, product), plan, demo: true });
 
   const specs = producing.map((k) => ARTIFACT_SPEC[k]).join(",\n");
   const system = `You are the Flow Orchestrator for ES World (Dubai & London language education).
-From one input you produce several coordinated marketing/product artifacts at once. Use web research where it improves accuracy (competitor prices, market facts) and flag confidence. Keep every artifact grounded in the provided product knowledge; never invent prices or guarantees — use "[TBC]" if unknown.
+You produce several coordinated ES World artifacts at once, using ES World's OWN formats.
+GROUND EVERYTHING IN THE PROVIDED PRODUCT KNOWLEDGE — reflect its real facts faithfully (name, campus, price, levels, format, schedule, intakes, audience, learning outcomes, course outline, personas). Do NOT invent facts that contradict it, and never invent prices — copy the price from the knowledge or write "[TBC]".
 ${BRAND_SYSTEM_FRAGMENT}
 
 Return ONE JSON object containing exactly these keys:
@@ -63,16 +92,16 @@ ${specs}
 
   const knowledge = product
     ? JSON.stringify(product, null, 2)
-    : `(new programme not yet in the catalogue — named "${productName}". Base it on the PM's input below and ES World's model; use [TBC] for unknown specifics.)`;
+    : `(new programme not yet in the catalogue — "${productName}". Base it on the PM's input and ES World's model; use [TBC] for unknowns.)`;
   try {
     const artifacts = await runJsonAgent<Record<string, any>>({
       system,
-      user: `Programme: ${productName}\nProduct knowledge:\n${knowledge}\n\nInput from the PM:\n${input}\n\nProduce all requested artifacts now.`,
+      user: `Programme: ${productName}\n\nProduct knowledge (single source of truth — use these real facts):\n${knowledge}\n\nWhat the PM is launching / doing:\n${input}\n\nProduce all requested artifacts now, using ES World's formats and the real facts above.`,
       maxTokens: 3000,
       webSearch: true,
     });
     return NextResponse.json({ artifacts, plan, demo: false });
   } catch {
-    return NextResponse.json({ artifacts: demoArtifacts(producing, productName), plan, demo: true, note: "Live agent errored; showing demo output." });
+    return NextResponse.json({ artifacts: demoArtifacts(producing, product), plan, demo: true, note: "Live agent errored; showing demo output." });
   }
 }
