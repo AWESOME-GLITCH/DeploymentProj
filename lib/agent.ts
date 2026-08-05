@@ -94,7 +94,9 @@ export async function runJsonAgent<T>(
     const msg = await client.messages.create({
       model: AGENT_MODEL,
       max_tokens: maxTokens,
-      system: fullSystem,
+      // Prompt-cache the (large) system prompt so repeated calls only pay ~10%
+      // of its input cost — the strategy/company memory is reused on every run.
+      system: [{ type: "text", text: fullSystem, cache_control: { type: "ephemeral" } }] as any,
       tools: tools ? ([{ type: "web_search_20250305", name: "web_search", max_uses: maxSearches }] as any) : undefined,
       messages: [{ role: "user", content: user }],
     });
