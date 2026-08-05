@@ -9,6 +9,8 @@ import { ExportMenu } from "@/components/ExportMenu";
 import { SaveToProgramme } from "@/components/SaveToProgramme";
 import { FileDrop } from "@/components/FileDrop";
 import { ClarifyPanel } from "@/components/ClarifyPanel";
+import { useProducts } from "@/lib/store";
+import { useCorrections } from "@/lib/corrections";
 import { H } from "@/lib/export";
 import type { Brief } from "../api/brief/route";
 import type { Proposal } from "../api/proposal/route";
@@ -82,7 +84,10 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 export default function BriefPage() {
+  const { products } = useProducts();
   const [mode, setMode] = useState<Mode>("brief");
+  const [productId, setProductId] = useState("");
+  const { corrections } = useCorrections(productId || undefined);
   const [input, setInput] = useState("");
   const [brief, setBrief] = useState<Brief | null>(null);
   const [proposal, setProposal] = useState<Proposal | null>(null);
@@ -98,10 +103,11 @@ export default function BriefPage() {
     setProposal(null);
     const timer = setInterval(() => setStep((s) => (s + 1) % THINKING.length), 700);
     try {
+      const product = products.find((p) => p.id === productId);
       const res = await fetch(mode === "brief" ? "/api/brief" : "/api/proposal", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ input }),
+        body: JSON.stringify({ input, product, corrections: corrections.map((c) => ({ kind: c.kind, note: c.note })) }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Something went wrong");
@@ -149,6 +155,26 @@ export default function BriefPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Input */}
         <div>
+          <div className="mb-2">
+            <SectionLabel>Ground in a programme (uses its knowledge + pricing)</SectionLabel>
+            <select
+              value={productId}
+              onChange={(e) => setProductId(e.target.value)}
+              className="w-full rounded-xl border border-line bg-bg-card px-3 py-2.5 text-sm text-ink focus:border-brand/40 focus:outline-none"
+            >
+              <option value="">No programme — use only my input</option>
+              {products.map((p) => (
+                <option key={p.id} value={p.id} className="bg-bg-soft">
+                  {p.name} · {p.campus}
+                </option>
+              ))}
+            </select>
+            {productId && (
+              <p className="mt-1 text-[11px] text-ink-faint">
+                Memory on: real facts, pricing{corrections.length ? ` + ${corrections.length} correction${corrections.length > 1 ? "s" : ""}` : ""} from this programme.
+              </p>
+            )}
+          </div>
           <div className="mb-2 flex items-center justify-between">
             <SectionLabel>Messy input</SectionLabel>
             <button onClick={() => setInput(EXAMPLE)} className="text-xs text-brand-soft hover:text-brand">

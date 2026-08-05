@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { hasLiveAgents, runJsonAgent } from "@/lib/agent";
+import { memoryBlock } from "@/lib/memory";
 
 export type Brief = {
   title: string;
@@ -70,7 +71,9 @@ function demoBrief(input: string): Brief {
 }
 
 export async function POST(req: NextRequest) {
-  const { input } = await req.json().catch(() => ({ input: "" }));
+  const body = await req.json().catch(() => ({}));
+  const input: string = body.input || "";
+  const memory = memoryBlock(body.product, body.corrections);
 
   if (!input || typeof input !== "string" || input.trim().length < 4) {
     return NextResponse.json(
@@ -86,7 +89,7 @@ export async function POST(req: NextRequest) {
   try {
     const brief = await runJsonAgent<Brief>({
       system: SYSTEM,
-      user: `Here is the messy input. Synthesize it into a structured product brief:\n\n${input}`,
+      user: `Here is the messy input. Synthesize it into a structured product brief.${memory}\n\nThe PM's input:\n${input}`,
       maxTokens: 2000,
       webSearch: true,
     });

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { hasLiveAgents, runJsonAgent } from "@/lib/agent";
+import { memoryBlock } from "@/lib/memory";
 
 // NOTE: This mirrors a standard ES World Product/Service Proposal. Once the exact
 // JotForm field labels are provided, swap the keys/labels below to match 1:1.
@@ -70,7 +71,9 @@ function demoProposal(input: string): Proposal {
 }
 
 export async function POST(req: NextRequest) {
-  const { input } = await req.json().catch(() => ({ input: "" }));
+  const body = await req.json().catch(() => ({}));
+  const input: string = body.input || "";
+  const memory = memoryBlock(body.product, body.corrections);
   if (!input || typeof input !== "string" || input.trim().length < 4) {
     return NextResponse.json({ error: "Provide some input to build a proposal from." }, { status: 400 });
   }
@@ -80,7 +83,7 @@ export async function POST(req: NextRequest) {
   try {
     const proposal = await runJsonAgent<Proposal>({
       system: SYSTEM,
-      user: `Turn this into a complete ES World Product/Service Proposal:\n\n${input}`,
+      user: `Turn this into a complete ES World Product/Service Proposal.${memory}\n\nThe PM's input:\n${input}`,
       maxTokens: 2500,
       webSearch: true,
     });
