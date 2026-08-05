@@ -19,22 +19,6 @@ export type Showcase = {
 };
 
 export const SHOWCASE: Record<string, Showcase> = {
-  feedback: {
-    steps: [
-      { title: "Ingest feedback", detail: "Surveys, course reviews, focus-group transcripts, enquiry notes — any text stream." },
-      { title: "Theme + sentiment", detail: "Auto-clustered themes, each tied to real student quotes; sentiment bound to themes." },
-      { title: "Decide", detail: "NPS/CSAT/CES together, opportunity scoring, and bias flags — you decide, evidence in hand." },
-    ],
-    capabilities: [
-      "Thematic coding tied to verbatim student quotes (evidence-preserving)",
-      "Aspect-level sentiment (e.g. 'positive on teachers, negative on scheduling')",
-      "NPS / CSAT / CES tracked together, with open-text 'why'",
-      "Focus-group bias flags (dominant voice, leading questions)",
-    ],
-    guardrail:
-      "Sentiment is never a floating number — it's attached to a theme and drillable to quotes. Small or skewed samples get flagged for a follow-up, not a conclusion.",
-    sample: { kind: "feedback", title: "Sample · CELTA cohort feedback" },
-  },
   roadmap: {
     steps: [
       { title: "Pull priorities", detail: "Take the ranked opportunities from Prioritization + Feedback." },
