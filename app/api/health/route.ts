@@ -8,7 +8,7 @@ export async function GET() {
   console.log(`[keycheck] hasKey=${hasKey}`);
   return NextResponse.json({
     hasKey,
-    model: process.env.PM_AGENT_MODEL || "claude-sonnet-5",
+    model: process.env.PM_AGENT_MODEL || "claude-haiku-4-5-20251001",
     note: hasKey ? "Live agents enabled." : "No key on this deployment — add ANTHROPIC_API_KEY (Production) and redeploy.",
   });
 }

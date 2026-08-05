@@ -15,6 +15,12 @@ function fingerprint(m: CompetitorMatrix): string {
 // Hit daily by Vercel Cron (see vercel.json). Refreshes the matrix and records
 // whether anything changed vs. yesterday, so the change can be surfaced later.
 export async function GET(req: NextRequest) {
+  // OFF BY DEFAULT so it can never spend credits unautorised. Turn on only when
+  // you're ready: set ENABLE_COMPETITOR_CRON=1 in the Vercel env vars.
+  if (process.env.ENABLE_COMPETITOR_CRON !== "1") {
+    return NextResponse.json({ ok: false, reason: "cron disabled — set ENABLE_COMPETITOR_CRON=1 to enable daily research (uses credits)." });
+  }
+
   // When CRON_SECRET is set, Vercel sends it as a bearer token — enforce it.
   const secret = process.env.CRON_SECRET;
   if (secret && req.headers.get("authorization") !== `Bearer ${secret}`) {

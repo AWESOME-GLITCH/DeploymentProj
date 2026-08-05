@@ -70,7 +70,9 @@ export default function CompetitorsPage() {
     }
   }, []);
 
-  // On load, prefer the cron-cached snapshot (no tokens); fall back to live research.
+  // On load, ONLY read the cached snapshot (a free KV read — no tokens, no cost).
+  // Live research never runs on its own; it requires an explicit "Refresh research"
+  // click, so opening this page never spends credits.
   useEffect(() => {
     (async () => {
       try {
@@ -82,14 +84,12 @@ export default function CompetitorsPage() {
           setSearched(Boolean(data.searched));
           setDemo(Boolean(data.demo));
           setMeta({ capturedAt: data.capturedAt, changed: data.changed, cached: true });
-          return;
         }
       } catch {
-        /* fall through to live */
+        /* no cache — wait for an explicit refresh */
       }
-      run();
     })();
-  }, [run]);
+  }, []);
 
   return (
     <div className="mx-auto max-w-6xl px-8 py-10">
@@ -117,6 +117,14 @@ export default function CompetitorsPage() {
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand/15"><Icon name="Target" className="h-6 w-6 animate-pulse text-brand-soft" /></div>
           <div className="text-sm text-ink-soft">{THINKING[step]}</div>
           <div className="h-1 w-44 overflow-hidden rounded-full bg-bg-hover"><div className="shimmer h-full w-full" /></div>
+        </Card>
+      )}
+
+      {!loading && !m && (
+        <Card className="flex h-56 flex-col items-center justify-center gap-3 text-center text-ink-faint">
+          <Icon name="Target" className="h-8 w-8" />
+          <div className="text-sm">No competitor research cached yet.</div>
+          <div className="max-w-sm text-xs">Press <span className="text-brand-soft">Refresh research</span> to run a live pull. That's the only thing here that uses credits — the page never researches on its own.</div>
         </Card>
       )}
 
