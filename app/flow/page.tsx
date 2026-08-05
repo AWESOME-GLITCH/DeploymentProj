@@ -50,6 +50,10 @@ function flowHtml(artifacts: Record<string, any> | null, plan: any[] | null) {
 
 const M = getModule("flow")!;
 const DEFAULT_ON: FlowActionKey[] = ["brief", "pricing", "flyer", "website", "sales"];
+// Logical reading order for the deliverables, and which ones read best full-width.
+const ASSET_ORDER = ["brief", "pricing", "flyer", "presentation", "website", "proposal"];
+const WIDE_ASSETS = new Set(["website", "proposal"]);
+const ASSET_TITLE: Record<string, string> = { brief: "Product Brief", pricing: "Pricing", flyer: "Marketing Flyer", presentation: "Presentation", website: "Website Course Page", proposal: "Proposal" };
 
 const THINKING = [
   "Reading your input…",
@@ -191,6 +195,7 @@ export default function FlowPage() {
   const [fixingKey, setFixingKey] = useState<string | null>(null);
   const [flowStale, setFlowStale] = useState(false);
   const [refreshingAll, setRefreshingAll] = useState(false);
+  const [tab, setTab] = useState<"assets" | "team">("assets");
 
   // Re-run every currently-generated artifact with all corrections applied,
   // so a single fix propagates across the whole flow and stays consistent.
@@ -360,8 +365,13 @@ export default function FlowPage() {
     return Array.from(map.entries()).map(([name, v]) => ({ name, ...v }));
   }, [plan]);
 
+  const progName = products.find((p) => p.id === productId)?.name || (productId === "__new__" ? newName : "") || "";
+  const orderedAssets = artifacts
+    ? Object.entries(artifacts).sort((a, b) => ASSET_ORDER.indexOf(a[0]) - ASSET_ORDER.indexOf(b[0]))
+    : [];
+
   return (
-    <div className="mx-auto max-w-6xl px-8 py-10">
+    <div className="mx-auto max-w-7xl px-8 py-10">
       <PageHeader
         icon={M.icon}
         accent={M.accent}
@@ -372,200 +382,225 @@ export default function FlowPage() {
         agent={M.agent}
       />
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_1.4fr]">
-        {/* Controls */}
-        <div className="space-y-4">
+      {/* Controls — one compact full-width panel */}
+      <Card className="p-5">
+        <div className="grid gap-5 lg:grid-cols-2">
+          {/* Input */}
           <div>
             <SectionLabel>What are we launching / doing?</SectionLabel>
-            <Card className="p-1">
-              <textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="e.g. Launch the Dubai IELTS group course for the September intake, target Thailand + Japan, promo pricing…"
-                className="h-32 w-full resize-none rounded-xl bg-transparent p-3 text-sm text-ink placeholder:text-ink-faint focus:outline-none"
-              />
-            </Card>
+            <textarea
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="e.g. Launch the Dubai IELTS group course for the September intake, target Thailand + Japan, promo pricing…"
+              className="h-28 w-full resize-none rounded-xl border border-line bg-bg-soft p-3 text-sm text-ink placeholder:text-ink-faint focus:border-brand/40 focus:outline-none"
+            />
             <div className="mt-2 space-y-2">
               <FileDrop onText={(t) => setInput((p) => (p ? p + "\n\n" + t : t))} label="Drop a brief, filled form or notes — any format" />
               <ClarifyPanel input={input} context="ES World launch flow — brief, pricing, flyer, website, sales plan" onApply={(t) => setInput((p) => (p ? p + "\n\n" + t : t))} />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <label className="block">
-              <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-faint">Programme</span>
-              <select value={productId} onChange={(e) => setProductId(e.target.value)} className="mt-1 w-full rounded-lg border border-line bg-bg-soft px-2.5 py-1.5 text-sm text-ink focus:outline-none">
-                <option value="__new__" className="bg-bg-soft">＋ New programme (not in catalogue)</option>
-                {products.map((p) => (
-                  <option key={p.id} value={p.id} className="bg-bg-soft">{p.name} · {p.campus}</option>
+          {/* Options */}
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <label className="block">
+                <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-faint">Programme</span>
+                <select value={productId} onChange={(e) => setProductId(e.target.value)} className="mt-1 w-full rounded-lg border border-line bg-bg-soft px-2.5 py-2 text-sm text-ink focus:outline-none">
+                  <option value="__new__" className="bg-bg-soft">＋ New programme (not in catalogue)</option>
+                  {products.map((p) => (
+                    <option key={p.id} value={p.id} className="bg-bg-soft">{p.name} · {p.campus}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="block">
+                <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-faint">Target region (sales)</span>
+                <select value={region} onChange={(e) => setRegion(e.target.value)} className="mt-1 w-full rounded-lg border border-line bg-bg-soft px-2.5 py-2 text-sm text-ink focus:outline-none">
+                  {["All regions", ...SALES_REGIONS].map((r) => (
+                    <option key={r} value={r} className="bg-bg-soft">{r}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            {productId === "__new__" && (
+              <input
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                placeholder="New programme name (e.g. Junior Summer Camp — Dubai)"
+                className="w-full rounded-lg border border-accent-teal/40 bg-bg-soft px-2.5 py-2 text-sm text-ink placeholder:text-ink-faint focus:outline-none"
+              />
+            )}
+
+            <div>
+              <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-faint">Steps to run</span>
+              <div className="mt-1 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {FLOW_ACTIONS.map((a) => (
+                  <label key={a.key} className={`flex cursor-pointer items-center gap-2 rounded-lg border px-2.5 py-2 text-sm transition-colors ${selected.includes(a.key) ? "border-accent-teal/40 bg-accent-teal/10 text-ink" : "border-line text-ink-soft hover:text-ink"}`}>
+                    <input type="checkbox" checked={selected.includes(a.key)} onChange={() => toggle(a.key)} className="accent-[#33d6c0]" />
+                    {a.label}
+                  </label>
                 ))}
-              </select>
-            </label>
-            <label className="block">
-              <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-faint">Target region (sales)</span>
-              <select value={region} onChange={(e) => setRegion(e.target.value)} className="mt-1 w-full rounded-lg border border-line bg-bg-soft px-2.5 py-1.5 text-sm text-ink focus:outline-none">
-                {["All regions", ...SALES_REGIONS].map((r) => (
-                  <option key={r} value={r} className="bg-bg-soft">{r}</option>
-                ))}
-              </select>
-            </label>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-3 pt-1">
+              <Button onClick={() => run(true)} disabled={loading || input.trim().length < 4}>
+                {loading ? <><Icon name="Loader2" className="h-4 w-4 animate-spin" /> Running…</> : <><Icon name="Workflow" className="h-4 w-4" /> Run full flow</>}
+              </Button>
+              <Button variant="subtle" onClick={() => run(false)} disabled={loading || input.trim().length < 4 || selected.length === 0}>
+                Run selected ({selected.length})
+              </Button>
+            </div>
+            {error && <div className="text-sm text-accent-rose">{error}</div>}
           </div>
+        </div>
 
-          {productId === "__new__" && (
-            <input
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              placeholder="New programme name (e.g. Junior Summer Camp — Dubai)"
-              className="w-full rounded-lg border border-accent-teal/40 bg-bg-soft px-2.5 py-2 text-sm text-ink placeholder:text-ink-faint focus:outline-none"
-            />
-          )}
-
-          <div>
-            <SectionLabel>Steps to run</SectionLabel>
-            <div className="grid grid-cols-2 gap-2">
-              {FLOW_ACTIONS.map((a) => (
-                <label key={a.key} className={`flex cursor-pointer items-center gap-2 rounded-lg border px-2.5 py-2 text-sm transition-colors ${selected.includes(a.key) ? "border-accent-teal/40 bg-accent-teal/10 text-ink" : "border-line text-ink-soft hover:text-ink"}`}>
-                  <input type="checkbox" checked={selected.includes(a.key)} onChange={() => toggle(a.key)} className="accent-[#33d6c0]" />
-                  {a.label}
-                </label>
+        {corrections.length > 0 && (
+          <div className="mt-4 border-t border-line pt-4">
+            <div className="mb-2 flex items-center gap-2">
+              <Icon name="GraduationCap" className="h-4 w-4 text-brand-soft" />
+              <h3 className="text-sm font-semibold text-ink">What Flow has learned</h3>
+              <span className="ml-auto text-[11px] text-ink-faint">{corrections.length} correction{corrections.length > 1 ? "s" : ""} · applied every run</span>
+            </div>
+            <div className="grid gap-1.5 sm:grid-cols-2">
+              {corrections.map((c) => (
+                <div key={c.id} className="flex items-start gap-2 rounded-lg border border-line bg-bg-soft/50 px-2.5 py-1.5">
+                  <span className="mt-0.5 shrink-0 rounded border border-brand/25 bg-brand/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-brand-soft">{c.kind}</span>
+                  <span className="flex-1 text-xs text-ink-soft">{c.note}</span>
+                  <button onClick={() => removeCorrection(c.id)} className="shrink-0 text-ink-faint hover:text-accent-rose" title="Forget this">
+                    <Icon name="Trash2" className="h-3.5 w-3.5" />
+                  </button>
+                </div>
               ))}
             </div>
           </div>
+        )}
+      </Card>
 
-          <div className="flex flex-wrap gap-3">
-            <Button onClick={() => run(true)} disabled={loading || input.trim().length < 4}>
-              {loading ? <><Icon name="Loader2" className="h-4 w-4 animate-spin" /> Running…</> : <><Icon name="Workflow" className="h-4 w-4" /> Run full flow</>}
-            </Button>
-            <Button variant="subtle" onClick={() => run(false)} disabled={loading || input.trim().length < 4 || selected.length === 0}>
-              Run selected ({selected.length})
-            </Button>
+      {/* Results — full width */}
+      {loading && (
+        <Card glow="51,214,192" className="mt-6 flex h-64 flex-col items-center justify-center gap-3 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-teal/15">
+            <Icon name="Workflow" className="h-6 w-6 animate-pulse text-accent-teal" />
           </div>
-          {error && <div className="text-sm text-accent-rose">{error}</div>}
+          <div className="text-sm text-ink-soft">{THINKING[step]}</div>
+          <div className="h-1 w-44 overflow-hidden rounded-full bg-bg-hover"><div className="shimmer h-full w-full" /></div>
+        </Card>
+      )}
 
-          {corrections.length > 0 && (
-            <Card className="p-4">
-              <div className="mb-2 flex items-center gap-2">
-                <Icon name="GraduationCap" className="h-4 w-4 text-brand-soft" />
-                <h3 className="text-sm font-semibold text-ink">What Flow has learned</h3>
-                <span className="ml-auto text-[11px] text-ink-faint">{corrections.length} correction{corrections.length > 1 ? "s" : ""}</span>
-              </div>
-              <p className="mb-2 text-[11px] text-ink-faint">Applied as ground truth every time you run this programme.</p>
-              <ul className="space-y-1.5">
-                {corrections.map((c) => (
-                  <li key={c.id} className="flex items-start gap-2 rounded-lg border border-line bg-bg-soft/50 px-2.5 py-1.5">
-                    <span className="mt-0.5 shrink-0 rounded border border-brand/25 bg-brand/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-brand-soft">{c.kind}</span>
-                    <span className="flex-1 text-xs text-ink-soft">{c.note}</span>
-                    <button onClick={() => removeCorrection(c.id)} className="shrink-0 text-ink-faint hover:text-accent-rose" title="Forget this">
-                      <Icon name="Trash2" className="h-3.5 w-3.5" />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </Card>
-          )}
-        </div>
+      {!loading && !artifacts && !plan && (
+        <Card className="mt-6 flex h-52 flex-col items-center justify-center gap-3 text-center text-ink-faint">
+          <Icon name="Workflow" className="h-8 w-8" />
+          <div className="text-sm">Your assets and the team action board will appear here.</div>
+          <div className="max-w-md text-xs">Pick your steps above, then Run full flow — every asset generated together, plus an owner for every part.</div>
+        </Card>
+      )}
 
-        {/* Results */}
-        <div>
-          {loading && (
-            <Card glow="51,214,192" className="flex h-64 flex-col items-center justify-center gap-3 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-teal/15">
-                <Icon name="Workflow" className="h-6 w-6 animate-pulse text-accent-teal" />
-              </div>
-              <div className="text-sm text-ink-soft">{THINKING[step]}</div>
-              <div className="h-1 w-44 overflow-hidden rounded-full bg-bg-hover"><div className="shimmer h-full w-full" /></div>
-            </Card>
-          )}
-
-          {!loading && !artifacts && !plan && (
-            <Card className="flex h-64 flex-col items-center justify-center gap-3 text-center text-ink-faint">
-              <Icon name="Workflow" className="h-8 w-8" />
-              <div className="text-sm">Your assets and the team action board will appear here.</div>
-              <div className="max-w-sm text-xs">Pick your steps on the left, then Run full flow — brief, pricing, flyer, website and more, generated together, with an owner for every part.</div>
-            </Card>
-          )}
-
-          {!loading && (artifacts || plan) && (
-            <div className="animate-rise space-y-4">
-              {demo && (
-                <div className="flex items-start gap-2 rounded-lg border border-accent-amber/30 bg-accent-amber/10 px-3 py-2 text-xs text-accent-amber">
-                  <Icon name="AlertTriangle" className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                  Demo mode — add an ANTHROPIC_API_KEY for live, researched output.
-                </div>
-              )}
-              {flowStale && (
-                <div className="flex flex-wrap items-center gap-3 rounded-xl border border-brand/30 bg-brand/[0.06] px-3 py-2.5">
-                  <Icon name="Workflow" className="h-4 w-4 shrink-0 text-brand-soft" />
-                  <span className="flex-1 text-sm text-ink-soft">You corrected one asset. Refresh the rest so the whole flow matches.</span>
-                  <Button variant="subtle" onClick={refreshFlow} disabled={refreshingAll}>
-                    <Icon name={refreshingAll ? "Loader2" : "Workflow"} className={`h-4 w-4 ${refreshingAll ? "animate-spin" : ""}`} />
-                    {refreshingAll ? "Updating flow…" : "Update the full flow"}
-                  </Button>
-                  <button onClick={() => setFlowStale(false)} className="text-xs text-ink-faint hover:text-ink">Dismiss</button>
-                </div>
-              )}
-              <div className="flex justify-end gap-2">
-                {productId === "__new__" && newName.trim() && (
-                  <Button variant="subtle" onClick={saveNewProgramme} disabled={saved}>
-                    <Icon name={saved ? "Check" : "Plus"} className="h-4 w-4" />
-                    {saved ? "Saved to Knowledge" : "Save to catalogue"}
-                  </Button>
-                )}
-                <Button variant="subtle" onClick={saveAll} disabled={savedLib}>
-                  <Icon name={savedLib ? "Check" : "Boxes"} className="h-4 w-4" />
-                  {savedLib ? "Saved to Library" : "Save to Library"}
-                </Button>
-                <ExportMenu
-                  title="ES World Launch Flow"
-                  html={() => flowHtml(artifacts, plan)}
-                  rows={plan ? () => [["Person", "Role", "Task", "Step"], ...plan.map((p) => [p.name, p.role, p.task, p.action] as string[])] : undefined}
-                />
-              </div>
-
-              {/* Action board */}
-              {board.length > 0 && (
-                <Card className="p-4">
-                  <div className="mb-3 flex items-center gap-2">
-                    <Icon name="Users" className="h-4 w-4 text-brand-soft" />
-                    <h3 className="font-semibold text-ink">Who does what</h3>
-                    <span className="ml-auto text-[11px] text-ink-faint">{board.length} people</span>
-                  </div>
-                  <div className="grid gap-2 sm:grid-cols-2">
-                    {board.map((b) => (
-                      <div key={b.name} className="rounded-xl border border-line bg-bg-soft/50 p-3">
-                        <div className="flex items-center gap-2">
-                          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-brand/15 text-xs font-bold text-brand-soft">
-                            {b.name.slice(0, 2)}
-                          </div>
-                          <div>
-                            <div className="text-sm font-medium text-ink">{b.name}</div>
-                            <div className="text-[11px] text-ink-faint">{b.role}</div>
-                          </div>
-                        </div>
-                        <ul className="mt-2 space-y-1">
-                          {b.tasks.map((t, i) => (
-                            <li key={i} className="flex gap-2 text-xs text-ink-soft">
-                              <Icon name="ClipboardList" className="mt-0.5 h-3 w-3 shrink-0 text-accent-teal" />
-                              <span>{t.task} <span className="text-ink-faint">· {t.action}</span></span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
-                </Card>
-              )}
-
-              {/* Artifacts */}
-              {artifacts &&
-                Object.keys(artifacts).length > 0 &&
-                Object.entries(artifacts).map(([k, v]) => (
-                  <ArtifactCard key={k} k={k} data={v} onFix={fixArtifact} fixing={fixingKey === k} />
-                ))}
+      {!loading && (artifacts || plan) && (
+        <div className="animate-rise mt-6 space-y-4">
+          {demo && (
+            <div className="flex items-start gap-2 rounded-lg border border-accent-amber/30 bg-accent-amber/10 px-3 py-2 text-xs text-accent-amber">
+              <Icon name="AlertTriangle" className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+              Demo mode — add an ANTHROPIC_API_KEY for live, researched output.
             </div>
           )}
+          {flowStale && (
+            <div className="flex flex-wrap items-center gap-3 rounded-xl border border-brand/30 bg-brand/[0.06] px-3 py-2.5">
+              <Icon name="Workflow" className="h-4 w-4 shrink-0 text-brand-soft" />
+              <span className="flex-1 text-sm text-ink-soft">You corrected one asset. Refresh the rest so the whole flow matches.</span>
+              <Button variant="subtle" onClick={refreshFlow} disabled={refreshingAll}>
+                <Icon name={refreshingAll ? "Loader2" : "Workflow"} className={`h-4 w-4 ${refreshingAll ? "animate-spin" : ""}`} />
+                {refreshingAll ? "Updating flow…" : "Update the full flow"}
+              </Button>
+              <button onClick={() => setFlowStale(false)} className="text-xs text-ink-faint hover:text-ink">Dismiss</button>
+            </div>
+          )}
+
+          {/* Results header: title + tabs + actions */}
+          <div className="flex flex-wrap items-center gap-3 border-b border-line pb-3">
+            <div>
+              <h2 className="text-lg font-semibold text-ink">
+                {orderedAssets.length} asset{orderedAssets.length === 1 ? "" : "s"}{progName ? <> · <span className="text-brand-soft">{progName}</span></> : null}
+              </h2>
+              <p className="text-xs text-ink-faint">Generated together and kept consistent. Fix any one and refresh the rest.</p>
+            </div>
+            <div className="flex rounded-xl border border-line bg-bg-card p-1">
+              {([["assets", "Assets", String(orderedAssets.length)], ["team", "Team", String(board.length)]] as const).map(([key, label, count]) => (
+                <button
+                  key={key}
+                  onClick={() => setTab(key)}
+                  className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${tab === key ? "bg-brand text-white" : "text-ink-soft hover:text-ink"}`}
+                >
+                  {label} <span className={tab === key ? "text-white/80" : "text-ink-faint"}>{count}</span>
+                </button>
+              ))}
+            </div>
+            <div className="ml-auto flex gap-2">
+              {productId === "__new__" && newName.trim() && (
+                <Button variant="subtle" onClick={saveNewProgramme} disabled={saved}>
+                  <Icon name={saved ? "Check" : "Plus"} className="h-4 w-4" />
+                  {saved ? "Saved" : "Save to catalogue"}
+                </Button>
+              )}
+              <Button variant="subtle" onClick={saveAll} disabled={savedLib}>
+                <Icon name={savedLib ? "Check" : "Boxes"} className="h-4 w-4" />
+                {savedLib ? "Saved to Library" : "Save to Library"}
+              </Button>
+              <ExportMenu
+                title="ES World Launch Flow"
+                html={() => flowHtml(artifacts, plan)}
+                rows={plan ? () => [["Person", "Role", "Task", "Step"], ...plan.map((p) => [p.name, p.role, p.task, p.action] as string[])] : undefined}
+              />
+            </div>
+          </div>
+
+          {/* Assets tab */}
+          {tab === "assets" && (
+            orderedAssets.length > 0 ? (
+              <div className="grid grid-cols-1 items-start gap-5 xl:grid-cols-2">
+                {orderedAssets.map(([k, v]) => (
+                  <div key={k} className={WIDE_ASSETS.has(k) ? "xl:col-span-2" : ""}>
+                    <ArtifactCard k={k} data={v} onFix={fixArtifact} fixing={fixingKey === k} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <Card className="p-6 text-center text-sm text-ink-faint">No document assets in this run — see the Team tab for the action board.</Card>
+            )
+          )}
+
+          {/* Team tab */}
+          {tab === "team" && (
+            board.length > 0 ? (
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {board.map((b) => (
+                  <Card key={b.name} className="p-3">
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand/15 text-xs font-bold text-brand-soft">
+                        {b.name.slice(0, 2)}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="truncate text-sm font-medium text-ink">{b.name}</div>
+                        <div className="truncate text-[11px] text-ink-faint">{b.role}</div>
+                      </div>
+                    </div>
+                    <ul className="mt-2 space-y-1">
+                      {b.tasks.map((t, i) => (
+                        <li key={i} className="flex gap-2 text-xs text-ink-soft">
+                          <Icon name="ClipboardList" className="mt-0.5 h-3 w-3 shrink-0 text-accent-teal" />
+                          <span>{t.task} <span className="text-ink-faint">· {t.action}</span></span>
+                        </li>
+                      ))}
+                    </ul>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <Card className="p-6 text-center text-sm text-ink-faint">Add the Sales / Ops steps to generate a team action board.</Card>
+            )
+          )}
         </div>
-      </div>
+      )}
     </div>
   );
 }
