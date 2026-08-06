@@ -23,12 +23,12 @@ export function useSynthesis(): SynthItem[] {
   return useMemo<SynthItem[]>(() => {
     const out: SynthItem[] = [];
     const watch = products.filter((p) => p.health < 65).sort((a, b) => a.health - b.health);
-    if (watch[0]) out.push({ tag: "RISK", tone: "risk", icon: "AlertTriangle", text: `${watch[0].name} (${watch[0].campus}) health ${watch[0].health} — investigate demand/delivery${watch.length > 1 ? ` · +${watch.length - 1} more on watch` : ""}.` });
+    if (watch[0]) out.push({ tag: "RISK", tone: "risk", icon: "AlertTriangle", text: `${watch[0].name} (${watch[0].campus}) health ${watch[0].health}, investigate demand/delivery${watch.length > 1 ? ` · +${watch.length - 1} more on watch` : ""}.` });
     if (corrections[0]) out.push({ tag: "LEARNED", tone: "pivot", icon: "GraduationCap", text: `[${corrections[0].kind}] ${corrections[0].note.slice(0, 100)}${corrections[0].note.length > 100 ? "…" : ""}` });
-    if (items[0]) out.push({ tag: "SAVED", tone: "ship", icon: "Boxes", text: `${items[0].kind} — ${items[0].title} landed in the Library.` });
+    if (items[0]) out.push({ tag: "SAVED", tone: "ship", icon: "Boxes", text: `${items[0].kind}, ${items[0].title} landed in the Library.` });
     if (out.length < 3) {
       const flagship = products.find((p) => p.stage === "Flagship");
-      if (flagship) out.push({ tag: "FOCUS", tone: "focus", icon: "Target", text: `${flagship.name} is the flagship — protect and scale it.` });
+      if (flagship) out.push({ tag: "FOCUS", tone: "focus", icon: "Target", text: `${flagship.name} is the flagship, protect and scale it.` });
     }
     if (out.length < 3) out.push({ tag: "TIP", tone: "focus", icon: "Command", text: "Press ⌘K anywhere to jump to any module or run an action." });
     if (out.length < 3) out.push({ tag: "READY", tone: "focus", icon: "LayoutGrid", text: `${products.length} programmes tracked across Dubai & London.` });
@@ -36,7 +36,7 @@ export function useSynthesis(): SynthItem[] {
   }, [products, items, corrections]);
 }
 
-/** Slim pinned strip — shown on every page EXCEPT the home dashboard, which
+/** Slim pinned strip, shown on every page EXCEPT the home dashboard, which
  *  renders the fuller <SynthesisPanel/> instead. */
 export function SynthesisBar() {
   const pathname = usePathname();

@@ -56,14 +56,14 @@ function extractJson(text: string): string {
       if (depth === 0) return cleaned.slice(start, i + 1);
     }
   }
-  // Unbalanced (truncated) — return best effort from the first brace.
+  // Unbalanced (truncated), return best effort from the first brace.
   return cleaned.slice(start);
 }
 
 /**
  * Runs a single agent turn that returns JSON. When `webSearch` is true the
  * agent can search the live web (Anthropic server-side web_search tool) before
- * answering — this is what gives every module its research ability.
+ * answering, this is what gives every module its research ability.
  */
 export async function runJsonAgent<T>(
   {
@@ -82,20 +82,23 @@ export async function runJsonAgent<T>(
   sink?: { sources?: Source[]; searched?: boolean }
 ): Promise<T> {
   const client = new Anthropic({ apiKey: apiKey() });
-  // Research (web search) is OFF by default — it's the costly part. Agents still
+  // Research (web search) is OFF by default, it's the costly part. Agents still
   // work from your Knowledge. Turn live research on deliberately: ENABLE_WEB_SEARCH=1.
   const useTools = webSearch && process.env.ENABLE_WEB_SEARCH === "1";
+  const HOUSE_STYLE =
+    "\n\nWRITING STYLE: Write in clear, simple English at about CEFR B1 level. Use short sentences and common words. One idea per sentence. No jargon, no marketing waffle, no clever phrasing. Be direct and easy to understand. NEVER use em dashes or long dashes (—); use a full stop or a comma instead.";
   const fullSystem =
     system +
+    HOUSE_STYLE +
     (useTools ? "\n\nUse web search only if it clearly improves accuracy." : "") +
-    "\n\nRespond with ONLY a single valid JSON object — no prose, no markdown fences.";
+    "\n\nRespond with ONLY a single valid JSON object, no prose, no markdown fences.";
 
   async function once(tools: boolean): Promise<T> {
     const msg = await client.messages.create({
       model: AGENT_MODEL,
       max_tokens: maxTokens,
       // Prompt-cache the (large) system prompt so repeated calls only pay ~10%
-      // of its input cost — the strategy/company memory is reused on every run.
+      // of its input cost, the strategy/company memory is reused on every run.
       system: [{ type: "text", text: fullSystem, cache_control: { type: "ephemeral" } }] as any,
       tools: tools ? ([{ type: "web_search_20250305", name: "web_search", max_uses: maxSearches }] as any) : undefined,
       messages: [{ role: "user", content: user }],

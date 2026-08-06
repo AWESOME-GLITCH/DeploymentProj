@@ -40,7 +40,7 @@ function artifactToHtml(k: string, v: any): string {
   }
 }
 function flowHtml(artifacts: Record<string, any> | null, plan: any[] | null) {
-  let s = H.brandTitle("Launch Flow — ES World");
+  let s = H.brandTitle("Launch Flow, ES World");
   if (plan && plan.length) {
     s += H.h2("Who does what") + "<table><tr><th>Person</th><th>Role</th><th>Task</th><th>Step</th></tr>" +
       plan.map((p) => `<tr><td>${p.name}</td><td>${p.role}</td><td>${p.task}</td><td>${p.action}</td></tr>`).join("") + "</table>";
@@ -82,11 +82,11 @@ function ArtifactCard({ k, data, onFix, fixing }: { k: string; data: any; onFix?
       </div>
       {open && onFix && (
         <div className="mb-3 space-y-2 rounded-xl border border-accent-rose/25 bg-accent-rose/[0.06] p-3">
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-accent-rose">What's wrong? Give the correct version — it's remembered</div>
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-accent-rose">What's wrong? Give the correct version, it's remembered</div>
           <textarea
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            placeholder="e.g. The price is wrong — the Diploma is AED 18,900 incl. VAT. And the audience is career-changers 25-40."
+            placeholder="e.g. The price is wrong, the Diploma is AED 18,900 incl. VAT. And the audience is career-changers 25-40."
             className="h-24 w-full resize-none rounded-lg border border-line bg-bg-soft px-2.5 py-2 text-sm text-ink placeholder:text-ink-faint focus:border-accent-rose/40 focus:outline-none"
           />
           <div className="flex gap-2">
@@ -111,7 +111,7 @@ function ArtifactCard({ k, data, onFix, fixing }: { k: string; data: any; onFix?
         {k === "pricing" && (
           <>
             <div className="rounded-lg border border-brand/25 bg-brand/10 p-2 text-ink">
-              <span className="font-medium text-brand-soft">{data.pricePoint}</span> — {data.recommendation}
+              <span className="font-medium text-brand-soft">{data.pricePoint}</span>, {data.recommendation}
             </div>
             <p>{data.rationale}</p>
             <p className="text-xs text-ink-faint">🔎 {data.marketNote}</p>
@@ -280,7 +280,7 @@ export default function FlowPage() {
     for (const [k, v] of Object.entries(artifacts)) {
       if (!v) continue;
       const label = KLABEL[k] || k;
-      addItem({ id: newId(), productId: pid, kind: label, title: `${label} — ${pname}`, html: artifactToHtml(k, v) });
+      addItem({ id: newId(), productId: pid, kind: label, title: `${label}, ${pname}`, html: artifactToHtml(k, v) });
     }
     setSavedLib(true);
   }
@@ -305,7 +305,7 @@ export default function FlowPage() {
         accent={M.accent}
         glow={M.glow}
         title={M.name}
-        tagline="One asset at a time — approve each before the next runs. Nothing extra is generated, so you never pay for output you don't want."
+        tagline="One asset at a time, approve each before the next runs. Nothing extra is generated, so you never pay for output you don't want."
         status={M.status}
         agent={M.agent}
       />
@@ -324,7 +324,7 @@ export default function FlowPage() {
             />
             {!started && (
               <div className="mt-2 space-y-2">
-                <FileDrop onText={(t) => setInput((p) => (p ? p + "\n\n" + t : t))} label="Drop a brief, filled form or notes — any format" />
+                <FileDrop onText={(t) => setInput((p) => (p ? p + "\n\n" + t : t))} label="Drop a brief, filled form or notes, any format" />
                 <ClarifyPanel input={input} context="ES World launch flow" onApply={(t) => setInput((p) => (p ? p + "\n\n" + t : t))} />
               </div>
             )}
@@ -348,7 +348,7 @@ export default function FlowPage() {
               </label>
             </div>
             {productId === "__new__" && !started && (
-              <input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="New programme name (e.g. Junior Summer Camp — Dubai)" className="w-full rounded-lg border border-accent-teal/40 bg-bg-soft px-2.5 py-2 text-sm text-ink placeholder:text-ink-faint focus:outline-none" />
+              <input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="New programme name (e.g. Junior Summer Camp, Dubai)" className="w-full rounded-lg border border-accent-teal/40 bg-bg-soft px-2.5 py-2 text-sm text-ink placeholder:text-ink-faint focus:outline-none" />
             )}
             <div>
               <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-faint">Assets to build (each is a step)</span>
@@ -364,7 +364,7 @@ export default function FlowPage() {
             <div className="flex flex-wrap gap-3 pt-1">
               {phase === "idle" ? (
                 <Button onClick={start} disabled={input.trim().length < 4}>
-                  <Icon name="Workflow" className="h-4 w-4" /> Start — one step at a time
+                  <Icon name="Workflow" className="h-4 w-4" /> Start, one step at a time
                 </Button>
               ) : (
                 <Button variant="subtle" onClick={restart}>
@@ -401,7 +401,7 @@ export default function FlowPage() {
         <div className="animate-rise mt-6 space-y-5">
           {demo && (
             <div className="flex items-start gap-2 rounded-lg border border-accent-amber/30 bg-accent-amber/10 px-3 py-2 text-xs text-accent-amber">
-              <Icon name="AlertTriangle" className="mt-0.5 h-3.5 w-3.5 shrink-0" /> Demo mode — add an ANTHROPIC_API_KEY for live output.
+              <Icon name="AlertTriangle" className="mt-0.5 h-3.5 w-3.5 shrink-0" /> Demo mode, add an ANTHROPIC_API_KEY for live output.
             </div>
           )}
 
@@ -454,7 +454,7 @@ export default function FlowPage() {
           {phase === "running" && (
             <Card glow="51,214,192" className="flex h-48 flex-col items-center justify-center gap-3 text-center">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-teal/15"><Icon name="Loader2" className="h-6 w-6 animate-spin text-accent-teal" /></div>
-              <div className="text-sm text-ink-soft">Building <span className="font-medium text-ink">{ASSET_TITLE[currentKey]}</span> — {THINKING[tick]}</div>
+              <div className="text-sm text-ink-soft">Building <span className="font-medium text-ink">{ASSET_TITLE[currentKey]}</span>, {THINKING[tick]}</div>
             </Card>
           )}
 
@@ -486,7 +486,7 @@ export default function FlowPage() {
           {phase === "done" && (
             <Card glow="51,214,192" className="flex flex-wrap items-center gap-3 p-4">
               <Icon name="Check" className="h-5 w-5 text-accent-teal" />
-              <span className="text-sm text-ink">Finished — {madeCount} asset{madeCount === 1 ? "" : "s"} approved. Save them to the Library, or start over.</span>
+              <span className="text-sm text-ink">Finished, {madeCount} asset{madeCount === 1 ? "" : "s"} approved. Save them to the Library, or start over.</span>
               <Button variant="subtle" onClick={restart} className="ml-auto">New flow</Button>
             </Card>
           )}
@@ -516,7 +516,7 @@ export default function FlowPage() {
                           <td className="px-4 py-2.5 font-mono text-ink-faint">{i + 1}</td>
                           <td className="px-3 py-2.5 text-ink">{ASSET_TITLE[k]}</td>
                           <td className="px-3 py-2.5 text-ink-soft">Make the {ASSET_TITLE[k].toLowerCase()} for {programmeName}</td>
-                          <td className="px-3 py-2.5 text-ink-soft">{has ? "✓ created" : "—"}</td>
+                          <td className="px-3 py-2.5 text-ink-soft">{has ? "✓ created" : ", "}</td>
                           <td className="px-4 py-2.5 text-right">
                             <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${done ? "bg-accent-teal/15 text-accent-teal" : current ? "bg-brand/15 text-brand-soft" : "bg-bg-hover text-ink-faint"}`}>
                               {done ? "APPROVED" : current ? (phase === "running" ? "BUILDING" : "REVIEW") : "PENDING"}

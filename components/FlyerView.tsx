@@ -1,7 +1,7 @@
 import type { Flyer } from "@/lib/flyer";
 import { Icon } from "./Icon";
 
-/** Canonical ES World flyer layout — used by both Flow and the Marketing module
+/** Canonical ES World flyer layout, used by both Flow and the Marketing module
  *  so every flyer follows the same template. */
 export function FlyerView({ f }: { f: Flyer }) {
   return (

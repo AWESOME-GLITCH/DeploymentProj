@@ -124,7 +124,7 @@ function Sample({ s, glow }: { s: Showcase["sample"]; glow: string }) {
               <span className="italic">“Hard to rebook a missed session in the intensive weeks.”</span>
             </div>
             <div className="mt-2 flex items-center gap-1.5 text-[11px] text-accent-amber">
-              <Icon name="AlertTriangle" className="h-3 w-3" /> small sample — flagged for a follow-up, not a conclusion
+              <Icon name="AlertTriangle" className="h-3 w-3" /> small sample, flagged for a follow-up, not a conclusion
             </div>
           </div>
         </div>
@@ -202,7 +202,7 @@ export default function ModulePage({ params }: { params: { slug: string } }) {
       {mod.status === "next" && (
         <div className="rounded-xl border border-brand/20 bg-brand/5 px-4 py-3 text-sm text-ink-soft">
           <Icon name="Sparkles" className="mr-2 inline h-4 w-4 text-brand-soft" />
-          This module came out of the gap analysis for a multi-programme operator. It’s designed and queued — say the word and it’s next to build.
+          This module came out of the gap analysis for a multi-programme operator. It’s designed and queued, say the word and it’s next to build.
         </div>
       )}
     </div>

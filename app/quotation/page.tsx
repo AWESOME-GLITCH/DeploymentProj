@@ -37,7 +37,7 @@ export default function QuotationPage() {
     "Prices are per the terms above and valid until the date shown. Payment plans available on request."
   );
   const [lines, setLines] = useState<Line[]>([
-    { id: 1, desc: "Tailor-Made General English (Dubai) — 10 lessons", qty: 10, price: 200 },
+    { id: 1, desc: "Tailor-Made General English (Dubai), 10 lessons", qty: 10, price: 200 },
     { id: 2, desc: "Initial level assessment", qty: 1, price: 0 },
   ]);
 
@@ -50,8 +50,8 @@ export default function QuotationPage() {
 
   function quoteHtml() {
     return (
-      H.brandTitle(`Quotation ${quoteNo}`, `Prepared for ${client || "—"}`) +
-      `<p class="muted">Date: ${date || "—"} · Valid until: ${validUntil || "—"}${clientDetail ? " · " + clientDetail : ""}</p>` +
+      H.brandTitle(`Quotation ${quoteNo}`, `Prepared for ${client || ", "}`) +
+      `<p class="muted">Date: ${date || ", "} · Valid until: ${validUntil || ", "}${clientDetail ? " · " + clientDetail : ""}</p>` +
       "<table><tr><th>Description</th><th>Qty</th><th>Unit</th><th>Amount</th></tr>" +
       lines.map((l) => `<tr><td>${l.desc}</td><td>${l.qty}</td><td>${fmt(l.price, sym)}</td><td>${fmt(l.qty * l.price, sym)}</td></tr>`).join("") +
       "</table>" +
@@ -99,7 +99,7 @@ export default function QuotationPage() {
           accent={M.accent}
           glow={M.glow}
           title={M.name}
-          tagline="Build a branded ES World quotation — then print it or save as PDF."
+          tagline="Build a branded ES World quotation, then print it or save as PDF."
           status={M.status}
           agent={M.agent}
           right={
@@ -168,7 +168,7 @@ export default function QuotationPage() {
                     <optgroup key={g} label={g}>
                       {ADDONS.filter((a) => a.currency === currency && a.group === g).map((a) => (
                         <option key={a.id} value={a.id} className="bg-bg-soft">
-                          {a.label} — {a.price}
+                          {a.label}, {a.price}
                           {a.unit === "per week" ? "/wk" : a.unit === "per level" ? "/lvl" : ""}
                         </option>
                       ))}
@@ -177,7 +177,7 @@ export default function QuotationPage() {
                 </select>
               </div>
               {addonGroups.length === 0 && (
-                <div className="mt-1 text-[11px] text-ink-faint">Add-ons are priced in USD (Dubai) & GBP (London) — switch currency to load them.</div>
+                <div className="mt-1 text-[11px] text-ink-faint">Add-ons are priced in USD (Dubai) & GBP (London), switch currency to load them.</div>
               )}
             </div>
 
@@ -237,7 +237,7 @@ export default function QuotationPage() {
           </Card>
         </div>
 
-        {/* Preview — a white ES-brand paper document */}
+        {/* Preview, a white ES-brand paper document */}
         <div>
           <div className="no-print">
             <SectionLabel>Live preview</SectionLabel>
@@ -265,17 +265,17 @@ export default function QuotationPage() {
               <div className="mb-6 flex flex-wrap justify-between gap-4 text-sm">
                 <div>
                   <div className="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">Prepared for</div>
-                  <div className="font-semibold">{client || "—"}</div>
+                  <div className="font-semibold">{client || ", "}</div>
                   <div className="text-neutral-600">{clientDetail}</div>
                 </div>
                 <div className="text-right">
                   <div>
                     <span className="text-neutral-400">Date: </span>
-                    {date || "—"}
+                    {date || ", "}
                   </div>
                   <div>
                     <span className="text-neutral-400">Valid until: </span>
-                    {validUntil || "—"}
+                    {validUntil || ", "}
                   </div>
                 </div>
               </div>
@@ -293,7 +293,7 @@ export default function QuotationPage() {
                 <tbody>
                   {lines.map((l, i) => (
                     <tr key={l.id} className={i % 2 ? "bg-neutral-50" : ""}>
-                      <td className="px-3 py-2 align-top">{l.desc || <span className="text-neutral-300">—</span>}</td>
+                      <td className="px-3 py-2 align-top">{l.desc || <span className="text-neutral-300">, </span>}</td>
                       <td className="px-3 py-2 text-center align-top">{l.qty}</td>
                       <td className="px-3 py-2 text-right align-top">{fmt(l.price, sym)}</td>
                       <td className="px-3 py-2 text-right align-top font-medium">{fmt(l.qty * l.price, sym)}</td>

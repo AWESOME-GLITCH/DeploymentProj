@@ -1,4 +1,4 @@
-// ES World Brand Standards 2026 V1.0 — encoded so the Marketing agent produces
+// ES World Brand Standards 2026 V1.0, encoded so the Marketing agent produces
 // brand-compliant output and the app reflects the real visual identity.
 
 export const BRAND_STANDARDS = {
@@ -26,7 +26,7 @@ export const BRAND_STANDARDS = {
   donts: [
     "No other fonts (Times New Roman, Arial, etc.).",
     "No alternative colours or text grey for brand elements.",
-    "No manual bullet characters (-, *, •) — use built-in list styles.",
+    "No manual bullet characters (-, *, •), use built-in list styles.",
     "Never resize or crop the official letterhead image.",
   ],
   // Document code: e.g. ESL-MKT-FLY-001-XX-V1.0

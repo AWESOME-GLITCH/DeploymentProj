@@ -16,7 +16,7 @@ export type Brief = {
 };
 
 const SYSTEM = `You are the Brief Synthesizer, an expert product-management agent.
-You take messy, unstructured input — meeting notes, transcripts, Slack dumps, half-formed thoughts — and produce a crisp, structured product brief.
+You take messy, unstructured input, meeting notes, transcripts, Slack dumps, half-formed thoughts, and produce a crisp, structured product brief.
 Be concrete and specific to the input. Do NOT invent facts that contradict the input; where the input is silent, infer reasonable defaults but keep them plausible.
 Return a JSON object with exactly these keys:
 - title: string (a clear product/initiative name)
@@ -56,7 +56,7 @@ function demoBrief(input: string): Brief {
       "One-click handoff into the Knowledge hub",
     ],
     risks: [
-      "Source material may be incomplete — flagged assumptions need PM validation",
+      "Source material may be incomplete, flagged assumptions need PM validation",
       "Ambiguous input can produce a generic brief",
     ],
     successMetrics: [

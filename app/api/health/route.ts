@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-// Diagnostic only — reports whether the API key is present, never its value.
+// Diagnostic only, reports whether the API key is present, never its value.
 export const dynamic = "force-dynamic";
 
 export async function GET() {
@@ -9,6 +9,6 @@ export async function GET() {
   return NextResponse.json({
     hasKey,
     model: process.env.PM_AGENT_MODEL || "claude-haiku-4-5-20251001",
-    note: hasKey ? "Live agents enabled." : "No key on this deployment — add ANTHROPIC_API_KEY (Production) and redeploy.",
+    note: hasKey ? "Live agents enabled." : "No key on this deployment, add ANTHROPIC_API_KEY (Production) and redeploy.",
   });
 }

@@ -39,7 +39,7 @@ export default function LibraryPage() {
         accent={M.accent}
         glow={M.glow}
         title={M.name}
-        tagline="Everything you've created, in one place — grouped by programme."
+        tagline="Everything you've created, in one place, grouped by programme."
         status={M.status}
         agent={M.agent}
         right={
@@ -55,7 +55,7 @@ export default function LibraryPage() {
           <Icon name="Boxes" className="h-8 w-8" />
           <div className="text-sm">Nothing saved yet.</div>
           <div className="max-w-sm text-xs">
-            Create a brief, quote, flyer, pricing or idea in any module, then hit <span className="text-brand-soft">Save to programme</span> — it lands here.
+            Create a brief, quote, flyer, pricing or idea in any module, then hit <span className="text-brand-soft">Save to programme</span>, it lands here.
           </div>
           <Link href="/flow" className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white">
             Start a launch <Icon name="ArrowRight" className="h-4 w-4" />

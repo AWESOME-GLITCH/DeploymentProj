@@ -15,11 +15,11 @@ const M = getModule("portfolio")!;
 type Action = "Scale" | "Grow" | "Hold" | "Nurture" | "Watch";
 
 const ACTION_META: Record<Action, { tone: string; bar: string; note: string; icon: string }> = {
-  Scale: { tone: "text-accent-teal border-accent-teal/30 bg-accent-teal/10", bar: "bg-accent-teal", note: "Strong performer — invest to grow", icon: "TrendingUp" },
-  Grow: { tone: "text-accent-blue border-accent-blue/30 bg-accent-blue/10", bar: "bg-accent-blue", note: "Healthy growth — keep investing", icon: "ArrowUpRight" },
-  Hold: { tone: "text-ink-soft border-line bg-bg-hover", bar: "bg-ink-faint", note: "Stable & established — maintain", icon: "Check" },
-  Nurture: { tone: "text-accent-amber border-accent-amber/30 bg-accent-amber/10", bar: "bg-accent-amber", note: "Early stage — build demand", icon: "Sparkles" },
-  Watch: { tone: "text-accent-rose border-accent-rose/30 bg-accent-rose/10", bar: "bg-accent-rose", note: "Lower health — investigate demand/delivery", icon: "AlertTriangle" },
+  Scale: { tone: "text-accent-teal border-accent-teal/30 bg-accent-teal/10", bar: "bg-accent-teal", note: "Strong performer, invest to grow", icon: "TrendingUp" },
+  Grow: { tone: "text-accent-blue border-accent-blue/30 bg-accent-blue/10", bar: "bg-accent-blue", note: "Healthy growth, keep investing", icon: "ArrowUpRight" },
+  Hold: { tone: "text-ink-soft border-line bg-bg-hover", bar: "bg-ink-faint", note: "Stable & established, maintain", icon: "Check" },
+  Nurture: { tone: "text-accent-amber border-accent-amber/30 bg-accent-amber/10", bar: "bg-accent-amber", note: "Early stage, build demand", icon: "Sparkles" },
+  Watch: { tone: "text-accent-rose border-accent-rose/30 bg-accent-rose/10", bar: "bg-accent-rose", note: "Lower health, investigate demand/delivery", icon: "AlertTriangle" },
 };
 
 const ORDER: Action[] = ["Scale", "Grow", "Hold", "Nurture", "Watch"];
@@ -121,7 +121,7 @@ export default function PortfolioPage() {
           <ExportMenu
             title="ES World Portfolio"
             html={() =>
-              H.brandTitle("Portfolio — ES World") +
+              H.brandTitle("Portfolio, ES World") +
               "<table><tr><th>Programme</th><th>Campus</th><th>Category</th><th>Stage</th><th>Health</th><th>Action</th><th>Price</th></tr>" +
               products.map((p) => `<tr><td>${p.name}</td><td>${p.campus}</td><td>${p.category}</td><td>${p.stage}</td><td>${p.health}</td><td>${actionFor(p)}</td><td>${p.price}</td></tr>`).join("") +
               "</table>"
@@ -199,7 +199,7 @@ export default function PortfolioPage() {
       <div className="mt-8 flex items-start gap-2 rounded-xl border border-line bg-bg-soft/50 p-3">
         <Icon name="Sparkles" className="mt-0.5 h-4 w-4 shrink-0 text-brand-soft" />
         <p className="text-xs text-ink-soft">
-          Actions are computed from lifecycle stage + programme health. Health scores are seed values — as you connect real
+          Actions are computed from lifecycle stage + programme health. Health scores are seed values, as you connect real
           enrolment and revenue data, the cockpit recomputes automatically. You always make the final invest/scale/hold call.
         </p>
       </div>

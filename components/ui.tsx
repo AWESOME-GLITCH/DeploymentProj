@@ -15,7 +15,7 @@ export function Card({
       className={`rounded-2xl border border-line bg-bg-card shadow-card ${className}`}
       style={
         // Geist-style: surfaces are defined by a crisp border + a faint accent
-        // hairline — not a coloured bloom. Keeps the page calm and high-contrast.
+        // hairline, not a coloured bloom. Keeps the page calm and high-contrast.
         glow
           ? { boxShadow: `inset 0 0 0 1px rgba(${glow},0.16), 0 10px 40px -28px rgba(0,0,0,0.7)` }
           : undefined
@@ -52,7 +52,7 @@ export function ConfidenceBadge({ level }: { level: "high" | "medium" | "low" })
   const map = {
     high: { cls: "text-accent-teal bg-accent-teal/10 border-accent-teal/30", label: "High confidence" },
     medium: { cls: "text-accent-amber bg-accent-amber/10 border-accent-amber/30", label: "Medium confidence" },
-    low: { cls: "text-accent-rose bg-accent-rose/10 border-accent-rose/30", label: "Low — verify" },
+    low: { cls: "text-accent-rose bg-accent-rose/10 border-accent-rose/30", label: "Low, verify" },
   }[level];
   return (
     <span className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-medium ${map.cls}`}>
@@ -88,7 +88,7 @@ export function Button({
   const base =
     "inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed";
   const variants = {
-    // Flat, high-contrast, Geist-style — no gradients or coloured blooms.
+    // Flat, high-contrast, Geist-style, no gradients or coloured blooms.
     primary: "bg-brand text-white shadow-[0_1px_2px_rgba(0,0,0,0.35)] hover:bg-brand-glow",
     ghost: "text-ink-soft hover:text-ink hover:bg-bg-hover",
     subtle: "border border-line bg-bg-soft text-ink hover:bg-bg-hover hover:border-white/15",

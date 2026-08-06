@@ -33,15 +33,15 @@ const THINKING = [
 
 function analysisHtml(a: FeedbackAnalysis) {
   return (
-    H.brandTitle("Feedback analysis — ES World", `n = ${a.sampleSize}`) +
+    H.brandTitle("Feedback analysis, ES World", `n = ${a.sampleSize}`) +
     H.p(a.summary) +
     H.kv("Sentiment", `Positive ${a.sentiment.positive}% · Neutral ${a.sentiment.neutral}% · Negative ${a.sentiment.negative}%`) +
     (a.metrics.nps != null ? H.kv("NPS", String(a.metrics.nps)) : "") +
     (a.metrics.csat != null ? H.kv("CSAT", `${a.metrics.csat}%`) : "") +
     (a.metrics.ces != null ? H.kv("CES", String(a.metrics.ces)) : "") +
     H.h2("Themes") +
-    a.themes.map((t) => `<h3>${t.theme} — ${t.sentiment} (${t.mentions})</h3>` + (t.quotes.length ? "<ul>" + t.quotes.map((q) => `<li><i>“${q}”</i></li>`).join("") + "</ul>" : "")).join("") +
-    H.h2("Opportunities") + H.ul(a.opportunities.map((o) => `${o.title} — impact ${o.impact}, effort ${o.effort}. ${o.rationale}`)) +
+    a.themes.map((t) => `<h3>${t.theme}, ${t.sentiment} (${t.mentions})</h3>` + (t.quotes.length ? "<ul>" + t.quotes.map((q) => `<li><i>“${q}”</i></li>`).join("") + "</ul>" : "")).join("") +
+    H.h2("Opportunities") + H.ul(a.opportunities.map((o) => `${o.title}, impact ${o.impact}, effort ${o.effort}. ${o.rationale}`)) +
     H.h2("Bias & caveats") + H.ul(a.biasFlags)
   );
 }
@@ -87,7 +87,7 @@ export default function FeedbackPage() {
         accent={M.accent}
         glow={M.glow}
         title={M.name}
-        tagline="Drop your feedback — surveys, reviews, transcripts, a CSV — and get a data-scientist's read: themes, sentiment, NPS/CSAT and what to do."
+        tagline="Drop your feedback, surveys, reviews, transcripts, a CSV, and get a data-scientist's read: themes, sentiment, NPS/CSAT and what to do."
         status={M.status}
         agent={M.agent}
         right={a ? (
@@ -100,12 +100,12 @@ export default function FeedbackPage() {
 
       {/* Input */}
       <div className="mb-6 grid gap-3">
-        <FileDrop onText={(t) => setInput((p) => (p ? p + "\n\n" + t : t))} label="Drop feedback — CSV, survey export, reviews or a transcript (PDF/image/text)" />
+        <FileDrop onText={(t) => setInput((p) => (p ? p + "\n\n" + t : t))} label="Drop feedback, CSV, survey export, reviews or a transcript (PDF/image/text)" />
         <Card className="p-1">
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="…or paste raw feedback here — one comment per line, survey rows, review dumps, focus-group notes."
+            placeholder="…or paste raw feedback here, one comment per line, survey rows, review dumps, focus-group notes."
             className="h-40 w-full resize-none rounded-xl bg-transparent p-4 text-sm text-ink placeholder:text-ink-faint focus:outline-none"
           />
         </Card>
@@ -129,7 +129,7 @@ export default function FeedbackPage() {
       {!loading && !a && (
         <Card className="flex h-52 flex-col items-center justify-center gap-3 text-center text-ink-faint">
           <Icon name="MessagesSquare" className="h-8 w-8" />
-          <div className="text-sm">Your analysis appears here — themes tied to real quotes, honest sentiment, NPS/CSAT, and scored opportunities.</div>
+          <div className="text-sm">Your analysis appears here, themes tied to real quotes, honest sentiment, NPS/CSAT, and scored opportunities.</div>
         </Card>
       )}
 
@@ -137,7 +137,7 @@ export default function FeedbackPage() {
         <div className="animate-rise space-y-6">
           {demo && (
             <div className="flex items-start gap-2 rounded-lg border border-accent-amber/30 bg-accent-amber/10 px-3 py-2 text-xs text-accent-amber">
-              <Icon name="AlertTriangle" className="mt-0.5 h-3.5 w-3.5 shrink-0" /> Demo mode — add an ANTHROPIC_API_KEY to analyse your real feedback.
+              <Icon name="AlertTriangle" className="mt-0.5 h-3.5 w-3.5 shrink-0" /> Demo mode, add an ANTHROPIC_API_KEY to analyse your real feedback.
             </div>
           )}
 
@@ -176,13 +176,13 @@ export default function FeedbackPage() {
                 <Metric label="CSAT" value={a.metrics.csat} suffix="%" />
                 <Metric label="CES" value={a.metrics.ces} />
               </div>
-              <p className="mt-2 text-[11px] text-ink-faint">Shown only when scores exist in your data — never fabricated.</p>
+              <p className="mt-2 text-[11px] text-ink-faint">Shown only when scores exist in your data, never fabricated.</p>
             </Card>
           </div>
 
           {/* Themes */}
           <div>
-            <SectionLabel>Themes — each tied to real quotes</SectionLabel>
+            <SectionLabel>Themes, each tied to real quotes</SectionLabel>
             <div className="grid gap-4 lg:grid-cols-2">
               {a.themes.map((t, i) => <ThemeCard key={i} t={t} max={maxMentions} />)}
             </div>
@@ -190,7 +190,7 @@ export default function FeedbackPage() {
 
           {/* Opportunities */}
           <div>
-            <SectionLabel>Opportunities — impact vs effort</SectionLabel>
+            <SectionLabel>Opportunities, impact vs effort</SectionLabel>
             <div className="grid gap-3 sm:grid-cols-2">
               {a.opportunities.map((o, i) => (
                 <Card key={i} className="p-4">
@@ -215,7 +215,7 @@ export default function FeedbackPage() {
             <Card className="border-accent-amber/25 p-4">
               <div className="mb-2 flex items-center gap-2">
                 <Icon name="AlertTriangle" className="h-4 w-4 text-accent-amber" />
-                <SectionLabel>Bias &amp; caveats — read before you act</SectionLabel>
+                <SectionLabel>Bias &amp; caveats, read before you act</SectionLabel>
               </div>
               <ul className="space-y-1.5">
                 {a.biasFlags.map((b, i) => (
@@ -233,7 +233,7 @@ export default function FeedbackPage() {
 function Metric({ label, value, suffix = "" }: { label: string; value: number | null; suffix?: string }) {
   return (
     <div className="rounded-xl border border-line bg-bg-soft/50 p-3 text-center">
-      <div className="text-2xl font-bold text-ink">{value == null ? "—" : `${value}${suffix}`}</div>
+      <div className="text-2xl font-bold text-ink">{value == null ? ", " : `${value}${suffix}`}</div>
       <div className="text-[11px] text-ink-faint">{label}</div>
     </div>
   );

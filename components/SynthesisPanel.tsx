@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useSynthesis, SYNTH_TONE } from "./SynthesisBar";
 import { Icon } from "./Icon";
 
-/** The featured executive read for the home dashboard — a proper panel, not a strip. */
+/** The featured executive read for the home dashboard, a proper panel, not a strip. */
 export function SynthesisPanel() {
   const synthesis = useSynthesis();
   const [mounted, setMounted] = useState(false);
@@ -18,7 +18,7 @@ export function SynthesisPanel() {
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-teal/60" />
           <span className="relative inline-flex h-2 w-2 rounded-full bg-accent-teal" />
         </span>
-        <h2 className="text-sm font-semibold tracking-tight text-ink">Today — 24h synthesis</h2>
+        <h2 className="text-sm font-semibold tracking-tight text-ink">Today, 24h synthesis</h2>
         <span className="ml-auto text-[11px] text-ink-faint">pivots · threats · risks, from your live data</span>
       </div>
       <div className="grid gap-px bg-line sm:grid-cols-3">

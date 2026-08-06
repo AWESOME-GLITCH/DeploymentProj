@@ -38,7 +38,7 @@ function proposalHtml(p: Proposal) {
 const M = getModule("brief")!;
 type Mode = "brief" | "proposal";
 
-const EXAMPLE = `notes from the team call — lots of Flex Lessons students in Dubai keep asking "can I also do a proper qualification while I'm here". idea: a bridge from Flex/Speaking into the ATHE Business Diploma. right now there's no pathway, students just leave when they want something accredited. want a "next step" offer we pitch at the 10-session review. must not cannibalise the standalone English courses. NOT building a new course, just packaging + a conversion flow. success = X% of Flex students book a Diploma consult. worry: visa eligibility differs (Flex has no visa sponsorship). who owns the handoff from teacher to careers office?`;
+const EXAMPLE = `notes from the team call, lots of Flex Lessons students in Dubai keep asking "can I also do a proper qualification while I'm here". idea: a bridge from Flex/Speaking into the ATHE Business Diploma. right now there's no pathway, students just leave when they want something accredited. want a "next step" offer we pitch at the 10-session review. must not cannibalise the standalone English courses. NOT building a new course, just packaging + a conversion flow. success = X% of Flex students book a Diploma consult. worry: visa eligibility differs (Flex has no visa sponsorship). who owns the handoff from teacher to careers office?`;
 
 const THINKING = [
   "Reading the input…",
@@ -160,7 +160,7 @@ export default function BriefPage() {
               onChange={(e) => setProductId(e.target.value)}
               className="w-full rounded-xl border border-line bg-bg-card px-3 py-2.5 text-sm text-ink focus:border-brand/40 focus:outline-none"
             >
-              <option value="">No programme — use only my input</option>
+              <option value="">No programme, use only my input</option>
               {products.map((p) => (
                 <option key={p.id} value={p.id} className="bg-bg-soft">
                   {p.name} · {p.campus}
@@ -280,7 +280,7 @@ export default function BriefPage() {
               </div>
             )}
 
-            {/* Proposal output — the official Product Proposal Form */}
+            {/* Proposal output, the official Product Proposal Form */}
             {!loading && proposal && (
               <div className="animate-rise space-y-4">
                 {demo && <DemoNote />}
@@ -303,7 +303,7 @@ function DemoNote() {
   return (
     <div className="flex items-start gap-2 rounded-lg border border-accent-amber/30 bg-accent-amber/10 px-3 py-2 text-xs text-accent-amber">
       <Icon name="AlertTriangle" className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-      Demo mode — add an ANTHROPIC_API_KEY to generate from your real input.
+      Demo mode, add an ANTHROPIC_API_KEY to generate from your real input.
     </div>
   );
 }

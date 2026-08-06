@@ -32,14 +32,14 @@ export default function Home() {
           Run your whole product <span className="text-gradient">from one place.</span>
         </h1>
         <p className="mt-4 max-w-xl text-lg text-ink-soft">
-          Briefs, pricing, marketing, quotes and launches — with agents doing the work.
+          Briefs, pricing, marketing, quotes and launches. The agents do the work.
         </p>
       </div>
 
-      {/* Executive synthesis — the live read, up top */}
+      {/* Executive synthesis, the live read, up top */}
       <SynthesisPanel />
 
-      {/* Hero action card — Launch Flow */}
+      {/* Hero action card, Launch Flow */}
       <Link href="/flow" className="group mb-10 block">
         <div
           className="hover-lift relative overflow-hidden rounded-3xl p-8 text-white"

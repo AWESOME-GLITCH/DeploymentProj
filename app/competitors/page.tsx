@@ -29,7 +29,7 @@ const THINKING = ["Scanning competitor sites…", "Reading pricing pages…", "D
 function matrixHtml(m: CompetitorMatrix) {
   const cell = (l: string) => (l === "full" ? "●" : l === "partial" ? "◐" : "○");
   return (
-    H.brandTitle("Competitor gap matrix — ES World", m.headline) +
+    H.brandTitle("Competitor gap matrix, ES World", m.headline) +
     "<table><tr><th>Capability</th><th>ES World</th>" + m.competitors.map((c) => `<th>${c}</th>`).join("") + "<th>Gap</th></tr>" +
     m.features.map((f) => `<tr><td>${f.capability}</td><td>${cell(f.esworld)}</td>` + f.competitors.map((c) => `<td>${cell(c.level)}</td>`).join("") + `<td>${GAP[f.gap].label}</td></tr>`).join("") +
     "</table>" +
@@ -70,7 +70,7 @@ export default function CompetitorsPage() {
     }
   }, []);
 
-  // On load, ONLY read the cached snapshot (a free KV read — no tokens, no cost).
+  // On load, ONLY read the cached snapshot (a free KV read, no tokens, no cost).
   // Live research never runs on its own; it requires an explicit "Refresh research"
   // click, so opening this page never spends credits.
   useEffect(() => {
@@ -86,7 +86,7 @@ export default function CompetitorsPage() {
           setMeta({ capturedAt: data.capturedAt, changed: data.changed, cached: true });
         }
       } catch {
-        /* no cache — wait for an explicit refresh */
+        /* no cache, wait for an explicit refresh */
       }
     })();
   }, []);
@@ -98,7 +98,7 @@ export default function CompetitorsPage() {
         accent={M.accent}
         glow={M.glow}
         title={M.name}
-        tagline="Where ES World leads and lags — a researched feature & pricing matrix, mapped to our strategy."
+        tagline="Where ES World leads and lags, a researched feature & pricing matrix, mapped to our strategy."
         status={M.status}
         agent={M.agent}
         right={
@@ -124,7 +124,7 @@ export default function CompetitorsPage() {
         <Card className="flex h-56 flex-col items-center justify-center gap-3 text-center text-ink-faint">
           <Icon name="Target" className="h-8 w-8" />
           <div className="text-sm">No competitor research cached yet.</div>
-          <div className="max-w-sm text-xs">Press <span className="text-brand-soft">Refresh research</span> to run a live pull. That's the only thing here that uses credits — the page never researches on its own.</div>
+          <div className="max-w-sm text-xs">Press <span className="text-brand-soft">Refresh research</span> to run a live pull. That's the only thing here that uses credits, the page never researches on its own.</div>
         </Card>
       )}
 
@@ -132,7 +132,7 @@ export default function CompetitorsPage() {
         <div className="animate-rise space-y-6">
           {demo && (
             <div className="flex items-start gap-2 rounded-lg border border-accent-amber/30 bg-accent-amber/10 px-3 py-2 text-xs text-accent-amber">
-              <Icon name="AlertTriangle" className="mt-0.5 h-3.5 w-3.5 shrink-0" /> Demo mode — add an ANTHROPIC_API_KEY + credits for live, researched competitor data.
+              <Icon name="AlertTriangle" className="mt-0.5 h-3.5 w-3.5 shrink-0" /> Demo mode, add an ANTHROPIC_API_KEY + credits for live, researched competitor data.
             </div>
           )}
 
@@ -200,7 +200,7 @@ export default function CompetitorsPage() {
 
           <div className="rounded-xl border border-line bg-bg-soft/50 p-3 text-xs text-ink-faint">
             <Icon name="AlertTriangle" className="mr-1.5 inline h-3.5 w-3.5 text-accent-amber" />
-            On-demand today. For a daily auto-refresh, connect a scheduler (e.g. Vercel Cron) to hit <span className="font-mono">/api/competitors</span> — the matrix then updates itself and the synthesis header flags any change.
+            On-demand today. For a daily auto-refresh, connect a scheduler (e.g. Vercel Cron) to hit <span className="font-mono">/api/competitors</span>, the matrix then updates itself and the synthesis header flags any change.
           </div>
         </div>
       )}

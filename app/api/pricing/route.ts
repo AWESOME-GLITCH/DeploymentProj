@@ -15,7 +15,7 @@ export type PricingAnalysis = {
 const SYSTEM = `You are the Pricing Analyst for ES World (Dubai & London language education).
 You research the live market and recommend pricing HONESTLY. Rules:
 - Use web search to find real competitor prices (Dubai/London language schools, IELTS/CELTA providers, study-abroad). Cite what you found.
-- Enterprise/"on request" pricing is often unpublished — mark such items low confidence and NEVER invent a number.
+- Enterprise/"on request" pricing is often unpublished, mark such items low confidence and NEVER invent a number.
 - Respect the provided unit economics: never recommend a price below the cost floor / target margin.
 - Give the full rationale chain: value → cost floor → competitive band → margin check.
 - The final decision is the PM's; you inform.
@@ -42,14 +42,14 @@ function demo(name: string, price: string): PricingAnalysis {
     ],
     competitors: [
       { name: "Competitor A (Dubai group English)", price: "~USD 250 / week", confidence: "medium", note: "Public site price; excludes registration." },
-      { name: "Competitor B", price: "on request", confidence: "low", note: "Enterprise pricing unpublished — not verifiable." },
+      { name: "Competitor B", price: "on request", confidence: "low", note: "Enterprise pricing unpublished, not verifiable." },
       { name: "Competitor C (IELTS prep)", price: "~USD 300 / week", confidence: "medium", note: "Similar intensity." },
     ],
     trends: [
       { note: "Bundled tuition + accommodation increasingly expected by study-abroad students.", confidence: "medium" },
       { note: "Usage/short-course flexibility is a growing differentiator.", confidence: "medium" },
     ],
-    risks: ["Competitor prices move and vary by promo — re-verify before publishing.", "Enterprise/custom prices can't be confirmed from public sources."],
+    risks: ["Competitor prices move and vary by promo, re-verify before publishing.", "Enterprise/custom prices can't be confirmed from public sources."],
   };
 }
 
@@ -67,8 +67,8 @@ export async function POST(req: NextRequest) {
     const analysis = await runJsonAgent<PricingAnalysis>(
       {
         system: SYSTEM,
-        user: `Programme: ${name} (${campus || "—"})
-Current price: ${currentPrice || "—"}
+        user: `Programme: ${name} (${campus || ", "})
+Current price: ${currentPrice || ", "}
 Target market / region: ${market || "general"}
 Unit economics entered by the PM: ${economics || "not provided"}${memory}
 

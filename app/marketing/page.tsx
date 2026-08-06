@@ -85,7 +85,7 @@ export default function MarketingPage() {
         accent={M.accent}
         glow={M.glow}
         title={M.name}
-        tagline="Brand-compliant content, drafted from your Knowledge hub — never off-brand, never invented."
+        tagline="Brand-compliant content, drafted from your Knowledge hub, never off-brand, never invented."
         status={M.status}
         agent={M.agent}
       />
@@ -151,7 +151,7 @@ export default function MarketingPage() {
               />
             </Card>
             <div className="mt-2">
-              <FileDrop onText={(t) => setBrief((p) => (p ? p + "\n\n" + t : t))} label="Drop the filled Course Template, a flyer or brief — we'll read it" />
+              <FileDrop onText={(t) => setBrief((p) => (p ? p + "\n\n" + t : t))} label="Drop the filled Course Template, a flyer or brief, we'll read it" />
             </div>
           </div>
 
@@ -203,7 +203,7 @@ export default function MarketingPage() {
                   {FLYER_TEMPLATE.map((f, i) => (
                     <li key={f.key} className="flex gap-2.5 rounded-lg border border-line bg-bg-soft/50 px-2.5 py-1.5">
                       <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-brand/15 text-[10px] font-bold text-brand-soft">{i + 1}</span>
-                      <span className="text-sm text-ink"><span className="font-medium">{f.label}</span> <span className="text-ink-faint">— {f.hint}</span></span>
+                      <span className="text-sm text-ink"><span className="font-medium">{f.label}</span> <span className="text-ink-faint">, {f.hint}</span></span>
                     </li>
                   ))}
                 </ol>
@@ -215,7 +215,7 @@ export default function MarketingPage() {
                 {demo && (
                   <div className="flex items-start gap-2 rounded-lg border border-accent-amber/30 bg-accent-amber/10 px-3 py-2 text-xs text-accent-amber">
                     <Icon name="AlertTriangle" className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                    Demo mode — add an ANTHROPIC_API_KEY for live copy.
+                    Demo mode, add an ANTHROPIC_API_KEY for live copy.
                   </div>
                 )}
                 <div className="flex items-center justify-between">
@@ -223,7 +223,7 @@ export default function MarketingPage() {
                     Website Course Template · ES World
                   </div>
                   <div className="flex gap-2">
-                    <SaveToProgramme kind="Course page" title={`Course page — ${PRODUCTS.find((p) => p.id === productId)?.name || ""}`} getHtml={() => courseHtml(coursePage)} />
+                    <SaveToProgramme kind="Course page" title={`Course page, ${PRODUCTS.find((p) => p.id === productId)?.name || ""}`} getHtml={() => courseHtml(coursePage)} />
                     <ExportMenu title="ES World Course Page" html={() => courseHtml(coursePage)} />
                   </div>
                 </div>
@@ -241,7 +241,7 @@ export default function MarketingPage() {
                 {demo && (
                   <div className="flex items-start gap-2 rounded-lg border border-accent-amber/30 bg-accent-amber/10 px-3 py-2 text-xs text-accent-amber">
                     <Icon name="AlertTriangle" className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                    Demo mode — add an ANTHROPIC_API_KEY for live copy.
+                    Demo mode, add an ANTHROPIC_API_KEY for live copy.
                   </div>
                 )}
                 <div className="flex items-center justify-between">
@@ -249,8 +249,8 @@ export default function MarketingPage() {
                     ES World Flyer Template
                   </div>
                   <div className="flex gap-2">
-                    <SaveToProgramme kind="Flyer" title={`Flyer — ${flyer.courseName}`} getHtml={() => flyerToHtml(flyer)} />
-                    <ExportMenu title={`ES World Flyer — ${flyer.courseName}`} html={() => flyerToHtml(flyer)} />
+                    <SaveToProgramme kind="Flyer" title={`Flyer, ${flyer.courseName}`} getHtml={() => flyerToHtml(flyer)} />
+                    <ExportMenu title={`ES World Flyer, ${flyer.courseName}`} html={() => flyerToHtml(flyer)} />
                   </div>
                 </div>
                 <FlyerView f={flyer} />
@@ -262,13 +262,13 @@ export default function MarketingPage() {
                 {demo && (
                   <div className="flex items-start gap-2 rounded-lg border border-accent-amber/30 bg-accent-amber/10 px-3 py-2 text-xs text-accent-amber">
                     <Icon name="AlertTriangle" className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                    Demo mode — add an ANTHROPIC_API_KEY for live copy.
+                    Demo mode, add an ANTHROPIC_API_KEY for live copy.
                   </div>
                 )}
                 <div className="flex items-center justify-between">
                   <div className="text-[11px] font-mono text-ink-faint">{draft.docCode}</div>
                   <div className="flex gap-2">
-                    <SaveToProgramme kind={type} title={`${type} — ${PRODUCTS.find((p) => p.id === productId)?.name || ""}`} getHtml={() => draftHtml(draft)} />
+                    <SaveToProgramme kind={type} title={`${type}, ${PRODUCTS.find((p) => p.id === productId)?.name || ""}`} getHtml={() => draftHtml(draft)} />
                     <ExportMenu title={`ES World ${type}`} html={() => draftHtml(draft)} />
                   </div>
                 </div>

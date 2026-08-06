@@ -21,7 +21,7 @@ const display = Space_Grotesk({
 export const metadata: Metadata = {
   title: "ES World · Product Operating System",
   description:
-    "ES World's AI-native product operating system — briefs, knowledge, marketing, analytics, pricing, feedback, and a Think Lab, all around one source of truth.",
+    "ES World's AI-native product operating system, briefs, knowledge, marketing, analytics, pricing, feedback, and a Think Lab, all around one source of truth.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -27,7 +27,7 @@ const ARTIFACT_SPEC: Record<string, string> = {
   pricing: `"pricing": { "recommendation": string, "pricePoint": string, "rationale": string, "marketNote": string }`,
   flyer: FLYER_SPEC,
   presentation: `"presentation": { "title": string, "slides": [ { "title": string, "points": string[] (2-3) } ] (3-4 slides) }`,
-  website: `"website": { "fields": [ { "field": string, "value": string } ] } — fill ES World's website Course Template, ONE entry per field in THIS EXACT ORDER: ${COURSE_FIELDS.map((f) => `"${f}"`).join(", ")}. "Overview of the Course" = 3-5 sentences. "Why should you choose" = a short paragraph then 3-4 bullet lines each starting with "• ". "The Enrolment Process" = numbered steps. Use the product knowledge; write "[TBC]" if a fact is missing.`,
+  website: `"website": { "fields": [ { "field": string, "value": string } ] }, fill ES World's website Course Template, ONE entry per field in THIS EXACT ORDER: ${COURSE_FIELDS.map((f) => `"${f}"`).join(", ")}. "Overview of the Course" = 3-5 sentences. "Why should you choose" = a short paragraph then 3-4 bullet lines each starting with "• ". "The Enrolment Process" = numbered steps. Use the product knowledge; write "[TBC]" if a fact is missing.`,
   proposal: `"proposal": ${PROPOSAL_FORM_SPEC}`,
 };
 
@@ -55,7 +55,7 @@ function demoArtifacts(keys: string[], p?: Product) {
     brief: { summary: p?.overview || p?.oneLiner || `Brief for ${name}.`, problem: `Give prospects a clear reason to choose ${name}.`, audience: p?.audience || "[TBC]", goals: (p?.outcomes || ["[TBC]"]).slice(0, 3) },
     pricing: { recommendation: "Hold the list price; add an early-bird offer.", pricePoint: p?.price || "[TBC]", rationale: "Aligned to the 2026 price list.", marketNote: "Set ENABLE_WEB_SEARCH=1 for live competitor data." },
     flyer: flyerFromProduct(p),
-    presentation: { title: `${name} — Overview`, slides: [{ title: "Why this course", points: (p?.whyChoose || p?.outcomes || []).slice(0, 3) }, { title: "What's included", points: [p?.levels, p?.format].filter(Boolean) }, { title: "Next steps", points: ["Enrol", "Contact esworld.com"] }] },
+    presentation: { title: `${name}, Overview`, slides: [{ title: "Why this course", points: (p?.whyChoose || p?.outcomes || []).slice(0, 3) }, { title: "What's included", points: [p?.levels, p?.format].filter(Boolean) }, { title: "Next steps", points: ["Enrol", "Contact esworld.com"] }] },
     website: { fields: COURSE_FIELDS.map((f) => ({ field: f, value: courseVal(f, p) })) },
     proposal: demoProposalForm(name),
   };
@@ -85,13 +85,13 @@ export async function POST(req: NextRequest) {
 
   const specs = producing.map((k) => ARTIFACT_SPEC[k]).join(",\n");
   const correctionBlock = corrections.length
-    ? `\n\nPM CORRECTIONS — GROUND TRUTH. The product manager reviewed earlier output and gave these corrections. They OVERRIDE everything else, including the product knowledge, whenever they conflict. Obey every one exactly; do not repeat the mistakes they describe:\n${corrections
+    ? `\n\nPM CORRECTIONS, GROUND TRUTH. The product manager reviewed earlier output and gave these corrections. They OVERRIDE everything else, including the product knowledge, whenever they conflict. Obey every one exactly; do not repeat the mistakes they describe:\n${corrections
         .map((c, i) => `${i + 1}. [${c.kind}] ${c.note}`)
         .join("\n")}`
     : "";
   const system = `You are the Flow Orchestrator for ES World (Dubai & London language education).
 You produce several coordinated ES World artifacts at once, using ES World's OWN formats.
-GROUND EVERYTHING IN THE PROVIDED PRODUCT KNOWLEDGE — reflect its real facts faithfully (name, campus, price, levels, format, schedule, intakes, audience, learning outcomes, course outline, personas). Do NOT invent facts that contradict it, and never invent prices — copy the price from the knowledge or write "[TBC]".
+GROUND EVERYTHING IN THE PROVIDED PRODUCT KNOWLEDGE, reflect its real facts faithfully (name, campus, price, levels, format, schedule, intakes, audience, learning outcomes, course outline, personas). Do NOT invent facts that contradict it, and never invent prices, copy the price from the knowledge or write "[TBC]".
 
 ${COMPANY_MEMORY}
 ${BRAND_SYSTEM_FRAGMENT}${correctionBlock}
@@ -103,13 +103,13 @@ ${specs}
 
   const knowledge = product
     ? JSON.stringify(product, null, 2)
-    : `(new programme not yet in the catalogue — "${productName}". Base it on the PM's input and ES World's model; use [TBC] for unknowns.)`;
+    : `(new programme not yet in the catalogue, "${productName}". Base it on the PM's input and ES World's model; use [TBC] for unknowns.)`;
   const sink: { sources?: Source[]; searched?: boolean } = {};
   try {
     const artifacts = await runJsonAgent<Record<string, any>>(
       {
         system,
-        user: `Programme: ${productName}\n\nProduct knowledge (single source of truth — use these real facts):\n${knowledge}\n\nWhat the PM is launching / doing:\n${input}\n\nProduce all requested artifacts now, using ES World's formats and the real facts above.`,
+        user: `Programme: ${productName}\n\nProduct knowledge (single source of truth, use these real facts):\n${knowledge}\n\nWhat the PM is launching / doing:\n${input}\n\nProduce all requested artifacts now, using ES World's formats and the real facts above.`,
         maxTokens: 8000,
         webSearch: true,
       },

@@ -18,10 +18,10 @@ export async function GET(req: NextRequest) {
   // OFF BY DEFAULT so it can never spend credits unautorised. Turn on only when
   // you're ready: set ENABLE_COMPETITOR_CRON=1 in the Vercel env vars.
   if (process.env.ENABLE_COMPETITOR_CRON !== "1") {
-    return NextResponse.json({ ok: false, reason: "cron disabled — set ENABLE_COMPETITOR_CRON=1 to enable daily research (uses credits)." });
+    return NextResponse.json({ ok: false, reason: "cron disabled, set ENABLE_COMPETITOR_CRON=1 to enable daily research (uses credits)." });
   }
 
-  // When CRON_SECRET is set, Vercel sends it as a bearer token — enforce it.
+  // When CRON_SECRET is set, Vercel sends it as a bearer token, enforce it.
   const secret = process.env.CRON_SECRET;
   if (secret && req.headers.get("authorization") !== `Bearer ${secret}`) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
@@ -29,10 +29,10 @@ export async function GET(req: NextRequest) {
 
   const result = await researchMatrix();
   if (result.demo) {
-    return NextResponse.json({ ok: false, reason: "no live agent / credits — nothing cached", demo: true });
+    return NextResponse.json({ ok: false, reason: "no live agent / credits, nothing cached", demo: true });
   }
   if (!kvEnabled) {
-    return NextResponse.json({ ok: false, reason: "KV not provisioned — research ran but has nowhere to persist. Add a Vercel KV store." });
+    return NextResponse.json({ ok: false, reason: "KV not provisioned, research ran but has nowhere to persist. Add a Vercel KV store." });
   }
 
   const prev = await kvGetJSON<{ matrix: CompetitorMatrix; fingerprint?: string }>(CACHE_KEY);

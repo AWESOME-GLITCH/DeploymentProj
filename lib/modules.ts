@@ -1,4 +1,4 @@
-// Module registry. Copy is deliberately short and plain — no jargon.
+// Module registry. Copy is deliberately short and plain, no jargon.
 
 export type ModuleStatus = "live" | "beta" | "next";
 
@@ -25,7 +25,7 @@ export const MODULES: ModuleDef[] = [
     accent: "text-brand-soft",
     glow: "255,131,0",
     tagline: "One brief, every step",
-    description: "Run the brief, pricing, flyer, website and more in one go — with owners assigned.",
+    description: "Run the brief, pricing, flyer, website and more in one go, with owners assigned.",
     status: "live",
     group: "core",
     agent: "Flow",
@@ -51,7 +51,7 @@ export const MODULES: ModuleDef[] = [
     accent: "text-brand-soft",
     glow: "255,131,0",
     tagline: "Everything you've created",
-    description: "Every brief, quote, flyer and idea you've saved — grouped by programme, in one place.",
+    description: "Every brief, quote, flyer and idea you've saved, grouped by programme, in one place.",
     status: "live",
     group: "core",
     agent: "Library",
@@ -64,7 +64,7 @@ export const MODULES: ModuleDef[] = [
     accent: "text-brand-soft",
     glow: "255,131,0",
     tagline: "All courses, one place",
-    description: "Your full Dubai & London catalogue — searchable, editable, always in sync.",
+    description: "Your full Dubai & London catalogue, searchable, editable, always in sync.",
     status: "live",
     group: "core",
     agent: "Knowledge",
@@ -142,7 +142,7 @@ export const MODULES: ModuleDef[] = [
     accent: "text-brand-soft",
     glow: "255,131,0",
     tagline: "Patterns in your data",
-    description: "Cohorts, funnels and trends — with confidence, not guesses.",
+    description: "Cohorts, funnels and trends, with confidence, not guesses.",
     status: "beta",
     group: "core",
     agent: "Analytics",
@@ -155,7 +155,7 @@ export const MODULES: ModuleDef[] = [
     accent: "text-brand-soft",
     glow: "255,131,0",
     tagline: "Live gap matrix",
-    description: "Where ES World leads and lags — a researched feature & pricing matrix.",
+    description: "Where ES World leads and lags, a researched feature & pricing matrix.",
     status: "beta",
     group: "core",
     agent: "Intelligence",

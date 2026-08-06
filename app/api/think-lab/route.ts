@@ -87,7 +87,7 @@ function demoConcept(input: string): Concept {
       "Run 5 of your own real ideas through Think Lab this week; for each, note whether the recommended first experiment is one you'd actually run.",
     knownFromKnowledge: [
       "ES World runs 11 programmes across Dubai & London (English, Spanish, CELTA, Careers, ATHE Diploma)",
-      "Flex Lessons already teaches real-world speaking tasks — debates, pitches, storytelling",
+      "Flex Lessons already teaches real-world speaking tasks, debates, pitches, storytelling",
       "The ATHE Diploma already bundles an 'AI Module', so AI-assisted learning is on-brand",
     ],
     researchNotes: [

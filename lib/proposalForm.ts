@@ -133,7 +133,7 @@ export const PROPOSAL_FORM_SPEC = `{
   "entryRequirements": string (prerequisites, min English level, age, background, extra costs beyond tuition),
   "deliveryFormat": string (In-person / Online / Hybrid, expected class size, support services),
   "expectedEnrolments": string (first-year estimate),
-  "proposedFee": string (USD for Dubai, GBP for London — copy real prices from knowledge or "[TBC]", never invent),
+  "proposedFee": string (USD for Dubai, GBP for London, copy real prices from knowledge or "[TBC]", never invent),
   "viabilityNote": string (short view on whether the numbers work),
   "qualityAssurance": string (quality standards, feedback collection, continuous improvement),
   "risks": [ { "risk": string, "mitigation": string } ] (2-4),

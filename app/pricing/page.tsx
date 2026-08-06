@@ -15,7 +15,7 @@ import type { PricingAnalysis } from "../api/pricing/route";
 
 function pricingHtml(name: string, a: PricingAnalysis, sources: Source[] = []) {
   return (
-    H.brandTitle(`Pricing — ${name}`, "ES World") +
+    H.brandTitle(`Pricing, ${name}`, "ES World") +
     H.kv("Recommended", a.recommendedPrice) +
     H.p(a.recommendation) +
     H.muted(a.positioning) +
@@ -27,7 +27,7 @@ function pricingHtml(name: string, a: PricingAnalysis, sources: Source[] = []) {
     H.h2("Market trends") + H.ul(a.trends.map((t) => `${t.note} (${t.confidence})`)) +
     H.h2("Risks") + H.ul(a.risks) +
     (sources.length
-      ? H.h2("Sources") + "<ol>" + sources.map((s) => `<li><a href="${s.url}">${s.title}</a> — ${s.url}</li>`).join("") + "</ol>"
+      ? H.h2("Sources") + "<ol>" + sources.map((s) => `<li><a href="${s.url}">${s.title}</a>, ${s.url}</li>`).join("") + "</ol>"
       : "")
   );
 }
@@ -92,7 +92,7 @@ export default function PricingPage() {
   const prevYear = String(BASE_YEAR);
   function pricelistHtml() {
     return (
-      H.brandTitle(`Price List ${year} — ES World`, `Generated with a ${pct}% uplift · VAT-inclusive`) +
+      H.brandTitle(`Price List ${year}, ES World`, `Generated with a ${pct}% uplift · VAT-inclusive`) +
       "<table><tr><th>Programme</th><th>Campus</th><th>" + prevYear + "</th><th>" + year + "</th></tr>" +
       catalog.map((p) => `<tr><td>${p.name}</td><td>${p.campus}</td><td>${p.price}</td><td>${newPrice(p)}</td></tr>`).join("") +
       "</table>"
@@ -256,11 +256,11 @@ export default function PricingPage() {
             </div>
             <div className="mt-3 flex items-center justify-between rounded-lg border border-line bg-bg-soft/50 px-3 py-2 text-sm">
               <span className="text-ink-soft">Break-even class size</span>
-              <span className="font-semibold text-ink">{econ.breakEven === Infinity ? "—" : `${econ.breakEven} students`}</span>
+              <span className="font-semibold text-ink">{econ.breakEven === Infinity ? ", " : `${econ.breakEven} students`}</span>
             </div>
             <div className={`mt-2 text-xs ${marginOk ? "text-accent-teal" : "text-accent-amber"}`}>
               <Icon name={marginOk ? "Check" : "AlertTriangle"} className="mr-1 inline h-3 w-3" />
-              {marginOk ? `Clears your ${targetMargin}% target margin.` : `Below your ${targetMargin}% target — raise price or class size.`}
+              {marginOk ? `Clears your ${targetMargin}% target margin.` : `Below your ${targetMargin}% target, raise price or class size.`}
             </div>
           </Card>
 
@@ -287,18 +287,18 @@ export default function PricingPage() {
             <Card className="flex h-72 flex-col items-center justify-center gap-3 text-center text-ink-faint">
               <Icon name="Tags" className="h-8 w-8" />
               <div className="text-sm">Enter your costs, then research the market.</div>
-              <div className="max-w-xs text-xs">The agent searches live competitor pricing, respects your cost floor, and flags confidence — it never invents a number.</div>
+              <div className="max-w-xs text-xs">The agent searches live competitor pricing, respects your cost floor, and flags confidence, it never invents a number.</div>
             </Card>
           )}
           {!loading && analysis && (
             <div className="animate-rise space-y-4">
               {demo && (
                 <div className="flex items-start gap-2 rounded-lg border border-accent-amber/30 bg-accent-amber/10 px-3 py-2 text-xs text-accent-amber">
-                  <Icon name="AlertTriangle" className="mt-0.5 h-3.5 w-3.5 shrink-0" /> Demo mode — add an ANTHROPIC_API_KEY for live research.
+                  <Icon name="AlertTriangle" className="mt-0.5 h-3.5 w-3.5 shrink-0" /> Demo mode, add an ANTHROPIC_API_KEY for live research.
                 </div>
               )}
               <div className="flex justify-end gap-2">
-                <SaveToProgramme kind="Pricing" title={`Pricing — ${product.name}`} getHtml={() => pricingHtml(product.name, analysis, sources)} />
+                <SaveToProgramme kind="Pricing" title={`Pricing, ${product.name}`} getHtml={() => pricingHtml(product.name, analysis, sources)} />
                 <ExportMenu
                   title={`Pricing ${product.name}`}
                   html={() => pricingHtml(product.name, analysis, sources)}
@@ -358,7 +358,7 @@ export default function PricingPage() {
                 </Card>
               </div>
 
-              {/* Provenance — where the researched figures came from */}
+              {/* Provenance, where the researched figures came from */}
               {!demo && <Sources sources={sources} searched={searched} />}
             </div>
           )}

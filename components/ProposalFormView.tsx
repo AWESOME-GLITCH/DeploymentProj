@@ -1,6 +1,6 @@
 import { PROPOSAL_FORM_LAYOUT, type ProposalForm } from "@/lib/proposalForm";
 
-/** Renders the official ES World Product Proposal Form in section order —
+/** Renders the official ES World Product Proposal Form in section order, 
  *  used by the Proposal generator and by Flow/Think Lab for new products. */
 export function ProposalFormView({ f }: { f: ProposalForm }) {
   return (

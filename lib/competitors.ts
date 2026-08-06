@@ -14,17 +14,17 @@ export type MatrixResult = { matrix: CompetitorMatrix; demo: boolean; sources: S
 const SYSTEM = `You are ES World's competitive-intelligence analyst.
 ${COMPANY_MEMORY}
 
-Build a HONEST competitor feature/gap matrix for ES World vs its real rivals (choose 3-4 of: British Council, EC English, Kaplan, Headway, IELTS/Cambridge, Duolingo English Test — the most relevant). Use web search for current facts (pricing pages, course pages, changelogs) where possible. Rules:
+Build a HONEST competitor feature/gap matrix for ES World vs its real rivals (choose 3-4 of: British Council, EC English, Kaplan, Headway, IELTS/Cambridge, Duolingo English Test, the most relevant). Use web search for current facts (pricing pages, course pages, changelogs) where possible. Rules:
 - Capabilities to compare (6-8): accredited higher-ed pathway (ATHE), own placement/assessment (AZE), flexible/on-demand formats, cultural immersion across two cities, transparent public pricing, IELTS preparation, teacher training (CELTA), instant results/feedback.
 - Each capability: our level and each competitor's level as "full" | "partial" | "none". Do NOT overstate ours.
 - gap: "moat" (we lead & it's defensible), "parity", "close" (rivals slightly ahead), "watch" (we're behind).
-- pricing: 3-5 real, current competitor price points with a short note; copy figures from sources, never invent — if unknown, say "unpublished".
+- pricing: 3-5 real, current competitor price points with a short note; copy figures from sources, never invent, if unknown, say "unpublished".
 
 Return JSON exactly:
 - competitors: string[] (column order, our rivals only)
 - features: array of { capability, esworld: "full"|"partial"|"none", competitors: [{ name, level }], gap: "moat"|"parity"|"close"|"watch" }
 - pricing: array of { competitor, plan, price, note }
-- headline: string (one line — the single most important competitive read right now)`;
+- headline: string (one line, the single most important competitive read right now)`;
 
 export function demoMatrix(): CompetitorMatrix {
   const L = (a: Level, b: Level, c: Level): { name: string; level: Level }[] => [
@@ -53,7 +53,7 @@ export function demoMatrix(): CompetitorMatrix {
   };
 }
 
-/** Runs the competitor research once — shared by the on-demand POST and the cron. */
+/** Runs the competitor research once, shared by the on-demand POST and the cron. */
 export async function researchMatrix(): Promise<MatrixResult> {
   if (!hasLiveAgents()) return { matrix: demoMatrix(), demo: true, sources: [], searched: false };
   const sink: { sources?: Source[]; searched?: boolean } = {};

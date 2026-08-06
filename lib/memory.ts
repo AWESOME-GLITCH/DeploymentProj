@@ -18,7 +18,7 @@ function toText(html = "", max = 700): string {
 /** Builds the shared grounding block every module feeds to the agent:
  *  the selected programme's real knowledge + pricing, the work already created
  *  for it (from the Library), plus any PM corrections. This is the app's
- *  "memory" — one source of truth across all segments. */
+ *  "memory", one source of truth across all segments. */
 export function memoryBlock(
   product?: Product | null,
   corrections?: { kind: string; note: string }[],
@@ -27,20 +27,20 @@ export function memoryBlock(
   let s = "\n\n" + COMPANY_MEMORY;
   if (product) {
     s +=
-      `\n\nES WORLD PRODUCT KNOWLEDGE — single source of truth. Use these REAL facts (name, campus, price, levels, format, schedule, intakes, audience, outcomes, outline, personas, positioning). Never invent a price — copy it exactly or write "[TBC]":\n` +
+      `\n\nES WORLD PRODUCT KNOWLEDGE, single source of truth. Use these REAL facts (name, campus, price, levels, format, schedule, intakes, audience, outcomes, outline, personas, positioning). Never invent a price, copy it exactly or write "[TBC]":\n` +
       JSON.stringify(product, null, 2);
   }
   if (savedWork?.length) {
     s +=
-      `\n\nWORK ALREADY CREATED FOR THIS PROGRAMME (from the Library — reuse and stay consistent with it; don't contradict decisions already made here):\n` +
+      `\n\nWORK ALREADY CREATED FOR THIS PROGRAMME (from the Library, reuse and stay consistent with it; don't contradict decisions already made here):\n` +
       savedWork
         .slice(0, 8)
-        .map((w) => `— ${w.kind}: ${w.title}${w.html ? `\n  ${toText(w.html)}` : ""}`)
+        .map((w) => `, ${w.kind}: ${w.title}${w.html ? `\n  ${toText(w.html)}` : ""}`)
         .join("\n");
   }
   if (corrections?.length) {
     s +=
-      `\n\nPM CORRECTIONS — GROUND TRUTH. These override everything above whenever they conflict. Obey every one; never repeat the mistakes they describe:\n` +
+      `\n\nPM CORRECTIONS, GROUND TRUTH. These override everything above whenever they conflict. Obey every one; never repeat the mistakes they describe:\n` +
       corrections.map((c, i) => `${i + 1}. [${c.kind}] ${c.note}`).join("\n");
   }
   return s;

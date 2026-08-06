@@ -1,4 +1,4 @@
-// ES World team directory — powers the "who does what" action board in Launch Flow.
+// ES World team directory, powers the "who does what" action board in Launch Flow.
 
 export type Person = {
   name: string;
@@ -19,7 +19,7 @@ export const TEAM: Person[] = [
   // Sales leadership
   { name: "Magda", role: "Sales Director", dept: "Sales Leadership" },
 
-  // Sales — by region
+  // Sales, by region
   { name: "Nook", role: "Sales", dept: "Sales", area: "Thailand" },
   { name: "Miew", role: "Sales", dept: "Sales", area: "Thailand" },
   { name: "Anna", role: "Sales", dept: "Sales", area: "Russia / CIS" },

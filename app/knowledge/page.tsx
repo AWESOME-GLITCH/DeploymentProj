@@ -68,13 +68,13 @@ export default function KnowledgePage() {
     <div className="mx-auto max-w-6xl px-8 py-10">
       <PageHeader
         icon={M.icon} accent={M.accent} glow={M.glow} title={M.name}
-        tagline="All your courses in one place — full detail, personas and documents."
+        tagline="All your courses in one place, full detail, personas and documents."
         status={M.status} agent={M.agent}
         right={
           <div className="flex items-center gap-2">
             <ExportMenu
               title="ES World Catalogue"
-              html={() => H.brandTitle("Course Catalogue — ES World", "Dubai & London") + "<table><tr><th>Programme</th><th>Campus</th><th>Category</th><th>Levels</th><th>Price</th></tr>" + products.map((p) => `<tr><td>${p.name}</td><td>${p.campus}</td><td>${p.category}</td><td>${p.levels || ""}</td><td>${p.price}</td></tr>`).join("") + "</table>"}
+              html={() => H.brandTitle("Course Catalogue, ES World", "Dubai & London") + "<table><tr><th>Programme</th><th>Campus</th><th>Category</th><th>Levels</th><th>Price</th></tr>" + products.map((p) => `<tr><td>${p.name}</td><td>${p.campus}</td><td>${p.category}</td><td>${p.levels || ""}</td><td>${p.price}</td></tr>`).join("") + "</table>"}
               rows={() => [["Programme", "Campus", "Category", "Levels", "Format", "Price"], ...products.map((p) => [p.name, p.campus, p.category, p.levels || "", p.format, p.price] as string[])]}
             />
             <Button onClick={openNew}><Icon name="Plus" className="h-4 w-4" /> New</Button>
@@ -122,11 +122,11 @@ export default function KnowledgePage() {
           </button>
         ))}
       </div>
-      {filtered.length === 0 && <div className="py-16 text-center text-sm text-ink-faint">Nothing here yet — hit “New”.</div>}
+      {filtered.length === 0 && <div className="py-16 text-center text-sm text-ink-faint">Nothing here yet, hit “New”.</div>}
         </>
       )}
 
-      {/* Detail — full page */}
+      {/* Detail, full page */}
       {viewing && (
         <div className="animate-rise">
           <button onClick={() => setViewing(null)} className="mb-5 inline-flex items-center gap-1.5 text-sm text-ink-faint hover:text-ink">
@@ -171,7 +171,7 @@ export default function KnowledgePage() {
         </div>
       )}
 
-      {/* Editor — full page */}
+      {/* Editor, full page */}
       {draft && (
         <div className="animate-rise">
           <button onClick={() => setDraft(null)} className="mb-5 inline-flex items-center gap-1.5 text-sm text-ink-faint hover:text-ink">
@@ -202,7 +202,7 @@ export default function KnowledgePage() {
             <div className="sm:col-span-2"><Fld label="Accreditation"><input value={draft.accreditation || ""} onChange={(e) => setDraft({ ...draft, accreditation: e.target.value })} className={inp} /></Fld></div>
             <div className="sm:col-span-2"><Fld label="Positioning"><textarea value={draft.positioning || ""} onChange={(e) => setDraft({ ...draft, positioning: e.target.value })} className={`${inp} h-16 resize-none`} /></Fld></div>
             <div className="sm:col-span-2"><Fld label="Why choose (one per line)"><textarea value={(draft.whyChoose || []).join("\n")} onChange={(e) => setDraft({ ...draft, whyChoose: lines(e.target.value) })} className={`${inp} h-16 resize-none`} /></Fld></div>
-            <div className="sm:col-span-2"><Fld label="Personas (one per line: Who — need)"><textarea value={(draft.personas || []).map((x) => `${x.who} — ${x.need}`).join("\n")} onChange={(e) => setDraft({ ...draft, personas: lines(e.target.value).map((l) => { const [who, ...rest] = l.split(/\s[—-]\s/); return { who: (who || "").trim(), need: rest.join(" — ").trim() }; }) })} className={`${inp} h-20 resize-none`} /></Fld></div>
+            <div className="sm:col-span-2"><Fld label="Personas (one per line: Who, need)"><textarea value={(draft.personas || []).map((x) => `${x.who}, ${x.need}`).join("\n")} onChange={(e) => setDraft({ ...draft, personas: lines(e.target.value).map((l) => { const [who, ...rest] = l.split(/\s[, -]\s/); return { who: (who || "").trim(), need: rest.join(", ").trim() }; }) })} className={`${inp} h-20 resize-none`} /></Fld></div>
             <div className="sm:col-span-2"><Fld label="Tags (comma separated)"><input value={draft.tags.join(", ")} onChange={(e) => setDraft({ ...draft, tags: e.target.value.split(",").map((t) => t.trim()).filter(Boolean) })} className={inp} /></Fld></div>
           </div>
           <div className="mt-6 flex gap-2 border-t border-line pt-5">
@@ -279,7 +279,7 @@ function CourseTab({ p }: { p: Product }) {
           </table>
         </div>
       ) : (
-        <p className="text-sm text-ink-faint">No outline yet — add one via Edit.</p>
+        <p className="text-sm text-ink-faint">No outline yet, add one via Edit.</p>
       )}
       {rows.some(([, v]) => v) && (
         <table className="w-full text-sm">
@@ -351,7 +351,7 @@ function MarketTab({ p }: { p: Product }) {
           </ul>
         </div>
       ) : null}
-      {empty && <p className="text-sm text-ink-faint">No market info yet — add positioning &amp; personas via Edit.</p>}
+      {empty && <p className="text-sm text-ink-faint">No market info yet, add positioning &amp; personas via Edit.</p>}
     </div>
   );
 }

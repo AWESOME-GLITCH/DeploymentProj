@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { Icon } from "./Icon";
 
 /** Drop or pick a file (PDF, image, text/CSV) → parsed text passed to onText. */
-export function FileDrop({ onText, label = "Drop a file or click — PDF, image, CSV or text" }: { onText: (text: string) => void; label?: string }) {
+export function FileDrop({ onText, label = "Drop a file or click, PDF, image, CSV or text" }: { onText: (text: string) => void; label?: string }) {
   const ref = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [drag, setDrag] = useState(false);

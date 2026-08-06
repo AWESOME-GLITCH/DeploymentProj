@@ -4,7 +4,7 @@ export type Insight = {
   claim: string;
   confidence: "high" | "medium" | "low";
   meta: string;
-  label?: string; // e.g. "correlation — not causation"
+  label?: string; // e.g. "correlation, not causation"
 };
 
 export type Showcase = {
@@ -31,7 +31,7 @@ export const SHOWCASE: Record<string, Showcase> = {
       "Dependencies (teacher hiring, accreditation, visa windows)",
       "Shareable views for stakeholders",
     ],
-    guardrail: "The canonical PM artifact — turns signal into a sequenced plan. Queued after the core six.",
+    guardrail: "The canonical PM artifact, turns signal into a sequenced plan. Queued after the core six.",
     sample: {
       kind: "roadmap",
       title: "Illustrative roadmap",
@@ -46,7 +46,7 @@ export const SHOWCASE: Record<string, Showcase> = {
     steps: [
       { title: "Gather ideas", detail: "Course ideas, campaigns, and requests from Feedback & Think Lab." },
       { title: "Score", detail: "RICE, opportunity scoring (importance vs. satisfaction), or weighted criteria." },
-      { title: "Rank", detail: "A defensible order — the connective logic between signal and roadmap." },
+      { title: "Rank", detail: "A defensible order, the connective logic between signal and roadmap." },
     ],
     capabilities: [
       "RICE / weighted scoring / MoSCoW",
@@ -77,7 +77,7 @@ export const SHOWCASE: Record<string, Showcase> = {
       "Progress tracking with linked evidence",
       "Executive-ready strategy views",
     ],
-    guardrail: "Essential at your altitude — it's how portfolio decisions get justified to the board. Queued.",
+    guardrail: "Essential at your altitude, it's how portfolio decisions get justified to the board. Queued.",
     sample: {
       kind: "roadmap",
       title: "Illustrative OKRs",

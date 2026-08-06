@@ -15,11 +15,11 @@ const M = getModule("analytics")!;
 // ---- shared programme scoring (matches the Portfolio cockpit) ----
 type Action = "Scale" | "Grow" | "Hold" | "Nurture" | "Watch";
 const ACTION: Record<Action, { label: string; hex: string; note: string }> = {
-  Scale: { label: "Scale", hex: "#35d6c0", note: "Strong — invest to grow" },
-  Grow: { label: "Grow", hex: "#5b9dff", note: "Healthy — keep investing" },
-  Hold: { label: "Hold", hex: "#8a94a6", note: "Stable — maintain" },
-  Nurture: { label: "Nurture", hex: "#f5b23b", note: "Early — build demand" },
-  Watch: { label: "Watch", hex: "#ff5d6c", note: "Low health — investigate" },
+  Scale: { label: "Scale", hex: "#35d6c0", note: "Strong, invest to grow" },
+  Grow: { label: "Grow", hex: "#5b9dff", note: "Healthy, keep investing" },
+  Hold: { label: "Hold", hex: "#8a94a6", note: "Stable, maintain" },
+  Nurture: { label: "Nurture", hex: "#f5b23b", note: "Early, build demand" },
+  Watch: { label: "Watch", hex: "#ff5d6c", note: "Low health, investigate" },
 };
 const ACTION_ORDER: Action[] = ["Scale", "Grow", "Hold", "Nurture", "Watch"];
 function actionFor(p: Product): Action {
@@ -98,12 +98,12 @@ export default function AnalyticsPage() {
 
   function reportHtml() {
     return (
-      H.brandTitle("Analytics — ES World", `${campus} · ${cat}`) +
+      H.brandTitle("Analytics, ES World", `${campus} · ${cat}`) +
       H.kv("Programmes", String(filtered.length)) + H.kv("Average health", String(avgHealth)) + H.kv("On watch", String(watch)) +
       H.h2("By recommended action") + H.ul(byAction.map((x) => `${x.a}: ${x.n}`)) +
       H.h2("By category") + H.ul(byCategory.map((x) => `${x.c}: ${x.n}`)) +
       H.h2("Pricing model mix") + H.ul(byModel.map((x) => `${x.k}: ${x.n}`)) +
-      H.h2("Needs attention") + H.ul(bottom.map((p) => `${p.name} (${p.campus}) — health ${p.health}`))
+      H.h2("Needs attention") + H.ul(bottom.map((p) => `${p.name} (${p.campus}), health ${p.health}`))
     );
   }
 
@@ -117,7 +117,7 @@ export default function AnalyticsPage() {
         accent={M.accent}
         glow={M.glow}
         title={M.name}
-        tagline="Your whole portfolio at a glance — health, mix and pipeline, from your live catalogue."
+        tagline="Your whole portfolio at a glance, health, mix and pipeline, from your live catalogue."
         status={M.status}
         agent={M.agent}
         right={<ExportMenu title="ES World Analytics" html={reportHtml} />}
@@ -227,7 +227,7 @@ export default function AnalyticsPage() {
             <Icon name="AlertTriangle" className="h-4 w-4 text-accent-rose" />
             <SectionLabel>Needs attention</SectionLabel>
           </div>
-          {bottom.length ? <Ranked list={bottom} /> : <p className="text-sm text-ink-faint">Nothing on watch in this view — healthy portfolio.</p>}
+          {bottom.length ? <Ranked list={bottom} /> : <p className="text-sm text-ink-faint">Nothing on watch in this view, healthy portfolio.</p>}
         </Card>
       </div>
 
@@ -235,9 +235,9 @@ export default function AnalyticsPage() {
       <Card glow={M.glow} className="p-5">
         <div className="mb-1 flex items-center gap-2">
           <Icon name="Workflow" className="h-4 w-4 text-brand-soft" />
-          <SectionLabel>Enquiry → consult → enrol — pipeline model</SectionLabel>
+          <SectionLabel>Enquiry → consult → enrol, pipeline model</SectionLabel>
         </div>
-        <p className="mb-4 text-xs text-ink-faint">A planning model you control — set the assumptions to project enrolments. Connect your CRM to replace these with live rates.</p>
+        <p className="mb-4 text-xs text-ink-faint">A planning model you control, set the assumptions to project enrolments. Connect your CRM to replace these with live rates.</p>
         <div className="grid gap-6 lg:grid-cols-[1fr_1.2fr]">
           <div className="space-y-4">
             <Slider label="Monthly enquiries" value={enq} min={50} max={2000} step={50} onChange={setEnq} suffix="" />
@@ -271,7 +271,7 @@ export default function AnalyticsPage() {
       </Card>
 
       <p className="mt-6 text-center text-xs text-ink-faint">
-        Charts are computed live from your catalogue (health, stage, campus, category, price). The pipeline is a planning model — wire enrolment/CRM data to make it live.
+        Charts are computed live from your catalogue (health, stage, campus, category, price). The pipeline is a planning model, wire enrolment/CRM data to make it live.
       </p>
     </div>
   );

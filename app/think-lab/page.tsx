@@ -19,20 +19,20 @@ function conceptHtml(c: Concept) {
     H.h2("Problem") + H.p(c.problemStatement) +
     H.h2("Hypothesis") + H.p(c.hypothesis) +
     H.h2("Jobs to be done") + H.ul(c.jobsToBeDone) +
-    H.h2("Assumptions to validate") + H.ul(c.assumptions.map((a) => `${a.text} — <b>${a.risk} risk</b>`)) +
+    H.h2("Assumptions to validate") + H.ul(c.assumptions.map((a) => `${a.text}, <b>${a.risk} risk</b>`)) +
     H.h2("MVP · Build") + H.ul(c.mvp.build) +
     H.h2("MVP · Measure") + H.ul(c.mvp.measure) +
     H.h2("MVP · Learn") + H.ul(c.mvp.learn) +
     H.h2("Run this first") + H.p(c.firstExperiment) +
     H.h2("Success metrics") + H.ul(c.successMetrics) +
     H.h2("Already known (Knowledge hub)") + H.ul(c.knownFromKnowledge) +
-    H.h2("Research pass") + H.ul(c.researchNotes.map((r) => `${r.claim} — ${r.confidence} (${r.source})`))
+    H.h2("Research pass") + H.ul(c.researchNotes.map((r) => `${r.claim}, ${r.confidence} (${r.source})`))
   );
 }
 
 const M = getModule("think-lab")!;
 
-const EXAMPLE = `random thought — what if ES World launched an "AI English coach" companion app that students on any course get for free between lessons? it gives speaking practice 24/7 using the same real-world tasks (debates, pitches, small talk) we teach in Flex. could be a differentiator vs other Dubai/London schools, and a retention hook. not sure if it's a paid add-on or a freebie that boosts course sales. worried about teacher pushback and whether it cannibalises 1-1 lessons.`;
+const EXAMPLE = `random thought, what if ES World launched an "AI English coach" companion app that students on any course get for free between lessons? it gives speaking practice 24/7 using the same real-world tasks (debates, pitches, small talk) we teach in Flex. could be a differentiator vs other Dubai/London schools, and a retention hook. not sure if it's a paid add-on or a freebie that boosts course sales. worried about teacher pushback and whether it cannibalises 1-1 lessons.`;
 
 const THINKING = [
   "Reading the idea…",
@@ -167,7 +167,7 @@ export default function ThinkLabPage() {
           <div className="text-sm">Your structured concept + MVP will appear here.</div>
           <div className="max-w-md text-xs">
             Problem · hypothesis · jobs-to-be-done · assumptions (risk-ranked) · MVP (build/measure/learn) ·
-            first experiment — grounded in your Knowledge hub + a research pass.
+            first experiment, grounded in your Knowledge hub + a research pass.
           </div>
         </Card>
       )}
@@ -177,7 +177,7 @@ export default function ThinkLabPage() {
           {demo && (
             <div className="flex items-start gap-2 rounded-lg border border-accent-amber/30 bg-accent-amber/10 px-3 py-2 text-xs text-accent-amber">
               <Icon name="AlertTriangle" className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              Demo mode — add an ANTHROPIC_API_KEY to structure your real idea.
+              Demo mode, add an ANTHROPIC_API_KEY to structure your real idea.
             </div>
           )}
           <div className="flex justify-end gap-2">
@@ -237,7 +237,7 @@ export default function ThinkLabPage() {
           <Card glow={M.glow} className="p-5">
             <div className="mb-4 flex items-center gap-2">
               <Icon name="Zap" className="h-4 w-4 text-brand-soft" />
-              <h3 className="font-semibold text-ink">The MVP — smallest test of the riskiest assumption</h3>
+              <h3 className="font-semibold text-ink">The MVP, smallest test of the riskiest assumption</h3>
             </div>
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="rounded-xl border border-line bg-bg-soft/50 p-3">

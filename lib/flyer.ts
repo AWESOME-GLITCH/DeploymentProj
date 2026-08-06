@@ -1,7 +1,7 @@
 import type { Product } from "./knowledge";
 
-/** The one ES World flyer format. Every flyer — from Flow or the Marketing
- *  module — is produced to this shape, so they all look and read the same. */
+/** The one ES World flyer format. Every flyer, from Flow or the Marketing
+ *  module, is produced to this shape, so they all look and read the same. */
 export type Flyer = {
   courseName: string;
   headline: string; // punchy hook
@@ -17,19 +17,19 @@ export type Flyer = {
   motif: string; // Experience · Grow · Enjoy
 };
 
-/** The template marketing fills for every flyer — shown in the UI so the PM
+/** The template marketing fills for every flyer, shown in the UI so the PM
  *  always knows exactly what a flyer needs. Order matches the layout. */
 export const FLYER_TEMPLATE: { key: keyof Flyer; label: string; hint: string }[] = [
   { key: "courseName", label: "Course name", hint: "The exact programme name" },
-  { key: "headline", label: "Headline", hint: "One punchy hook — the reason to stop and read" },
+  { key: "headline", label: "Headline", hint: "One punchy hook, the reason to stop and read" },
   { key: "subheadline", label: "Subheadline", hint: "One line that says the promise / outcome" },
   { key: "keyFacts", label: "Key facts", hint: "Levels · Format/Duration · Schedule · Campus · Intake · Price" },
   { key: "included", label: "What's included", hint: "2–4 concrete things the learner gets" },
   { key: "benefits", label: "Why choose", hint: "3–4 benefit points, not features" },
   { key: "audience", label: "Who it's for", hint: "The target learner in one line" },
-  { key: "accreditations", label: "Accreditation & trust marks", hint: "IELTS / Pearson / ATHE / Dubai Knowledge — only those that apply" },
+  { key: "accreditations", label: "Accreditation & trust marks", hint: "IELTS / Pearson / ATHE / Dubai Knowledge, only those that apply" },
   { key: "offer", label: "Offer (optional)", hint: "A current promo, if any" },
-  { key: "cta", label: "Call to action", hint: "What to do next — include esworld.com" },
+  { key: "cta", label: "Call to action", hint: "What to do next, include esworld.com" },
   { key: "contact", label: "Contact", hint: "esworld.com, phone, campus" },
   { key: "motif", label: "Brand motif", hint: "Experience · Grow · Enjoy" },
 ];
@@ -38,12 +38,12 @@ export const FLYER_TEMPLATE: { key: keyof Flyer; label: string; hint: string }[]
 export const FLYER_SPEC = `"flyer": {
   "courseName": string,
   "headline": string (one punchy hook, on-brand),
-  "subheadline": string (one line — the promise / outcome),
-  "keyFacts": [ { "label": string, "value": string } ] (4-6 scannable facts in this order where known: Levels, Format/Duration, Schedule, Campus, Intake/Start, Price — copy the price exactly from knowledge or "[TBC]", never invent),
+  "subheadline": string (one line, the promise / outcome),
+  "keyFacts": [ { "label": string, "value": string } ] (4-6 scannable facts in this order where known: Levels, Format/Duration, Schedule, Campus, Intake/Start, Price, copy the price exactly from knowledge or "[TBC]", never invent),
   "included": string[] (2-4 concrete things the learner gets),
   "benefits": string[] (3-4 benefit-led "why choose" points),
   "audience": string (who it's for, one line),
-  "accreditations": string[] (only trust marks that genuinely apply — e.g. "IELTS Official Test Centre", "Pearson", "ATHE Level 4/5", "Dubai Knowledge"; omit any that don't),
+  "accreditations": string[] (only trust marks that genuinely apply, e.g. "IELTS Official Test Centre", "Pearson", "ATHE Level 4/5", "Dubai Knowledge"; omit any that don't),
   "offer": string (a current promo if there is one, else ""),
   "cta": string (a clear call to action, include esworld.com),
   "contact": string (esworld.com + phone/campus),
@@ -62,7 +62,7 @@ export function flyerFromProduct(p?: Product | null): Flyer {
   if (p?.price) facts.push({ label: "Price", value: p.price });
   return {
     courseName: name,
-    headline: `${name} — Experience · Grow · Enjoy`,
+    headline: `${name}, Experience · Grow · Enjoy`,
     subheadline: p?.oneLiner || p?.overview?.split(".")[0] || "",
     keyFacts: facts.length ? facts : [{ label: "Details", value: "[TBC]" }],
     included: (p?.materials ? [p.materials] : []).concat((p?.outcomes || []).slice(0, 3)),

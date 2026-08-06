@@ -41,6 +41,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ text });
   } catch (e) {
     console.error("[parse] failed:", (e as Error)?.message || String(e));
-    return NextResponse.json({ text: "", note: "Couldn't read that file — try a PDF, image, or text file." });
+    return NextResponse.json({ text: "", note: "Couldn't read that file, try a PDF, image, or text file." });
   }
 }

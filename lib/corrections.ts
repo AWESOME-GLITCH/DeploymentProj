@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-/** A PM correction — ground truth the agent must obey on future runs. */
+/** A PM correction, ground truth the agent must obey on future runs. */
 export type Correction = {
   id: string;
   productId: string; // programme this applies to ("__new__" for a not-yet-saved offering)

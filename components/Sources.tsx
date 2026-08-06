@@ -10,7 +10,7 @@ function host(u: string) {
   }
 }
 
-/** Shows exactly where researched facts came from — the live web sources the
+/** Shows exactly where researched facts came from, the live web sources the
  *  agent consulted. When nothing was searched, says so plainly. */
 export function Sources({ sources, searched }: { sources?: Source[]; searched?: boolean }) {
   const list = sources || [];
@@ -40,7 +40,7 @@ export function Sources({ sources, searched }: { sources?: Source[]; searched?: 
       ) : (
         <p className="text-xs text-ink-faint">
           {searched
-            ? "The agent ran a web search but returned no citable pages — treat these figures as directional and verify before publishing."
+            ? "The agent ran a web search but returned no citable pages, treat these figures as directional and verify before publishing."
             : "This ran from your Knowledge only, without a live web search. Add credits / enable research for sourced competitor and pricing figures."}
         </p>
       )}

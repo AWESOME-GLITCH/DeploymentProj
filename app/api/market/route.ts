@@ -32,10 +32,10 @@ function demo(topic: string): MarketResearch {
       { note: "Low-cost digital assessment (Duolingo ET) pressuring test pricing.", kind: "risk", confidence: "medium" },
     ],
     opportunities: [
-      { title: "Bundle ATHE pathway with English intensives", rationale: "Turns language learners into higher-ed enrolments — your core strategy." },
+      { title: "Bundle ATHE pathway with English intensives", rationale: "Turns language learners into higher-ed enrolments, your core strategy." },
       { title: "Position AZE as an admissions placement for partners", rationale: "Monetises a capability competitors lack." },
     ],
-    risks: ["Regional demand volatility — keep recovery plans live.", "Price competition on commodity English/testing."],
+    risks: ["Regional demand volatility, keep recovery plans live.", "Price competition on commodity English/testing."],
   };
 }
 

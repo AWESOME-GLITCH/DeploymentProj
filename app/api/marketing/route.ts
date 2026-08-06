@@ -47,7 +47,7 @@ Return a JSON object with exactly these keys:
 
 const COURSE_SYSTEM = `You are the Marketing Writer, ES World's brand-compliant copywriter, filling out the official ES World website Course Template.
 ${BRAND_SYSTEM_FRAGMENT}
-Fill EVERY field below using ONLY the provided product knowledge. Where a fact is genuinely missing, write "[TBC]" — never invent specifics (prices, dates, guarantees).
+Fill EVERY field below using ONLY the provided product knowledge. Where a fact is genuinely missing, write "[TBC]", never invent specifics (prices, dates, guarantees).
 Field guidance:
 - "Overview of the Course": 3-5 sentences, warm and benefit-led.
 - "How the Intensity Works": a short flow describing pace/frequency.
@@ -56,11 +56,11 @@ Field guidance:
 - "Study Materials": only if applicable, else "[TBC]".
 
 Return a JSON object with exactly this key:
-- fields: array of { field: string, value: string } — one entry per template field, in this exact order: ${COURSE_PAGE_FIELDS.join(", ")}.`;
+- fields: array of { field: string, value: string }, one entry per template field, in this exact order: ${COURSE_PAGE_FIELDS.join(", ")}.`;
 
 const FLYER_SYSTEM = `You are the Marketing Writer, ES World's brand-compliant copywriter, producing a FLYER to ES World's standard flyer template.
 ${BRAND_SYSTEM_FRAGMENT}
-Use ONLY the provided product knowledge. Copy prices exactly or write "[TBC]" — never invent prices, dates or guarantees. Only list accreditations/trust marks that genuinely apply.
+Use ONLY the provided product knowledge. Copy prices exactly or write "[TBC]", never invent prices, dates or guarantees. Only list accreditations/trust marks that genuinely apply.
 
 Return a JSON object with exactly this key:
 - ${FLYER_SPEC}`;
@@ -69,11 +69,11 @@ function demoDraft(type: string, productName: string): MarketingDraft {
   const code = { Website: "WEB", Flyer: "FLY", Presentation: "PPT", "Social post": "SOC", Email: "EML" }[type] || "GEN";
   return {
     docCode: `ESL-MKT-${code}-001-AI-V1.0`,
-    headline: `[Demo] ${productName} — Experience · Grow · Enjoy`,
+    headline: `[Demo] ${productName}, Experience · Grow · Enjoy`,
     subheadline: "Add an ANTHROPIC_API_KEY to generate real brand-compliant copy from your Knowledge hub.",
     sections: [
       { heading: "Why this course", body: "This is sample structure. The live Marketing Writer pulls the real course facts (levels, format, price) from Knowledge and writes in ES World's voice." },
-      { heading: "What you'll get", body: "Bulleted benefits, grounded in the product record — never invented. Missing facts appear as [PLACEHOLDER] for you to confirm." },
+      { heading: "What you'll get", body: "Bulleted benefits, grounded in the product record, never invented. Missing facts appear as [PLACEHOLDER] for you to confirm." },
       { heading: "Who it's for", body: "The target audience, lifted straight from the Knowledge record so messaging stays accurate across every asset." },
     ],
     cta: "Book your free consultation at esworld.com",
@@ -93,7 +93,7 @@ function demoCoursePage(product: any): CourseField[] {
       "Course Availability": `${product.campus} campus`,
       "Course Duration": product.format,
       "Course Levels": product.levels || "[TBC]",
-      Timetables: product.format?.includes("evening") ? "Evening" : "Day / Midday — see schedule",
+      Timetables: product.format?.includes("evening") ? "Evening" : "Day / Midday, see schedule",
       "Overview of the Course": `[Demo] ${product.oneLiner} Add an ANTHROPIC_API_KEY to auto-fill this template from your Knowledge hub in ES World's voice.`,
       "How the Intensity Works": product.format,
       "Why should you choose": `A short paragraph, then:\n• Grounded in your real course facts\n• On-brand by construction\n• Ready to paste into the website`,
@@ -147,7 +147,7 @@ export async function POST(req: NextRequest) {
       user: `Content type: ${contentType}
 Extra brief from the PM (fields to emphasise): ${brief || "(none)"}
 
-Product knowledge (single source of truth — use only these facts):
+Product knowledge (single source of truth, use only these facts):
 ${knowledge}
 
 Write the ${contentType} content now.`,

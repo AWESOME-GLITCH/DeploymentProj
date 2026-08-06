@@ -7,7 +7,7 @@ const DEFAULTS = [
   "What's the single success metric we're chasing?",
   "What's the timeline / intake, and any hard deadline?",
   "What's the price point or budget, and what does it include?",
-  "What must we NOT do — the constraints or non-goals?",
+  "What must we NOT do, the constraints or non-goals?",
   "How is this different from what competitors offer?",
 ];
 
@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
   try {
     const out = await runJsonAgent<{ questions: string[] }>({
       system:
-        "You are a sharp, experienced product manager running discovery for ES World (Dubai & London language education). Given a rough idea, ask the 4-6 MOST important clarifying questions to ask BEFORE any work — the ones that most change the outcome (target audience/persona, the one success metric, scope & non-goals, constraints, pricing/what's included, timeline/intake, differentiation, which strategic pillar & pathway it serves). Make each question specific to THIS idea, not generic. Return JSON {\"questions\": string[]}.\n\n" +
+        "You are a sharp, experienced product manager running discovery for ES World (Dubai & London language education). Given a rough idea, ask the 4-6 MOST important clarifying questions to ask BEFORE any work, the ones that most change the outcome (target audience/persona, the one success metric, scope & non-goals, constraints, pricing/what's included, timeline/intake, differentiation, which strategic pillar & pathway it serves). Make each question specific to THIS idea, not generic. Return JSON {\"questions\": string[]}.\n\n" +
         COMPANY_MEMORY,
       user: `Context: ${context || "ES World language education"}\n\nThe idea / input:\n${input}\n\nAsk the clarifying questions now.`,
       maxTokens: 700,
