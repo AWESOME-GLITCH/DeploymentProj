@@ -50,13 +50,18 @@ textarea,
   border-radius: 8px;
 }
 
-/* Gen-Z gradient headline accent */
+/* Warm editorial accent for a single word in the headline. */
 .text-gradient {
-  /* Single on-brand hue — restrained, not a rainbow. */
   background: linear-gradient(100deg, #ff8300, #ffab52);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+/* Editorial serif italic, used for the accented word in hero headlines. */
+.serif-accent {
+  font-family: var(--font-display), Georgia, serif;
+  font-style: italic;
+  font-weight: 500;
 }
 .hover-lift {
   transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.2s ease, box-shadow 0.2s ease;
@@ -66,12 +71,22 @@ textarea,
   border-color: rgba(255, 255, 255, 0.16);
 }
 
-/* Headings use the display face with tight, modern tracking */
+/* Headlines use the editorial serif. It carries the "expensive" feel.
+   Serifs want near-neutral tracking, not the tight negative tracking a sans wants. */
 h1,
 h2,
 h3 {
-  font-family: var(--font-display), var(--font-sans), system-ui, sans-serif;
+  font-family: var(--font-display), Georgia, "Times New Roman", serif;
+  letter-spacing: -0.01em;
+  font-weight: 500;
+  font-optical-sizing: auto;
+}
+h1 {
   letter-spacing: -0.02em;
+}
+/* Small-caps eyebrows and UI labels stay on the sans, not the serif. */
+.font-sans-force {
+  font-family: var(--font-sans), system-ui, sans-serif !important;
 }
 
 ::selection {

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Space_Grotesk } from "next/font/google";
+import { Inter, Fraunces } from "next/font/google";
 import "./globals.css";
 import { Sidebar } from "@/components/Sidebar";
 import { CommandBar } from "@/components/CommandBar";
@@ -11,9 +11,12 @@ const inter = Inter({
   display: "swap",
 });
 
-const display = Space_Grotesk({
+// A high-contrast editorial serif for headlines. This is the "expensive" signal:
+// premium brands lead with typography, not louder colour.
+const display = Fraunces({
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
   variable: "--font-display",
   display: "swap",
 });

@@ -26,12 +26,12 @@ export default function Home() {
   return (
     <div className="mx-auto max-w-6xl px-8 py-12">
       {/* Hero */}
-      <div className="mb-10">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-ink-faint">ES World · Product OS</div>
-        <h1 className="mt-4 max-w-3xl text-[52px] font-bold leading-[1.02] tracking-tight text-ink">
-          Run your whole product <span className="text-gradient">from one place.</span>
+      <div className="mb-12">
+        <div className="font-sans-force text-[11px] font-semibold uppercase tracking-[0.24em] text-ink-faint">ES World · Product OS</div>
+        <h1 className="mt-5 max-w-3xl text-[58px] font-medium leading-[1.03] tracking-[-0.02em] text-ink">
+          Run your whole product <span className="serif-accent text-gradient">from one place.</span>
         </h1>
-        <p className="mt-4 max-w-xl text-lg text-ink-soft">
+        <p className="font-sans-force mt-5 max-w-xl text-lg leading-relaxed text-ink-soft">
           Briefs, pricing, marketing, quotes and launches. The agents do the work.
         </p>
       </div>

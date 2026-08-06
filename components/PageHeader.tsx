@@ -32,10 +32,10 @@ export function PageHeader({
         </div>
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-[30px] font-bold leading-none tracking-[-0.03em] text-ink">{title}</h1>
+            <h1 className="text-[32px] font-medium leading-none tracking-[-0.02em] text-ink">{title}</h1>
             {status && <StatusPill status={status} />}
           </div>
-          <p className="mt-2 max-w-2xl text-[15px] leading-relaxed text-ink-soft">{tagline}</p>
+          <p className="font-sans-force mt-2.5 max-w-2xl text-[15px] leading-relaxed text-ink-soft">{tagline}</p>
         </div>
       </div>
       {right}
