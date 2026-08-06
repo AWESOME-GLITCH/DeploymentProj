@@ -170,6 +170,11 @@
           <input type="password" id="apiKey" class="mono" value="" placeholder="paste your SpeechAce API key">
           <div class="hint">Sent to SpeechAce as the <span class="mono">?key=</span> query parameter. Held in the browser only; never committed to the repo.</div>
         </div>
+        <div class="field">
+          <label for="endpoint">API endpoint</label>
+          <input type="text" id="endpoint" class="mono" value="https://api.speechace.co/api/scoring/speech/v9/json">
+          <div class="hint">Use the exact endpoint from your SpeechAce dashboard. A <b style="display:inline">wrong region</b> error means your key is on a different host — try <span class="mono">https://api2.speechace.co/...</span> or the <span class="mono">.com</span> variant your account was issued.</div>
+        </div>
         <div class="row field">
           <div>
             <label for="userId">user_id</label>
@@ -507,12 +512,16 @@ function note(msg,bad){
 /* ============================================================
    Request building
    ============================================================ */
+const DEFAULT_ENDPOINT='https://api.speechace.co/api/scoring/speech/v9/json';
+function endpointBase(){
+  return ($('endpoint').value.trim()||DEFAULT_ENDPOINT).replace(/\?.*$/,'');
+}
 function speechAceUrl(){
   const key=$('apiKey').value.trim();
   const dialect=$('dialect').value;
   const uid=$('userId').value.trim()||'guest';
   const qs=new URLSearchParams({key,dialect,user_id:uid});
-  return 'https://api.speechace.co/api/scoring/speech/v9/json?'+qs.toString();
+  return endpointBase()+'?'+qs.toString();
 }
 
 // list the form fields for the current mode (label -> value), audio excluded
@@ -544,7 +553,8 @@ function updatePreview(){
   const dialect=$('dialect').value;
   const uid=$('userId').value.trim()||'guest';
   const fields=[['user_audio_file','@output.wav'], ...formFields()];
-  const url=`https://api.speechace.co/api/scoring/speech/v9/json?key=<your key>&dialect=${dialect}&user_id=${uid}`;
+  const base=endpointBase();
+  const url=`${base}?key=<your key>&dialect=${dialect}&user_id=${uid}`;
   $('preview').textContent =
 `POST ${url}
 
@@ -555,7 +565,7 @@ multipart/form-data:
   $('pysnip').textContent=
 `# pip install requests
 import requests, json
-url="https://api.speechace.co/api/scoring/speech/v9/json"
+url="${base}"
 params={"key":"<your key>","dialect":"${dialect}","user_id":"${uid}"}
 files={"user_audio_file":open("output.wav","rb")}
 data={${dataFields.map(([k,v])=>`"${k}": ${JSON.stringify(v)}`).join(', ')}}
@@ -565,7 +575,7 @@ print(json.dumps(res.json(), indent=2, ensure_ascii=False))
 # prepare audio first:
 # ffmpeg -i input.mp3 -acodec pcm_s16le -ac 1 -ar 16000 output.wav`;
 }
-['apiKey','userId','dialect','context','refText','fluency','unexpected'].forEach(id=>{
+['apiKey','endpoint','userId','dialect','context','refText','fluency','unexpected'].forEach(id=>{
   const el=$(id); if(!el) return;
   el.addEventListener('input',updatePreview); el.addEventListener('change',updatePreview);
 });

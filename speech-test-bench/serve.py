@@ -40,7 +40,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 
 # Only these hosts may be forwarded to. An open proxy on your laptop is not
 # something you want, even briefly.
-ALLOWED = re.compile(r"^(api\d*\.speechace\.(com|co)|api\d*\.speechsuper\.com)$")
+ALLOWED = re.compile(r"^([a-z0-9-]+\.)*speechace\.(com|co)$")
 
 
 class Handler(http.server.SimpleHTTPRequestHandler):

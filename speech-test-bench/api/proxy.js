@@ -8,7 +8,8 @@
 // The SpeechAce API key rides inside the target URL's ?key= query parameter.
 // It is never logged here (only the host + path is printed).
 
-const ALLOWED = /^(api\d*\.speechace\.(com|co)|api\d*\.speechsuper\.com)$/;
+// Any SpeechAce regional host (api.speechace.co, api2..., api-mum..., a .com variant, etc.)
+const ALLOWED = /^([a-z0-9-]+\.)*speechace\.(com|co)$/;
 
 function readRaw(req) {
   return new Promise((resolve, reject) => {
