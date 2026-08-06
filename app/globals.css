@@ -6,10 +6,16 @@
   color-scheme: dark;
 }
 
-html,
+html {
+  background: #08080a;
+}
 body {
-  background: #0a0a0c;
-  color: #f5f5f7;
+  color: #fafafa;
+  background:
+    radial-gradient(1100px 520px at 82% -8%, rgba(255, 131, 0, 0.06), transparent 62%),
+    radial-gradient(900px 500px at 0% 8%, rgba(91, 157, 255, 0.035), transparent 60%),
+    #08080a;
+  background-attachment: fixed;
 }
 
 * {
