@@ -5,6 +5,11 @@ A single-page tool for testing speaking samples against the
 load an audio file, and the page converts it to 16 kHz mono WAV, builds the
 request, sends it, and renders the scores.
 
+**Live:** https://speechace-test-bench.vercel.app  (hosted on Vercel, project
+`speechace-test-bench`). Open it, paste your SpeechAce key, and test — no
+install. Redeploy after changes with `vercel --prod` from this folder, or via
+the Vercel dashboard.
+
 Self-contained. Nothing to install beyond Python 3.7+ (standard library only)
 for the local runner.
 
