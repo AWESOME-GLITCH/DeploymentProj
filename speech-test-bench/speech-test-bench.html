@@ -1,0 +1,752 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SpeechAce test bench</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0e1630;
+    --navy:#1e3a8a;
+    --navy-soft:#eaeffb;
+    --paper:#f3f6fc;
+    --card:#ffffff;
+    --line:#dbe2f1;
+    --muted:#5b6788;
+    --live:#d92b4b;
+    --good:#0f766e;
+    --warn:#b45309;
+    --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    --sans:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+  a{color:var(--navy)}
+
+  /* ---------- header ---------- */
+  header{background:var(--ink);color:#fff;padding:14px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  header h1{margin:0;font-size:15px;font-weight:800;letter-spacing:-.01em}
+  header .sub{font-family:var(--mono);font-size:11px;color:#93a2c9;letter-spacing:.04em}
+  header .spacer{flex:1}
+  .pill{font-family:var(--mono);font-size:11px;padding:4px 9px;border-radius:999px;background:rgba(255,255,255,.09);color:#c8d3ee;white-space:nowrap}
+  .pill.warn{background:rgba(217,43,75,.18);color:#ffb3c0}
+  .pill.prov{background:rgba(120,180,255,.16);color:#dbe8ff}
+
+  /* ---------- layout ---------- */
+  .wrap{display:grid;grid-template-columns:minmax(340px,420px) 1fr;gap:18px;padding:18px;align-items:start;max-width:1500px;margin:0 auto}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr;padding:12px;gap:12px}}
+  .col{display:flex;flex-direction:column;gap:14px;min-width:0}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .card > h2{margin:0;padding:11px 14px;font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);background:#fbfcfe;display:flex;align-items:center;gap:8px}
+  .card > h2 .tag{margin-left:auto;font-family:var(--mono);font-size:10px;letter-spacing:0;text-transform:none;color:var(--navy);background:var(--navy-soft);padding:2px 7px;border-radius:5px}
+  .body{padding:14px}
+  .body + .body{border-top:1px solid var(--line)}
+
+  label{display:block;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+  input[type=text],input[type=password],input[type=number],select,textarea{
+    width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;outline:none}
+  input:focus,select:focus,textarea:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(30,58,138,.12)}
+  textarea{resize:vertical;font-family:var(--mono);font-size:12px}
+  .field{margin-bottom:12px}
+  .field:last-child{margin-bottom:0}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .hint{font-size:11px;color:var(--muted);margin-top:5px}
+  .mono{font-family:var(--mono)}
+
+  .seg{display:flex;gap:6px}
+  .seg button{flex:1;padding:9px 8px;border:1px solid var(--line);background:#fff;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px;text-align:left;line-height:1.3}
+  .seg button .k{display:block;font-family:var(--mono);font-size:11px;color:var(--muted);font-weight:500}
+  .seg button[aria-pressed=true]{background:var(--navy);border-color:var(--navy);color:#fff}
+  .seg button[aria-pressed=true] .k{color:#b9c8ee}
+
+  .check{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--ink);margin:0}
+  .check input{width:auto;margin:0}
+
+  /* ---------- audio ---------- */
+  .audio-actions{display:flex;gap:8px;margin-bottom:12px}
+  .btn{padding:9px 12px;border-radius:8px;border:1px solid var(--line);background:#fff;cursor:pointer;font-weight:600;font-size:13px;display:inline-flex;align-items:center;justify-content:center;gap:7px}
+  .btn:hover:not(:disabled){border-color:#b9c4dc}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn.rec{color:var(--live);border-color:#f2c3cd}
+  .btn.rec[data-on=true]{background:var(--live);border-color:var(--live);color:#fff}
+  .btn.primary{background:var(--navy);border-color:var(--navy);color:#fff;width:100%;padding:12px;font-size:14px}
+  .btn.primary:hover:not(:disabled){background:#17307a}
+  .dot{width:8px;height:8px;border-radius:50%;background:currentColor}
+  .btn.rec[data-on=true] .dot{animation:pulse 1s infinite}
+  @keyframes pulse{50%{opacity:.25}}
+
+  /* signature: budget meter — segments burn down the API's audio ceiling */
+  .meter{border:1px solid var(--line);border-radius:10px;padding:11px 12px;background:#fbfcfe}
+  .meter .top{display:flex;align-items:baseline;gap:8px;margin-bottom:9px}
+  .meter .t{font-family:var(--mono);font-size:20px;font-weight:500;letter-spacing:-.02em}
+  .meter .lim{font-family:var(--mono);font-size:11px;color:var(--muted)}
+  .meter .state{margin-left:auto;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  .bars{display:flex;gap:2px;height:26px;align-items:flex-end}
+  .bars i{flex:1;background:#e3e9f5;border-radius:1px;height:35%;transition:height .07s linear,background .2s}
+  .bars i.on{background:var(--navy)}
+  .bars i.hot{background:var(--live)}
+  .track{height:4px;background:#e3e9f5;border-radius:2px;margin-top:9px;overflow:hidden}
+  .track > i{display:block;height:100%;width:0;background:var(--navy);transition:width .1s linear}
+  .track > i.over{background:var(--live)}
+  audio{width:100%;margin-top:11px;height:34px}
+
+  .filebox{border:1px dashed #c3cee6;border-radius:9px;padding:10px;text-align:center;font-size:12px;color:var(--muted);cursor:pointer}
+  .filebox:hover{border-color:var(--navy);color:var(--navy)}
+
+  /* ---------- results ---------- */
+  .status{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px}
+  .badge{font-family:var(--mono);font-size:11px;padding:3px 8px;border-radius:6px;background:#eef1f7;color:var(--muted)}
+  .badge.ok{background:#dcf5f0;color:var(--good)}
+  .badge.err{background:#fde7ec;color:var(--live)}
+  .badge.run{background:var(--navy-soft);color:var(--navy)}
+
+  .scores{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:9px}
+  .score{border:1px solid var(--line);border-radius:10px;padding:10px 11px;background:#fbfcfe}
+  .score .n{font-family:var(--mono);font-size:23px;font-weight:500;letter-spacing:-.03em;line-height:1.1}
+  .score .l{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:3px}
+  .score.hero{background:var(--navy);border-color:var(--navy);color:#fff}
+  .score.hero .l{color:#b9c8ee}
+  .score.sub{background:#fff}
+
+  .transcript{font-size:15px;line-height:1.75;white-space:pre-wrap}
+  .words{display:flex;flex-wrap:wrap;gap:5px}
+  .w{font-family:var(--mono);font-size:12px;padding:3px 7px;border-radius:6px;background:#eef1f7;border-bottom:2px solid #cbd5e8}
+  .w b{font-weight:500;opacity:.55;margin-left:5px}
+  .w.g{background:#e6f6f2;border-color:var(--good)}
+  .w.m{background:#fff3e0;border-color:#f59e0b}
+  .w.b{background:#fde7ec;border-color:var(--live)}
+
+  pre{margin:0;font-family:var(--mono);font-size:11.5px;line-height:1.6;white-space:pre-wrap;word-break:break-word;max-height:460px;overflow:auto;background:#0e1630;color:#d5deF5;padding:12px;border-radius:9px}
+  pre.light{background:#f7f9fd;color:var(--ink);border:1px solid var(--line);max-height:280px}
+  .k-key{color:#8fb8ff}.k-str{color:#a8e6a3}.k-num{color:#ffd48a}.k-bool{color:#ff9bb0}
+
+  details summary{cursor:pointer;font-size:12px;font-weight:600;color:var(--navy);padding:2px 0;list-style:none}
+  details summary::-webkit-details-marker{display:none}
+  details summary:before{content:"▸ ";display:inline-block;transition:transform .15s}
+  details[open] summary:before{content:"▾ "}
+
+  .note{border-left:3px solid var(--warn);background:#fff8ec;padding:10px 12px;border-radius:0 8px 8px 0;font-size:12.5px;color:#5a4520}
+  .note.bad{border-color:var(--live);background:#fff1f4;color:#701528}
+  .note b{display:block;margin-bottom:3px}
+  .empty{padding:36px 20px;text-align:center;color:var(--muted);font-size:13px}
+  .empty .big{font-family:var(--mono);font-size:12px;color:#95a1c0;letter-spacing:.05em}
+  .copy{float:right;font-size:11px;padding:3px 8px;border-radius:6px;border:1px solid var(--line);background:#fff;cursor:pointer;font-weight:600}
+
+  table.eq{width:100%;border-collapse:collapse;font-size:13px}
+  table.eq th,table.eq td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+  table.eq th{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid #c9d3e8}
+  table.eq th:first-child,table.eq td:first-child{text-align:left;font-weight:600}
+  table.eq td{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  table.eq td:first-child{font-family:var(--sans)}
+  table.eq td.ov{background:var(--navy-soft);color:var(--navy);font-weight:600}
+  table.eq tr.self td{background:#0e1630;color:#fff}
+  table.eq tr.self td.ov{background:var(--navy);color:#fff}
+  table.eq tr:hover td:not(.ov){background:#f7f9fd}
+  .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+</style>
+
+<header>
+  <div>
+    <h1>SpeechAce test bench</h1>
+    <div class="sub">api.speechace.co &middot; scoring/speech/v9</div>
+  </div>
+  <div class="spacer"></div>
+  <span class="pill prov" id="modePill">spontaneous</span>
+  <span class="pill" id="mode">checking route…</span>
+</header>
+
+<div class="wrap">
+  <!-- ============ LEFT: request builder ============ -->
+  <div class="col">
+
+    <!-- ---- key ---- -->
+    <div class="card">
+      <h2>Key <span class="tag">query param</span></h2>
+      <div class="body">
+        <div class="field">
+          <label for="apiKey">key</label>
+          <input type="password" id="apiKey" class="mono" value="" placeholder="paste your SpeechAce API key">
+          <div class="hint">Sent to SpeechAce as the <span class="mono">?key=</span> query parameter. Held in the browser only; never committed to the repo.</div>
+        </div>
+        <div class="row field">
+          <div>
+            <label for="userId">user_id</label>
+            <input type="text" id="userId" class="mono" value="guest">
+          </div>
+          <div>
+            <label for="dialect">dialect</label>
+            <select id="dialect" class="mono">
+              <option value="en-us" selected>en-us</option>
+              <option value="en-gb">en-gb</option>
+              <option value="en-au">en-au</option>
+              <option value="fr-fr">fr-fr</option>
+              <option value="fr-ca">fr-ca</option>
+              <option value="es-es">es-es</option>
+              <option value="es-mx">es-mx</option>
+              <option value="de-de">de-de</option>
+            </select>
+          </div>
+        </div>
+        <div class="hint">SpeechAce supports more dialects than listed — availability depends on your plan. Default <span class="mono">en-us</span>.</div>
+      </div>
+    </div>
+
+    <!-- ---- scoring mode ---- -->
+    <div class="card">
+      <h2>Scoring mode</h2>
+      <div class="body">
+        <div class="seg" id="seg">
+          <button data-mode="speech" aria-pressed="true">Spontaneous<span class="k">score speech · open-ended</span></button>
+          <button data-mode="text" aria-pressed="false">Scripted<span class="k">score text · read-aloud</span></button>
+        </div>
+      </div>
+
+      <!-- spontaneous params -->
+      <div class="body" id="speechParams">
+        <div class="field">
+          <label for="context">relevance_context</label>
+          <textarea id="context" rows="2">Describe your favorite food.</textarea>
+          <div class="hint">The question or topic the candidate answered. Enables relevance scoring against the response. Leave blank to score the speech without a topic.</div>
+        </div>
+      </div>
+
+      <!-- scripted params -->
+      <div class="body" id="textParams" hidden>
+        <div class="field">
+          <label for="refText">text</label>
+          <textarea id="refText" rows="2">The quick brown fox jumps over the lazy dog.</textarea>
+          <div class="hint">The reference sentence the candidate reads aloud. Pronunciation is scored word by word against this.</div>
+        </div>
+        <div class="field">
+          <label class="check"><input type="checkbox" id="unexpected"> include_unexpected_words</label>
+        </div>
+      </div>
+
+      <div class="body">
+        <div class="field">
+          <label class="check"><input type="checkbox" id="fluency" checked> include_fluency</label>
+          <div class="hint">Adds fluency, stress and intonation metrics to the response.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---- audio ---- -->
+    <div class="card">
+      <h2>Audio <span class="tag" id="fmtTag">16 kHz · mono · 16-bit</span></h2>
+      <div class="body">
+        <div id="micBanner"></div>
+        <div class="field" id="micPickWrap" hidden>
+          <label for="micPick">Microphone</label>
+          <select id="micPick"></select>
+        </div>
+        <div class="audio-actions">
+          <button class="btn rec" id="recBtn" data-on="false"><span class="dot"></span><span id="recLabel">Record</span></button>
+          <button class="btn" id="fileBtn" style="flex:1">Choose file</button>
+          <button class="btn" id="dlBtn" title="Download the converted 16 kHz WAV" disabled>↓ WAV</button>
+          <input type="file" id="file" accept="audio/*,video/*" hidden>
+        </div>
+
+        <div class="meter">
+          <div class="top">
+            <span class="t" id="dur">0:00</span>
+            <span class="lim" id="lim">/ 3:00 max</span>
+            <span class="state" id="mstate">no audio</span>
+          </div>
+          <div class="bars" id="bars"></div>
+          <div class="track"><i id="track"></i></div>
+        </div>
+
+        <audio id="player" controls hidden></audio>
+        <div id="audioNote"></div>
+      </div>
+      <div class="body">
+        <button class="btn primary" id="run" disabled>Run assessment</button>
+        <div class="hint" id="runHint">Record or load audio to enable.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Request preview</h2>
+      <div class="body">
+        <details open>
+          <summary>Request</summary>
+          <pre class="light" id="preview" style="margin-top:9px">—</pre>
+        </details>
+        <details style="margin-top:8px">
+          <summary>Equivalent Python (server-side)</summary>
+          <pre class="light" id="pysnip" style="margin-top:9px">—</pre>
+        </details>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ RIGHT: results ============ -->
+  <div class="col">
+    <div class="card">
+      <h2>Response <span class="tag" id="latency">idle</span></h2>
+      <div class="body">
+        <div class="status" id="status"><span class="badge">waiting for a run</span></div>
+      </div>
+      <div class="body" id="resultBody">
+        <div class="empty">
+          <div class="big">NO RESPONSE YET</div>
+          <div style="margin-top:8px">Paste your key, load audio, and run.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="rawCard" hidden>
+      <h2>Raw JSON <button class="copy" id="copyRaw">Copy</button></h2>
+      <div class="body"><pre id="raw"></pre></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   Audio: decode anything -> 16 kHz mono 16-bit WAV
+   ============================================================ */
+function encodeWav(f32, rate){
+  const n=f32.length, ab=new ArrayBuffer(44+n*2), dv=new DataView(ab);
+  const s=(o,t)=>{for(let i=0;i<t.length;i++)dv.setUint8(o+i,t.charCodeAt(i));};
+  s(0,'RIFF'); dv.setUint32(4,36+n*2,true); s(8,'WAVE'); s(12,'fmt ');
+  dv.setUint32(16,16,true); dv.setUint16(20,1,true); dv.setUint16(22,1,true);
+  dv.setUint32(24,rate,true); dv.setUint32(28,rate*2,true);
+  dv.setUint16(32,2,true); dv.setUint16(34,16,true);
+  s(36,'data'); dv.setUint32(40,n*2,true);
+  let o=44;
+  for(let i=0;i<n;i++){const v=Math.max(-1,Math.min(1,f32[i]));dv.setInt16(o,v<0?v*0x8000:v*0x7FFF,true);o+=2;}
+  return new Blob([ab],{type:'audio/wav'});
+}
+async function to16kMono(arrayBuffer){
+  const AC=window.AudioContext||window.webkitAudioContext;
+  const ac=new AC();
+  const decoded=await ac.decodeAudioData(arrayBuffer.slice(0));
+  ac.close();
+  const len=Math.max(1,Math.ceil(decoded.duration*16000));
+  const off=new OfflineAudioContext(1,len,16000);
+  const src=off.createBufferSource(); src.buffer=decoded;
+  src.connect(off.destination); src.start();
+  const out=await off.startRendering();
+  return out.getChannelData(0);
+}
+
+/* ============================================================
+   State + UI
+   ============================================================ */
+const $=id=>document.getElementById(id);
+const LIMITS={speech:180,text:60};
+let mode='speech';                 // 'speech' (spontaneous) | 'text' (scripted)
+let wavBlob=null, wavDur=0;
+
+const fmt=s=>`${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
+const escapeHtml=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const round=v=>Number.isInteger(v)?v:Math.round(v*100)/100;
+
+// build meter segments
+const BARS=44;
+$('bars').innerHTML=Array.from({length:BARS},()=>'<i></i>').join('');
+const barEls=[...$('bars').querySelectorAll('i')];
+
+/* ---------- scoring-mode switch ---------- */
+$('seg').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  mode=b.dataset.mode;
+  [...$('seg').children].forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+  $('speechParams').hidden = mode!=='speech';
+  $('textParams').hidden = mode!=='text';
+  $('modePill').textContent = mode==='speech' ? 'spontaneous' : 'scripted';
+  $('lim').textContent=`/ ${fmt(LIMITS[mode])} max`;
+  checkAudio(); updatePreview();
+});
+
+/* ---------- recording ---------- */
+let rec=null, chunks=[], stream=null, raf=0, analyser=null, t0=0;
+
+// Mic needs a secure origin AND an iframe that allows it. Say which one is missing.
+function micStatus(){
+  if(!window.isSecureContext) return {ok:false,why:'origin',
+    msg:`This page is on <span class="mono">${location.protocol}//</span>, which browsers won't grant a microphone. Run <span class="mono">python3 serve.py</span> in this folder and use <span class="mono">http://localhost:8000</span>.`};
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia) return {ok:false,why:'api',
+    msg:'This browser exposes no microphone API here. Open the page in Chrome, Edge or Firefox from <span class="mono">http://localhost:8000</span>.'};
+  if(!window.MediaRecorder) return {ok:false,why:'api',msg:'MediaRecorder is unavailable in this browser. Use Chrome, Edge or Firefox.'};
+  if(window.self!==window.top) return {ok:true,why:'iframe',
+    msg:'Running inside a frame — the microphone may be blocked by the host page. If Record fails, download this file with <span class="mono">serve.py</span> and run it locally.'};
+  return {ok:true};
+}
+(function initMic(){
+  const st=micStatus();
+  if(st.msg) $('micBanner').innerHTML=`<div class="note ${st.ok?'':'bad'}" style="margin-bottom:12px">${st.msg}</div>`;
+  $('recBtn').disabled=!st.ok;
+  if(st.ok) listMics();
+})();
+async function listMics(){
+  try{
+    const devs=await navigator.mediaDevices.enumerateDevices();
+    const mics=devs.filter(d=>d.kind==='audioinput');
+    if(mics.length<2) return;                       // one device: no point choosing
+    $('micPickWrap').hidden=false;
+    $('micPick').innerHTML=mics.map((m,i)=>`<option value="${m.deviceId}">${escapeHtml(m.label||('Microphone '+(i+1)))}</option>`).join('');
+  }catch{}
+}
+navigator.mediaDevices?.addEventListener?.('devicechange',listMics);
+
+$('recBtn').onclick=async()=>{
+  if(rec && rec.state==='recording'){ rec.stop(); return; }
+  const dev=$('micPickWrap').hidden?null:$('micPick').value;
+  const constraints={audio:{channelCount:1,echoCancellation:true,noiseSuppression:true,autoGainControl:true}};
+  if(dev) constraints.audio.deviceId={exact:dev};
+  try{
+    stream=await navigator.mediaDevices.getUserMedia(constraints);
+    listMics();                                     // labels appear only after permission
+  }catch(err){
+    const map={
+      NotAllowedError:'Permission was denied. Click the mic icon in the address bar and allow it, then try again. If there is no icon, the page is inside a frame that blocks microphones — run it with <span class="mono">serve.py</span> instead.',
+      NotFoundError:'No microphone found. Plug one in, or pick a different device above.',
+      NotReadableError:'The microphone is held by another app. Close Zoom, Teams or any other call and retry.',
+      OverconstrainedError:'That device rejected the requested settings. Pick a different microphone above.',
+      SecurityError:'The browser blocked capture on this origin. Use <span class="mono">http://localhost:8000</span> via serve.py.'
+    };
+    note(`<b>Recording did not start</b>${map[err.name]||escapeHtml(err.message)}`,true);
+    return;
+  }
+  const AC=window.AudioContext||window.webkitAudioContext;
+  const ac=new AC();
+  analyser=ac.createAnalyser(); analyser.fftSize=256;
+  ac.createMediaStreamSource(stream).connect(analyser);
+  const data=new Uint8Array(analyser.frequencyBinCount);
+
+  chunks=[]; rec=new MediaRecorder(stream);
+  rec.ondataavailable=e=>{if(e.data.size)chunks.push(e.data);};
+  rec.onstop=async()=>{
+    cancelAnimationFrame(raf); stream.getTracks().forEach(t=>t.stop()); ac.close();
+    $('recBtn').dataset.on='false'; $('recLabel').textContent='Record';
+    barEls.forEach(b=>b.classList.remove('on','hot'));
+    setState('converting');
+    try{ await loadBlob(new Blob(chunks,{type:rec.mimeType||'audio/webm'}), 'recording'); }
+    catch(e){ note('Could not convert the recording: '+e.message,true); setState('failed'); }
+  };
+  rec.start(); t0=performance.now();
+  $('recBtn').dataset.on='true'; $('recLabel').textContent='Stop';
+  setState('recording'); note('');
+
+  (function tick(){
+    raf=requestAnimationFrame(tick);
+    const sec=(performance.now()-t0)/1000;
+    $('dur').textContent=fmt(sec);
+    const pct=Math.min(1,sec/LIMITS[mode]);
+    $('track').style.width=(pct*100)+'%';
+    $('track').classList.toggle('over',sec>LIMITS[mode]);
+    analyser.getByteFrequencyData(data);
+    for(let i=0;i<BARS;i++){
+      const v=data[Math.floor(i*data.length/BARS/2)]/255;
+      barEls[i].style.height=Math.max(12,v*100)+'%';
+      barEls[i].classList.toggle('on',v>0.06);
+      barEls[i].classList.toggle('hot',v>0.75);
+    }
+    if(sec>LIMITS[mode]+5 && rec.state==='recording') rec.stop();
+  })();
+};
+
+/* ---------- file ---------- */
+$('fileBtn').onclick=()=>$('file').click();
+$('file').onchange=async e=>{
+  const f=e.target.files[0]; if(!f) return;
+  setState('converting'); note('');
+  try{ await loadBlob(f, f.name); }
+  catch(err){ note('Could not decode that file: '+err.message+' — try converting it first with ffmpeg.',true); setState('failed'); }
+};
+
+async function loadBlob(blob, label){
+  const buf=await blob.arrayBuffer();
+  const pcm=await to16kMono(buf);
+  wavDur=pcm.length/16000;
+  wavBlob=encodeWav(pcm,16000);
+  $('dur').textContent=fmt(wavDur);
+  $('player').hidden=false; $('player').src=URL.createObjectURL(wavBlob);
+  const kb=(wavBlob.size/1024).toFixed(0);
+  $('fmtTag').textContent=`16 kHz · mono · ${kb} KB`;
+  const pct=Math.min(1,wavDur/LIMITS[mode]);
+  $('track').style.width=(pct*100)+'%';
+  barEls.forEach((b,i)=>{b.classList.toggle('on', i/BARS<pct); b.style.height=(30+Math.random()*55)+'%';});
+  setState('ready · '+label.slice(0,22));
+  $('dlBtn').disabled=false;
+  $('dlBtn').onclick=()=>{
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(wavBlob);
+    a.download=(label.replace(/\.[^.]+$/,'')||'clip')+'-16k.wav';
+    a.click();
+  };
+  checkAudio(); updatePreview();
+}
+
+function checkAudio(){
+  const lim=LIMITS[mode];
+  const ok=!!wavBlob;
+  $('run').disabled=!ok;
+  $('track').classList.toggle('over', wavDur>lim);
+  if(!ok){ $('runHint').textContent='Record or load audio to enable.'; return; }
+  if(wavDur>lim){
+    note(`This clip is ${fmt(wavDur)} — longer than the ${fmt(lim)} guideline for ${mode==='speech'?'spontaneous':'scripted'} scoring. It may still score, but very long clips can be slow or rejected.`);
+    $('runHint').textContent='Long clip — may be slow.';
+  }else if(wavDur<1.5){
+    note(`Only ${wavDur.toFixed(1)}s of audio. Scoring needs a real answer — expect a low or error result.`);
+    $('runHint').textContent='Very short clip.';
+  }else{
+    note('');
+    $('runHint').textContent=`${fmt(wavDur)} of 16 kHz mono audio ready.`;
+  }
+}
+function setState(s){ $('mstate').textContent=s; }
+function note(msg,bad){
+  $('audioNote').innerHTML = msg ? `<div class="note ${bad?'bad':''}" style="margin-top:11px">${msg}</div>` : '';
+}
+
+/* ============================================================
+   Request building
+   ============================================================ */
+function speechAceUrl(){
+  const key=$('apiKey').value.trim();
+  const dialect=$('dialect').value;
+  const uid=$('userId').value.trim()||'guest';
+  const qs=new URLSearchParams({key,dialect,user_id:uid});
+  return 'https://api.speechace.co/api/scoring/speech/v9/json?'+qs.toString();
+}
+
+// list the form fields for the current mode (label -> value), audio excluded
+function formFields(){
+  const f=[];
+  if(mode==='text'){
+    f.push(['text', $('refText').value.trim()]);
+    if($('unexpected').checked) f.push(['include_unexpected_words','1']);
+  }else{
+    const ctx=$('context').value.trim();
+    if(ctx) f.push(['relevance_context', ctx]);
+  }
+  if($('fluency').checked) f.push(['include_fluency','1']);
+  return f;
+}
+
+// Returns {url, fd} ready to POST, or throws a user-facing message.
+function buildRequest(){
+  if(!wavBlob) throw new Error('Record or load audio first');
+  if(!$('apiKey').value.trim()) throw new Error('Enter your SpeechAce API key');
+  if(mode==='text' && !$('refText').value.trim()) throw new Error('Enter the reference text for scripted scoring');
+  const fd=new FormData();
+  fd.append('user_audio_file', new File([wavBlob],'audio.wav',{type:'audio/wav'}));
+  formFields().forEach(([k,v])=>fd.append(k,v));
+  return {url:speechAceUrl(), fd};
+}
+
+function updatePreview(){
+  const dialect=$('dialect').value;
+  const uid=$('userId').value.trim()||'guest';
+  const fields=[['user_audio_file','@output.wav'], ...formFields()];
+  const url=`https://api.speechace.co/api/scoring/speech/v9/json?key=<your key>&dialect=${dialect}&user_id=${uid}`;
+  $('preview').textContent =
+`POST ${url}
+
+multipart/form-data:
+`+fields.map(([k,v])=>`  ${k} = ${v}`).join('\n');
+
+  const dataFields=fields.filter(([k])=>k!=='user_audio_file');
+  $('pysnip').textContent=
+`# pip install requests
+import requests, json
+url="https://api.speechace.co/api/scoring/speech/v9/json"
+params={"key":"<your key>","dialect":"${dialect}","user_id":"${uid}"}
+files={"user_audio_file":open("output.wav","rb")}
+data={${dataFields.map(([k,v])=>`"${k}": ${JSON.stringify(v)}`).join(', ')}}
+res=requests.post(url, params=params, data=data, files=files)
+print(json.dumps(res.json(), indent=2, ensure_ascii=False))
+
+# prepare audio first:
+# ffmpeg -i input.mp3 -acodec pcm_s16le -ac 1 -ar 16000 output.wav`;
+}
+['apiKey','userId','dialect','context','refText','fluency','unexpected'].forEach(id=>{
+  const el=$(id); if(!el) return;
+  el.addEventListener('input',updatePreview); el.addEventListener('change',updatePreview);
+});
+
+/* ============================================================
+   Endpoint: local proxy if serve.py is running, else direct
+   ============================================================ */
+let useProxy=false;
+(async function probe(){
+  try{
+    const r=await fetch('/proxy/ping',{cache:'no-store'});
+    useProxy = r.ok && (await r.text()).trim()==='speech-proxy';
+  }catch{ useProxy=false; }
+  $('mode').textContent = useProxy ? 'via local proxy' : 'direct from browser';
+  $('mode').className = useProxy ? 'pill' : 'pill warn';
+  $('mode').title = useProxy
+    ? 'serve.py is forwarding requests — no CORS'
+    : 'Calling api.speechace.co straight from the browser. If it is blocked by CORS, run serve.py.';
+})();
+// serve.py forwards to the absolute target passed as ?url= (host-checked on the server).
+const routed = url => useProxy ? '/proxy?url='+encodeURIComponent(url) : url;
+
+/* ============================================================
+   Run
+   ============================================================ */
+$('run').onclick=async()=>{
+  let built;
+  try{ built=buildRequest(); }catch(e){ return setStatus('err',e.message); }
+  $('run').disabled=true; $('run').textContent='Running…';
+  $('latency').textContent='running';
+  setStatus('run',`POST scoring/speech/v9 · ${mode}`);
+  $('resultBody').innerHTML='<div class="empty"><div class="big">SCORING…</div><div style="margin-top:8px">Assessment usually takes 3–20s depending on clip length.</div></div>';
+  const started=performance.now();
+  const timer=setInterval(()=>{$('latency').textContent=((performance.now()-started)/1000).toFixed(1)+'s';},100);
+
+  try{
+    const res=await fetch(routed(built.url),{method:'POST',headers:{'Request-Index':'0'},body:built.fd});
+    const text=await res.text();
+    clearInterval(timer);
+    const ms=((performance.now()-started)/1000).toFixed(1)+'s';
+    $('latency').textContent=ms;
+    let json; try{ json=JSON.parse(text); }catch{
+      setStatus('err',`HTTP ${res.status} — response was not JSON`);
+      showRaw(text); $('resultBody').innerHTML=`<div class="note bad"><b>Unparseable response</b>${escapeHtml(text.slice(0,400))}</div>`;
+      return finish();
+    }
+    showRaw(JSON.stringify(json,null,2));
+
+    // SpeechAce reports success/failure in the status field
+    if(json.status && json.status!=='success'){
+      const msg = json.detail_message || json.short_message || ('status: '+json.status);
+      const code = json.error_code || json.status;
+      setStatus('err',`${code||'error'} — ${msg}`);
+      $('resultBody').innerHTML=`<div class="note bad"><b>SpeechAce returned an error</b>${escapeHtml(String(msg))}${code?`<div class="mono" style="margin-top:6px">${escapeHtml(String(code))}</div>`:''}</div>`;
+    }else{
+      setStatus('ok',`HTTP ${res.status} · ${ms} · ${(wavBlob.size/1024).toFixed(0)} KB uploaded`);
+      render(json);
+    }
+  }catch(err){
+    clearInterval(timer); $('latency').textContent='failed';
+    setStatus('err','Request blocked');
+    $('resultBody').innerHTML=`<div class="note bad"><b>Could not reach the API</b>
+      ${useProxy
+        ? 'The local proxy is running but the request failed — check the terminal where serve.py is running for the reason.'
+        : 'Calling <span class="mono">api.speechace.co</span> straight from the browser is being blocked, almost certainly by CORS rather than a bad key. Put <span class="mono">serve.py</span> next to this file and run <span class="mono">python3 serve.py</span> — it forwards the request for you and enables the microphone at the same time.'}
+      <div class="mono" style="margin-top:8px;opacity:.75">${escapeHtml(err.message)}</div></div>`;
+  }
+  finish();
+  function finish(){ $('run').disabled=false; $('run').textContent='Run assessment'; }
+};
+function setStatus(kind,msg){
+  $('status').innerHTML=`<span class="badge ${kind}">${kind==='ok'?'success':kind==='err'?'error':'running'}</span><span>${escapeHtml(msg)}</span>`;
+}
+function showRaw(t){ $('rawCard').hidden=false; $('raw').innerHTML=highlight(t); }
+$('copyRaw').onclick=()=>{navigator.clipboard.writeText($('raw').textContent);$('copyRaw').textContent='Copied';setTimeout(()=>$('copyRaw').textContent='Copy',1200);};
+
+/* ============================================================
+   Result rendering — SpeechAce
+   ============================================================ */
+const LABELS={overall:'Overall',pronunciation:'Pronunciation',fluency:'Fluency',grammar:'Grammar',
+  vocab:'Vocabulary',vocabulary:'Vocabulary',coherence:'Coherence',relevance:'Relevance',
+  word_count:'Words',all_pause_count:'Pauses',all_pause_duration:'Pause time',
+  speech_rate:'Speech rate',articulation_rate:'Articulation rate',
+  articulation_length:'Articulation length',duration:'Duration',
+  ielts_score:'IELTS',pte_score:'PTE',cefr_score:'CEFR',toeic_score:'TOEIC',
+  speechace_score:'Speechace'};
+const nice=k=>LABELS[k]||k.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+
+function section(title,html){
+  return `<div style="margin-bottom:18px"><div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:9px">${escapeHtml(title)}</div>${html}</div>`;
+}
+
+function render(json){
+  // scores live under speech_score (spontaneous) or text_score (scripted)
+  const r = json.speech_score || json.text_score || json.result || json;
+  const parts=[];
+  const num=v=>typeof v==='number'?round(v):v;
+
+  // 1. overall hero row
+  const heroCards=[];
+  const push=(val,label,cls)=>{ if(val!=null&&val!=='') heroCards.push(
+    `<div class="score ${cls}"><div class="n">${escapeHtml(String(num(val)))}</div><div class="l">${label}</div></div>`); };
+  push(r.speechace_score&&r.speechace_score.overall,'Speechace / 100','hero');
+  push(r.ielts_score&&r.ielts_score.overall,'IELTS band','sub');
+  push(r.pte_score&&r.pte_score.overall,'PTE','sub');
+  push(r.cefr_score&&r.cefr_score.overall,'CEFR','sub');
+  push(r.toeic_score&&r.toeic_score.overall,'TOEIC','sub');
+  if(heroCards.length) parts.push(section('Overall',`<div class="scores">${heroCards.join('')}</div>`));
+
+  // 2. scale x criterion matrix
+  const scales=[['speechace_score','Speechace (0–100)'],['ielts_score','IELTS (0–9)'],
+    ['pte_score','PTE (10–90)'],['toeic_score','TOEIC'],['cefr_score','CEFR']];
+  const crit=[['overall','Overall'],['pronunciation','Pronunciation'],['fluency','Fluency'],
+    ['coherence','Coherence'],['vocab','Vocabulary'],['grammar','Grammar']];
+  const haveScale=scales.filter(([k])=>r[k]&&typeof r[k]==='object');
+  const haveCrit=crit.filter(([c])=>haveScale.some(([k])=>r[k][c]!=null));
+  if(haveScale.length&&haveCrit.length){
+    const head=`<tr><th>Scale</th>${haveCrit.map(([,l])=>`<th>${l}</th>`).join('')}</tr>`;
+    const body=haveScale.map(([k,label])=>{
+      const cells=haveCrit.map(([c])=>{
+        const v=r[k][c];
+        return `<td class="${c==='overall'?'ov':''}">${v==null?'—':escapeHtml(String(num(v)))}</td>`;
+      }).join('');
+      return `<tr class="${k==='speechace_score'?'self':''}"><td>${label}</td>${cells}</tr>`;
+    }).join('');
+    parts.push(section('Scores by scale',`<div class="scroll"><table class="eq">${head}${body}</table></div>`));
+  }
+
+  // 3. relevance
+  if(r.relevance&&typeof r.relevance==='object'){
+    const rc=r.relevance;
+    const cls=rc['class']!=null?rc['class']:rc.result;
+    const sc=rc.score!=null?rc.score:(rc.relevance_score!=null?rc.relevance_score:null);
+    const cells=[];
+    if(sc!=null) cells.push(`<div class="score sub"><div class="n">${round(sc)}</div><div class="l">Relevance score</div></div>`);
+    if(cls!=null) cells.push(`<div class="score sub"><div class="n" style="font-size:16px">${escapeHtml(String(cls))}</div><div class="l">On topic</div></div>`);
+    if(cells.length) parts.push(section('Relevance',`<div class="scores">${cells.join('')}</div>`));
+  }
+
+  // 4. transcript
+  if(typeof r.transcript==='string'&&r.transcript.trim())
+    parts.push(section('Transcript',`<div class="transcript">${escapeHtml(r.transcript)}</div>`));
+
+  // 5. per-word pronunciation
+  const wl=r.word_score_list;
+  if(Array.isArray(wl)&&wl.length){
+    parts.push(section(`Word pronunciation · ${wl.length} words`,
+      `<div class="words">${wl.map(w=>{
+        const s=typeof w.quality_score==='number'?w.quality_score:
+                (typeof w.word_score==='number'?w.word_score:null);
+        const cls=s==null?'':s>=80?'g':s>=60?'m':'b';
+        return `<span class="w ${cls}">${escapeHtml(w.word||w.text||'')}${s==null?'':`<b>${round(s)}</b>`}</span>`;
+      }).join('')}</div>`));
+  }
+
+  // 6. fluency metrics
+  const fl=r.fluency;
+  if(fl&&typeof fl==='object'){
+    const m=fl.overall_metrics||fl;
+    const inner=Object.entries(m).filter(([,x])=>typeof x==='number');
+    if(inner.length) parts.push(section('Fluency metrics',
+      `<div class="scores">${inner.map(([k,v])=>
+        `<div class="score sub"><div class="n">${round(v)}</div><div class="l">${nice(k)}</div></div>`).join('')}</div>`));
+  }
+
+  if(haveScale.length>1) parts.push(`<div class="note" style="margin-top:4px">SpeechAce reports one underlying judgement mapped onto several scales at once (Speechace 0–100, IELTS, PTE, TOEIC, CEFR). They are concordance mappings, not independent measurements.</div>`);
+
+  $('resultBody').innerHTML = parts.length
+    ? parts.join('')
+    : '<div class="empty"><div class="big">RESPONSE HAD NO RECOGNISED FIELDS</div><div style="margin-top:8px">Check the raw JSON below.</div></div>';
+}
+
+function highlight(t){
+  return escapeHtml(t)
+    .replace(/&quot;([^&]*?)&quot;(\s*:)/g,'<span class="k-key">"$1"</span>$2')
+    .replace(/:\s*&quot;([^&]*?)&quot;/g,': <span class="k-str">"$1"</span>')
+    .replace(/:\s*(-?\d+\.?\d*)/g,': <span class="k-num">$1</span>')
+    .replace(/:\s*(true|false|null)/g,': <span class="k-bool">$1</span>');
+}
+
+/* init */
+$('lim').textContent=`/ ${fmt(LIMITS[mode])} max`;
+updatePreview();
+</script>
