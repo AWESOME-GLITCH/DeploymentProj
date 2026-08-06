@@ -14,8 +14,10 @@ export function Card({
     <div
       className={`rounded-2xl border border-line bg-bg-card shadow-card ${className}`}
       style={
+        // Geist-style: surfaces are defined by a crisp border + a faint accent
+        // hairline — not a coloured bloom. Keeps the page calm and high-contrast.
         glow
-          ? { boxShadow: `0 0 0 1px rgba(${glow},0.14), 0 18px 50px -30px rgba(${glow},0.5)` }
+          ? { boxShadow: `inset 0 0 0 1px rgba(${glow},0.16), 0 10px 40px -28px rgba(0,0,0,0.7)` }
           : undefined
       }
     >
@@ -84,12 +86,12 @@ export function Button({
   className?: string;
 }) {
   const base =
-    "inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-all active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed";
+    "inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed";
   const variants = {
-    primary:
-      "bg-gradient-to-b from-brand to-brand-glow text-white shadow-[0_10px_26px_-10px_rgba(255,131,0,0.75)] hover:brightness-110",
+    // Flat, high-contrast, Geist-style — no gradients or coloured blooms.
+    primary: "bg-brand text-white shadow-[0_1px_2px_rgba(0,0,0,0.35)] hover:bg-brand-glow",
     ghost: "text-ink-soft hover:text-ink hover:bg-bg-hover",
-    subtle: "border border-line bg-bg-soft text-ink hover:bg-bg-hover hover:border-brand/30",
+    subtle: "border border-line bg-bg-soft text-ink hover:bg-bg-hover hover:border-white/15",
   }[variant];
   return (
     <button type={type} onClick={onClick} disabled={disabled} className={`${base} ${variants} ${className}`}>

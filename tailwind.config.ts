@@ -16,7 +16,7 @@ const config: Config = {
           hover: "#20202a",
           orange: "#1c130a",
         },
-        line: "#26262e",
+        line: "#2a2a31",
         ink: {
           DEFAULT: "#f5f5f7",
           soft: "#a2a2ad",
@@ -55,8 +55,8 @@ const config: Config = {
         ],
       },
       boxShadow: {
-        glow: "0 0 0 1px rgba(255,131,0,0.25), 0 8px 40px -12px rgba(255,131,0,0.45)",
-        card: "0 1px 0 0 rgba(255,255,255,0.03) inset, 0 8px 30px -18px rgba(0,0,0,0.9)",
+        glow: "0 0 0 1px rgba(255,131,0,0.28), 0 4px 18px -8px rgba(255,131,0,0.3)",
+        card: "0 1px 0 0 rgba(255,255,255,0.02) inset, 0 4px 20px -16px rgba(0,0,0,0.85)",
       },
       backgroundImage: {
         "grid-faint":

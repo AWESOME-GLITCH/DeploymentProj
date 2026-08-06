@@ -39,14 +39,15 @@ textarea,
 }
 
 :focus-visible {
-  outline: 2px solid rgba(255, 131, 0, 0.6);
+  outline: 2px solid rgba(255, 131, 0, 0.55);
   outline-offset: 2px;
-  border-radius: 6px;
+  border-radius: 8px;
 }
 
 /* Gen-Z gradient headline accent */
 .text-gradient {
-  background: linear-gradient(115deg, #ff8300 10%, #ff5d8f 75%);
+  /* Single on-brand hue — restrained, not a rainbow. */
+  background: linear-gradient(100deg, #ff8300, #ffab52);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -55,7 +56,8 @@ textarea,
   transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.2s ease, box-shadow 0.2s ease;
 }
 .hover-lift:hover {
-  transform: translateY(-3px);
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.16);
 }
 
 /* Headings use the display face with tight, modern tracking */
