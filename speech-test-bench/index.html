@@ -576,7 +576,7 @@ print(json.dumps(res.json(), indent=2, ensure_ascii=False))
 let useProxy=false;
 (async function probe(){
   try{
-    const r=await fetch('/proxy/ping',{cache:'no-store'});
+    const r=await fetch('/api/proxy',{cache:'no-store'});
     useProxy = r.ok && (await r.text()).trim()==='speech-proxy';
   }catch{ useProxy=false; }
   $('mode').textContent = useProxy ? 'via local proxy' : 'direct from browser';
@@ -586,7 +586,7 @@ let useProxy=false;
     : 'Calling api.speechace.co straight from the browser. If it is blocked by CORS, run serve.py.';
 })();
 // serve.py forwards to the absolute target passed as ?url= (host-checked on the server).
-const routed = url => useProxy ? '/proxy?url='+encodeURIComponent(url) : url;
+const routed = url => useProxy ? '/api/proxy?url='+encodeURIComponent(url) : url;
 
 /* ============================================================
    Run

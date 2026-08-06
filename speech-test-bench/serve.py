@@ -14,9 +14,11 @@ Run:
     (then open http://localhost:8000 - it opens automatically)
 
 The page auto-detects this proxy: if serve.py is running it routes through
-/proxy?url=..., otherwise it calls the API straight from the browser (which
-CORS usually blocks). The SpeechAce API key travels inside that target URL as
-the ?key= query parameter and is never printed by this server.
+/api/proxy?url=..., otherwise it calls the API straight from the browser
+(which CORS usually blocks). The same /api/proxy contract is served by the
+Vercel function (api/proxy.js) for the hosted build. The SpeechAce API key
+travels inside that target URL as the ?key= query parameter and is never
+printed by this server.
 
 Nothing to install. Python 3.7+ standard library only.
 """
@@ -33,7 +35,7 @@ import re
 import sys
 
 PORT = int(os.environ.get("PORT", 8000))
-PAGE = "speech-test-bench.html"
+PAGE = "index.html"
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 # Only these hosts may be forwarded to. An open proxy on your laptop is not
@@ -49,14 +51,15 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         sys.stdout.write("  %s\n" % (fmt % args))
 
     def do_GET(self):
-        if self.path.startswith("/proxy/ping"):
+        # GET /api/proxy is the availability ping (matches the Vercel function)
+        if self.path.startswith("/api/proxy"):
             return self._send(200, b"speech-proxy", "text/plain")
         if self.path in ("/", "/index.html"):
             self.path = "/" + PAGE
         return super().do_GET()
 
     def do_POST(self):
-        if not self.path.startswith("/proxy"):
+        if not self.path.startswith("/api/proxy"):
             return self._send(404, b"not found", "text/plain")
 
         target = self._target()

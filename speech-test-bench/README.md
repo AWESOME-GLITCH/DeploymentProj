@@ -10,9 +10,21 @@ for the local runner.
 
 ## Files
 
-- `speech-test-bench.html` — the tool (all HTML/CSS/JS in one file)
+- `index.html` — the tool (all HTML/CSS/JS in one file)
 - `serve.py` — local runner: serves the page over `http://localhost` (so the
   mic works) and forwards API calls (so CORS never applies)
+- `api/proxy.js` — the same forwarding proxy as a Vercel serverless function,
+  for the hosted build
+
+## Two ways to run it
+
+**Hosted (no install):** deploy this folder to Vercel as its own project. The
+static `index.html` is served at `/` and `api/proxy.js` handles `/api/proxy`.
+Open the URL, paste your key, and test — the mic works because the page is on
+`https://`, and CORS is handled by the function.
+
+**Local:** run `serve.py` (below). Same `/api/proxy` contract, so the page is
+identical in both places.
 
 ## Run it
 
@@ -47,8 +59,8 @@ per-word pronunciation, and fluency metrics — plus the full raw JSON.
   `serve.py` is running it routes through `/proxy?url=...`; otherwise it calls
   the API straight from the browser (which CORS will likely block).
 
-You can still open `speech-test-bench.html` directly as a file, but the mic
-and (usually) live API calls will not work without `serve.py`.
+You can still open `index.html` directly as a file, but the mic and (usually)
+live API calls will not work without `serve.py` or the hosted proxy.
 
 ## Request shape
 
@@ -72,7 +84,7 @@ equivalent Python (`requests`) snippet for running it server-side.
 - Never ship a page containing a real key to a place students or the public
   can open it. A browser cannot hide it.
 - Endpoint host is `api.speechace.co`. Some accounts use `api.speechace.com`;
-  `serve.py` allows both, and you can change the host in
-  `speech-test-bench.html` (`speechAceUrl()`) if your plan requires it.
+  `serve.py` and `api/proxy.js` allow both, and you can change the host in
+  `index.html` (`speechAceUrl()`) if your plan requires it.
 - Audio limits in the meter (3:00 spontaneous / 1:00 scripted) are UI
   guidelines, not hard API limits.
