@@ -38,6 +38,15 @@ import {
   Boxes,
   Flag,
   GraduationCap,
+  Mic,
+  MicOff,
+  Square,
+  Volume2,
+  RotateCcw,
+  Keyboard,
+  ShieldAlert,
+  Play,
+  LifeBuoy,
   type LucideProps,
 } from "lucide-react";
 
@@ -81,6 +90,15 @@ const MAP = {
   Boxes,
   Flag,
   GraduationCap,
+  Mic,
+  MicOff,
+  Square,
+  Volume2,
+  RotateCcw,
+  Keyboard,
+  ShieldAlert,
+  Play,
+  LifeBuoy,
 } as const;
 
 export type IconName = keyof typeof MAP;
