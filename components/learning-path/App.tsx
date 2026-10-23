@@ -44,11 +44,17 @@ function Shell() {
   }, []);
 
   useEffect(() => {
+    // System theme: an explicit data-theme on the document root (a host's toggle) wins, else the OS setting.
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    const apply = () => setSystemDark(mq.matches);
+    const apply = () => {
+      const host = document.documentElement.getAttribute("data-theme");
+      setSystemDark(host === "dark" ? true : host === "light" ? false : mq.matches);
+    };
     apply();
     mq.addEventListener("change", apply);
-    return () => mq.removeEventListener("change", apply);
+    const mo = new MutationObserver(apply);
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => { mq.removeEventListener("change", apply); mo.disconnect(); };
   }, []);
 
   useEffect(() => {
