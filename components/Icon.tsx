@@ -47,6 +47,7 @@ import {
   ShieldAlert,
   Play,
   LifeBuoy,
+  Route,
   type LucideProps,
 } from "lucide-react";
 
@@ -99,6 +100,7 @@ const MAP = {
   ShieldAlert,
   Play,
   LifeBuoy,
+  Route,
 } as const;
 
 export type IconName = keyof typeof MAP;
