@@ -44,7 +44,7 @@ It never scores pronunciation, accent or intonation. It marks a speech-to-text t
 
 ## Learning Path prototype
 
-Open `/learning-path` on a phone, or on a laptop to get the phone frame with a tester panel beside it. The spec it follows is `docs/learning-path/PRD.md` (build-ready PRD) and `docs/learning-path/MARKET-RESEARCH.md`. It is a standalone initiative with its own identity: light mode is linen with a deep teal accent, dark mode is slate charcoal with a saffron yellow accent, and there is no product branding in the app.
+Open `/learning-path` on a phone, or on a laptop to get the phone frame with a tester panel beside it. The spec it follows is `docs/learning-path/PRD.md` (build-ready PRD) and `docs/learning-path/MARKET-RESEARCH.md`. It is a standalone initiative with its own identity and no product branding: light mode is bold editorial (paper, black type, ink outlines with hard shadows, electric cobalt for the one primary action, acid lime for correct); dark mode is slate charcoal with a saffron yellow accent.
 
 What you can test, all in the browser with no backend:
 

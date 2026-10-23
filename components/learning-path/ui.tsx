@@ -101,7 +101,7 @@ export function Ring({ fills, size = 200, label }: { fills: [number, number, num
           const offset = i * (seg + gap);
           return (
             <g key={i}>
-              <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--lp-track)" strokeWidth={12} strokeLinecap="round" strokeDasharray={`${seg} ${c - seg}`} strokeDashoffset={-offset} />
+              <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--lp-track)" strokeWidth={12} style={{ stroke: "var(--lp-track)" }} strokeLinecap="round" strokeDasharray={`${seg} ${c - seg}`} strokeDashoffset={-offset} />
               <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="url(#lp-ring-grad)" strokeWidth={12} strokeLinecap="round"
                 strokeDasharray={`${Math.max(0.01, seg * Math.min(1, f))} ${c}`} strokeDashoffset={-offset} opacity={f > 0 ? 1 : 0}
                 style={{ transition: reduceMotion ? "none" : "stroke-dasharray 0.8s cubic-bezier(0.22,1,0.36,1)", filter: f > 0 ? "drop-shadow(0 0 6px rgba(21,154,139,0.5))" : undefined }} />
