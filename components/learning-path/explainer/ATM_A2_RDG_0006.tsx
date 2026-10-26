@@ -53,9 +53,13 @@ export const METRO_BEATS: Beat[] = [
 ];
 export const METRO_DURATION = 1200;
 
-/** Composition pixels hidden by the player's ask panel at a stop. Nothing the
- *  learner needs in order to answer may sit below STOP_SAFE_Y on a stop frame. */
-export const STOP_SAFE_Y = 860;
+/** How much of the frame survives a stop. Measured from the player's own markup
+ *  against app/learning-path/lp.css at 375px: the tap panel is 190.8 CSS px over
+ *  a 500px video and the say panel, which carries the mic, is 280.4. So a say
+ *  stop leaves only the top 633 px of 1440. Nothing the learner needs in order to
+ *  answer may sit below these lines on a stop frame. */
+export const STOP_SAFE_Y = 633;
+export const STOP_SAFE_Y_TAP = 891;
 
 export function metroBeatAt(frame: number): Beat {
   return METRO_BEATS.find((b) => frame >= b.from && frame < b.to) ?? METRO_BEATS[METRO_BEATS.length - 1];
@@ -906,9 +910,11 @@ function W2Scene({ frame }: { frame: number }) {
     <AbsoluteFill style={{ background: WALL }}>
       <Stage>
         <Carriage frame={frame} keyId="w2" />
-        {/* the pair: not allowed next to allowed */}
-        <NoFoodSign x={508} y={748} frame={frame} from={W2 + 34} k={0.72} />
-        <TickSign x={676} y={748} frame={frame} from={W2 + 46} k={0.72} label="water" />
+        {/* The pair: not allowed next to allowed. Stuck on the window glass, where
+            metro notices actually live, which is also the only band of this set
+            that stays visible above the say panel while the learner answers. */}
+        <NoFoodSign x={470} y={540} frame={frame} from={W2 + 34} k={0.72} />
+        <TickSign x={610} y={540} frame={frame} from={W2 + 46} k={0.72} label="water" />
         <Character
           who="you"
           x={youX}
@@ -928,7 +934,7 @@ function W2Scene({ frame }: { frame: number }) {
         <CarriageFloor />
         <Tote x={bag.x} y={bag.y} k={0.72} />
         <Bottle x={bx} y={by} k={0.68} rot={drink * 52} />
-        <Glow frame={frame} from={W2 + 92} x={676} y={748} r={62} color={SEA} />
+        <Glow frame={frame} from={W2 + 92} x={610} y={540} r={62} color={SEA} />
       </Stage>
       {/* The caption already reads "Water is allowed.", so the card is the only
           other text: one line on screen. */}
@@ -1001,43 +1007,65 @@ const W4 = 648;
 
 function W4Scene({ frame }: { frame: number }) {
   const stands = frame >= W4 + 54;
-  const sat = frame >= W4 + 132;
+  const sat = frame >= W4 + 140;
+  // The say panel leaves only the top 633 px, and a wide carriage shot puts the
+  // seat, the offer and both faces below it. So the camera rises to the seat as
+  // he stands, and settles before the stop at 774.
+  // Up to the seat for the stop, then most of the way back as he sits, so the
+  // beat does not end on a frame of empty floor.
+  const pan = tween(frame, W4 + 88, W4 + 118, 0, 330, EASE.inOut) - tween(frame, W4 + 140, W4 + 172, 0, 190, EASE.inOut);
+  // He steps across to the seat on the resume, so the swap to sitting is not a jump.
+  const manX = 980 + (770 - 980) * tween(frame, W4 + 126, W4 + 140, 0, 1, EASE.inOut);
   return (
     <AbsoluteFill style={{ background: WALL }}>
       <Stage>
-        <Carriage frame={frame} keyId="w4" />
-        {/* the priority seat itself */}
-        <g>
-          <rect x="642" y={SEAT_T} width="186" height="62" rx="18" fill={frame >= W4 + 140 ? "#cfeee3" : SEAT} />
-          <rect x="642" y={SEAT_T} width="186" height="62" rx="18" fill="none" stroke={frame >= W4 + 140 ? SEA : INK} strokeWidth={frame >= W4 + 140 ? 6 : 3} opacity={frame >= W4 + 140 ? 1 : 0.2} />
-          <g transform={`translate(735 ${SEAT_T + 30}) scale(0.4)`} opacity="0.5">
-            <circle cx="4" cy="-38" r="13" fill={ACCENT} />
-            <path d="M-42 -34 L-42 30 L30 30" fill="none" stroke={ACCENT} strokeWidth="12" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M4 -24 L4 2 L30 2" fill="none" stroke={ACCENT} strokeWidth="12" strokeLinecap="round" strokeLinejoin="round" />
+        <g transform={`translate(0 ${-pan})`}>
+          <Carriage frame={frame} keyId="w4" />
+          {/* on the wall above the seat it marks, and clear of where the passenger
+              stands, so his shoulder never crosses the word "priority" */}
+          <SeatSign x={840} y={700} frame={frame} from={W4 + 12} k={0.92} />
+          {/* The priority seat reads as a marked seat from the first frame, or the
+              learner has no referent for "this is a priority seat". It only turns
+              leaf once he is sitting in it. */}
+          <g>
+            <rect x="642" y={SEAT_T} width="186" height="62" rx="18" fill={sat ? "#cfeee3" : PALE} />
+            <rect x="642" y={SEAT_T} width="186" height="62" rx="18" fill="none" stroke={sat ? SEA : ACCENT} strokeWidth={sat ? 6 : 5} opacity={sat ? 1 : 0.55} />
+            <g transform={`translate(735 ${SEAT_T + 30}) scale(0.46)`} opacity="0.85">
+              <circle cx="4" cy="-38" r="13" fill={ACCENT} />
+              <path d="M-42 -34 L-42 30 L30 30" fill="none" stroke={ACCENT} strokeWidth="12" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M4 -24 L4 2 L30 2" fill="none" stroke={ACCENT} strokeWidth="12" strokeLinecap="round" strokeLinejoin="round" />
+            </g>
           </g>
+          {/* Fatima is not in this shot: once the camera rises to the seat her head
+              sits behind the word card, and three figures is more than the beat
+              needs. The offer is the whole story here. */}
+          {/* you: seated, then up and offering the seat */}
+          {!stands ? <Character who="you" x={712} y={1040} scale={1.18} facing={-1} frame={frame} enter={W4 + 4} legs={false} mood="neutral" /> : null}
+          {/* Down into the cushion, not perched on top of it, and the stick is out
+              of his hand now he is sitting. */}
+          {sat ? <Silhouette x={735} y={1090} frame={frame} scale={0.98} facing={-1} sit stick={false} enter={W4 + 140} /> : null}
+          <CarriageFloor />
+          {stands ? (
+            <Character
+              who="you"
+              x={432}
+              y={1168}
+              scale={1.1}
+              facing={1}
+              frame={frame}
+              enter={W4 + 54}
+              mood="happy"
+              gesture="serve"
+              gestureAt={W4 + 70}
+            />
+          ) : null}
+          {/* he waits clear of the seat, so the empty marked seat is what the
+              gesture points at */}
+          {!sat ? <Silhouette x={manX} y={1168} frame={frame} scale={1.1} facing={-1} enter={W4 + 60} slideFrom={300} /> : null}
+          <Glow frame={frame} from={W4 + 146} x={735} y={SEAT_T + 30} r={104} color={SEA} />
+          {/* the floor the pan would otherwise run off the bottom of */}
+          <rect x="0" y={SCENE_B} width={STAGE_W} height="540" fill={FLOOR} />
         </g>
-        <Fatima x={210} y={1040} frame={frame} scale={1.18} facing={1} enter={W4 + 6} sit smile nodAt={W4 + 146} />
-        {/* you: seated, then up and offering the seat */}
-        {!stands ? <Character who="you" x={712} y={1040} scale={1.18} facing={-1} frame={frame} enter={W4 + 4} legs={false} mood="neutral" /> : null}
-        {sat ? <Silhouette x={735} y={1040} frame={frame} scale={1.1} facing={-1} sit enter={W4 + 132} /> : null}
-        <CarriageFloor />
-        {stands ? (
-          <Character
-            who="you"
-            x={432}
-            y={1168}
-            scale={1.1}
-            facing={1}
-            frame={frame}
-            enter={W4 + 54}
-            mood="happy"
-            gesture="serve"
-            gestureAt={W4 + 70}
-          />
-        ) : null}
-        {!sat ? <Silhouette x={735} y={1168} frame={frame} scale={1.1} facing={-1} enter={W4 + 60} slideFrom={300} /> : null}
-        <SeatSign x={920} y={700} frame={frame} from={W4 + 12} k={0.92} />
-        <Glow frame={frame} from={W4 + 138} x={735} y={SEAT_T + 30} r={104} color={SEA} />
       </Stage>
       {/* Who the seat is for is acted out, not written: the card and the caption
           are the only text, so this beat keeps to one line on screen. */}
@@ -1116,7 +1144,7 @@ function PractiseScene({ frame }: { frame: number }) {
         <TickBadge x={440} y={1050} frame={frame} from={P_PAUSE + 6} k={0.72} />
         <TickBadge x={748} y={1050} frame={frame} from={P_PAUSE + 18} k={0.72} />
         {yourTurn ? (
-          <g>
+          <g opacity={micOut}>
             <g transform={`translate(150 266) scale(${turn}) translate(-150 -266)`}>
               <Pulse frame={frame} x={150} y={266} size={118}>
                 <g transform="translate(-30 -30) scale(2.5)" fill="none" stroke={INK} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -1186,9 +1214,10 @@ function RecapScene({ frame }: { frame: number }) {
           <div style={{ marginTop: 10, fontSize: 86, fontWeight: 800, color: INK }}>= do not</div>
         </div>
       </div>
-      {/* Zeigarnik: name the next visit, pinned to the sign that just slid in. */}
-      <div style={{ position: "absolute", left: 0, right: 0, top: 800, display: "flex", justifyContent: "center", opacity: tween(frame, R0 + 66, R0 + 82, 0, 1, EASE.out) }}>
-        <div style={{ background: "rgba(255,255,255,0.95)", borderRadius: 24, padding: "10px 30px", fontSize: 38, fontWeight: 800, color: INK }}>
+      {/* Zeigarnik: name the next visit. It sits on the platform band between the
+          two of them, where it clears both heads and the row of signs. */}
+      <div style={{ position: "absolute", left: 0, right: 0, top: 1078, display: "flex", justifyContent: "center", opacity: tween(frame, R0 + 66, R0 + 82, 0, 1, EASE.out) }}>
+        <div style={{ background: "rgba(255,255,255,0.95)", borderRadius: 22, padding: "8px 26px", fontSize: 34, fontWeight: 800, color: INK, whiteSpace: "nowrap" }}>
           <span style={{ color: FAINT, letterSpacing: 3 }}>TOMORROW </span>
           Mind the gap
         </div>
@@ -1201,11 +1230,13 @@ function RecapScene({ frame }: { frame: number }) {
 export function MetroExplainer({ l1 }: { l1?: Record<string, string> }) {
   const frame = useCurrentFrame();
   const beat = metroBeatAt(frame);
-  const progress = (frame - beat.from) / Math.max(1, Math.min(120, beat.to - beat.from));
-  // karaoke() compares a running character count against progress, so at exactly
-  // 1 the final word is still ahead of the playhead and stays grey. Every beat now
-  // holds on a stop frame, so an unlit last word is what the learner stares at
-  // while answering. Overshooting the cap lights the whole line a beat early.
+  // The caption has to be fully sung before the beat stops, or the learner answers
+  // while staring at a half-grey line. So it is paced to finish 20 frames before
+  // the stop, not over a fixed window. karaoke() also compares a running character
+  // count against progress, which leaves the final word unlit at exactly 1, hence
+  // the cap above 1.
+  const sungBy = (beat.pauseAt ?? beat.to) - 20;
+  const progress = (frame - beat.from) / Math.max(30, sungBy - beat.from);
   const k = karaoke(beat.line, Math.min(1.1, progress));
   const font: CSSProperties = { fontFamily: FONT };
   return (

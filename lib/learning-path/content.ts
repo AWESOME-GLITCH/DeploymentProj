@@ -97,7 +97,7 @@ export const ITEMS: Item[] = [
   I("ITM-LST-0405", "CRI-A2.1-LST-03-01", "LST", "read_aloud", { stem: { en: "Say it. Stress the end of fourteen." }, key: "Platform fourteen, not forty.", modality: "spoken", why: { en: "Platform fourTEEN, not FORty.", ar: "Platform fourTEEN, not FORty.", es: "Platform fourTEEN, not FORty." } }),
   I("ITM-LST-0406", "CRI-A2.1-LST-03-01", "LST", "pick_picture", { stem: { en: "Listen. Which platform?" }, audio: "Platform thirty.", pictures: [{ emoji: "13", label: "thirteen" }, { emoji: "30", label: "thirty" }, { emoji: "3", label: "three" }], key: 1, modality: "recognition", why: { en: "THIRty, stress at the start, so 30.", ar: "THIRty، النبرة في البداية، إذن 30.", es: "THIRty, acento al principio, así que 30." } }),
 
-  I("ITM-LST-0407", "CRI-A2.1-LST-03-01", "LST", "roleplay", { stem: { en: "Listen to the platform. Check the number you heard." }, config: { character: "Arjun", turns: [{ say: "The Dubai train leaves from platform fourteen.", keywords: ["sorry", "again", "pardon", "repeat", "did you say", "fourteen", "forty", "platform"] }, { say: "Fourteen. One four.", keywords: ["fourteen", "one four", "14", "thank", "thanks", "ok", "got it", "platform"] }], need: 2 }, modality: "spoken", why: { en: "Sorry, did you say fourteen or forty? Fourteen, thank you.", ar: "Sorry, did you say fourteen or forty? Fourteen, thank you.", es: "Sorry, did you say fourteen or forty? Fourteen, thank you." } }),
+  I("ITM-LST-0407", "CRI-A2.1-LST-03-01", "LST", "roleplay", { stem: { en: "Listen to the platform. Check the number you heard." }, config: { character: "Arjun", turns: [{ say: "The Dubai train leaves from platform fourteen.", keywords: ["sorry", "again", "pardon", "repeat", "did you say", "fourteen", "forty", "platform"] }, { say: "Fourteen. One four.", keywords: ["fourteen", "one four", "14", "thank", "thanks", "ok", "got it", "platform"] }, { say: "That's right. It leaves at six thirteen.", keywords: ["thirteen", "six thirteen", "6.13", "thank", "thanks", "ok", "got it"] }], need: 2 }, modality: "spoken", why: { en: "Sorry, did you say fourteen or forty? Fourteen, thank you.", ar: "Sorry, did you say fourteen or forty? Fourteen, thank you.", es: "Sorry, did you say fourteen or forty? Fourteen, thank you." } }),
 
   // Atom 4: Meet Fatima (A1.2 SPK-03-01)
   I("ITM-SPK-0501", "CRI-A1.2-SPK-03-01", "SPK", "shadow", { stem: { en: "Speak along with Fatima." }, key: "I live in Dubai and I work in a shop.", modality: "spoken", why: { en: "I LIVE in DuBAI and I WORK in a SHOP.", ar: "I LIVE in DuBAI and I WORK in a SHOP.", es: "I LIVE in DuBAI and I WORK in a SHOP." } }),
@@ -858,6 +858,7 @@ export const ITEM_CEFR: Record<string, CefrNote> = {
   "ITM-MED-0803": { level: "A2.1", descriptor: "Relaying specific information A2: identifies which number the payer needs" },
   "ITM-MED-0804": { level: "A2.1", descriptor: "Relaying specific information in speech A2: can relay specific information from a short simple text" },
   "ITM-MED-0805": { level: "A2.2", descriptor: "Processing text in speech A2: maps website onto internet to answer how" },
+  "ITM-MED-0806": { level: "A2.1", descriptor: "Relaying specific information in speech A2: gives the payment date from a short bill in one turn" },
 
   // Atom 8, We're out of oat milk. Dealing with a refusal and settling on an
   // alternative, which is Transactions A2.
@@ -866,6 +867,7 @@ export const ITEM_CEFR: Record<string, CefrNote> = {
   "ITM-INT-0903": { level: "A2.1", descriptor: "Identifying cues and inferring A2: works out out of from the situation" },
   "ITM-INT-0904": { level: "A2.1", descriptor: "Transactions to obtain goods and services A2: settles an alternative in three turns" },
   "ITM-INT-0905": { level: "A2.1", descriptor: "Understanding a native speaker interlocutor A2: hears that an item is unavailable" },
+  "ITM-INT-0906": { level: "A2.1", descriptor: "Transactions A2: asks for an alternative in one turn when the item is unavailable" },
 
   // Atom 9, Yesterday today tomorrow. Past simple of regular verbs and will
   // are both Core Inventory A2.
@@ -874,6 +876,7 @@ export const ITEM_CEFR: Record<string, CefrNote> = {
   "ITM-GRM-0303": { level: "A2.1", descriptor: "Grammatical accuracy A2: will for a future arrangement" },
   "ITM-GRM-0304": { level: "A2.1", descriptor: "Describing experience A2: says what they did and what they will do" },
   "ITM-GRM-0305": { level: "A2.1", descriptor: "Grammatical accuracy A2: will plus plain verb" },
+  "ITM-GRM-0306": { level: "A2.1", descriptor: "Describing experience A2: answers a question about yesterday with a past form" },
 
   // Atom 10, The bill please. Paying is the second half of Transactions A2.
   "ITM-INT-1001": { level: "A2.1", descriptor: "Transactions to obtain goods and services A2: asks for the bill" },
@@ -881,6 +884,7 @@ export const ITEM_CEFR: Record<string, CefrNote> = {
   "ITM-INT-1003": { level: "A1.2", descriptor: "Understanding a native speaker interlocutor A2: hears card against cash" },
   "ITM-INT-1004": { level: "A2.1", descriptor: "Transactions to obtain goods and services A2: asks for the bill in the scene" },
   "ITM-INT-1005": { level: "A2.1", descriptor: "Understanding announcements A2: hears bill in a minimal pair set" },
+  "ITM-INT-1006": { level: "A2.1", descriptor: "Transactions to obtain goods and services A2: asks for the bill and settles how to pay when the card machine fails" },
 
   // Day 5 and second session.
   "ITM-TEACH-0001": { level: "A2.1", descriptor: "Relaying specific information in speech A2: teaches the routine back to a classmate" },

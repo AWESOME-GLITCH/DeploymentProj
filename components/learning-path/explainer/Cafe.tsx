@@ -218,7 +218,7 @@ function NoticeScene({ frame }: { frame: number }) {
         ) },
       ]} />
       {/* the stop at the end of this line: a tap on the first one, then saying it */}
-      <Stage><TapCue frame={frame} from={bs + 114} x={470} y={700} kind={beat === 0 ? "tap" : "say"} size={86} /></Stage>
+      <Stage><TapCue frame={frame} from={bs + 114} x={140} y={1110} kind={beat === 0 ? "tap" : "say"} size={86} /></Stage>
       <SpeechBubble text="Hi there!" x={402} y={172} w={268} from={154} until={184} frame={frame} tail="right" tailX={168} size={46} typing={false} />
       {beat === 0 ? <SpeechBubble text="I'd like a coffee, please." targets={["I'd like", "please"]} x={58} y={128} w={580} from={196} frame={frame} tail="left" tailX={188} size={50} /> : null}
       {beat === 1 ? <SpeechBubble text="I'd like two coffees, please." targets={["I'd like", "please"]} x={58} y={128} w={580} from={322} frame={frame} tail="left" tailX={188} size={50} /> : null}
@@ -253,19 +253,61 @@ function ExplainScene({ frame }: { frame: number }) {
         {/* two faces: the same wish, two tones */}
         <FaceChip x={760} y={292} r={62} mood="think" frame={frame} from={636} skin="#e7b998" />
         <FaceChip x={820} y={556} r={70} mood="happy" frame={frame} from={700} skin="#f1c9a5" />
-        {/* sparkles by "please" */}
-        {[[640, 800, 1], [700, 760, 0.7], [690, 870, 0.6]].map(([x, y, k], i) => (
-          <g key={i} transform={`translate(${x} ${y}) scale(${spark(i) * (k as number)}) rotate(${local * 2})`} fill={SAFFRON}>
-            <path d="M0 -26 L6 -6 L26 0 L6 6 L0 26 L-6 6 L-26 0 L-6 -6 Z" />
-          </g>
-        ))}
+        <TapCue frame={frame} from={759} x={150} y={1105} kind="tap" size={86} />
       </Stage>
       <Eyebrow text="THE SAME WISH" x={80} y={150} frame={frame} from={600} />
       <KineticText frame={frame} from={606} text="I want" x={80} y={200} width={520} size={150} color={FAINT} stagger={6} strike={{ from: 660, color: PINK }} />
       <KineticText frame={frame} from={656} text="direct · a bit rude" x={80} y={380} size={46} color={FAINT} stagger={3} weight={700} />
       <KineticText frame={frame} from={676} text="I'd like" x={80} y={470} size={170} color={ACCENT} targets={["I'd like"]} targetColor={ACCENT} marker={SAFFRON} markerDelay={16} stagger={7} />
       <KineticText frame={frame} from={708} text="soft · polite · the cafe way" x={80} y={672} size={46} color={INK} stagger={3} weight={700} />
-      <KineticText frame={frame} from={744} text="+ please" x={80} y={760} size={120} color={SAFFRON} stagger={6} style={{ textShadow: "0 5px 0 rgba(27,29,58,0.10)" }} />
+    </AbsoluteFill>
+  );
+}
+
+// ------------------------------------- explain, part two: and please makes it warm
+/** One word tile of the sentence being built. */
+function Tile({ frame, from, text, x, y, size, bg, fg, rot = 0 }: { frame: number; from: number; text: string; x: number; y: number; size: number; bg: string; fg: string; rot?: number }) {
+  const s = springIn(frame, from, { damping: 10, stiffness: 160 });
+  if (frame < from) return null;
+  return (
+    <div style={{ position: "absolute", left: x, top: y, transform: `translateY(${(1 - s) * 70}px) scale(${0.72 + 0.28 * s}) rotate(${rot}deg)`, opacity: Math.min(1, s * 2.5), transformOrigin: "20% 100%" }}>
+      <div style={{ position: "absolute", inset: 0, transform: "translate(9px, 11px)", background: INK, borderRadius: 30 }} />
+      <div style={{ position: "relative", background: bg, border: `6px solid ${INK}`, borderRadius: 30, padding: "12px 30px 20px", fontSize: size, fontWeight: 800, lineHeight: 1.1, color: fg, whiteSpace: "nowrap" }}>{text}</div>
+    </div>
+  );
+}
+
+function PoliteScene({ frame }: { frame: number }) {
+  const local = frame - 795;
+  const spark = (i: number) => springIn(local, 80 + i * 5, { damping: 7, stiffness: 240 });
+  const warm = tween(local, 92, 150, 0, 1, EASE.out);
+  return (
+    <AbsoluteFill style={{ background: PAPER }}>
+      <Stage>
+        <defs><pattern id="dots2" width="44" height="44" patternUnits="userSpaceOnUse"><circle cx="22" cy="22" r="3" fill={INK} opacity="0.08" /></pattern></defs>
+        <rect width="1080" height="1440" fill="url(#dots2)" />
+        {/* the warmth spreading from the word to the person hearing it */}
+        <circle cx={790} cy={880} r={300 * warm} fill={SAFFRON} opacity={0.16 * warm} />
+        <circle cx={790} cy={880} r={190 * warm} fill={SAFFRON} opacity={0.14 * warm} />
+        {/* the barista hears it and warms up */}
+        <Character who="leo" x={790} y={1186} scale={0.95} facing={-1} frame={frame} enter={758} mood={local > 100 ? "happy" : "neutral"} gaze={-0.6} gesture={local < 100 ? "idle" : "serve"} gestureAt={899} from="idle" />
+        <rect x="90" y="1046" width="900" height="150" rx="8" fill={WOOD} />
+        <rect x="90" y="1046" width="900" height="26" rx="8" fill={WOOD_LIGHT} />
+        <rect x="90" y="1190" width="900" height="16" rx="6" fill={WOOD_DARK} />
+        <Cup kind="mug" x={420} y={1046} frame={frame} appear={906} slideFrom={200} seed={6} />
+        <Plant x={160} y={1046} scale={0.7} frame={frame} seed={3} />
+        {/* sparkles on "please." */}
+        {[[742, 560, 1], [800, 512, 0.7], [790, 636, 0.6]].map(([x, y, k], i) => (
+          <g key={i} transform={`translate(${x} ${y}) scale(${spark(i) * (k as number)}) rotate(${local * 2})`} fill={SAFFRON}>
+            <path d="M0 -26 L6 -6 L26 0 L6 6 L0 26 L-6 6 L-26 0 L-6 -6 Z" />
+          </g>
+        ))}
+        <TapCue frame={frame} from={954} x={150} y={880} kind="tap" size={86} />
+      </Stage>
+      <Eyebrow text="ONE MORE WORD" x={80} y={150} frame={frame} from={796} />
+      <Tile frame={frame} from={800} text="I'd like" x={80} y={204} size={104} bg="#fff" fg={ACCENT} rot={-1.5} />
+      <Tile frame={frame} from={824} text="a coffee" x={300} y={372} size={92} bg="#fff" fg={INK} rot={1.5} />
+      <Tile frame={frame} from={866} text="please." x={150} y={530} size={128} bg={SAFFRON} fg={INK} rot={-2} />
     </AbsoluteFill>
   );
 }
@@ -277,11 +319,11 @@ function PractiseScene({ frame }: { frame: number }) {
   const words = PRACTISE_LINE.split(" ");
   const total = PRACTISE_LINE.length;
   let acc = 0;
-  const reach = words.map((w) => { acc += w.length + 1; return 1050 + (acc / total) * 120; });
+  const reach = words.map((w) => { acc += w.length + 1; return 1036 + (acc / total) * 104; });
   const circle = springIn(frame, 990, { damping: 11, stiffness: 120 });
-  const yourTurn = local >= 210;
-  const turn = springIn(frame, 1200, { damping: 9, stiffness: 160 });
-  const mayaGesture = local < 205 ? { g: "raise" as const, at: 1008, from: "idle" as const } : { g: "point" as const, at: 1195, from: "raise" as const };
+  // the mic cue springs in 24 frames before the stop, so it has arrived on the held frame
+  const yourTurn = frame >= 1162;
+  const mayaGesture = local < 168 ? { g: "raise" as const, at: 1008, from: "idle" as const } : { g: "point" as const, at: 1158, from: "raise" as const };
   return (
     <AbsoluteFill style={{ background: "#eef0ff" }}>
       <Stage>
@@ -296,14 +338,7 @@ function PractiseScene({ frame }: { frame: number }) {
         </g>
         {/* her voice, then yours */}
         <Waveform x={540} y={1168} frame={frame} from={1012} width={620} bars={27} color={yourTurn ? SEA : ACCENT} height={yourTurn ? 110 : 76} seed={4} />
-        {yourTurn ? (
-          <g transform={`translate(150 250) scale(${turn}) translate(-150 -250)`}>
-            <Pulse frame={frame} x={150} y={250} size={120}>
-              <g transform="translate(-30 -30) scale(2.5)" fill="none" stroke={INK} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="2" width="6" height="12" rx="3" /><path d="M5 10a7 7 0 0 0 14 0M12 17v5M8 22h8" /></g>
-            </Pulse>
-            <text x="150" y="358" textAnchor="middle" fontFamily={FONT} fontWeight="800" fontSize="36" fill={INK}>Your turn</text>
-          </g>
-        ) : null}
+        <TapCue frame={frame} from={1162} x={150} y={250} kind="say" size={120} label="Your turn" />
       </Stage>
       <Eyebrow text="SAY IT WITH ME" x={0} y={812} align="center" frame={frame} from={1000} />
       <div style={{ position: "absolute", left: 60, right: 60, top: 868, display: "flex", flexWrap: "wrap", justifyContent: "center", columnGap: 26, fontSize: 92, fontWeight: 800, lineHeight: 1.15, zIndex: 0 }}>
@@ -318,6 +353,50 @@ function PractiseScene({ frame }: { frame: number }) {
             </span>
           );
         })}
+      </div>
+    </AbsoluteFill>
+  );
+}
+
+// -------------------------------------- again: the same pattern, a new word
+/** The learner says the line in a new situation. The scene shows the situation
+ *  (a tea on the counter, the barista waiting) and holds the sentence open with
+ *  a gap, so the learner can produce the word before the video fills it in. */
+function AgainScene({ frame }: { frame: number }) {
+  const pop = (from: number) => springIn(frame, from, { damping: 9, stiffness: 190 });
+  const filled = frame >= 1290;
+  const slot = pop(1290);
+  const word = (text: string, from: number) => {
+    const s = pop(from);
+    return <span style={{ display: "inline-block", opacity: Math.min(1, s * 2.5), transform: `translateY(${(1 - s) * 40}px) scale(${0.7 + 0.3 * s})` }}>{text}</span>;
+  };
+  return (
+    <AbsoluteFill style={{ background: CREAM }}>
+      <Stage>
+        <rect width="1080" height="1440" fill={CREAM} />
+        <rect x="0" y="826" width="1080" height="200" fill="#e9d8bf" />
+        <rect x="0" y="820" width="1080" height="12" fill={WOOD_LIGHT} />
+        {/* the menu is the situation: the learner can see the tea on it */}
+        <MenuBoard x={650} y={450} w={350} h={300} />
+        <WallShelf x={80} y={508} w={250} frame={frame} seed={3} />
+        <Character who="leo" x={290} y={1200} scale={1} facing={1} frame={frame} enter={1164} mood="happy" gaze={0.8} gesture="listen" gestureAt={1218} />
+        <rect x="0" y="1020" width="1080" height="180" fill={WOOD} />
+        <rect x="0" y="1020" width="1080" height="26" fill={WOOD_LIGHT} />
+        <rect x="0" y="1190" width="1080" height="18" fill={WOOD_DARK} />
+        <Cup kind="tea" x={700} y={1018} frame={frame} appear={1236} slideFrom={160} dunkAt={1272} seed={4} />
+        <Plant x={1030} y={1018} scale={0.8} frame={frame} seed={7} />
+        <rect x="0" y="1208" width="1080" height="240" fill="#e4d7c4" />
+        <TapCue frame={frame} from={1296} x={540} y={636} kind="say" size={104} />
+      </Stage>
+      <Eyebrow text="NOW YOU" x={0} y={150} align="center" frame={frame} from={1206} />
+      <div style={{ position: "absolute", left: 60, right: 60, top: 296, display: "flex", alignItems: "center", justifyContent: "center", gap: 22, fontSize: 72, fontWeight: 800, color: INK }}>
+        {word("I'd like", 1230)}
+        <span style={{ position: "relative", display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: 238, height: 108, borderRadius: 26, padding: "0 18px", opacity: Math.min(1, pop(1240) * 2.5), border: `5px dashed ${filled ? "transparent" : INK}`, background: filled ? "transparent" : "rgba(27,29,58,0.06)" }}>
+          {filled
+            ? <span style={{ position: "relative", display: "inline-block", color: ACCENT, transform: `scale(${0.72 + 0.28 * slot})`, zIndex: 0 }}>a tea<Highlight frame={frame} from={1298} color={SAFFRON} /></span>
+            : <span style={{ color: FAINT }}>?</span>}
+        </span>
+        {word("please.", 1248)}
       </div>
     </AbsoluteFill>
   );
@@ -338,13 +417,21 @@ function RecapScene({ frame }: { frame: number }) {
         <Character who="you" x={930} y={1205} scale={0.85} facing={-1} frame={frame} enter={1396} slideFrom={160} mood="happy" gaze={0.6} gesture="thumbs" gestureAt={1408} />
         <Confetti frame={frame} from={1354} count={90} seed={11} />
       </Stage>
-      <div style={{ position: "absolute", left: 80, right: 80, top: 230, transform: `scale(${a}) rotate(${(1 - a) * -5}deg)`, transformOrigin: "50% 50%" }}>
+      {/* What the learner can now do, then the next stop on the road: the loop
+          stays open on purpose. */}
+      <div style={{ position: "absolute", left: 70, right: 70, top: 210, transform: `scale(${a}) rotate(${(1 - a) * -5}deg)`, transformOrigin: "50% 50%" }}>
         <div style={{ position: "absolute", inset: 0, transform: "translate(10px, 14px)", background: INK, borderRadius: 60 }} />
-        <div style={{ position: "relative", background: "#fff", borderRadius: 60, padding: "54px 60px 60px", textAlign: "center" }}>
-          <div style={{ fontSize: 38, fontWeight: 800, letterSpacing: 6, color: FAINT }}>REMEMBER</div>
-          <div style={{ position: "relative", display: "inline-block", fontSize: 140, fontWeight: 800, color: ACCENT, lineHeight: 1.05, marginTop: 16, zIndex: 0 }}>I'd like<Highlight frame={frame} from={1384} color={SAFFRON} /></div>
-          <div style={{ fontSize: 68, fontWeight: 700, color: FAINT, margin: "10px 0" }}>… a coffee …</div>
-          <div style={{ position: "relative", display: "inline-block", fontSize: 140, fontWeight: 800, color: SAFFRON, lineHeight: 1.05, textShadow: "0 5px 0 rgba(27,29,58,0.10)", zIndex: 0 }}>please.</div>
+        <div style={{ position: "relative", background: "#fff", borderRadius: 60, padding: "48px 54px 54px", textAlign: "center" }}>
+          <div style={{ fontSize: 38, fontWeight: 800, letterSpacing: 6, color: FAINT }}>YOU CAN NOW</div>
+          <div style={{ fontSize: 92, fontWeight: 800, color: INK, lineHeight: 1.08, margin: "14px 0 6px" }}>
+            Order a coffee <span style={{ position: "relative", display: "inline-block", color: ACCENT, zIndex: 0 }}>politely<Highlight frame={frame} from={1392} color={SAFFRON} /></span>
+          </div>
+          <div style={{ fontSize: 62, fontWeight: 700, color: FAINT, marginTop: 14 }}>
+            <span style={{ color: ACCENT }}>I&rsquo;d like</span> … a coffee … <span style={{ color: "#b07c10" }}>please.</span>
+          </div>
+          <div style={{ marginTop: 34, transform: `scale(${springIn(frame, 1470, { damping: 10, stiffness: 150 })})` }}>
+            <span style={{ display: "inline-block", background: SAFFRON, border: `5px solid ${INK}`, borderRadius: 999, padding: "14px 34px", fontSize: 40, fontWeight: 800, color: INK }}>Tomorrow: two coffees →</span>
+          </div>
         </div>
       </div>
     </AbsoluteFill>
@@ -362,12 +449,17 @@ export function CafeExplainer({ l1 }: { l1?: Record<string, string> }) {
     <AbsoluteFill style={{ ...font, background: PAPER, overflow: "hidden" }}>
       {beat.kind === "hook" ? <HookScene frame={frame} /> : null}
       {beat.kind === "notice" ? <NoticeScene frame={frame} /> : null}
-      {beat.kind === "explain" ? <ExplainScene frame={frame} /> : null}
-      {beat.kind === "practise" ? <PractiseScene frame={frame} /> : null}
+      {beat.id === "explain" ? <ExplainScene frame={frame} /> : null}
+      {beat.id === "polite" ? <PoliteScene frame={frame} /> : null}
+      {beat.id === "practise" ? <PractiseScene frame={frame} /> : null}
+      {beat.id === "again" ? <AgainScene frame={frame} /> : null}
       {beat.kind === "recap" ? <RecapScene frame={frame} /> : null}
       <Transition frame={frame} at={150} kind="wipe" color={SAFFRON} color2={INK} />
       <Transition frame={frame} at={600} kind="iris" color={PAPER} color2={ACCENT} cx={540} cy={720} />
+      <Transition frame={frame} at={795} kind="wipe" duration={18} color={SAFFRON} color2={INK} />
       <Transition frame={frame} at={990} kind="slide" color={ACCENT} color2={SAFFRON} />
+      {/* out of Maya's circle and back into the cafe for the new word */}
+      <Transition frame={frame} at={1200} kind="iris" color={CREAM} color2={SAFFRON} cx={540} cy={460} />
       <Transition frame={frame} at={1350} kind="wipe" color={SAFFRON} color2={INK} />
       <CaptionBar line={beat.line} k={k} targets={beat.target} l1={l1?.[beat.id]} />
       <BeatProgress frame={frame} beats={CAFE_BEATS} />

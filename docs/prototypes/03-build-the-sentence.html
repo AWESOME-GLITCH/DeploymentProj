@@ -1,0 +1,770 @@
+<!doctype html>
+<html lang="en-GB" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Build the sentence - Learning Path</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ---------------------------------------------------------------
+   Build the sentence - prototype 3
+   Board-approved direction: flat colour blocks, ink outlines,
+   hand-drawn characters, black pill button, springy motion.
+   One block colour (sun), one headline, one button.
+   --------------------------------------------------------------- */
+
+:root{
+  --sun:#FFD93D;
+  --ink:#121212;
+  --cream:#FFF7E8;
+  --paper:#FFFFFF;
+
+  --page:var(--cream);
+  --on-page:var(--ink);
+  --line:var(--ink);            /* outlines drawn on the page */
+  --block:var(--sun);           /* the one block colour */
+  --on-block:var(--ink);
+  --btn-bg:var(--ink);
+  --btn-fg:var(--cream);
+
+  --spring:cubic-bezier(.34,1.56,.64,1);
+  --ease:cubic-bezier(.2,.8,.3,1);
+}
+html[data-theme="dark"]{
+  --page:#121212;
+  --on-page:#FFF7E8;
+  --line:#FFF7E8;
+  --btn-bg:#FFF7E8;
+  --btn-fg:#121212;
+}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0;overflow:hidden}
+body{
+  background:var(--page);
+  color:var(--on-page);
+  font-family:'Plus Jakarta Sans','Segoe UI',system-ui,-apple-system,sans-serif;
+  font-weight:600;
+  transition:background-color .3s var(--ease),color .3s var(--ease);
+}
+
+/* ---------- shell ---------- */
+.app{
+  position:relative;
+  display:flex;flex-direction:column;
+  width:100%;max-width:430px;margin:0 auto;
+  height:100dvh;max-height:100dvh;
+  padding:14px 20px 18px;
+  gap:12px;
+  overflow:hidden;
+}
+
+/* ---------- top row: back, progress, theme ---------- */
+.top{flex:none;display:flex;align-items:center;gap:12px;height:44px}
+.icon-btn{
+  width:44px;height:44px;flex:none;
+  display:grid;place-items:center;
+  border:3px solid var(--line);border-radius:999px;
+  background:transparent;color:var(--on-page);
+  cursor:pointer;
+  transition:transform .2s var(--spring),background-color .2s var(--ease),color .2s var(--ease);
+}
+.icon-btn:active{transform:scale(.92)}
+.icon-btn svg{width:20px;height:20px;display:block}
+.bar{
+  flex:1;height:12px;border-radius:999px;
+  background:color-mix(in srgb,var(--line) 18%,transparent);
+  overflow:hidden;
+}
+.bar i{
+  display:block;height:100%;width:0;border-radius:999px;
+  background:var(--line);
+  transition:width .38s var(--spring);
+}
+
+/* ---------- headline ---------- */
+.head{flex:none}
+h1{
+  margin:0;
+  font-size:34px;line-height:1.05;font-weight:800;letter-spacing:-.02em;
+}
+.sub{margin:6px 0 0;font-size:16px;font-weight:600;opacity:.72;line-height:1.3}
+.pop{animation:pop .34s var(--spring) both}
+@keyframes pop{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:none}}
+
+/* ---------- the card: the one block colour ---------- */
+.card{
+  position:relative;
+  flex:1 1 auto;min-height:0;
+  background:var(--block);
+  border:3px solid var(--ink);
+  border-radius:28px;
+  padding:18px 18px 10px;
+  display:flex;flex-direction:column;
+  color:var(--on-block);
+  overflow:hidden;
+  animation:cardIn .4s var(--spring) both;
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
+
+/* slot row - the sentence being built, words sit on ink underlines */
+.slots{
+  flex:none;display:flex;flex-wrap:wrap;gap:8px 8px;
+  align-content:flex-start;justify-content:center;
+  min-height:96px;
+}
+.slot{
+  position:relative;
+  min-width:42px;height:42px;
+  display:grid;place-items:center;
+  padding:0 2px;
+  font-size:20px;font-weight:800;letter-spacing:-.01em;
+  border:0;background:transparent;color:var(--ink);
+  font-family:inherit;
+  transition:min-width .34s var(--spring);
+}
+.slot::after{
+  content:"";position:absolute;left:0;right:0;bottom:2px;height:4px;
+  border-radius:999px;background:var(--ink);opacity:.34;
+  transition:opacity .2s var(--ease),transform .3s var(--spring);
+}
+.slot.filled{cursor:pointer}
+.slot.filled::after{opacity:1}
+.slot.next::after{animation:waiting 1.6s ease-in-out infinite}
+@keyframes waiting{0%,100%{transform:scaleX(1);opacity:.34}50%{transform:scaleX(1);opacity:.85}}
+.slot .word{display:inline-block;animation:land .34s var(--spring) both}
+@keyframes land{from{transform:translateY(-6px) scale(1.12)}to{transform:none}}
+.slots.nudge{animation:nudge .36s var(--ease) both}
+@keyframes nudge{0%,100%{transform:translateX(0)}30%{transform:translateX(-5px)}65%{transform:translateX(4px)}}
+
+/* stage: the coach and her stickers */
+.stage{position:relative;flex:1 1 auto;min-height:0;display:grid;place-items:end center}
+.coach{
+  height:100%;max-height:260px;width:auto;display:block;
+  cursor:pointer;background:none;border:0;padding:0;
+}
+.coach svg{height:100%;width:auto;display:block;overflow:visible}
+.breathe{animation:breathe 3s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-5px) rotate(-1deg)}}
+
+/* speech bubble for what the learner said */
+.bubble{
+  position:absolute;left:0;top:2px;max-width:66%;
+  background:var(--cream);border:3px solid var(--ink);border-radius:20px 20px 20px 6px;
+  padding:9px 13px;font-size:15px;font-weight:700;line-height:1.25;
+  animation:pop .3s var(--spring) both;
+}
+
+/* stickers */
+.sticker{position:absolute;color:var(--ink);pointer-events:none}
+.sticker svg{display:block;width:100%;height:100%}
+.tw{animation:twinkle 4s ease-in-out infinite}
+@keyframes twinkle{0%,100%{transform:scale(1) rotate(0);opacity:.95}50%{transform:scale(1.18) rotate(12deg);opacity:.55}}
+.burst{animation:burst .4s var(--spring) both}
+@keyframes burst{from{transform:scale(0) rotate(-40deg)}60%{transform:scale(1.15) rotate(6deg)}to{transform:scale(1) rotate(0)}}
+
+/* ---------- word bank ---------- */
+.bank{
+  flex:none;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;
+  min-height:108px;align-content:flex-start;
+  transition:opacity .2s var(--ease),transform .2s var(--ease);
+}
+.bank.out{opacity:0;transform:translateY(10px)}
+.tile{
+  font-family:inherit;font-size:18px;font-weight:700;
+  padding:0 16px;height:46px;
+  border:3px solid var(--line);border-radius:999px;
+  background:transparent;color:var(--on-page);
+  cursor:pointer;
+  animation:pop .34s var(--spring) both;
+  transition:transform .18s var(--spring),background-color .18s var(--ease),color .18s var(--ease);
+}
+.tile:active{transform:scale(.94)}
+.tile.spent{visibility:hidden}
+.tile.wobble{animation:wobble .4s var(--ease) both}
+@keyframes wobble{
+  0%{transform:translateY(0) rotate(0)}
+  25%{transform:translateY(-12px) rotate(-5deg)}
+  50%{transform:translateY(-4px) rotate(5deg)}
+  75%{transform:translateY(0) rotate(-3deg)}
+  100%{transform:translateY(0) rotate(0)}
+}
+/* the flying clone: a pill that becomes bare ink text as it lands */
+.fly{
+  position:fixed;margin:0;z-index:9;pointer-events:none;
+  display:grid;place-items:center;
+  font-family:inherit;font-weight:800;
+  border:3px solid var(--line);border-radius:999px;
+  background:transparent;color:var(--on-page);
+  transition:border-color .22s var(--ease),color .22s var(--ease);
+}
+.fly.bare{border-color:transparent;color:var(--ink)}
+.fly.toBank{border-color:var(--line);color:var(--on-page)}
+
+/* ---------- typed fallback ---------- */
+.typed{flex:none;display:flex;flex-direction:column;gap:8px;min-height:108px;justify-content:center}
+.typed input{
+  font-family:inherit;font-size:18px;font-weight:700;
+  height:52px;padding:0 18px;width:100%;
+  border:3px solid var(--line);border-radius:999px;
+  background:transparent;color:var(--on-page);
+}
+.typed input::placeholder{color:var(--on-page);opacity:.4}
+.note{margin:0;font-size:14px;font-weight:600;opacity:.7;text-align:center}
+
+/* ---------- the one button ---------- */
+.cta{flex:none;display:flex;flex-direction:column;align-items:center;gap:8px}
+.btn{
+  font-family:inherit;font-size:18px;font-weight:700;
+  width:100%;height:56px;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  border:0;border-radius:999px;
+  background:var(--btn-bg);color:var(--btn-fg);
+  cursor:pointer;
+  transition:transform .22s var(--spring),opacity .3s var(--ease);
+}
+.btn:active{transform:scale(.97)}
+.btn[disabled]{opacity:.26;pointer-events:none}
+.btn.ready{animation:ready .4s var(--spring) both}
+@keyframes ready{from{transform:scale(.94)}60%{transform:scale(1.04)}to{transform:scale(1)}}
+.btn .chev{font-size:20px;line-height:1}
+.btn .dots i{
+  display:inline-block;width:8px;height:8px;margin:0 2px;border-radius:999px;
+  background:var(--btn-fg);animation:listen 1s ease-in-out infinite;
+}
+.btn .dots i:nth-child(2){animation-delay:.15s}
+.btn .dots i:nth-child(3){animation-delay:.3s}
+@keyframes listen{0%,100%{transform:translateY(0);opacity:.45}50%{transform:translateY(-5px);opacity:1}}
+.link{
+  background:none;border:0;padding:4px;font-family:inherit;
+  font-size:15px;font-weight:700;color:var(--on-page);opacity:.72;
+  text-decoration:underline;text-underline-offset:3px;cursor:pointer;
+}
+
+/* ---------- focus and motion preferences ---------- */
+:focus{outline:none}
+:focus-visible{outline:3px solid var(--line);outline-offset:3px;border-radius:999px}
+.card :focus-visible{outline-color:var(--ink)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+@media (prefers-reduced-motion:reduce){
+  .tw,.breathe,.slot.next::after,.btn .dots i{animation:none!important}
+  *{animation-duration:.01ms!important}
+}
+
+/* ---------- Maya: moods swap groups in and out ---------- */
+.v{display:none}
+svg[data-mood="idle"] .v-idle,
+svg[data-mood="lean"] .v-lean,
+svg[data-mood="cheer"] .v-cheer{display:block}
+.blink{animation:blink 5s steps(1,end) infinite}
+@keyframes blink{0%,96%{transform:scaleY(1)}97%,99%{transform:scaleY(.1)}100%{transform:scaleY(1)}}
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- top row -->
+  <div class="top">
+    <button class="icon-btn" id="back" aria-label="Back to the lesson">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5 8 12l7 7"/></svg>
+    </button>
+    <div class="bar" role="progressbar" aria-label="Progress in this exercise" aria-valuemin="0" aria-valuemax="7" aria-valuenow="0" id="barBox"><i id="bar"></i></div>
+    <button class="icon-btn" id="theme" aria-label="Dark mode" aria-pressed="false">
+      <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="4.4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.2 5.2l1.6 1.6M17.2 17.2l1.6 1.6M18.8 5.2l-1.6 1.6M6.8 17.2l-1.6 1.6"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- one headline, one line -->
+  <div class="head">
+    <h1 id="title">Build the sentence</h1>
+    <p class="sub" id="sub">Ask for the bill in a cafe.</p>
+  </div>
+
+  <!-- the card: one block colour -->
+  <div class="card" id="card">
+    <div class="slots" id="slots" role="group" aria-label="Your sentence"></div>
+
+    <div class="stage" id="stage">
+      <button class="coach" id="coach" aria-label="Hear the sentence">
+        <svg id="maya" class="breathe" viewBox="0 0 220 250" data-mood="idle" role="img" aria-label="Maya the coach, holding a bill">
+          <defs>
+            <filter id="wob" x="-12%" y="-12%" width="124%" height="124%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="2" seed="7" result="n"/>
+              <feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/>
+            </filter>
+          </defs>
+
+          <g filter="url(#wob)" fill="none" stroke="#121212" stroke-width="4.6" stroke-linecap="round" stroke-linejoin="round">
+
+            <!-- body -->
+            <path d="M66 248c0-46 14-74 44-74s44 28 44 74" fill="#FFF7E8"/>
+            <path d="M92 176c6 9 12 13 18 13s12-4 18-13" fill="none"/>
+
+            <!-- hair behind -->
+            <path d="M62 104c-6-44 16-70 48-70s54 26 48 70c-4-24-18-36-30-40-12 24-50 14-56-2-6 8-9 24-10 42z" fill="#121212" stroke="#121212"/>
+
+            <!-- face -->
+            <circle cx="110" cy="104" r="40" fill="#FFF7E8"/>
+
+            <!-- fringe over the forehead -->
+            <path d="M72 92c6-30 22-44 40-44 20 0 34 14 38 36-10-14-22-20-34-16-12 4-18 14-22 24z" fill="#121212" stroke="#121212"/>
+
+            <!-- eyes -->
+            <g class="v v-idle">
+              <g class="blink" style="transform-origin:96px 108px"><circle cx="96" cy="108" r="4.6" fill="#121212" stroke="none"/></g>
+              <g class="blink" style="transform-origin:126px 108px"><circle cx="126" cy="108" r="4.6" fill="#121212" stroke="none"/></g>
+              <path d="M100 126c6 5 14 5 21 0" stroke-width="4.4"/>
+              <circle cx="80" cy="122" r="5" fill="#FF5A2D" stroke="none" opacity=".35"/>
+              <circle cx="141" cy="122" r="5" fill="#FF5A2D" stroke="none" opacity=".35"/>
+            </g>
+            <g class="v v-lean">
+              <circle cx="97" cy="110" r="4.6" fill="#121212" stroke="none"/>
+              <circle cx="127" cy="110" r="4.6" fill="#121212" stroke="none"/>
+              <path d="M104 126c5-4 12-4 16 1" stroke-width="4.4"/>
+              <path d="M86 98c4-5 11-6 16-2M120 96c5-4 12-3 16 2" stroke-width="4"/>
+            </g>
+            <g class="v v-cheer">
+              <path d="M88 106c4-6 12-6 16 0M118 106c4-6 12-6 16 0" stroke-width="4.6"/>
+              <path d="M97 122c8 14 24 14 32 0z" fill="#121212" stroke="#121212"/>
+              <circle cx="80" cy="122" r="6" fill="#FF5A2D" stroke="none" opacity=".4"/>
+              <circle cx="141" cy="122" r="6" fill="#FF5A2D" stroke="none" opacity=".4"/>
+            </g>
+
+            <!-- arms: resting, holding the bill -->
+            <g class="v v-idle">
+              <path d="M74 194c-14 8-20 22-18 38" stroke-width="8"/>
+              <path d="M146 192c16 2 26-6 30-18" stroke-width="8"/>
+              <g transform="rotate(-9 182 160)">
+                <path d="M164 118h36v48h-36z" fill="#FFF7E8"/>
+                <path d="M164 166l6 6 6-6 6 6 6-6 6 6 6-6" />
+                <path d="M171 131h22M171 142h22M171 153h12" stroke-width="3.4"/>
+              </g>
+            </g>
+            <!-- arms: leaning in to listen -->
+            <g class="v v-lean">
+              <path d="M74 194c-14 8-20 22-18 38" stroke-width="8"/>
+              <path d="M148 190c14-6 20-18 16-30" stroke-width="8"/>
+              <path d="M150 112c12-4 20 4 20 14s-8 16-18 14" stroke-width="4.4" fill="#FFF7E8"/>
+            </g>
+            <!-- arms: up, cheering -->
+            <g class="v v-cheer">
+              <path d="M72 190c-16-10-22-28-18-46" stroke-width="8"/>
+              <path d="M148 190c18-8 26-26 24-44" stroke-width="8"/>
+              <path d="M46 138c-2-7 2-12 8-13M166 140c2-7-2-12-8-13" stroke-width="4.4"/>
+            </g>
+          </g>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- the word bank (build phase) -->
+  <div class="bank" id="bank" role="group" aria-label="Word tiles"></div>
+
+  <!-- the typed fallback (speak phase, no mic) -->
+  <div class="typed" id="typed" hidden>
+    <input id="say" type="text" autocomplete="off" autocapitalize="sentences" spellcheck="false"
+           placeholder="Type what you would say" aria-label="Type the sentence you would say">
+    <p class="note" id="note">No mic here, so type it instead.</p>
+  </div>
+
+  <!-- the one button -->
+  <div class="cta">
+    <button class="btn" id="cta" disabled>Say it <span class="chev" aria-hidden="true">&#187;</span></button>
+    <button class="link" id="alt" hidden>Type it instead</button>
+  </div>
+
+  <p class="sr" role="status" aria-live="polite" id="live"></p>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var SPRING = "cubic-bezier(.34,1.56,.64,1)";
+  var TARGET = ["Could","I","have","the","bill,","please?"];
+  var SENTENCE = "Could I have the bill, please?";
+  var POOL = ["have","Could","money","the","please?","I","want","bill,"];
+
+  var el = function(id){ return document.getElementById(id); };
+  var slots = el("slots"), bank = el("bank"), cta = el("cta"), alt = el("alt");
+  var title = el("title"), sub = el("sub"), live = el("live"), bar = el("bar");
+  var maya = el("maya"), stage = el("stage"), card = el("card");
+  var typed = el("typed"), say = el("say"), note = el("note");
+
+  var placed = [];          /* tiles currently in the slots, in order */
+  var phase = "build";      /* build | ready | speak | done */
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------- stickers: six shapes, never the same twice ---------- */
+  var SHAPES = {
+    star:"<svg viewBox='0 0 100 100' fill='currentColor'><path d='M50 0l11 39 39 11-39 11-11 39-11-39L0 50l39-11z'/></svg>",
+    heart:"<svg viewBox='0 0 100 100' fill='currentColor'><path d='M50 88C10 60 4 34 20 20c14-12 28-2 30 8 2-10 16-20 30-8 16 14 10 40-30 68z'/></svg>",
+    sparkle:"<svg viewBox='0 0 100 100' fill='currentColor'><path d='M50 2c4 28 20 44 48 48-28 4-44 20-48 48-4-28-20-44-48-48 28-4 44-20 48-48z'/></svg>",
+    squiggle:"<svg viewBox='0 0 100 100' fill='none' stroke='currentColor' stroke-width='9' stroke-linecap='round'><path d='M6 34c14-24 30 24 44 0s30 24 44 0'/></svg>",
+    asterisk:"<svg viewBox='0 0 100 100' fill='none' stroke='currentColor' stroke-width='9' stroke-linecap='round'><path d='M50 6v88M6 50h88M19 19l62 62M81 19L19 81'/></svg>",
+    ring:"<svg viewBox='0 0 100 100' fill='none' stroke='currentColor' stroke-width='9'><circle cx='50' cy='50' r='38'/></svg>"
+  };
+  var lastSticker = null;
+  function pickSticker(){
+    var keys = Object.keys(SHAPES).filter(function(k){ return k !== lastSticker; });
+    lastSticker = keys[Math.floor(Math.random()*keys.length)];
+    return lastSticker;
+  }
+  function sticker(shape, css, cls){
+    var s = document.createElement("span");
+    s.className = "sticker " + (cls || "tw");
+    s.style.cssText = css;
+    s.innerHTML = SHAPES[shape];
+    stage.appendChild(s);
+    return s;
+  }
+  /* the quiet idle stickers around Maya */
+  sticker("star", "width:22px;height:22px;right:4px;top:6px;animation-delay:.4s");
+  sticker("sparkle", "width:16px;height:16px;left:10px;top:52px;animation-delay:1.6s");
+  sticker("squiggle", "width:26px;height:16px;left:0;bottom:18px;animation-delay:2.6s");
+
+  /* ---------- small helpers ---------- */
+  function mood(m){ maya.setAttribute("data-mood", m); }
+  /* fade the bank out first, so the card does not snap open under it */
+  function dropBank(){
+    bank.classList.add("out");
+    setTimeout(function(){ bank.hidden = true; bank.classList.remove("out"); }, 200);
+  }
+  function announce(msg){ live.textContent = msg; }
+  function setTitle(h, s){
+    title.textContent = h; sub.textContent = s;
+    title.classList.remove("pop"); sub.classList.remove("pop");
+    void title.offsetWidth;
+    title.classList.add("pop"); sub.classList.add("pop");
+  }
+  function progress(){
+    var n = placed.length + (phase === "done" ? 1 : 0);
+    bar.style.width = (n / 7 * 100) + "%";
+    el("barBox").setAttribute("aria-valuenow", String(n));
+  }
+  function spring(node, frames, ms){
+    if (reduced) return { finished: Promise.resolve() };
+    return node.animate(frames, { duration: ms || 340, easing: SPRING, fill: "both" });
+  }
+
+  /* ---------- build the slots and the bank ---------- */
+  TARGET.forEach(function(_, i){
+    var b = document.createElement("button");
+    b.className = "slot";
+    b.type = "button";
+    b.dataset.index = String(i);
+    b.setAttribute("aria-label", "Word " + (i+1) + ", empty");
+    b.addEventListener("click", function(){ takeBack(i); });
+    slots.appendChild(b);
+  });
+
+  POOL.forEach(function(word, i){
+    var t = document.createElement("button");
+    t.className = "tile";
+    t.type = "button";
+    t.textContent = word;
+    t.dataset.word = word;
+    t.style.animationDelay = (i * 60) + "ms";
+    t.setAttribute("aria-label", word);
+    t.addEventListener("click", function(){ tap(t); });
+    bank.appendChild(t);
+  });
+
+  function slotAt(i){ return slots.children[i]; }
+  function markNext(){
+    for (var i = 0; i < TARGET.length; i++){
+      slotAt(i).classList.toggle("next", i === placed.length && phase === "build");
+    }
+  }
+
+  /* ---------- the flying clone: pill becomes bare ink word ---------- */
+  function fly(from, to, text, backwards, done){
+    if (reduced){ done(); return; }
+    var a = from.getBoundingClientRect(), b = to.getBoundingClientRect();
+    var g = document.createElement("div");
+    g.className = "fly" + (backwards ? " bare" : "");
+    g.textContent = text;
+    g.style.left = a.left + "px";
+    g.style.top = a.top + "px";
+    g.style.width = a.width + "px";
+    g.style.height = a.height + "px";
+    g.style.fontSize = backwards ? "20px" : "18px";
+    document.body.appendChild(g);
+    requestAnimationFrame(function(){ g.classList.add(backwards ? "toBank" : "bare"); });
+    var an = g.animate([
+      { transform: "translate(0,0) scale(1)" },
+      { transform: "translate(" + (b.left + b.width/2 - a.left - a.width/2) + "px," +
+                                  (b.top + b.height/2 - a.top - a.height/2) + "px) scale(1.04)" }
+    ], { duration: 360, easing: SPRING, fill: "both" });
+    an.finished.then(function(){ g.remove(); done(); });
+  }
+
+  /* ---------- tapping a tile ---------- */
+  function tap(tile){
+    if (phase !== "build" || tile.classList.contains("spent")) return;
+    var want = TARGET[placed.length];
+    if (tile.dataset.word !== want){ miss(tile); return; }
+
+    var slot = slotAt(placed.length);
+    var word = tile.dataset.word;
+    tile.classList.add("spent");
+    placed.push(tile);
+    markNext();
+
+    fly(tile, slot, word, false, function(){
+      slot.innerHTML = '<span class="word">' + word + "</span>";
+      slot.classList.add("filled");
+      slot.style.minWidth = "auto";
+      slot.setAttribute("aria-label", word + ", tap to take it back");
+      progress();
+      if (placed.length === TARGET.length) finished();
+      else announce(word + " placed. " + (TARGET.length - placed.length) + " to go.");
+    });
+    mood("idle");
+  }
+
+  function miss(tile){
+    tile.classList.remove("wobble"); void tile.offsetWidth;
+    tile.classList.add("wobble");
+    slots.classList.remove("nudge"); void slots.offsetWidth;
+    slots.classList.add("nudge");
+    mood("lean");
+    announce("Not that word yet. Try another one.");
+    setTimeout(function(){ if (phase === "build") mood("idle"); }, 1100);
+  }
+
+  function takeBack(i){
+    if (phase !== "build" || i >= placed.length) return;
+    /* only the last word comes back, so the sentence stays readable */
+    var last = placed.length - 1;
+    var slot = slotAt(last), tile = placed[last];
+    var word = tile.dataset.word;
+    placed.pop();
+    slot.innerHTML = ""; slot.classList.remove("filled");
+    slot.style.minWidth = ""; slot.setAttribute("aria-label", "Word " + (last+1) + ", empty");
+    markNext(); progress();
+    fly(slot, tile, word, true, function(){
+      tile.classList.remove("spent");
+      spring(tile, [{ transform: "scale(.8)" }, { transform: "scale(1)" }], 300);
+      announce(word + " taken back.");
+    });
+  }
+
+  /* ---------- the sentence is complete ---------- */
+  function finished(){
+    phase = "ready";
+    markNext();
+    mood("cheer");
+    var s = sticker(pickSticker(), "width:52px;height:52px;right:2px;top:18px", "burst");
+    sticker(pickSticker(), "width:20px;height:20px;left:14px;top:26px;animation-delay:.08s", "burst");
+    setTimeout(function(){ s.classList.add("tw"); }, 420);
+    setTitle("Nice one", "Now say it out loud.");
+    cta.disabled = false;
+    cta.classList.add("ready");
+    dropBank();
+    typed.hidden = true;
+    announce("Sentence complete. Could I have the bill, please? Now say it out loud.");
+    progress();
+  }
+
+  /* ---------- hearing the sentence ---------- */
+  el("coach").addEventListener("click", function(){
+    if (!window.speechSynthesis) { announce(SENTENCE); return; }
+    var u = new SpeechSynthesisUtterance(SENTENCE);
+    u.lang = "en-GB"; u.rate = .88;
+    mood("idle");
+    speechSynthesis.cancel(); speechSynthesis.speak(u);
+    announce("Playing: " + SENTENCE);
+  });
+
+  /* ---------- speaking ---------- */
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var rec = null, bubble = null;
+
+  function showBubble(text){
+    if (!bubble){
+      bubble = document.createElement("div");
+      bubble.className = "bubble";
+      stage.appendChild(bubble);
+    }
+    bubble.textContent = text;
+  }
+
+  function listening(){
+    phase = "speak";
+    mood("lean");
+    bank.hidden = true; typed.hidden = true;
+    setTitle("Say it aloud", "Could I have the bill, please?");
+    cta.innerHTML = 'Listening <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>';
+    cta.setAttribute("aria-label", "Listening, tap to stop");
+    alt.hidden = false;
+    announce("Listening. Say: " + SENTENCE);
+  }
+
+  function toTyped(message){
+    phase = "speak";
+    mood("lean");
+    if (rec){ try { rec.abort(); } catch(e){} rec = null; }
+    bank.hidden = true; typed.hidden = false;
+    alt.hidden = true;
+    note.textContent = message || "Type what you would say.";
+    setTitle("Say it aloud", "Could I have the bill, please?");
+    cta.innerHTML = 'Check <span class="chev" aria-hidden="true">&#187;</span>';
+    cta.removeAttribute("aria-label");
+    cta.disabled = false;
+    say.focus();
+  }
+
+  function startSpeech(){
+    if (!SR){ toTyped("No mic in this browser, so type it instead."); return; }
+    try {
+      rec = new SR();
+    } catch (e){ toTyped("The mic would not start, so type it instead."); return; }
+    rec.lang = "en-GB";
+    rec.interimResults = true;
+    rec.maxAlternatives = 1;
+    rec.onresult = function(ev){
+      var text = "";
+      for (var i = 0; i < ev.results.length; i++) text += ev.results[i][0].transcript;
+      showBubble(text.trim());
+      if (ev.results[ev.results.length-1].isFinal) judge(text);
+    };
+    rec.onerror = function(){ toTyped("The mic is off, so type it instead."); };
+    rec.onend = function(){ if (phase === "speak" && !bubble) toTyped("Nothing heard, so type it instead."); };
+    try { rec.start(); listening(); }
+    catch (e){ toTyped("The mic would not start, so type it instead."); }
+  }
+
+  function clean(s){ return s.toLowerCase().replace(/[^a-z ]/g, "").split(/\s+/).filter(Boolean); }
+
+  function judge(heard){
+    var got = clean(heard), want = clean(SENTENCE);
+    var hit = want.filter(function(w){ return got.indexOf(w) > -1; }).length;
+    showBubble(heard.trim() || SENTENCE);
+    if (hit >= want.length - 1) done();
+    else nearly();
+  }
+
+  function nearly(){
+    mood("lean");
+    setTitle("Almost", "Listen once more, then say it.");
+    cta.innerHTML = 'Try again <span class="chev" aria-hidden="true">&#187;</span>';
+    cta.disabled = false;
+    announce("Almost. Listen once more, then say it again.");
+    var u;
+    if (window.speechSynthesis){
+      u = new SpeechSynthesisUtterance(SENTENCE); u.lang = "en-GB"; u.rate = .75;
+      speechSynthesis.cancel(); speechSynthesis.speak(u);
+    }
+    phase = "ready";
+  }
+
+  function done(){
+    phase = "done";
+    if (rec){ try { rec.stop(); } catch(e){} rec = null; }
+    mood("cheer");
+    typed.hidden = true; alt.hidden = true;
+    sticker(pickSticker(), "width:58px;height:58px;right:0;top:10px", "burst");
+    sticker(pickSticker(), "width:24px;height:24px;left:8px;top:20px;animation-delay:.1s", "burst");
+    sticker(pickSticker(), "width:18px;height:18px;left:34%;top:0;animation-delay:.2s", "burst");
+    setTitle("You did it", "You can now ask for the bill.");
+    cta.innerHTML = 'Next <span class="chev" aria-hidden="true">&#187;</span>';
+    cta.disabled = false;
+    cta.classList.remove("ready"); void cta.offsetWidth; cta.classList.add("ready");
+    spring(card, [{ transform: "scale(.985)" }, { transform: "scale(1)" }], 360);
+    announce("You did it. You can now ask for the bill.");
+    progress();
+  }
+
+  /* ---------- the one button ---------- */
+  cta.addEventListener("click", function(){
+    if (phase === "ready"){ startSpeech(); return; }
+    if (phase === "speak" && !typed.hidden){ judge(say.value); return; }
+    if (phase === "speak"){ if (rec){ try { rec.stop(); } catch(e){} } return; }
+    if (phase === "done"){ reset(); }
+  });
+  alt.addEventListener("click", function(){ toTyped("Type what you would say."); });
+  say.addEventListener("keydown", function(ev){ if (ev.key === "Enter") judge(say.value); });
+
+  function reset(){
+    phase = "build";
+    placed = [];
+    if (bubble){ bubble.remove(); bubble = null; }
+    Array.prototype.forEach.call(stage.querySelectorAll(".sticker"), function(s, i){ if (i > 2) s.remove(); });
+    Array.prototype.forEach.call(slots.children, function(s, i){
+      s.innerHTML = ""; s.classList.remove("filled"); s.style.minWidth = "";
+      s.setAttribute("aria-label", "Word " + (i+1) + ", empty");
+    });
+    Array.prototype.forEach.call(bank.children, function(t){ t.classList.remove("spent", "wobble"); });
+    bank.hidden = false; typed.hidden = true; alt.hidden = true;
+    say.value = "";
+    cta.innerHTML = 'Say it <span class="chev" aria-hidden="true">&#187;</span>';
+    cta.disabled = true;
+    mood("idle");
+    setTitle("Build the sentence", "Ask for the bill in a cafe.");
+    markNext(); progress();
+  }
+
+  /* ---------- keyboard: backspace takes the last word back ---------- */
+  document.addEventListener("keydown", function(ev){
+    if (ev.key === "Backspace" && phase === "build" && document.activeElement !== say && placed.length){
+      ev.preventDefault();
+      takeBack(placed.length - 1);
+    }
+  });
+
+  /* ---------- back ---------- */
+  el("back").addEventListener("click", function(){
+    if (phase === "build" && placed.length) takeBack(placed.length - 1);
+    else reset();
+  });
+
+  /* ---------- light and dark ---------- */
+  var themeBtn = el("theme");
+  var SUN = "<circle cx='12' cy='12' r='4.4'/><path d='M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.2 5.2l1.6 1.6M17.2 17.2l1.6 1.6M18.8 5.2l-1.6 1.6M6.8 17.2l-1.6 1.6'/>";
+  var MOON = "<path d='M20 14.6A8.4 8.4 0 0 1 9.4 4 8.6 8.6 0 1 0 20 14.6z'/>";
+  function setTheme(dark){
+    document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+    themeBtn.setAttribute("aria-pressed", dark ? "true" : "false");
+    themeBtn.setAttribute("aria-label", dark ? "Light mode" : "Dark mode");
+    el("themeIcon").innerHTML = dark ? MOON : SUN;
+    el("themeIcon").setAttribute("fill", dark ? "currentColor" : "none");
+  }
+  setTheme(window.matchMedia("(prefers-color-scheme: dark)").matches);
+  themeBtn.addEventListener("click", function(){
+    setTheme(document.documentElement.getAttribute("data-theme") !== "dark");
+    spring(themeBtn, [{ transform: "rotate(-40deg) scale(.8)" }, { transform: "none" }], 360);
+  });
+
+  markNext(); progress();
+
+  /* ---------- hooks for the screenshot run ---------- */
+  window.lpProto = {
+    place: function(n){
+      var step = function(){
+        if (placed.length >= n || placed.length >= TARGET.length) return;
+        var want = TARGET[placed.length];
+        var tile = Array.prototype.filter.call(bank.children, function(t){
+          return t.dataset.word === want && !t.classList.contains("spent");
+        })[0];
+        if (tile){ tap(tile); setTimeout(step, 420); }
+      };
+      step();
+    },
+    listening: function(){ phase = "ready"; listening(); showBubble("Could I have the bill"); },
+    typed: function(){ phase = "ready"; toTyped("No mic in this browser, so type it instead."); },
+    done: done,
+    theme: setTheme
+  };
+})();
+</script>
+</body>
+</html>

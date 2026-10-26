@@ -2,9 +2,10 @@
 
 // "We're out of oat milk" (ATM-A2-INT-0009): a 2D flat-vector motion-graphics
 // explainer built as a Remotion composition (3:4, 1080x1440, 30 fps, 50 s).
-// Ten beats from docs/explainers/storyboards.md: hook, a notice, the prediction
-// moment, three more notices, two explain beats, practise aloud, recap. Single
-// target: "Do you have ... instead?" answered with "That's fine, thank you."
+// Eleven beats from docs/explainers/storyboards.md, re-cut to the board's
+// attention rule of 26 October: hook, a notice, the prediction moment, three
+// more notices, two explain beats, two say-asks, recap. Single target: "Do you
+// have ... instead?" answered with "That's fine, thank you."
 // Built on the shared kit in ./lib on the Shoreditch
 // cafe set, plus a glass-door fridge behind leo. Every value is a pure function
 // of the frame, so the same component plays in the Player and renders to MP4.
@@ -41,10 +42,11 @@ export const INT9_BEATS: Beat[] = [
   { id: "n4", kind: "notice", from: 570, to: 720, line: "That's fine, thank you.", target: ["That's fine"], pauseAt: 696 },
   { id: "explain", kind: "explain", from: 720, to: 900, line: "Out of means none left.", target: ["Out of"], pauseAt: 876 },
   { id: "explain2", kind: "explain", from: 900, to: 1080, line: "Instead means in its place.", target: ["Instead"], pauseAt: 1056 },
-  { id: "practise", kind: "practise", from: 1080, to: 1380, line: "Say it with me. Do you have soy milk instead?", target: ["Do you have", "instead"], pauseAt: 1290 },
-  { id: "recap", kind: "recap", from: 1380, to: 1500, line: "Do you have ... instead? That's fine.", target: ["Do you have", "instead", "That's fine"] },
+  { id: "practise", kind: "practise", from: 1080, to: 1296, line: "Say it with me. Do you have soy milk instead?", target: ["Do you have", "instead"], pauseAt: 1266 },
+  { id: "again", kind: "practise", from: 1296, to: 1476, line: "Do you have almond milk instead?", target: ["almond milk", "instead"], pauseAt: 1446 },
+  { id: "recap", kind: "recap", from: 1476, to: 1620, line: "You can ask for another milk. Again tomorrow.", target: ["another milk"] },
 ];
-export const INT9_DURATION = 1500;
+export const INT9_DURATION = 1620;
 
 function beatAt(frame: number): Beat {
   return INT9_BEATS.find((b) => frame >= b.from && frame < b.to) ?? INT9_BEATS[INT9_BEATS.length - 1];
@@ -370,8 +372,9 @@ function ThoughtCloud({ frame, from }: { frame: number; from: number }) {
       <circle cx="300" cy="206" r="78" />
       <circle cx="470" cy="188" r="86" />
       <circle cx="638" cy="212" r="72" />
-      <circle cx="786" cy="486" r="27" />
-      <circle cx="826" cy="538" r="15" />
+      {/* the tail stops short of the learner's hair, which starts at x 745 */}
+      <circle cx="694" cy="484" r="27" />
+      <circle cx="722" cy="530" r="15" />
     </>
   );
   return (
@@ -409,6 +412,9 @@ function ExplainScene({ frame }: { frame: number }) {
   const roll = tween(frame, 1004, 1050, 0, 1, EASE.out);
   const trainX = -980 + 980 * roll;
   const maya = springIn(frame, 736, { damping: 11, stiffness: 130 });
+  // while the shelf is the only thing on the page it sits in the middle of the
+  // frame; it lifts to make room just before the train rolls in
+  const lift = tween(frame, 976, 1004, 140, 0, EASE.inOut);
   let carX = 0;
 
   return (
@@ -423,7 +429,7 @@ function ExplainScene({ frame }: { frame: number }) {
         <rect width="1080" height="1440" fill="url(#int9-dots)" />
 
         {/* top half: the shelf with two slots */}
-        <g opacity={fade}>
+        <g opacity={fade} transform={`translate(0 ${lift})`}>
           <rect x="190" y="478" width="700" height="12" rx="6" fill={SHELF} />
           <rect x="206" y="490" width="26" height="54" rx="8" fill={SHELF} opacity="0.55" />
           <rect x="848" y="490" width="26" height="54" rx="8" fill={SHELF} opacity="0.55" />
@@ -482,31 +488,52 @@ function ExplainScene({ frame }: { frame: number }) {
       </Stage>
 
       <Eyebrow text="WHAT THEY MEAN" x={80} y={150} frame={frame} from={730} />
-      <KineticText frame={frame} from={786} text="out of = none left" x={80} y={562} size={56} color={INK} targets={["out", "of"]} targetColor={ACCENT} stagger={4} />
-      <KineticText frame={frame} from={956} text="instead = in its place" x={80} y={650} size={56} color={INK} targets={["instead"]} targetColor={ACCENT} marker={SAFFRON} markerDelay={14} stagger={4} />
+      <KineticText frame={frame} from={786} text="out of = none left" x={80} y={562 + lift} size={56} color={INK} targets={["out", "of"]} targetColor={ACCENT} stagger={4} />
+      <KineticText frame={frame} from={956} text="instead = in its place" x={80} y={650 + lift} size={56} color={INK} targets={["instead"]} targetColor={ACCENT} marker={SAFFRON} markerDelay={14} stagger={4} />
     </AbsoluteFill>
   );
 }
 
 // ---------------------------------------------------------------- practise
 
-const PRACTISE_LINE = "Do you have soy milk instead?";
-const PRACTISE_TARGETS = [0, 1, 2, 5];
+// Two say-asks, not one: the line as heard, then the same frame with a new
+// word in it. That is the third rung of the board's growing asks, and it is
+// the shape the Cafe reference uses.
+const PRACTISE_STEPS = [
+  { line: "Do you have soy milk instead?", targets: [0, 1, 2, 5], from: 1080, pauseAt: 1266, eyebrow: "SAY IT WITH ME", colour: SOY, label: "SOY" },
+  { line: "Do you have almond milk instead?", targets: [3, 5], from: 1296, pauseAt: 1446, eyebrow: "NOW THIS ONE", colour: ALMOND, label: undefined },
+];
 
 function PractiseScene({ frame }: { frame: number }) {
-  const words = PRACTISE_LINE.split(" ");
-  const total = PRACTISE_LINE.length;
+  const step = frame >= PRACTISE_STEPS[1].from ? PRACTISE_STEPS[1] : PRACTISE_STEPS[0];
+  const words = step.line.split(" ");
+  const total = step.line.length;
   let acc = 0;
+  // the line finishes 36 frames before its stop, so the frame the player holds
+  // on has the whole sentence up and the mic already pulsing
+  const start = step.from + 46;
+  const span = step.pauseAt - 36 - start;
   const reach = words.map((w) => {
     acc += w.length + 1;
-    return 1134 + (acc / total) * 140;
+    return start + (acc / total) * span;
   });
   const circle = springIn(frame, 1080, { damping: 11, stiffness: 120 });
-  // the cue springs in before the pause, so it is fully on screen and pulsing
-  // on frame 1290 itself, which is the frame the player holds on
-  const yourTurn = frame >= 1266;
-  const turn = springIn(frame, 1266, { damping: 9, stiffness: 160 });
-  const leoGesture = frame < 1322 ? { g: "listen" as const, at: 1098, from: "idle" as const } : { g: "thumbs" as const, at: 1322, from: "listen" as const };
+  // the cue springs in 24 frames before the pause, so it is fully on screen and
+  // pulsing on the pauseAt frame itself, which is the frame the player holds
+  const cueAt = step.pauseAt - 24;
+  // the cue clears once the player resumes past the stop, so the "well done"
+  // frames are not still asking for the line
+  const yourTurn = frame >= cueAt && frame < step.pauseAt + 8;
+  const turn = springIn(frame, cueAt, { damping: 9, stiffness: 160 });
+  const resumeAt = step.pauseAt + 10;
+  const leoGesture =
+    frame >= 1456
+      ? { g: "thumbs" as const, at: 1456, from: "listen" as const }
+      : frame >= 1296
+        ? { g: "listen" as const, at: 1296, from: "thumbs" as const }
+        : frame >= 1276
+          ? { g: "thumbs" as const, at: 1276, from: "listen" as const }
+          : { g: "listen" as const, at: 1098, from: "idle" as const };
 
   return (
     <AbsoluteFill style={{ background: "#eaf1fb" }}>
@@ -519,7 +546,7 @@ function PractiseScene({ frame }: { frame: number }) {
           <g clipPath="url(#int9-leo)">
             <Character
               who="leo" x={540} y={1186} scale={1.88} facing={1} frame={frame} enter={1084}
-              talking={frame > 1100 && frame < 1270} mood="happy"
+              talking={frame > step.from + 20 && frame < step.pauseAt - 26} mood="happy"
               gesture={leoGesture.g} gestureAt={leoGesture.at} from={leoGesture.from}
             />
           </g>
@@ -535,16 +562,16 @@ function PractiseScene({ frame }: { frame: number }) {
             <text x="152" y="354" textAnchor="middle" fontFamily={FONT} fontWeight="800" fontSize="36" fill={INK}>Your turn</text>
           </g>
         ) : null}
-        {/* on resume the soy carton pops a tick */}
-        {frame >= 1316 ? (
+        {/* on resume the milk they just asked for pops a tick */}
+        {frame >= resumeAt ? (
           <g>
-            <Carton x={856} baseY={372} w={84} color={SOY} label="SOY" />
-            <Tick frame={frame} from={1330} x={936} y={262} size={0.8} />
+            <Carton x={856} baseY={372} w={84} color={step.colour} label={step.label} />
+            <Tick frame={frame} from={resumeAt + 8} x={936} y={262} size={0.8} />
           </g>
         ) : null}
       </Stage>
 
-      <Eyebrow text="SAY IT WITH ME" x={0} y={796} align="center" frame={frame} from={1090} />
+      <Eyebrow text={step.eyebrow} x={0} y={796} align="center" frame={frame} from={step.from + 10} />
       <div
         style={{
           position: "absolute", left: 60, right: 60, top: 852, display: "flex", flexWrap: "wrap",
@@ -554,7 +581,7 @@ function PractiseScene({ frame }: { frame: number }) {
         {words.map((w, i) => {
           const s = springIn(frame, reach[i], { damping: 8, stiffness: 220 });
           const on = frame >= reach[i];
-          const target = PRACTISE_TARGETS.includes(i);
+          const target = step.targets.includes(i);
           const last = i === words.length - 1;
           return (
             <span
@@ -578,12 +605,12 @@ function PractiseScene({ frame }: { frame: number }) {
 
 // ---------------------------------------------------------------- recap
 
-function RecapScene({ frame, l1 }: { frame: number; l1?: Record<string, string> }) {
-  const a = springIn(frame, 1386, { damping: 11, stiffness: 110 });
-  // the close says what the learner can now do and when it comes back, which
-  // is the board's self-efficacy rule. It carries its own L1 line, because a
-  // learner who needs captions needs this sentence most of all
-  const canDo = tween(frame, 1422, 1442, 0, 1, EASE.out);
+// The card holds the check stem, which is what the learner will meet in the
+// items. The self-efficacy close ("You can ask for another milk. Again
+// tomorrow.") is the beat's narration line, so it is spoken and captioned in
+// the learner's own language, as in the Cafe reference.
+function RecapScene({ frame }: { frame: number }) {
+  const a = springIn(frame, 1482, { damping: 11, stiffness: 110 });
   return (
     <AbsoluteFill style={{ background: ACCENT }}>
       <Stage>
@@ -593,17 +620,17 @@ function RecapScene({ frame, l1 }: { frame: number; l1?: Record<string, string> 
           </pattern>
         </defs>
         <rect width="1080" height="1440" fill="url(#int9-stripes)" />
-        <g transform={`translate(418 1004) scale(${springIn(frame, 1428, { damping: 9, stiffness: 180 })}) translate(-418 -1004)`}>
+        <g transform={`translate(418 1004) scale(${springIn(frame, 1524, { damping: 9, stiffness: 180 })}) translate(-418 -1004)`}>
           <Carton x={356} baseY={1004} w={124} color={OAT} dotted dash={PAPER} />
         </g>
-        <g opacity={tween(frame, 1440, 1458, 0, 1, EASE.out)}>
+        <g opacity={tween(frame, 1536, 1554, 0, 1, EASE.out)}>
           <path d="M496 918 L584 918" stroke={SAFFRON} strokeWidth="11" strokeLinecap="round" />
           <path d="M566 900 L592 918 L566 936" fill="none" stroke={SAFFRON} strokeWidth="11" strokeLinecap="round" strokeLinejoin="round" />
         </g>
-        <g transform={`translate(662 1004) scale(${springIn(frame, 1446, { damping: 9, stiffness: 180 })}) translate(-662 -1004)`}>
+        <g transform={`translate(662 1004) scale(${springIn(frame, 1542, { damping: 9, stiffness: 180 })}) translate(-662 -1004)`}>
           <Carton x={600} baseY={1004} w={124} color={SOY} label="SOY" />
         </g>
-        <Confetti frame={frame} from={1384} count={80} seed={9} />
+        <Confetti frame={frame} from={1480} count={80} seed={9} />
       </Stage>
       <div
         style={{
@@ -619,14 +646,10 @@ function RecapScene({ frame, l1 }: { frame: number; l1?: Record<string, string> 
             <span style={{ color: SAFFRON, letterSpacing: 4 }}> … </span>
             <span style={{ position: "relative", display: "inline-block", color: ACCENT, zIndex: 0 }}>
               instead?
-              <Highlight frame={frame} from={1416} color={SAFFRON} />
+              <Highlight frame={frame} from={1512} color={SAFFRON} />
             </span>
           </div>
           <div style={{ fontSize: 62, fontWeight: 800, color: SEA, marginTop: 18 }}>That&apos;s fine.</div>
-          <div style={{ opacity: canDo, transform: `translateY(${(1 - canDo) * 12}px)`, marginTop: 26 }}>
-            <div style={{ fontSize: 36, fontWeight: 800, color: INK, lineHeight: 1.3 }}>You can ask for another milk. Again tomorrow.</div>
-            {l1?.can_do ? <div style={{ fontSize: 30, fontWeight: 600, color: INK, opacity: 0.75, marginTop: 6, lineHeight: 1.3 }}>{l1.can_do}</div> : null}
-          </div>
         </div>
       </div>
     </AbsoluteFill>
@@ -652,10 +675,10 @@ export function OatMilkExplainer({ l1 }: { l1?: Record<string, string> }) {
       {beat.kind === "hook" || beat.kind === "notice" ? <CafeScene frame={frame} /> : null}
       {beat.kind === "explain" ? <ExplainScene frame={frame} /> : null}
       {beat.kind === "practise" ? <PractiseScene frame={frame} /> : null}
-      {beat.kind === "recap" ? <RecapScene frame={frame} l1={l1} /> : null}
+      {beat.kind === "recap" ? <RecapScene frame={frame} /> : null}
       <Transition frame={frame} at={720} kind="iris" color={PAPER} color2={ACCENT} cx={540} cy={620} />
       <Transition frame={frame} at={1080} kind="slide" color={ACCENT} color2={SAFFRON} />
-      <Transition frame={frame} at={1380} kind="wipe" color={SAFFRON} color2={INK} />
+      <Transition frame={frame} at={1476} kind="wipe" color={SAFFRON} color2={INK} />
       <CaptionBar line={beat.line} k={k} targets={beat.target} l1={l1?.[beat.id]} />
       {/* the recap sits on an ACCENT background, where the bar's default ACCENT
           fill disappears, so it turns white for that beat */}
@@ -665,8 +688,9 @@ export function OatMilkExplainer({ l1 }: { l1?: Record<string, string> }) {
 }
 
 // ---------------------------------------------------------------- L1 captions
-// One line per beat, plus `can_do`, which is not a beat: it is the L1 of the
-// recap card's closing line, rendered inside the card by RecapScene.
+// One short line per beat, ten of them. The recap line is the self-efficacy
+// close rather than the stem, so a learner reading captions hears what they can
+// now do in their own language.
 export const INT9_L1: Record<string, Record<string, string>> = {
   ar: {
     hook: "لاتيه بحليب الشوفان، من فضلك.",
@@ -678,8 +702,8 @@ export const INT9_L1: Record<string, Record<string, string>> = {
     explain: "Out of تعني لم يبقَ شيء.",
     explain2: "Instead تعني بدلًا منه.",
     practise: "قلها معي.",
-    recap: "هل لديك ... بدلًا منه؟ لا بأس.",
-    can_do: "يمكنك أن تطلب حليبًا آخر. غدًا مرة أخرى.",
+    again: "هل لديك حليب اللوز بدلًا منه؟",
+    recap: "يمكنك أن تطلب حليبًا آخر. غدًا مرة أخرى.",
   },
   es: {
     hook: "Un latte con leche de avena, por favor.",
@@ -691,8 +715,8 @@ export const INT9_L1: Record<string, Record<string, string>> = {
     explain: "Out of: no queda.",
     explain2: "Instead: en su lugar.",
     practise: "Dilo conmigo.",
-    recap: "¿Tienes ... en su lugar? Está bien.",
-    can_do: "Ya puedes pedir otra leche. Mañana otra vez.",
+    again: "¿Tienes leche de almendra en su lugar?",
+    recap: "Ya puedes pedir otra leche. Mañana otra vez.",
   },
   hi: {
     hook: "ओट मिल्क वाला लाते, कृपया।",
@@ -704,8 +728,8 @@ export const INT9_L1: Record<string, Record<string, string>> = {
     explain: "Out of मतलब ख़त्म।",
     explain2: "Instead मतलब उसकी जगह।",
     practise: "मेरे साथ बोलो।",
-    recap: "क्या ... इसकी जगह है? ठीक है।",
-    can_do: "अब आप दूसरा दूध माँग सकते हैं। कल फिर।",
+    again: "क्या इसकी जगह आमंड मिल्क है?",
+    recap: "अब आप दूसरा दूध माँग सकते हैं। कल फिर।",
   },
   ru: {
     hook: "Латте на овсяном молоке, пожалуйста.",
@@ -717,8 +741,8 @@ export const INT9_L1: Record<string, Record<string, string>> = {
     explain: "Out of: ничего не осталось.",
     explain2: "Instead: вместо него.",
     practise: "Скажи со мной.",
-    recap: "А ... есть вместо него? Хорошо.",
-    can_do: "Теперь вы можете попросить другое молоко. Завтра снова.",
+    again: "А миндальное молоко есть вместо него?",
+    recap: "Теперь вы можете попросить другое молоко. Завтра снова.",
   },
   tr: {
     hook: "Yulaf sütlü latte, lütfen.",
@@ -730,8 +754,8 @@ export const INT9_L1: Record<string, Record<string, string>> = {
     explain: "Out of: kalmadı.",
     explain2: "Instead: onun yerine.",
     practise: "Benimle söyle.",
-    recap: "Onun yerine ... var mı? Tamam.",
-    can_do: "Artık başka bir süt isteyebilirsin. Yarın tekrar.",
+    again: "Onun yerine badem sütü var mı?",
+    recap: "Artık başka bir süt isteyebilirsin. Yarın tekrar.",
   },
   zh: {
     hook: "一杯燕麦奶拿铁，谢谢。",
@@ -743,8 +767,8 @@ export const INT9_L1: Record<string, Record<string, string>> = {
     explain: "Out of 表示没了。",
     explain2: "Instead 表示代替。",
     practise: "跟我一起说。",
-    recap: "那有……吗？好的。",
-    can_do: "你现在可以要另一种奶了。明天再来。",
+    again: "那有杏仁奶吗？",
+    recap: "你现在可以要另一种奶了。明天再来。",
   },
 };
 

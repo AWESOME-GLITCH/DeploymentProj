@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="en-GB" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Talk with Maya</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+/* Talk with Maya: prototype 1. Board look of 26 Oct: flat colour blocks, ink
+   outlines, black pill buttons, springy motion under 400 ms. One block colour
+   per screen plus ink and cream. */
+
+:root{
+  --sun:#FFD93D; --lilac:#CDB8FF; --tangerine:#FF5A2D; --mint:#A8F0C6;
+  --sky:#BFE3FF; --ink:#121212; --cream:#FFF7E8; --paper:#FFFFFF;
+  --skin:#F7C9A3; --page:var(--cream); --on-page:var(--ink);
+  --bubble:var(--paper);
+  --spring:cubic-bezier(.34,1.56,.64,1);
+}
+[data-theme="dark"]{
+  --page:#121212; --on-page:var(--cream); --bubble:#1E1E1E;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:var(--page); color:var(--on-page);
+  font-family:"Plus Jakarta Sans",system-ui,sans-serif; font-weight:600;
+  -webkit-font-smoothing:antialiased; overflow:hidden;
+  transition:background 300ms ease,color 300ms ease;
+}
+
+/* 390 x 844, no page scroll */
+.app{
+  position:fixed; inset:0; width:100%; max-width:430px; margin:0 auto;
+  display:flex; flex-direction:column; gap:12px;
+  padding:14px 16px calc(16px + env(safe-area-inset-bottom));
+}
+
+/* ---------- top row: turn pips and the mode switch ---------- */
+.top{display:flex; align-items:center; justify-content:space-between; height:34px; flex:0 0 auto}
+.pips{display:flex; gap:7px; align-items:center}
+.pip{
+  width:30px; height:7px; border-radius:99px; background:var(--on-page); opacity:.18;
+  transition:opacity 220ms ease,width 260ms var(--spring);
+}
+.pip.live{opacity:1; width:44px}
+.pip.done{opacity:1}
+.switch{
+  width:40px; height:40px; border:none; border-radius:99px; background:transparent;
+  color:var(--on-page); display:grid; place-items:center; cursor:pointer; padding:0;
+}
+.switch svg{width:22px; height:22px; display:block}
+.switch:active{transform:scale(.92)}
+
+/* ---------- the block card ---------- */
+.card{
+  position:relative; flex:1 1 auto; min-height:0;
+  border-radius:28px; background:var(--sun); color:var(--ink);
+  overflow:hidden; transition:background 340ms ease;
+  animation:cardIn 360ms var(--spring) both;
+}
+.card[data-tone="mint"]{background:var(--mint)}
+@keyframes cardIn{from{opacity:0; transform:translateY(14px) scale(.96)} to{opacity:1; transform:none}}
+
+.card-top{position:absolute; inset:18px 18px auto 18px; z-index:3}
+.headline{font-weight:800; font-size:34px; line-height:1.05; letter-spacing:-.6px; margin:0}
+.sub{margin:8px 0 0; font-size:15px; font-weight:600; opacity:.78; max-width:17ch}
+
+/* Maya sits on the floor of the card */
+.stage{position:absolute; left:0; right:0; bottom:0; top:0; display:grid; place-items:end center}
+#maya{width:min(100%,330px); height:auto; max-height:100%; display:block}
+
+/* ---------- speech bubble with word-by-word highlight ---------- */
+.bubble{
+  position:absolute; left:18px; right:18px; top:16px; z-index:4;
+  background:var(--bubble); color:var(--on-page);
+  border:3px solid var(--ink); border-radius:24px; padding:14px 16px 15px;
+  font-size:19px; line-height:1.3; font-weight:700;
+  box-shadow:4px 5px 0 var(--ink);
+  animation:pop 320ms var(--spring) both;
+}
+[data-theme="dark"] .bubble{border-color:var(--cream); box-shadow:4px 5px 0 rgba(255,247,232,.35)}
+.bubble.me{
+  background:var(--ink); color:var(--cream); border-color:var(--ink);
+  top:auto; bottom:14px; left:52px; text-align:right; font-weight:600; font-size:17px;
+  box-shadow:none;
+}
+[data-theme="dark"] .bubble.me{background:var(--cream); color:var(--ink); border-color:var(--cream)}
+.bubble .tail{
+  position:absolute; left:34px; bottom:-15px; width:22px; height:16px;
+  background:inherit; border:3px solid var(--ink); border-top:none;
+  clip-path:polygon(0 0,100% 0,18% 100%);
+}
+[data-theme="dark"] .bubble .tail{border-color:var(--cream)}
+.bubble.me .tail{left:auto; right:34px; bottom:-14px; clip-path:polygon(0 0,100% 0,82% 100%)}
+.w{opacity:.3; transition:opacity 140ms ease}
+.w.said{opacity:1}
+.w.now{
+  opacity:1; background:var(--ink); color:var(--cream);
+  border-radius:8px; padding:1px 4px; margin:0 -2px;
+  animation:wordPop 240ms var(--spring) both;
+}
+[data-theme="dark"] .w.now{background:var(--cream); color:var(--ink)}
+@keyframes wordPop{from{transform:scale(.88)} to{transform:scale(1)}}
+@keyframes pop{from{opacity:0; transform:translateY(-8px) scale(.94)} to{opacity:1; transform:none}}
+
+/* ---------- stickers ---------- */
+.sticker{position:absolute; z-index:5; color:var(--ink); pointer-events:none}
+.sticker svg{display:block}
+.twinkle{animation:twinkle 4s ease-in-out infinite}
+@keyframes twinkle{0%,100%{transform:scale(1) rotate(0)}45%{transform:scale(1.18) rotate(10deg)}70%{transform:scale(.94) rotate(-4deg)}}
+.s-star1{top:96px; right:22px}
+.s-squiggle{bottom:120px; left:14px}
+.s-heart{top:150px; left:18px; animation-delay:1.4s}
+.ear{
+  top:38%; left:50%; margin-left:-128px; opacity:0; transform:scale(.6);
+  transition:opacity 220ms ease, transform 300ms var(--spring);
+}
+.listening .ear{opacity:1; transform:scale(1)}
+.burst{top:30%; left:50%; margin-left:28px; opacity:0}
+.burst.go{animation:burst 420ms var(--spring) both}
+@keyframes burst{0%{opacity:0; transform:scale(.3) rotate(-24deg)}60%{opacity:1; transform:scale(1.14) rotate(8deg)}100%{opacity:1; transform:scale(1) rotate(0)}}
+
+/* ---------- score bars on the final card ---------- */
+.bars{position:absolute; left:18px; right:18px; bottom:18px; z-index:4; display:grid; gap:11px}
+.bar-row{display:grid; gap:5px}
+.bar-label{font-size:14px; font-weight:700; letter-spacing:.2px}
+.track{height:14px; border-radius:99px; border:3px solid var(--ink); background:transparent; overflow:hidden}
+.fill{height:100%; width:0; background:var(--ink); border-radius:99px; transition:width 420ms var(--spring)}
+
+/* ---------- dock ---------- */
+.dock{flex:0 0 auto; display:grid; gap:10px}
+.say{
+  font-size:15px; font-weight:700; text-align:center; min-height:22px;
+  color:var(--on-page); opacity:.75;
+}
+.say b{font-weight:800; opacity:1}
+.btn{
+  position:relative; width:100%; height:56px; border:none; border-radius:99px;
+  background:var(--ink); color:#fff; font:inherit; font-weight:700; font-size:18px;
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  cursor:pointer; transition:transform 180ms var(--spring); -webkit-tap-highlight-color:transparent;
+}
+[data-theme="dark"] .btn{background:var(--cream); color:var(--ink)}
+.btn:active{transform:scale(.97)}
+.btn[disabled]{opacity:.35; cursor:default}
+.btn .go{position:absolute; right:22px; font-size:20px; font-weight:800}
+.btn.live::before{
+  content:""; position:absolute; inset:-6px; border-radius:99px;
+  border:3px solid var(--ink); opacity:.3; animation:ring 1.4s ease-out infinite;
+}
+[data-theme="dark"] .btn.live::before{border-color:var(--cream)}
+@keyframes ring{0%{transform:scale(.97); opacity:.35}100%{transform:scale(1.07); opacity:0}}
+.mic{width:22px; height:22px; flex:0 0 auto}
+.minor{
+  background:none; border:none; font:inherit; font-size:15px; font-weight:700;
+  color:var(--on-page); text-decoration:underline; text-underline-offset:3px;
+  padding:8px; cursor:pointer; justify-self:center; opacity:.8;
+}
+.typed{display:none; gap:8px; grid-template-columns:1fr auto}
+.typed.on{display:grid}
+.typed input{
+  height:52px; border:3px solid var(--ink); border-radius:99px; background:var(--bubble);
+  color:var(--on-page); font:inherit; font-weight:700; font-size:16px; padding:0 18px; min-width:0;
+}
+[data-theme="dark"] .typed input{border-color:var(--cream)}
+.typed input::placeholder{color:var(--on-page); opacity:.45}
+.typed button{
+  height:52px; padding:0 20px; border:none; border-radius:99px; background:var(--ink);
+  color:#fff; font:inherit; font-weight:700; font-size:16px; cursor:pointer;
+}
+[data-theme="dark"] .typed button{background:var(--cream); color:var(--ink)}
+
+:focus-visible{outline:3px solid var(--tangerine); outline-offset:3px; border-radius:99px}
+.hidden{display:none !important}
+.sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+
+/* Maya's own motion */
+#g-body{transform-box:fill-box; transform-origin:50% 100%; animation:breathe 3s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-4px) rotate(-.7deg)}}
+#g-all{transition:transform 340ms var(--spring)}
+.listening #g-all{transform:translateY(10px) scale(1.05) rotate(3deg)}
+.reacting #g-all{transform:translateY(-6px) scale(1.03)}
+#eyes{transform-box:fill-box; transform-origin:50% 50%; animation:blink 5s steps(1,end) infinite}
+@keyframes blink{0%,96%{transform:scaleY(1)}97%,99%{transform:scaleY(.12)}100%{transform:scaleY(1)}}
+#arm-r{transform-box:fill-box; transform-origin:86% 6%; transition:transform 320ms var(--spring)}
+.speaking #arm-r{animation:gesture 1.6s ease-in-out infinite}
+@keyframes gesture{0%,100%{transform:rotate(0)}50%{transform:rotate(-13deg)}}
+.listening #arm-r{transform:rotate(26deg)}
+.reacting #arm-r{transform:rotate(-34deg)}
+#arm-l{transform-box:fill-box; transform-origin:14% 6%; transition:transform 320ms var(--spring)}
+.listening #arm-l{transform:rotate(-16deg)}
+#mouth-talk{opacity:0}
+.speaking #mouth-talk{opacity:1; animation:talk 260ms ease-in-out infinite}
+.speaking #mouth-rest{opacity:0}
+@keyframes talk{0%,100%{transform:scaleY(.4)}50%{transform:scaleY(1.1)}}
+#mouth-talk{transform-box:fill-box; transform-origin:50% 40%}
+#mouth-grin{opacity:0; transition:opacity 200ms ease}
+.reacting #mouth-grin{opacity:1}
+.reacting #mouth-rest{opacity:0}
+#brows{transition:transform 260ms var(--spring); transform-box:fill-box}
+.reacting #brows{transform:translateY(-5px)}
+.listening #brows{transform:translateY(-2px)}
+#cup{transform-box:fill-box; transform-origin:50% 100%; animation:cupSway 3.4s ease-in-out infinite}
+@keyframes cupSway{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(3deg)}}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before{animation:none !important}
+  #g-all,.btn,.fill{transition-duration:120ms}
+}
+@media (max-height:720px){
+  .headline{font-size:28px}
+  #maya{max-height:92%}
+}
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+  <div class="top">
+    <div class="pips" id="pips" role="group" aria-label="Turn 1 of 3">
+      <span class="pip live"></span><span class="pip"></span><span class="pip"></span>
+    </div>
+    <button class="switch" id="switch" aria-label="Switch to dark mode">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+        <circle cx="12" cy="12" r="4.6"/><path d="M12 2.4v2M12 19.6v2M2.4 12h2M19.6 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4"/>
+      </svg>
+    </button>
+  </div>
+
+  <section class="card" id="card" aria-live="polite">
+    <div class="card-top" id="cardTop">
+      <h1 class="headline" id="headline">Talk with Maya</h1>
+      <p class="sub" id="sub">Three short turns at a cafe. Say your answer out loud.</p>
+    </div>
+
+    <div class="bubble hidden" id="bubble"><span id="bubbleText"></span><span class="tail"></span></div>
+    <div class="bubble me hidden" id="meBubble"><span id="meText"></span><span class="tail"></span></div>
+
+    <div class="bars hidden" id="bars"></div>
+
+    <span class="sticker s-star1 twinkle" aria-hidden="true">
+      <svg width="30" height="30" viewBox="0 0 30 30"><path d="M15 1.6 18.4 11 28 14.6 18.4 18.3 15 28.3 11.6 18.3 2 14.6 11.6 11Z" fill="currentColor"/></svg>
+    </span>
+    <span class="sticker s-squiggle twinkle" aria-hidden="true" style="animation-delay:.8s">
+      <svg width="46" height="18" viewBox="0 0 46 18" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"><path d="M2 12q6-11 11 0t11 0 11 0 9-5"/></svg>
+    </span>
+    <span class="sticker s-heart twinkle" aria-hidden="true">
+      <svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 21s-9-5.4-9-11.2A5 5 0 0 1 12 6.4 5 5 0 0 1 21 9.8C21 15.6 12 21 12 21Z" fill="currentColor"/></svg>
+    </span>
+    <span class="sticker ear" id="ear" aria-hidden="true">
+      <svg width="52" height="46" viewBox="0 0 52 46" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round">
+        <path d="M30 6c-9-3-17 3-17 12 0 7 5 9 5 14 0 4 3 6 6 5"/><path d="M27 17c-3-1-5 1-5 4"/>
+        <path d="M40 10q6 6 6 13t-6 13" opacity=".9"/><path d="M47 4q9 9 9 19" opacity=".5"/>
+      </svg>
+    </span>
+    <span class="sticker burst" id="burst" aria-hidden="true">
+      <svg width="74" height="74" viewBox="0 0 74 74">
+        <path d="M37 3 44.6 24 65 16.4 57.4 37 71 44.6 50 52.2 52.2 71 37 59.8 21.8 71 24 52.2 3 44.6 16.6 37 9 16.4 29.4 24Z" fill="currentColor"/>
+      </svg>
+    </span>
+
+    <div class="stage">
+      <svg id="maya" viewBox="0 0 300 430" role="img" aria-label="Maya the coach, a hand-drawn character with a notebook and a cup of coffee">
+        <ellipse cx="150" cy="418" rx="86" ry="12" fill="#121212" opacity=".14"/>
+        <g id="g-all">
+          <g id="g-body">
+            <!-- legs -->
+            <path d="M126 300 Q122 356 120 400" stroke="#121212" stroke-width="26" stroke-linecap="round" fill="none"/>
+            <path d="M174 300 Q179 356 181 400" stroke="#121212" stroke-width="26" stroke-linecap="round" fill="none"/>
+            <path d="M104 408q14-10 30-7 4 9-6 11-16 2-24-4Z" fill="#121212"/>
+            <path d="M196 408q-14-10-30-7-4 9 6 11 16 2 24-4Z" fill="#121212"/>
+
+            <!-- left arm, holds the cup -->
+            <g id="arm-l">
+              <path d="M112 212 Q88 244 94 276" stroke="#FF5A2D" stroke-width="23" stroke-linecap="round" fill="none"/>
+              <path d="M112 212 Q88 244 94 276" stroke="#121212" stroke-width="3.2" stroke-linecap="round" fill="none" opacity=".001"/>
+              <circle cx="94" cy="280" r="12.5" fill="#F7C9A3" stroke="#121212" stroke-width="3.2"/>
+              <g id="cup">
+                <path d="M74 258h40l-5 24q-1 7-8 7H87q-7 0-8-7Z" fill="#FFF7E8" stroke="#121212" stroke-width="3.2" stroke-linejoin="round"/>
+                <path d="M114 264q10 0 10 7t-10 7" fill="none" stroke="#121212" stroke-width="3.2" stroke-linecap="round"/>
+                <path d="M88 248q2-7-2-11m12 11q2-7-2-11" fill="none" stroke="#121212" stroke-width="3" stroke-linecap="round" opacity=".55"/>
+              </g>
+            </g>
+
+            <!-- torso -->
+            <path d="M104 212q-2-44 14-57 10-8 32-8 23 0 33 9 15 13 13 56 1 10-10 10H114q-11 0-10-10Z"
+                  fill="#FF5A2D" stroke="#121212" stroke-width="3.4" stroke-linejoin="round"/>
+            <path d="M136 148q14 13 28 0" fill="none" stroke="#121212" stroke-width="3.2" stroke-linecap="round"/>
+            <path d="M150 300q-24 1-36-2 0-14 3-26h66q3 12 3 26-12 3-36 2Z" fill="#121212" opacity=".9"/>
+
+            <!-- right arm, gestures while she speaks -->
+            <g id="arm-r">
+              <path d="M190 210 Q216 232 214 262" stroke="#FF5A2D" stroke-width="23" stroke-linecap="round" fill="none"/>
+              <circle cx="214" cy="266" r="12.5" fill="#F7C9A3" stroke="#121212" stroke-width="3.2"/>
+              <path d="M222 258q7-4 9-1t-5 7" fill="#F7C9A3" stroke="#121212" stroke-width="2.8" stroke-linejoin="round"/>
+            </g>
+
+            <!-- head -->
+            <g id="head">
+              <path d="M144 112h14v22h-14z" fill="#F7C9A3" stroke="#121212" stroke-width="3.2"/>
+              <path d="M150 28q38 0 40 38 1 14-2 26 8 1 7 9-1 7-9 7-6 24-36 24t-36-24q-8 0-9-7-1-8 7-9-3-12-2-26 2-38 40-38Z"
+                    fill="#F7C9A3" stroke="#121212" stroke-width="3.4" stroke-linejoin="round"/>
+              <!-- hair: ink, slightly wobbly bob -->
+              <path d="M150 16q44 0 46 44 1 12-1 22-6-2-7-9-10 6-38 6t-38-6q-1 7-7 9-2-10-1-22 2-44 46-44Z" fill="#121212"/>
+              <path d="M104 60q-5 26 1 44 5-20 3-44Zm92 0q5 26-1 44-5-20-3-44Z" fill="#121212"/>
+              <g id="brows">
+                <path d="M126 62q9-5 18-1" fill="none" stroke="#121212" stroke-width="3.4" stroke-linecap="round"/>
+                <path d="M156 61q9-4 18 1" fill="none" stroke="#121212" stroke-width="3.4" stroke-linecap="round"/>
+              </g>
+              <g id="eyes">
+                <circle cx="134" cy="77" r="5.4" fill="#121212"/>
+                <circle cx="166" cy="77" r="5.4" fill="#121212"/>
+              </g>
+              <path d="M150 82v9q0 4 4 4" fill="none" stroke="#121212" stroke-width="3" stroke-linecap="round" opacity=".7"/>
+              <circle cx="122" cy="92" r="7" fill="#FF5A2D" opacity=".28"/>
+              <circle cx="178" cy="92" r="7" fill="#FF5A2D" opacity=".28"/>
+              <path id="mouth-rest" d="M140 104q10 9 20 0" fill="none" stroke="#121212" stroke-width="3.4" stroke-linecap="round"/>
+              <path id="mouth-grin" d="M136 101q14 18 28 0q-14 6-28 0Z" fill="#121212"/>
+              <ellipse id="mouth-talk" cx="150" cy="106" rx="9" ry="8" fill="#121212"/>
+            </g>
+          </g>
+        </g>
+      </svg>
+    </div>
+  </section>
+
+  <div class="dock">
+    <p class="say" id="say">Tap the button and say your answer. A mic is not needed to try it.</p>
+    <button class="btn" id="go">
+      <span id="goLabel">Start</span><span class="go" aria-hidden="true">&#187;</span>
+    </button>
+    <button class="minor hidden" id="minor">Type it instead</button>
+    <div class="typed" id="typed">
+      <label class="sr" for="typedIn">Type what you would say</label>
+      <input id="typedIn" type="text" autocomplete="off" placeholder="Type your answer" />
+      <button id="typedGo">Send</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------------- the conversation: three A2 turns at a cafe ---------------- */
+  const TURNS = [
+    { maya:"Hello! What would you like?",  model:"I'd like a coffee, please.",   keys:["like","coffee","please"],
+      good:"Lovely. A coffee it is.",      near:"Nearly. Listen once more." },
+    { maya:"Milk and sugar?",              model:"Just milk, no sugar, thanks.", keys:["milk","sugar","no"],
+      good:"Got it. Just milk.",           near:"Almost. Here it is slowly." },
+    { maya:"Anything to eat?",             model:"A cheese sandwich, please.",   keys:["cheese","sandwich","please"],
+      good:"Good choice. Coming up.",      near:"So close. One more listen." }
+  ];
+  const STICKERS = ["star","heart","spark","bolt","note","sun"];
+
+  const el = (id) => document.getElementById(id);
+  const app = el("app"), card = el("card"), bubble = el("bubble"), bubbleText = el("bubbleText");
+  const meBubble = el("meBubble"), meText = el("meText"), headline = el("headline"), sub = el("sub");
+  const say = el("say"), go = el("go"), goLabel = el("goLabel"), minor = el("minor");
+  const typed = el("typed"), typedIn = el("typedIn"), typedGo = el("typedGo");
+  const bars = el("bars"), burst = el("burst"), pips = el("pips");
+
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const canHear = !!SR;
+
+  let turn = 0, tries = 0, phase = "intro", wordTimer = null, lastSticker = -1;
+  const totals = { sounds:[], rhythm:[], words:[] };
+
+  /* ---------------- Maya's state: speaking, listening, reacting ---------------- */
+  function setPose(p){
+    card.classList.remove("speaking","listening","reacting");
+    if (p) card.classList.add(p);
+  }
+
+  /* ---------------- she speaks, with the words lighting up one by one -------- */
+  function speak(line, rate, done){
+    const words = line.split(" ");
+    bubble.classList.remove("hidden");
+    bubbleText.innerHTML = words.map((w,i)=>'<span class="w" data-i="'+i+'">'+w+'</span>').join(" ");
+    const spans = bubbleText.querySelectorAll(".w");
+    setPose("speaking");
+
+    let i = 0;
+    const step = () => {
+      spans.forEach((s,k)=>{ s.classList.toggle("now", k===i); if (k<i) s.classList.add("said"); });
+      if (i >= spans.length){
+        clearTimeout(wordTimer);
+        spans.forEach(s=>{ s.classList.remove("now"); s.classList.add("said"); });
+        setPose(null);
+        if (done) done();
+        return;
+      }
+      const w = spans[i].textContent;
+      i++;
+      wordTimer = setTimeout(step, (reduced ? 120 : 170) + w.length * (38 / rate));
+    };
+    clearTimeout(wordTimer);
+    step();
+
+    if (window.speechSynthesis){
+      try {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(line);
+        u.lang = "en-GB"; u.rate = rate;
+        window.speechSynthesis.speak(u);
+      } catch(e){}
+    }
+  }
+
+  /* ---------------- her turn, then the learner's ---------------- */
+  function startTurn(){
+    phase = "speaking";
+    headline.parentNode.classList.add("hidden");
+    meBubble.classList.add("hidden");
+    burst.classList.remove("go");
+    bars.classList.add("hidden");
+    paintPips();
+    setButton("Listening soon", true);
+    say.textContent = "";
+    speak(TURNS[turn].maya, 1, askLearner);
+  }
+
+  function askLearner(){
+    phase = "ready";
+    const t = TURNS[turn];
+    say.innerHTML = 'Say: <b>' + t.model.replace(/</g,"&lt;") + '</b>';
+    setButton(canHear ? "Say it" : "Say it", false);
+    minor.classList.remove("hidden");
+    go.classList.remove("live");
+  }
+
+  function setButton(label, off){
+    goLabel.textContent = label;
+    go.disabled = !!off;
+  }
+
+  /* ---------------- listening ---------------- */
+  let rec = null;
+  function listen(){
+    if (!canHear){ openTyped("No mic here. Type your answer instead."); return; }
+    phase = "listening";
+    setPose("listening");
+    go.classList.add("live");
+    setButton("I'm listening", false);
+    meBubble.classList.remove("hidden");
+    meText.textContent = "...";
+    try {
+      rec = new SR();
+      rec.lang = "en-GB"; rec.interimResults = true; rec.maxAlternatives = 1;
+      let heard = "";
+      rec.onresult = (ev) => {
+        let live = "";
+        for (let i = ev.resultIndex; i < ev.results.length; i++){
+          live += ev.results[i][0].transcript;
+          if (ev.results[i].isFinal) heard += ev.results[i][0].transcript;
+        }
+        meText.textContent = (heard || live).trim() || "...";
+      };
+      rec.onerror = () => { stopListening(); openTyped("I could not hear you. Type it instead."); };
+      rec.onend = () => {
+        go.classList.remove("live");
+        if (phase !== "listening") return;
+        const said = meText.textContent.trim();
+        if (!said || said === "...") { openTyped("I could not hear you. Type it instead."); return; }
+        judge(said);
+      };
+      rec.start();
+    } catch(e){
+      stopListening();
+      openTyped("No mic here. Type your answer instead.");
+    }
+  }
+
+  function stopListening(){
+    phase = "ready";
+    setPose(null);
+    go.classList.remove("live");
+    setButton("Say it", false);
+    if (rec) { try { rec.stop(); } catch(e){} }
+  }
+
+  function openTyped(message){
+    phase = "typing";
+    setPose("listening");
+    meBubble.classList.add("hidden");
+    if (message) say.textContent = message;
+    typed.classList.add("on");
+    go.classList.add("hidden");
+    minor.classList.add("hidden");
+    typedIn.value = "";
+    typedIn.placeholder = TURNS[turn].model;
+    typedIn.focus();
+  }
+
+  function closeTyped(){
+    typed.classList.remove("on");
+    go.classList.remove("hidden");
+  }
+
+  /* ---------------- scoring: three ink bars, never a percentage ------------- */
+  function norm(s){ return s.toLowerCase().replace(/[^a-z' ]/g," ").replace(/\s+/g," ").trim(); }
+
+  function judge(said){
+    phase = "reacting";
+    const t = TURNS[turn];
+    const heard = norm(said), model = norm(t.model);
+    const hw = heard ? heard.split(" ") : [], mw = model.split(" ");
+
+    const hits = t.keys.filter(k => hw.some(w => w === k || (k.length > 3 && w.indexOf(k.slice(0,4)) === 0)));
+    const words = hits.length / t.keys.length;
+    const overlap = mw.filter(w => hw.indexOf(w) > -1).length / mw.length;
+    const sounds = Math.min(1, overlap * 0.75 + words * 0.35);
+    const rhythm = Math.max(0.25, 1 - Math.abs(hw.length - mw.length) / Math.max(4, mw.length));
+
+    meBubble.classList.remove("hidden");
+    meText.textContent = said;
+
+    if (words >= 0.6 || tries >= 2){
+      totals.sounds.push(sounds); totals.rhythm.push(rhythm); totals.words.push(words);
+      reactGood(t);
+    } else {
+      tries++;
+      reactMiss(t);
+    }
+  }
+
+  function reactGood(t){
+    setPose("reacting");
+    paintSticker();
+    burst.classList.add("go");
+    say.textContent = "";
+    setButton("Next", true);
+    minor.classList.add("hidden");
+    closeTyped();
+    speak(t.good, 1, () => {
+      setPose("reacting");
+      setTimeout(() => {
+        turn++; tries = 0;
+        burst.classList.remove("go");
+        if (turn >= TURNS.length) finish(); else startTurn();
+      }, reduced ? 200 : 650);
+    });
+  }
+
+  function reactMiss(t){
+    setPose("listening");           // she leans in
+    closeTyped();
+    minor.classList.add("hidden");
+    setButton("Listen", true);
+    speak(t.near, 1, () => {
+      setPose("listening");
+      speak(t.model, 0.75, () => { setPose(null); askLearner(); });
+    });
+  }
+
+  /* one of six stickers, never the same twice in a row */
+  const SHAPES = {
+    star:'<path d="M37 3 44.6 24 65 16.4 57.4 37 71 44.6 50 52.2 52.2 71 37 59.8 21.8 71 24 52.2 3 44.6 16.6 37 9 16.4 29.4 24Z" fill="currentColor"/>',
+    heart:'<path d="M37 68S6 48 6 28A16 16 0 0 1 37 20 16 16 0 0 1 68 28c0 20-31 40-31 40Z" fill="currentColor"/>',
+    spark:'<path d="M37 2 42 30l28 7-28 7-5 28-5-28-28-7 28-7Z" fill="currentColor"/>',
+    bolt:'<path d="M44 2 14 40h18l-6 32 32-42H40Z" fill="currentColor"/>',
+    note:'<path d="M28 60a9 9 0 1 1-9-9c3 0 6 1 7 3V10l26-8v12L34 21v39Z" fill="currentColor"/>',
+    sun:'<circle cx="37" cy="37" r="16" fill="currentColor"/><g stroke="currentColor" stroke-width="5" stroke-linecap="round"><path d="M37 4v9M37 61v9M4 37h9M61 37h9M14 14l6 6M54 54l6 6M60 14l-6 6M20 54l-6 6"/></g>'
+  };
+  function paintSticker(){
+    let i;
+    do { i = Math.floor(Math.random() * STICKERS.length); } while (i === lastSticker);
+    lastSticker = i;
+    burst.querySelector("svg").innerHTML = SHAPES[STICKERS[i]];
+  }
+
+  /* ---------------- the "You did it" card ---------------- */
+  function finish(){
+    phase = "done";
+    setPose("reacting");
+    card.dataset.tone = "mint";
+    bubble.classList.add("hidden");
+    meBubble.classList.add("hidden");
+    burst.classList.remove("go");
+    headline.parentNode.classList.remove("hidden");
+    headline.textContent = "You did it";
+    sub.textContent = "You can now order a coffee at a cafe.";
+    paintPips(true);
+
+    const avg = (a) => a.length ? a.reduce((x,y)=>x+y,0) / a.length : 0;
+    const rows = [["Sounds", avg(totals.sounds)], ["Rhythm", avg(totals.rhythm)], ["Words", avg(totals.words)]];
+    bars.innerHTML = rows.map(r =>
+      '<div class="bar-row"><span class="bar-label">' + r[0] + '</span>' +
+      '<div class="track" role="img" aria-label="' + r[0] + ': ' + band(r[1]) + '"><i class="fill"></i></div></div>'
+    ).join("");
+    bars.classList.remove("hidden");
+    const fills = bars.querySelectorAll(".fill");
+    rows.forEach((r,i) => setTimeout(() => {
+      fills[i].style.width = Math.round(28 + r[1] * 72) + "%";
+    }, 160 + i * 60));
+
+    say.textContent = "";
+    setButton("Again", false);
+    minor.classList.add("hidden");
+    closeTyped();
+  }
+
+  function band(v){ return v >= 0.75 ? "strong" : v >= 0.45 ? "growing" : "getting started"; }
+
+  function paintPips(all){
+    const list = pips.children;
+    for (let i = 0; i < list.length; i++){
+      list[i].classList.toggle("done", all || i < turn);
+      list[i].classList.toggle("live", !all && i === turn);
+    }
+    pips.setAttribute("aria-label", all ? "All three turns done" : "Turn " + (turn + 1) + " of 3");
+  }
+
+  function reset(){
+    turn = 0; tries = 0; lastSticker = -1;
+    totals.sounds = []; totals.rhythm = []; totals.words = [];
+    card.dataset.tone = "sun";
+    bars.classList.add("hidden");
+    headline.textContent = "Talk with Maya";
+    sub.textContent = "Three short turns at a cafe. Say your answer out loud.";
+    headline.parentNode.classList.remove("hidden");
+    bubble.classList.add("hidden");
+    meBubble.classList.add("hidden");
+    setPose(null);
+    phase = "intro";
+    paintPips();
+    say.textContent = canHear ? "Tap the button and say your answer." : "Tap the button, then type your answer.";
+    setButton("Start", false);
+    minor.classList.add("hidden");
+    closeTyped();
+  }
+
+  /* ---------------- one button drives everything ---------------- */
+  go.addEventListener("click", () => {
+    if (phase === "intro" || phase === "done") { if (phase === "done") reset(); startTurn(); return; }
+    if (phase === "ready") { listen(); return; }
+    if (phase === "listening") { try { rec && rec.stop(); } catch(e){} return; }
+  });
+
+  minor.addEventListener("click", () => openTyped("Type what you would say."));
+  typedGo.addEventListener("click", sendTyped);
+  typedIn.addEventListener("keydown", (e) => { if (e.key === "Enter") sendTyped(); });
+  function sendTyped(){
+    const v = typedIn.value.trim();
+    if (!v) return;
+    closeTyped();
+    judge(v);
+  }
+
+  /* ---------------- light and dark ---------------- */
+  const sw = el("switch");
+  sw.addEventListener("click", () => {
+    const dark = document.documentElement.dataset.theme === "dark";
+    document.documentElement.dataset.theme = dark ? "light" : "dark";
+    sw.setAttribute("aria-label", dark ? "Switch to dark mode" : "Switch to light mode");
+    sw.innerHTML = dark
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="4.6"/><path d="M12 2.4v2M12 19.6v2M2.4 12h2M19.6 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5Z"/></svg>';
+  });
+
+  /* a small hook so the prototype can be driven in a browser check */
+  window.__maya = {
+    start: startTurn,
+    answer: (text) => judge(text),
+    pose: setPose,
+    listen: () => { phase = "listening"; setPose("listening"); go.classList.add("live"); setButton("I'm listening", false); meBubble.classList.remove("hidden"); meText.textContent = "I'd like a coffee"; },
+    finish: () => { totals.sounds=[.86,.8,.9]; totals.rhythm=[.78,.9,.84]; totals.words=[1,.67,1]; turn=3; finish(); },
+    state: () => phase
+  };
+
+  reset();
+})();
+</script>
+</body>
+</html>

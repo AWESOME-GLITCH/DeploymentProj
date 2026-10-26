@@ -190,7 +190,7 @@ Named people who are NOT drawn: Amira (a contact name on a phone), Arjun and Yus
 | atom_id | ATM-A2-INT-0009 |
 | title | We're out of oat milk |
 | sublevel / strand | A2.1 / INT (Interaction) |
-| type | video, 50 s, 1500 frames |
+| type | video, 54 s, 1620 frames |
 | single target | "Do you have ... instead?" with instead at the end, answered with "That's fine, thank you." |
 | characters | leo (barista), you (customer), maya (explain beat only, corner circle) |
 | setting | The Shoreditch cafe set from Cafe.tsx (window, shelves, hanging sign, counter) plus a glass-door fridge with milk cartons behind leo |
@@ -198,16 +198,28 @@ Named people who are NOT drawn: Amira (a contact name on a phone), Arjun and Yus
 
 ### Beats
 
+Re-cut 26 October 2026 to the board's attention rule, as the Cafe reference was:
+eleven beats of 2 to 7 seconds, every teaching beat ending on its stopping line
+with a `target` and a `pauseAt`, a prediction beat before the learner's line,
+the old twelve-second explain beat split in two, and two say-asks instead of one
+so the ask grows (the line, then the line with a new word in it). The recap
+narration is the self-efficacy close. Duration grew from 1500 to 1620 frames.
+Every `pauseAt` below is a settled frame: the composition holds it with nothing
+mid-move and the whole caption lit.
+
 | id | kind | from | to | narration (TTS) | targets | pauseAt | scene for the animator |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| hook | hook | 0 | 150 | A latte with oat milk, please. | | | Cafe set. you at the counter (facing left), leo behind it waves. you's bubble (tail right): "A latte with oat milk, please." A small oat-milk carton icon (blue, with an oat sprig) bounces beside the bubble. Camera at rest. |
-| n1 | notice | 150 | 300 | Sorry, we're out of oat milk. | out of | | leo turns to the fridge; the camera pans right with him. On the shelf, the oat-milk slot is empty: a dotted carton outline. Gag: leo lifts the last carton, turns it upside down, one drop falls with a tiny plink. leo's bubble (tail left): "Sorry, we're out of oat milk." with "out of" in ACCENT. leo shrugs, palms up. |
-| n2 | notice | 300 | 450 | Do you have soy milk instead? | instead | | Back to you. A soy carton (green) slides along the shelf from the right and stops in the empty slot with a soft bump, filling the dotted outline. you's bubble builds word by word and "instead" arrives last with an extra bounce and a saffron underline. you's arm "raise". |
-| n3 | notice | 450 | 540 | Yes, we do. | | | leo holds up the soy carton, nods twice. Bubble: "Yes, we do." A leaf tick pops over the carton. Short beat; hold on both characters smiling. |
-| n4 | notice | 540 | 690 | That's fine, thank you. | That's fine | | you's bubble: "That's fine, thank you." with "That's fine" in ACCENT. leo pours the soy milk into a latte cup (steam from the Cafe.tsx `Steam` helper), slides it across the counter to you. Fade on the cup. |
-| explain | explain | 690 | 1050 | Out of means none left. Instead means in its place. | Out of, Instead | | PAPER background, maya small in the corner circle. Top half: a shelf with two slots. The oat carton fades to a dotted outline (frame 720) and the label "out of = none left" appears under it in INK. Then the soy carton slides into the dotted slot (frame 840) and the label "instead = in its place" appears. Bottom half (frame 930): the question built as a little three-carriage train: "Do you have" (engine) + "soy milk" (carriage) + "instead?" (last carriage, ACCENT, with a small flag). The train rolls left to right so the learner sees instead is always the last carriage. |
-| practise | practise | 1050 | 1380 | Say it with me. Do you have soy milk instead? | Do you have, instead | 1260 | Pale blue background, leo large in a white circle, listening pose. Karaoke of "Do you have soy milk instead?" in 96 px; "instead" rises 10 px and turns ACCENT as it is spoken. At 1260 the mic pulses and the player pauses. On resume leo nods and the soy carton pops a tick. |
-| recap | recap | 1380 | 1500 | Do you have ... instead? That's fine. | Do you have, instead, That's fine | | ACCENT background, white card: "REMEMBER", line one "Do you have ... instead?" with the blank in saffron dots and "instead" in ACCENT, line two "That's fine." Below the card the dotted oat carton and the solid soy carton spring in side by side. |
+| hook | hook | 0 | 120 | A latte with oat milk, please. | | | Cafe set. you at the counter (facing left), leo behind it waves. you's bubble (tail right): "A latte with oat milk, please." A small oat-milk carton icon (blue, with an oat sprig) bounces on the counter. Camera at rest. |
+| n1 | notice | 120 | 270 | Sorry, we're out of oat milk. | out of | 252 | leo turns to the fridge; the camera pans right with him. On the shelf, the oat-milk slot is empty: a dotted carton outline. Gag: leo lifts the last carton, turns it upside down, one drop falls with a tiny plink. leo's bubble (tail left): "Sorry, we're out of oat milk." with "out of" in ACCENT. leo shrugs, palms up. The whole gag lands by 246, so the stop at 252 holds a settled frame. |
+| predict | notice | 270 | 330 | What do you say? | | 318 | The prediction moment. Camera pans back to you, who is thinking. A thought cloud over you holds a big ACCENT "?" and the two milks they can see in the fridge, soy and almond. Nothing is said; the caption asks the question in the learner's own language. Carries no `target`, so the player plays it straight through until a "predict" ask kind exists; the intended ask is one tap on a carton. |
+| n2 | notice | 330 | 480 | Do you have soy milk instead? | instead | 456 | A soy carton (green) slides along the shelf from the right and stops in the empty slot with a soft bump, filling the dotted outline. you's bubble builds word by word and "instead" arrives last. you's arm "raise". |
+| n3 | notice | 480 | 570 | Yes, we do. | | | leo holds up the soy carton, nods twice. Bubble: "Yes, we do." A leaf tick pops over the carton. Short beat, no ask; hold on both characters smiling. |
+| n4 | notice | 570 | 720 | That's fine, thank you. | That's fine | 696 | you's bubble: "That's fine, thank you." with "That's fine" in ACCENT. leo pours the soy milk into a latte cup (steam from the Cafe.tsx `Steam` helper), slides it across the counter to you. |
+| explain | explain | 720 | 900 | Out of means none left. | Out of | 876 | PAPER background, maya small in the corner circle. A shelf with two slots, sitting in the middle of the frame while it is the only thing on the page. The oat carton fades to a dotted outline (750) and the label "out of = none left" appears under it in INK (786). Nothing else: one idea, one stop. |
+| explain2 | explain | 900 | 1080 | Instead means in its place. | Instead | 1056 | The soy carton slides into the dotted slot (906 to 950) and the label "instead = in its place" appears (956). The shelf lifts 140 px (976) to make room, and the question rolls in as a three-carriage train (1004): "Do you have" (engine) + "soy milk" (carriage) + "instead?" (last carriage, ACCENT, with a small flag), so the learner sees instead is always the last carriage. |
+| practise | practise | 1080 | 1296 | Say it with me. Do you have soy milk instead? | Do you have, instead | 1266 | Pale blue background, leo large in a white circle, listening pose. Karaoke of "Do you have soy milk instead?" in 96 px; "instead" rises 10 px and turns ACCENT as it is spoken. The line is complete by 1230 and the mic is up and pulsing by 1266, which is the frame the player holds. On resume leo gives a thumbs up and the soy carton pops a tick. |
+| again | practise | 1296 | 1476 | Do you have almond milk instead? | almond milk, instead | 1446 | The same frame with a new word in it: the ask grows. Eyebrow "NOW THIS ONE", karaoke of "Do you have almond milk instead?" with "almond" and "instead?" in ACCENT. Mic up by 1446. On resume the almond carton pops a tick. |
+| recap | recap | 1476 | 1620 | You can ask for another milk. Again tomorrow. | another milk | | ACCENT background, white card: "REMEMBER", line one "Do you have ... instead?" with the blank in saffron dots and "instead" in ACCENT, line two "That's fine." The card holds the check stem; the self-efficacy close is the narration, so it is spoken and captioned in the learner's own language. Below the card the dotted oat carton and the solid soy carton spring in side by side. |
 
 ### L1 captions
 
@@ -215,18 +227,22 @@ Named people who are NOT drawn: Amira (a contact name on a phone), Arjun and Yus
 | --- | --- | --- | --- | --- | --- | --- |
 | hook | لاتيه بحليب الشوفان، من فضلك. | Un latte con leche de avena, por favor. | ओट मिल्क वाला लाते, कृपया। | Латте на овсяном молоке, пожалуйста. | Yulaf sütlü latte, lütfen. | 一杯燕麦奶拿铁，谢谢。 |
 | n1 | آسف، نفد حليب الشوفان. | Lo siento, no queda leche de avena. | माफ़ कीजिए, ओट मिल्क ख़त्म है। | Извините, овсяное молоко закончилось. | Üzgünüm, yulaf sütü bitti. | 抱歉，燕麦奶没了。 |
+| predict | ماذا تقول أنت؟ | ¿Qué dices tú? | आप क्या कहेंगे? | Что вы скажете? | Sen ne dersin? | 你会怎么说？ |
 | n2 | هل لديك حليب الصويا بدلًا منه؟ | ¿Tienes leche de soja en su lugar? | क्या इसकी जगह सोया मिल्क है? | А соевое молоко есть вместо него? | Onun yerine soya sütü var mı? | 那有豆奶吗？ |
 | n3 | نعم، لدينا. | Sí, tenemos. | हाँ, है। | Да, есть. | Evet, var. | 有的。 |
 | n4 | لا بأس، شكرًا. | Está bien, gracias. | ठीक है, धन्यवाद। | Хорошо, спасибо. | Tamam, teşekkürler. | 好的，谢谢。 |
-| explain | Out of تعني لم يبقَ شيء. Instead تعني بدلًا منه. | Out of: no queda. Instead: en su lugar. | Out of मतलब ख़त्म। Instead मतलब उसकी जगह। | Out of: ничего не осталось. Instead: вместо него. | Out of: kalmadı. Instead: onun yerine. | Out of 表示没了。Instead 表示代替。 |
+| explain | Out of تعني لم يبقَ شيء. | Out of: no queda. | Out of मतलब ख़त्म। | Out of: ничего не осталось. | Out of: kalmadı. | Out of 表示没了。 |
+| explain2 | Instead تعني بدلًا منه. | Instead: en su lugar. | Instead मतलब उसकी जगह। | Instead: вместо него. | Instead: onun yerine. | Instead 表示代替。 |
 | practise | قلها معي. | Dilo conmigo. | मेरे साथ बोलो। | Скажи со мной. | Benimle söyle. | 跟我一起说。 |
-| recap | هل لديك ... بدلًا منه؟ لا بأس. | ¿Tienes ... en su lugar? Está bien. | क्या ... इसकी जगह है? ठीक है। | А ... есть вместо него? Хорошо. | Onun yerine ... var mı? Tamam. | 那有……吗？好的。 |
+| again | هل لديك حليب اللوز بدلًا منه؟ | ¿Tienes leche de almendra en su lugar? | क्या इसकी जगह आमंड मिल्क है? | А миндальное молоко есть вместо него? | Onun yerine badem sütü var mı? | 那有杏仁奶吗？ |
+| recap | يمكنك أن تطلب حليبًا آخر. غدًا مرة أخرى. | Ya puedes pedir otra leche. Mañana otra vez. | अब आप दूसरा दूध माँग सकते हैं। कल फिर। | Теперь вы можете попросить другое молоко. Завтра снова. | Artık başka bir süt isteyebilirsin. Yarın tekrar. | 你现在可以要另一种奶了。明天再来。 |
 
 ### Interactive moments
 
-- Tappable words: all caption words; the two cartons in the explain beat are chips that play "out of oat milk" and "soy milk instead".
-- At the pause (frame 1260) the learner says: "Do you have soy milk instead?" Model answer: the same line. Scored as read-aloud with "instead" weighted; the roleplay item ITM-INT-0904 then puts the learner opposite Leo for three turns.
-- Extra tap: in n2 the fridge shelf shows three cartons for 90 frames: oat (dotted outline), soy, almond. Tapping any solid carton slides it into the empty slot and plays "Do you have [soy/almond] milk instead?"; tapping the dotted oat carton makes it wobble and replays "we're out of oat milk".
+- Tappable words: all caption words; the two cartons in the explain beats are chips that play "out of oat milk" and "soy milk instead".
+- Six stops, growing: tap the key words at 252, say the line at 456 and 696, tap the meaning at 876 and 1056, say it at 1266, then say it with a new word at 1446. Nothing passive runs longer than 8.4 s and the first ask lands at 8.4 s.
+- At 1266 the learner says "Do you have soy milk instead?" and at 1446 "Do you have almond milk instead?" Both scored as read-aloud with "instead" weighted; the roleplay item ITM-INT-0904 then puts the learner opposite Leo for three turns.
+- Prediction (frame 318, `predict` beat): "What do you say?" with the thought cloud up, before n2 gives the line. The ask is one tap on the soy or almond carton, each playing "Do you have [soy/almond] milk instead?"; tapping the dotted oat carton makes it wobble and replays "we're out of oat milk". **Not wired yet**: `asksFor` has no predict kind and the `Beat` kind union in `Cafe.tsx` has no `predict` member, so the beat carries no `target` and plays straight through. Its `pauseAt` of 318 is where the stop belongs once both exist.
 
 ---
 

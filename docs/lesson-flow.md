@@ -132,13 +132,14 @@ an item earns its place only if it ends in the learner saying the target
 sentence. Tap-order, gap-fill and error-spot survive only as a 20 second run-up
 inside a step that finishes in speech.
 
-| Keep | Why |
-|---|---|
-| `ITM-INT-0105` say it, see it: order two large coffees | The Say it turn itself |
-| `ITM-INT-0104` transform: make it polite | Run-up, then said aloud |
-| `ITM-INT-0106` gap fill: I'd ___ a coffee | The delayed check, one item |
-| `ITM-INT-0902` / `ITM-INT-0904` out of oat milk | Use it in a changed situation |
-| `ITM-INT-1004` ask for the bill | Use it in a changed situation |
+Taking the cafe lesson, ATM-A2-INT-0001, as the worked case:
+
+| Keep | Step it sits in | Why |
+|---|---|---|
+| `ITM-INT-0105` say it, see it: order two large coffees | Say it, opens at 1:00 | The spoken turn itself |
+| `ITM-INT-0104` transform: make it polite | The run-up, 20 seconds | One scaffold, then said aloud |
+| `ITM-INT-0107` roleplay: no large cups today | Use it | The whole exchange, with a problem to repair |
+| `ITM-INT-0106` gap fill: I'd ___ a coffee | The delayed check | One item, after the sentence has landed |
 
 | Cut from week one | Why |
 |---|---|
@@ -146,12 +147,30 @@ inside a step that finishes in speech.
 | `ITM-INT-0102` gap fill: Could I have | Recognition only, and the form returns in the check. |
 | `ITM-INT-0103` pick the picture | Listening dressed as the cafe lesson. It belongs in the LST atom. |
 
-Same test applied across the week: `ITM-GRM-0201`, `ITM-GRM-0203`,
-`ITM-GRM-0206`, `ITM-WRT-0701` and `ITM-WRT-0705` are tapping items whose
-criterion is already carried by a spoken or written production item in the same
-atom. Keep one run-up per atom, cut the rest from week one. They stay in the
-bank for the practice deck and for recall echoes, where tapping is the right
-shape because the work is remembering, not producing.
+The changed-situation item stays inside its own atom. `ITM-INT-0107` is the
+cafe atom's; `ITM-INT-0904` is the oat-milk atom's, and `ITM-INT-1006` the
+bill atom's. An earlier draft of this table borrowed `ITM-INT-0902` across
+atoms, which would have put the oat-milk problem inside the cafe lesson.
+
+Same test applied across the week. As built, the cut is:
+
+| Atom | Cut | Keeps as the run-up |
+|---|---|---|
+| ATM-A2-INT-0001 | `ITM-INT-0101`, `ITM-INT-0102`, `ITM-INT-0103` | `ITM-INT-0104` |
+| ATM-A2-GRM-0002 | `ITM-GRM-0201`, `ITM-GRM-0203` | `ITM-GRM-0202`, `ITM-GRM-0204` |
+| ATM-A1-SPK-0005 | `ITM-SPK-0503` | `ITM-SPK-0504`, `ITM-SPK-0502` |
+| ATM-A2-WRT-0007 | `ITM-WRT-0701` | `ITM-WRT-0702`, `ITM-WRT-0703` |
+| ATM-A2-INT-0009 | `ITM-INT-0903` | `ITM-INT-0901`, `ITM-INT-0902` |
+| ATM-A2-INT-0010 | `ITM-INT-1003` | `ITM-INT-1001`, `ITM-INT-1002` |
+| ATM-A2-LST-0004, ATM-A2-RDG-0006 | nothing | all four: there the recognition work is the criterion |
+| ATM-A2-MED-0008, ATM-A2-GRM-0003 | nothing | all three: the three facts, and the three time frames, are what the criterion names |
+
+Cut items stay in `ITEMS` and in each atom's `target_items`, so they remain
+reachable from the practice deck and from a recall echo, where tapping is the
+right shape because the work there is remembering, not producing.
+
+`ITM-GRM-0206` and `ITM-WRT-0705` are not cuts: they are the delayed checks of
+their atoms. An earlier draft of this section listed them as cuts.
 
 ## Measured, not assumed
 
@@ -174,9 +193,13 @@ items cost a second each under the tester hook. Priced at a learner's real pace
 those four items cost 60 to 80 seconds rather than 7, which puts the coached
 turn at roughly 115 to 135 seconds.
 
-The fix is the atom phase swap, not more engine work: moving `free_use` ahead of
-`controlled` puts the coached turn straight after the notice, at about 65
-seconds. That change is with the CEFR Content Lead, who owns `content.ts`.
+The fix was in the atoms, not in more engine work: putting `free_use` ahead of
+`controlled` puts the coached turn straight after the notice. That change has
+now landed in `content.ts` for all ten week-one atoms (LEA-46). On the data, the
+cafe atom's input runs 50 seconds and the notice about 10, so the spoken turn
+opens at about 1:00, and the longest input in the ten is 55 seconds, so no atom
+opens its spoken turn later than about 1:05. The figures above are the old
+walkthrough and still need re-measuring against the new order.
 
 ### Seen, not just measured
 
@@ -271,11 +294,13 @@ looking at. That split is the whole of the remaining gap.
 |---|---|---|---|
 | Learning Designer | `composeSession` in `lib/learning-path/engine.ts`: the session opens on the scene, the recall echo moves after the new atom, the plan screen goes (Home already carries the plan). | this ticket | **Done**, and the five session shapes above are its output |
 | Copywriter (LP-70) | The exact strings in the three responses table, and the one close sentence. | LEA-48, ruled on LEA-50 | **Delivered.** Five keys live in `i18n.ts` with six translations; folded into this doc above |
-| CEFR Content Lead (LP-60) | Bring atoms 1 to 10 onto the five-phase shape above, and the item cut below. Atoms 12 to 19 already have it. | LEA-46 | **Open, and it is the one thing still holding the 90-second rule.** `content.ts` is theirs; not touched from here |
+| CEFR Content Lead (LP-60) | Bring atoms 1 to 10 onto the five-phase shape above, and the item cut below. Atoms 12 to 19 already had it. | LEA-46 | **Done.** All ten read `input -> noticing -> free_use -> controlled -> free_use -> check`, each third phase opens on a spoken item, no item reference dangles, cut items survive in `ITEMS` and `target_items`, `tsc` clean |
 | Front-end Builder | `Coach.tsx`: the three responses named and nothing else; no score shown on a near attempt; both landed branches fall to `coach_clear`. | LEA-47 | **Open.** `"Good try."`, `"Good. Almost every word."` and `"Every word. Well done."` are all still in the file |
 
-The 90-second rule is met in the engine and not yet met in the product. The only
-remaining blocker is the atom phase swap on LEA-46: until `free_use` sits before
-`controlled`, four tapping items stand between the scene and the first spoken
-turn, which prices the coached turn at 115 to 135 seconds at a learner's real
-pace. Nothing else on this list changes that number.
+The 90-second rule is now met in the engine and in the content data: nothing
+tapping stands between the scene and the first spoken turn in any of the ten
+atoms. What is outstanding is the evidence, not the change. The walkthrough
+needs re-running against the new order to replace the 115 to 135 second figure
+with a measured one, and that measurement is the last item on this ticket.
+LEA-47 does not move the number; it is about which words the coach says once the
+learner has spoken.

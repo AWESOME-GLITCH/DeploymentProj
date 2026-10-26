@@ -1,0 +1,842 @@
+<!doctype html>
+<html lang="en-GB" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Listen and pick - Learning Path prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  /* ---------- tokens (board brief, 26 Oct) ---------- */
+  :root {
+    --sun: #FFD93D;
+    --lilac: #CDB8FF;
+    --tangerine: #FF5A2D;
+    --mint: #A8F0C6;
+    --sky: #BFE3FF;
+    --ink: #121212;
+    --cream: #FFF7E8;
+    --paper: #FFFFFF;
+
+    --page: var(--cream);
+    --on-page: var(--ink);
+    --card: var(--paper);
+    --on-card: var(--ink);
+    --line: var(--ink);
+    --art-fill: var(--cream);
+
+    --spring: cubic-bezier(.34, 1.56, .64, 1);
+    --r-card: 28px;
+    --r-tile: 24px;
+  }
+
+  [data-theme="dark"] {
+    --page: #121212;
+    --on-page: var(--cream);
+    --card: #1E1E1E;
+    --on-card: var(--cream);
+    --line: var(--cream);
+    --art-fill: #1E1E1E;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    background: var(--page);
+    color: var(--on-page);
+    font-family: "Plus Jakarta Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 240ms ease, color 240ms ease;
+  }
+
+  /* ---------- phone frame ---------- */
+  .phone {
+    position: relative;
+    width: 390px;
+    height: 844px;
+    max-height: 100dvh;
+    overflow: hidden;
+    background: var(--page);
+    display: flex;
+    flex-direction: column;
+    padding: 18px 20px 22px;
+    transition: background 240ms ease;
+  }
+
+  /* ---------- top bar ---------- */
+  .top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 36px;
+    flex: 0 0 auto;
+  }
+
+  .steps { display: flex; gap: 7px; flex: 1 1 auto; }
+
+  .step {
+    height: 9px;
+    flex: 1 1 0;
+    border-radius: 99px;
+    border: 2.5px solid var(--line);
+    background: transparent;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .step::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--line);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 320ms var(--spring);
+  }
+
+  .step[data-state="done"]::after { transform: scaleX(1); }
+  .step[data-state="now"]::after { transform: scaleX(.4); }
+
+  .toggle {
+    appearance: none;
+    border: 2.5px solid var(--line);
+    background: transparent;
+    color: var(--on-page);
+    width: 46px;
+    height: 32px;
+    border-radius: 99px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex: 0 0 auto;
+    transition: transform 220ms var(--spring);
+  }
+
+  .toggle:active { transform: scale(.92); }
+  .toggle svg { width: 18px; height: 18px; display: block; }
+  [data-theme="light"] .toggle .moon { display: block; }
+  [data-theme="light"] .toggle .sun-i { display: none; }
+  [data-theme="dark"] .toggle .moon { display: none; }
+  [data-theme="dark"] .toggle .sun-i { display: block; }
+
+  /* ---------- headline ---------- */
+  .head { flex: 0 0 auto; margin-top: 14px; }
+
+  h1 {
+    font-size: 34px;
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -.02em;
+    margin: 0;
+  }
+
+  .sub {
+    margin: 7px 0 0;
+    font-size: 15px;
+    font-weight: 600;
+    opacity: .72;
+  }
+
+  /* ---------- coach card ---------- */
+  .coach-card {
+    flex: 0 0 auto;
+    margin-top: 14px;
+    position: relative;
+    height: 222px;
+    border-radius: var(--r-card);
+    border: 3px solid var(--ink);
+    background: var(--sun);
+    color: var(--ink);
+    padding: 14px 16px;
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    overflow: hidden;
+  }
+
+  .coach-art {
+    position: absolute;
+    left: 6px;
+    bottom: -6px;
+    width: 196px;
+    height: 206px;
+    pointer-events: none;
+  }
+
+  .coach-art svg { width: 100%; height: 100%; display: block; }
+
+  #maya { transform-origin: 50% 90%; transition: transform 340ms var(--spring); }
+  #maya.lean { transform: translate(14px, 4px) rotate(6deg) scale(1.05); }
+
+  .breathe { animation: breathe 2800ms ease-in-out infinite; transform-origin: 50% 95%; }
+  @keyframes breathe { 0%, 100% { transform: scaleY(1) } 50% { transform: scaleY(1.022) } }
+
+  .mouth-open { opacity: 0; }
+  .speaking .mouth-open { opacity: 1; animation: talk 260ms ease-in-out infinite alternate; transform-origin: 80px 71px; }
+  .speaking .mouth-rest { opacity: 0; }
+  @keyframes talk { from { transform: scaleY(.35) } to { transform: scaleY(1) } }
+
+  .wave { opacity: 0; transition: opacity 180ms ease; }
+  .speaking .wave { opacity: 1; animation: wave 900ms ease-in-out infinite; }
+  .speaking .wave:nth-of-type(2) { animation-delay: 120ms; }
+  .speaking .wave:nth-of-type(3) { animation-delay: 240ms; }
+  @keyframes wave { 0%, 100% { opacity: .25 } 40% { opacity: 1 } }
+
+  .twinkle { animation: twinkle 4s ease-in-out infinite; transform-origin: center; }
+  .twinkle.b { animation-delay: 1.3s; }
+  .twinkle.c { animation-delay: 2.6s; }
+  @keyframes twinkle { 0%, 100% { opacity: .25; transform: scale(.82) } 50% { opacity: 1; transform: scale(1.1) } }
+
+  /* words bubble + replay, stacked on the right of the coach */
+  .coach-side {
+    position: relative;
+    margin-left: auto;
+    width: 178px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    z-index: 2;
+  }
+
+  .bubble {
+    border: 3px solid var(--ink);
+    background: var(--cream);
+    border-radius: 20px 20px 20px 6px;
+    padding: 10px 12px;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.25;
+    opacity: 0;
+    transform: translateY(8px) scale(.94);
+    transition: opacity 220ms ease, transform 300ms var(--spring);
+  }
+
+  .bubble.show { opacity: 1; transform: none; }
+
+  .pill {
+    appearance: none;
+    border: 0;
+    width: 100%;
+    height: 56px;
+    border-radius: 99px;
+    background: var(--ink);
+    color: #fff;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    cursor: pointer;
+    transition: transform 220ms var(--spring);
+  }
+
+  .pill:active { transform: scale(.95); }
+  .pill svg { width: 20px; height: 20px; }
+
+  .ghost {
+    appearance: none;
+    border: 0;
+    background: none;
+    padding: 6px 2px;
+    min-height: 44px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+    text-align: left;
+  }
+
+  /* ---------- answer grid ---------- */
+  .grid {
+    flex: 1 1 auto;
+    margin-top: 14px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 12px;
+    min-height: 0;
+  }
+
+  .tile {
+    appearance: none;
+    font-family: inherit;
+    position: relative;
+    border: 3px solid var(--line);
+    border-radius: var(--r-tile);
+    background: var(--card);
+    color: var(--on-card);
+    padding: 8px 10px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    overflow: visible;
+    opacity: 0;
+    transform: translateY(14px) scale(.96);
+    animation: pop 360ms var(--spring) forwards;
+    transition: background 200ms ease, opacity 220ms ease, transform 300ms var(--spring);
+  }
+
+  .tile:nth-child(1) { animation-delay: 60ms; }
+  .tile:nth-child(2) { animation-delay: 120ms; }
+  .tile:nth-child(3) { animation-delay: 180ms; }
+  .tile:nth-child(4) { animation-delay: 240ms; }
+  @keyframes pop {
+    0% { opacity: 0; transform: translateY(14px) scale(.94) }
+    70% { opacity: 1; transform: translateY(0) scale(1.04) }
+    100% { opacity: 1; transform: none }
+  }
+
+  .tile svg { width: 100%; height: 100%; display: block; }
+  .tile .art { width: 112px; height: 92px; flex: 0 1 auto; margin-top: 4px; }
+
+  .tile .word {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -.01em;
+  }
+
+  .tile:active { transform: scale(.96); }
+
+  .tile.right {
+    background: var(--mint);
+    color: var(--ink);
+    border-color: var(--ink);
+    animation: hit 420ms var(--spring);
+  }
+
+  @keyframes hit {
+    0% { transform: scale(1) }
+    45% { transform: scale(1.07) rotate(-1.5deg) }
+    100% { transform: scale(1) }
+  }
+
+  .tile.miss { animation: nudge 360ms ease-out; }
+  @keyframes nudge {
+    0% { transform: none }
+    50% { transform: translateY(5px) scale(.97) }
+    100% { transform: none }
+  }
+
+  .tile.dim { opacity: .34; }
+
+  .sticker {
+    position: absolute;
+    top: -16px;
+    right: -12px;
+    width: 46px;
+    height: 46px;
+    opacity: 0;
+    transform: scale(.2) rotate(-24deg);
+    pointer-events: none;
+  }
+
+  .sticker.go {
+    animation: stick 420ms var(--spring) forwards;
+  }
+
+  @keyframes stick {
+    0% { opacity: 0; transform: scale(.2) rotate(-24deg) }
+    100% { opacity: 1; transform: scale(1) rotate(0) }
+  }
+
+  /* focus */
+  :focus { outline: none; }
+  :focus-visible {
+    outline: 4px solid var(--tangerine);
+    outline-offset: 3px;
+    border-radius: 18px;
+  }
+  .pill:focus-visible, .toggle:focus-visible { outline-offset: 4px; border-radius: 99px; }
+
+  /* ---------- done screen ---------- */
+  .done {
+    position: absolute;
+    inset: 18px 20px 22px;
+    border-radius: var(--r-card);
+    border: 3px solid var(--ink);
+    background: var(--mint);
+    color: var(--ink);
+    padding: 26px 22px 22px;
+    display: none;
+    flex-direction: column;
+    z-index: 5;
+  }
+
+  .done.show {
+    display: flex;
+    animation: pop 380ms var(--spring) both;
+  }
+
+  .done h2 {
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -.02em;
+    margin: 0;
+  }
+
+  .done .sub { opacity: .78; margin-top: 8px; }
+  .done-art { flex: 1 1 auto; min-height: 0; margin: 4px 0 12px; }
+  .done-art svg { width: 100%; height: 100%; display: block; }
+
+  .sr {
+    position: absolute;
+    width: 1px; height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::after { animation: none !important; transition-duration: 1ms !important; }
+    .tile, .bubble { opacity: 1 !important; transform: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="phone" id="phone">
+
+  <div class="top">
+    <div class="steps" id="steps" role="img" aria-label="Round 1 of 3">
+      <span class="step" data-state="now"></span>
+      <span class="step"></span>
+      <span class="step"></span>
+    </div>
+    <button class="toggle" id="themeBtn" type="button" aria-label="Switch to dark mode">
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20 14.5A8.2 8.2 0 0 1 9.6 4 8.4 8.4 0 1 0 20 14.5Z" />
+      </svg>
+      <svg class="sun-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="4.4" />
+        <path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6" />
+      </svg>
+    </button>
+  </div>
+
+  <div class="head">
+    <h1>Listen and pick</h1>
+    <p class="sub" id="sub">Maya orders. Tap what she asks for.</p>
+  </div>
+
+  <section class="coach-card" aria-label="Maya says a line">
+    <div class="coach-art">
+      <svg viewBox="0 0 196 206" id="mayaSvg" aria-hidden="true">
+        <g id="maya" fill="none" stroke="#121212" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+          <!-- sound waves -->
+          <path class="wave" d="M132 72 q10 13 0 26" />
+          <path class="wave" d="M144 62 q16 23 0 46" />
+          <path class="wave" d="M156 52 q22 33 0 66" />
+
+          <g class="breathe">
+            <!-- jumper -->
+            <path d="M58 182 q-2-40 14-54 q12-10 26-10 q14 0 26 10 q16 14 14 54 z" fill="#FFF7E8" />
+            <!-- left arm raised, holding a cup -->
+            <path d="M62 132 q-18-4-22-20 q-3-13 4-20" stroke-width="10" />
+            <path d="M36 92 q-6-9 1-14 q7-5 12 2 q4 7-2 12 q-6 4-11 0 z" fill="#FFF7E8" />
+            <path d="M30 76 q-1-14 2-18 l20 2 q2 5 0 18 q-1 6-8 6 h-6 q-7 0-8-8 z" fill="#FFD93D" />
+            <path d="M30 62 q11 4 22 0" />
+            <!-- right arm down -->
+            <path d="M134 134 q16 2 20 18" stroke-width="10" />
+            <!-- neck -->
+            <path d="M88 112 h18 v14 h-18 z" fill="#FFF7E8" stroke="none" />
+            <path d="M88 112 v12 M106 112 v12" />
+            <!-- head -->
+            <path d="M97 44 q22 0 25 25 q3 28-10 38 q-7 6-15 6 q-8 0-15-6 q-13-10-10-38 q3-25 25-25 z" fill="#FFF7E8" />
+            <!-- ear -->
+            <path d="M71 80 q-7-2-7 5 q0 7 7 6" />
+            <!-- hair -->
+            <path d="M70 70 q-4-30 12-38 q10-5 20-4 q24 2 26 26 q1 10-1 16 q-6-16-22-19 q-18-3-35 19 z" fill="#121212" stroke="#121212" />
+            <circle cx="138" cy="44" r="13" fill="#121212" stroke="#121212" />
+            <!-- eyes, brows, cheeks -->
+            <circle cx="86" cy="80" r="3.4" fill="#121212" stroke="none" />
+            <circle cx="108" cy="80" r="3.4" fill="#121212" stroke="none" />
+            <path d="M81 71 q5-3 10-1 M103 70 q5-2 10 1" stroke-width="3" />
+            <!-- mouth -->
+            <path class="mouth-rest" d="M89 92 q8 7 16-1" />
+            <ellipse class="mouth-open" cx="97" cy="93" rx="8" ry="6.4" fill="#121212" stroke="#121212" stroke-width="2" />
+          </g>
+
+          <!-- stickers -->
+          <path class="twinkle" d="M168 34 l4 10 10 4 -10 4 -4 10 -4-10 -10-4 10-4 z" fill="#121212" stroke="none" />
+          <path class="twinkle b" d="M22 38 l3 7 7 3 -7 3 -3 7 -3-7 -7-3 7-3 z" fill="#121212" stroke="none" />
+          <path class="twinkle c" d="M176 120 q6-6 10 0 q4 6-5 12 q-9-6-5-12 z" fill="#121212" stroke="none" />
+        </g>
+      </svg>
+    </div>
+
+    <div class="coach-side">
+      <p class="bubble" id="bubble">&ldquo;A coffee, please.&rdquo;</p>
+      <button class="pill" id="playBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 9.5h3.5L13 5v14L7.5 14.5H4z" />
+          <path d="M17 9.2q2.4 2.8 0 5.6" />
+        </svg>
+        <span id="playLabel">Hear it</span>
+      </button>
+      <button class="ghost" id="wordsBtn" type="button">Show the words</button>
+    </div>
+  </section>
+
+  <div class="grid" id="grid" role="group" aria-label="Pick one"></div>
+
+  <section class="done" id="done" aria-hidden="true">
+    <h2>You can now order at a cafe</h2>
+    <p class="sub">Three lines, three right. Your ears are working.</p>
+    <div class="done-art">
+      <svg viewBox="0 0 300 220" fill="none" stroke="#121212" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <!-- Maya holding a cup, with a star -->
+        <g class="breathe">
+          <path d="M104 212 q-2-44 16-58 q13-11 29-11 q16 0 29 11 q18 14 16 58 z" fill="#FFF7E8" />
+          <path d="M112 152 q-20-6-24-24" stroke-width="10" />
+          <path d="M178 152 q20-6 24-24" stroke-width="10" />
+          <path d="M139 124 h20 v15 h-20 z" fill="#FFF7E8" stroke="none" />
+          <path d="M139 124 v13 M159 124 v13" />
+          <path d="M149 52 q24 0 27 27 q3 30-11 41 q-7 6-16 6 q-9 0-16-6 q-14-11-11-41 q3-27 27-27 z" fill="#FFF7E8" />
+          <path d="M121 90 q-8-2-8 5 q0 8 8 7" />
+          <path d="M121 79 q-4-32 13-41 q11-5 21-4 q26 2 28 28 q1 11-1 17 q-6-17-24-20 q-19-3-37 20 z" fill="#121212" stroke="#121212" />
+          <circle cx="186" cy="52" r="14" fill="#121212" stroke="#121212" />
+          <circle cx="137" cy="90" r="3.6" fill="#121212" stroke="none" />
+          <circle cx="161" cy="90" r="3.6" fill="#121212" stroke="none" />
+          <path d="M131 80 q6-3 11-1 M156 79 q6-2 11 1" stroke-width="3" />
+          <path d="M139 103 q10 9 20-1" />
+          <!-- cup in her hand -->
+          <path d="M74 62 h40 l-4 30 q-1 7-9 7 h-14 q-8 0-9-7 z" fill="#FFF7E8" />
+          <path d="M114 70 q12 1 11 11 q-1 9-13 9" />
+          <path d="M76 70 q19 5 36 0" stroke-width="4" />
+          <path d="M88 48 q7-7 0-14 M102 50 q7-7 0-14" />
+        </g>
+        <path class="twinkle" d="M240 40 l6 14 14 6 -14 6 -6 14 -6-14 -14-6 14-6 z" fill="#121212" stroke="none" />
+        <path class="twinkle b" d="M244 128 l4 9 9 4 -9 4 -4 9 -4-9 -9-4 9-4 z" fill="#121212" stroke="none" />
+        <path class="twinkle c" d="M44 140 q7-7 12 0 q5 7-6 14 q-11-7-6-14 z" fill="#121212" stroke="none" />
+      </svg>
+    </div>
+    <button class="pill" id="againBtn" type="button">Again <span aria-hidden="true">&raquo;</span></button>
+  </section>
+
+  <p class="sr" id="live" role="status" aria-live="polite"></p>
+</div>
+
+<!-- ---------- illustration library (hand-drawn ink outline) ---------- -->
+<svg style="display:none" aria-hidden="true">
+  <symbol id="art-coffee" viewBox="0 0 120 96">
+    <g fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M44 20 q8-9 0-16 M62 22 q9-9 0-17" />
+      <path d="M32 32 h56 l-5 38 q-1 9-11 9 h-24 q-10 0-11-9 z" fill="var(--art-fill)" />
+      <path d="M88 42 q15 1 14 13 q-1 12-17 11" />
+      <path d="M34 42 q27 6 53 0" stroke-width="5.5" />
+      <path d="M22 86 q38 12 76 0" />
+    </g>
+  </symbol>
+
+  <symbol id="art-two" viewBox="0 0 120 96">
+    <g fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M26 24 q7-8 0-14 M78 22 q7-8 0-14" />
+      <path d="M58 38 h40 l-4 30 q-1 8-9 8 h-18 q-8 0-9-8 z" fill="var(--art-fill)" />
+      <path d="M98 46 q12 1 11 10 q-1 10-14 9" />
+      <path d="M60 46 q19 5 37 0" stroke-width="5" />
+      <path d="M12 38 h40 l-4 30 q-1 8-9 8 h-18 q-8 0-9-8 z" fill="var(--art-fill)" />
+      <path d="M52 46 q12 1 11 10 q-1 10-14 9" />
+      <path d="M14 46 q19 5 37 0" stroke-width="5" />
+      <path d="M8 84 q52 11 104 0" />
+    </g>
+  </symbol>
+
+  <symbol id="art-tea" viewBox="0 0 120 96">
+    <g fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M34 34 h52 l-5 36 q-1 9-11 9 h-21 q-10 0-11-9 z" fill="var(--art-fill)" />
+      <path d="M86 44 q14 1 13 12 q-1 11-16 10" />
+      <path d="M36 44 q25 6 49 0" stroke-width="5.5" />
+      <path d="M68 40 q6-14 16-18" />
+      <path d="M78 10 h20 v16 h-20 z" fill="var(--art-fill)" />
+      <path d="M83 16 h10 M83 21 h6" stroke-width="2.6" />
+      <path d="M24 86 q36 12 72 0" />
+    </g>
+  </symbol>
+
+  <symbol id="art-bill" viewBox="0 0 120 96">
+    <g fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M26 10 h58 v62 l-7-5 -8 6 -8-6 -8 6 -8-6 -8 5 -3-2 z" fill="var(--art-fill)" />
+      <path d="M38 26 h34 M38 38 h34 M38 50 h22" stroke-width="3.2" />
+      <circle cx="90" cy="70" r="17" fill="var(--art-fill)" />
+      <path d="M90 61 l2.6 5.6 6 2.6 -6 2.6 -2.6 5.6 -2.6-5.6 -6-2.6 6-2.6 z" fill="currentColor" stroke="none" />
+    </g>
+  </symbol>
+
+  <!-- six stickers: never the same one twice in a row -->
+  <symbol id="st-0" viewBox="0 0 48 48"><path d="M24 2 l6 14 14 6 -14 6 -6 14 -6-14 -14-6 14-6 z" fill="#121212" /></symbol>
+  <symbol id="st-1" viewBox="0 0 48 48"><path d="M24 42 C8 30 4 22 8 15 q7-11 16 1 q9-12 16-1 q4 7-16 27 z" fill="#121212" /></symbol>
+  <symbol id="st-2" viewBox="0 0 48 48"><g fill="#121212"><path d="M18 4 l4 9 9 4 -9 4 -4 9 -4-9 -9-4 9-4 z" /><path d="M36 24 l3 6 6 3 -6 3 -3 6 -3-6 -6-3 6-3 z" /></g></symbol>
+  <symbol id="st-3" viewBox="0 0 48 48"><path d="M8 34 q6-16 14-8 q7 7 12-4 q6-12 8 2" fill="none" stroke="#121212" stroke-width="5" stroke-linecap="round" /></symbol>
+  <symbol id="st-4" viewBox="0 0 48 48"><path d="M24 3 l5 10 10-5 -4 11 11 5 -11 5 4 11 -10-5 -5 10 -5-10 -10 5 4-11 -11-5 11-5 -4-11 10 5 z" fill="#121212" /></symbol>
+  <symbol id="st-5" viewBox="0 0 48 48"><path d="M24 24 q-10 0-10-8 q0-8 9-8 q13 0 13 14 q0 16-16 16 q-14 0-14-13" fill="none" stroke="#121212" stroke-width="5" stroke-linecap="round" /></symbol>
+</svg>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- content ---------- */
+  var CARDS = [
+    { key: "coffee", word: "a coffee",   art: "art-coffee", alt: "One cup of coffee" },
+    { key: "two",    word: "two coffees", art: "art-two",    alt: "Two cups of coffee" },
+    { key: "tea",    word: "a tea",      art: "art-tea",    alt: "A cup of tea with a teabag" },
+    { key: "bill",   word: "the bill",   art: "art-bill",   alt: "A bill with a coin" }
+  ];
+
+  var ROUNDS = [
+    { line: "A coffee, please.",          answer: "coffee" },
+    { line: "Two coffees, please.",       answer: "two" },
+    { line: "Can I have the bill, please?", answer: "bill" }
+  ];
+
+  var phone = document.getElementById("phone");
+  var grid = document.getElementById("grid");
+  var bubble = document.getElementById("bubble");
+  var steps = document.getElementById("steps");
+  var live = document.getElementById("live");
+  var sub = document.getElementById("sub");
+  var done = document.getElementById("done");
+  var maya = document.getElementById("maya");
+  var mayaSvg = document.getElementById("mayaSvg");
+  var playBtn = document.getElementById("playBtn");
+  var playLabel = document.getElementById("playLabel");
+  var wordsBtn = document.getElementById("wordsBtn");
+
+  var round = 0;
+  var locked = false;
+  var wordsOn = false;
+  var lastSticker = -1;
+  var speakTimer = null;
+  var voice = null;
+
+  var synth = window.speechSynthesis || null;
+  var canSpeak = !!(synth && window.SpeechSynthesisUtterance);
+
+  /* ---------- speech, with a words fallback ---------- */
+  function pickVoice() {
+    if (!canSpeak) return;
+    var list = synth.getVoices() || [];
+    voice = list.filter(function (v) { return /en[-_]GB/i.test(v.lang); })[0] ||
+            list.filter(function (v) { return /^en/i.test(v.lang); })[0] || null;
+  }
+
+  if (canSpeak) {
+    pickVoice();
+    synth.addEventListener("voiceschanged", pickVoice);
+  }
+
+  function mouthOn(on) {
+    mayaSvg.classList.toggle("speaking", !!on);
+  }
+
+  function fallbackToWords(why) {
+    if (!wordsOn) setWords(true);
+    playLabel.textContent = "Hear it";
+    if (why) live.textContent = "Audio is not available. The words are shown instead.";
+  }
+
+  function speak(rate) {
+    var line = ROUNDS[round].line;
+    live.textContent = "Maya says a line.";
+
+    if (!canSpeak) { fallbackToWords(true); flashMouth(); return; }
+
+    try { synth.cancel(); } catch (e) {}
+    var u = new SpeechSynthesisUtterance(line);
+    u.lang = "en-GB";
+    if (voice) u.voice = voice;
+    u.rate = rate || 1;
+    u.pitch = 1.05;
+
+    var started = false;
+    u.onstart = function () { started = true; mouthOn(true); };
+    u.onend = function () { mouthOn(false); };
+    u.onerror = function () { mouthOn(false); fallbackToWords(true); };
+
+    clearTimeout(speakTimer);
+    speakTimer = setTimeout(function () {
+      if (!started) { fallbackToWords(true); flashMouth(); }
+    }, 700);
+
+    try { synth.speak(u); } catch (e) { fallbackToWords(true); flashMouth(); }
+  }
+
+  /* so the coach still looks alive when there is no audio */
+  function flashMouth() {
+    mouthOn(true);
+    setTimeout(function () { mouthOn(false); }, 1400);
+  }
+
+  function setWords(on) {
+    wordsOn = on;
+    bubble.textContent = "“" + ROUNDS[round].line + "”";
+    bubble.classList.toggle("show", on);
+    wordsBtn.textContent = on ? "Hide the words" : "Show the words";
+    wordsBtn.setAttribute("aria-pressed", on ? "true" : "false");
+  }
+
+  function lean(on) {
+    maya.classList.toggle("lean", !!on);
+  }
+
+  /* ---------- board ---------- */
+  function paintSteps() {
+    var nodes = steps.children;
+    for (var i = 0; i < nodes.length; i++) {
+      nodes[i].setAttribute("data-state", i < round ? "done" : (i === round ? "now" : ""));
+    }
+    steps.setAttribute("aria-label", "Round " + Math.min(round + 1, 3) + " of 3");
+  }
+
+  function buildGrid() {
+    grid.innerHTML = "";
+    CARDS.forEach(function (c) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "tile";
+      b.dataset.key = c.key;
+      b.setAttribute("aria-label", c.alt);
+      b.innerHTML =
+        '<svg class="sticker" aria-hidden="true"><use href=""></use></svg>' +
+        '<svg class="art" viewBox="0 0 120 96" aria-hidden="true"><use href="#' + c.art + '"></use></svg>' +
+        '<span class="word">' + c.word + "</span>";
+      b.addEventListener("click", function () { choose(b, c.key); });
+      grid.appendChild(b);
+    });
+  }
+
+  function tiles() { return Array.prototype.slice.call(grid.querySelectorAll(".tile")); }
+
+  function popSticker(tile) {
+    var i = Math.floor(Math.random() * 6);
+    if (i === lastSticker) i = (i + 1 + Math.floor(Math.random() * 5)) % 6;
+    lastSticker = i;
+    var s = tile.querySelector(".sticker");
+    s.querySelector("use").setAttribute("href", "#st-" + i);
+    s.classList.add("go");
+  }
+
+  function choose(tile, key) {
+    if (locked) return;
+    var right = key === ROUNDS[round].answer;
+
+    if (!right) {
+      tile.classList.remove("miss");
+      void tile.offsetWidth;
+      tile.classList.add("miss");
+      live.textContent = "Not that one. Listen again.";
+      lean(true);
+      setTimeout(function () { speak(0.75); }, 220);
+      setTimeout(function () { lean(false); }, 1500);
+      return;
+    }
+
+    locked = true;
+    tile.classList.add("right");
+    popSticker(tile);
+    tiles().forEach(function (t) { if (t !== tile) t.classList.add("dim"); });
+    live.textContent = "Yes. " + tile.querySelector(".word").textContent + ".";
+    try { synth && synth.cancel(); } catch (e) {}
+    mouthOn(false);
+
+    setTimeout(nextRound, 1050);
+  }
+
+  function nextRound() {
+    round += 1;
+    if (round >= ROUNDS.length) { finish(); return; }
+    paintSteps();
+    buildGrid();
+    locked = false;
+    setWords(wordsOn);
+    setTimeout(function () { speak(1); }, 420);
+  }
+
+  function finish() {
+    paintSteps();
+    done.classList.add("show");
+    done.setAttribute("aria-hidden", "false");
+    live.textContent = "You can now order at a cafe.";
+    document.getElementById("againBtn").focus();
+  }
+
+  function restart() {
+    done.classList.remove("show");
+    done.setAttribute("aria-hidden", "true");
+    round = 0;
+    locked = false;
+    paintSteps();
+    buildGrid();
+    setWords(wordsOn);
+    setTimeout(function () { speak(1); }, 320);
+  }
+
+  /* ---------- controls ---------- */
+  playBtn.addEventListener("click", function () { speak(1); });
+  wordsBtn.addEventListener("click", function () { setWords(!wordsOn); });
+  document.getElementById("againBtn").addEventListener("click", restart);
+
+  var themeBtn = document.getElementById("themeBtn");
+  themeBtn.addEventListener("click", function () {
+    var dark = document.documentElement.dataset.theme === "dark";
+    document.documentElement.dataset.theme = dark ? "light" : "dark";
+    themeBtn.setAttribute("aria-label", dark ? "Switch to dark mode" : "Switch to light mode");
+  });
+
+  /* arrow keys across the 2 by 2 grid; Enter and Space come free with buttons */
+  grid.addEventListener("keydown", function (e) {
+    var map = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: 2, ArrowUp: -2 };
+    if (!(e.key in map)) return;
+    var list = tiles();
+    var i = list.indexOf(document.activeElement);
+    if (i < 0) return;
+    var n = i + map[e.key];
+    if (n < 0 || n > 3) return;
+    e.preventDefault();
+    list[n].focus();
+  });
+
+  /* space bar replays the line when nothing is focused */
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "r" || e.key === "R") { speak(1); }
+  });
+
+  /* tester hook, same shape as the app */
+  window.addEventListener("lp:auto", function (e) {
+    var want = (e.detail && e.detail.correct === false)
+      ? CARDS.filter(function (c) { return c.key !== ROUNDS[round].answer; })[0].key
+      : ROUNDS[round].answer;
+    var t = tiles().filter(function (x) { return x.dataset.key === want; })[0];
+    if (t) t.click();
+  });
+
+  /* ---------- go ---------- */
+  paintSteps();
+  buildGrid();
+  setWords(false);
+  if (!canSpeak) fallbackToWords(false);
+  sub.textContent = "Maya orders. Tap what she asks for.";
+  setTimeout(function () { speak(1); }, 520);
+})();
+</script>
+</body>
+</html>

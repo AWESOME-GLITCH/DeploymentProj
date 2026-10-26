@@ -554,7 +554,7 @@ Continuing the numbering of part one.
 | F7 | `CRI-A2.1-INT-01-02` and `CRI-A2.1-MED-06-01` are `ai` criteria whose only AI-scored item is a `roleplay` and a `relay`. Both record `task_id: item.item_id`, a constant, so `tasks.size` never reaches the 2 that `updateCriterion` requires. Neither criterion can ever reach `mastered`, which also means "We're out of oat milk" and "The gas bill" never leave the new-atom pool | Front-end Builder, with the Learning Designer | The fix is one more AI item on each criterion (an `open_response` or `shadow`, whose task id flips with day parity), or a one-line change in `items.tsx` to give roleplay and relay the same `:dayParity` suffix. Both are files this ticket does not own, and the week one atoms are under the pending cut list |
 | F8 | `scoreNewAtoms` has no level filter. With Pre-A1 content in the bank, an A2.1 learner with a strand deficit can be served "Hello, I'm Ana", because an unseen atom with no prerequisites scores near the top | Front-end Builder | `atomsForLevel(level)` is now exported from `content.ts` with the rule written out: at or below the learner's sub-level, and no more than one band below. Wiring it is one line in `engine.ts` |
 | F9 | The nine new atoms have no `SCENES` entry in `scenes.tsx` and no Remotion composition, so `VideoPhase` plays them as captions over an empty stage | UX Designer and the explainer owner | `scenes.tsx` and `components/learning-path/explainer/` belong to other agents. The nine storyboards in `docs/explainers/storyboards.md` part two are the brief, written in the existing format with beats, frames, L1 captions and interactive moments |
-| F10 | The new atoms are authored in the lesson order of learning-model §1.2 (input, noticing, free_use, controlled, free_use, check). The ten week-one atoms are still in the old order | Whoever takes LP-30, §1.4 row 6 | Reordering week one changes ten live lessons and is a separate ticket. Nothing breaks in the meantime: `AtomRun` walks whatever order it is given |
+| F10 | The new atoms are authored in the lesson order of learning-model §1.2 (input, noticing, free_use, controlled, free_use, check). The ten week-one atoms are still in the old order | Whoever takes LP-30, §1.4 row 6 | **Closed on LEA-46.** Part three below is the reorder of all ten, with the item cut and the nine production items the shape needed |
 | F11 | A `roleplay` or `relay` that passes at `need: 2` of 3 turns scores 0.667, which is below the 0.7 an AI sitting needs. The item is marked correct and the criterion sitting still fails | Front-end Builder, with me | Deliberate for now, and consistent with week one: the item is a pass, mastery needs a clean run. Worth a decision, because a learner can pass every item in an atom and never see the criterion move |
 | F12 | Pre-A1 needs rules the renderer cannot express yet: three words per caption line, the L1 line on by default below A1.2, 90 wpm narration, and no written word before it has been heard twice | Learning Designer | Instructions are i18n keys and the caption toggle is a learner setting. The rules are written into storyboards part two section 16 so they are at least in the brief |
 | F13 | Part one's conventions allow two new drawn characters across all storyboards. The starter slice adds a third, **ana** | UX Designer and the explainer owner | Every existing character already speaks at A1.2 or above in the atoms they carry. A Pre-A1 learner needs a peer who says three words and stops. Stated as an amendment at the top of storyboards part two, not assumed |
@@ -562,3 +562,145 @@ Continuing the numbering of part one.
 ## Verification
 
 `npx tsc --noEmit` clean after every change. A data check over the built arrays confirms: no duplicate item or atom ids; every criterion, outcome, prerequisite and phase item reference resolves; every phase item belongs to its atom's criterion and appears in `target_items`; every index key is inside its options array; every `tap_order` and `magnet_tiles` key is exactly the tiles it is given, so none of them is unanswerable; and `ITEM_CEFR` covers all 122 items (108 lesson items plus the 8 placement and 6 checkpoint items). This change edited nothing in part one: the week one items, atoms, criteria, outcomes, placement ladder, checkpoint and `placementLevel()` are untouched, and the new outcomes are appended rather than inserted so `pickWeekCanDo` still offers the week one outcomes first. The one exception, stated because it is in the same file: two items in the week two atoms were authored with "Elena" as the partner and were changed to "Sami" before the storyboards were written, so the drawn cast stays closed.
+
+---
+
+# Part three: week one on the five-phase shape, and the item cut
+
+LEA-46, the LP-80 hand-off. Two changes to `lib/learning-path/content.ts`: the ten week-one atoms move onto the atom shape of learning-model §1.2, and the tapping items that do not hand to production come out of the lessons. Nothing in part one's levelling changes. No item is deleted.
+
+## The shape, and why it is not the swap first asked for
+
+The hand-off's first proposal was to swap `free_use` ahead of `controlled`. That meets the 90-second rule and loses the scaffold's purpose: a run-up that arrives after the learner has already produced the sentence is not a run-up. The shape adopted instead, and now canonical in `docs/lesson-flow.md`, **splits** `free_use` either side of `controlled`:
+
+| Phase | Spine step | Items | What the learner does |
+| --- | --- | --- | --- |
+| `input` | Scene | the video or word tutorial | Meets the phrase where the meaning is obvious |
+| `noticing` | Notice | one highlighted form | One thing, not four |
+| `free_use` | Say it | **one** spoken turn | Produces it, coached, inside 90 seconds |
+| `controlled` | The run-up | 1 to 3 scaffolds or support turns | Repairs what the attempt showed |
+| `free_use` | Use it | one exchange with a problem to repair | Produces it again in a changed situation |
+| `check` | Come back later | one delayed say-it | Retrieval, in the session close |
+
+All nineteen learning atoms now read in that order, verified over the built arrays: the first `free_use` is at phase index 2 in every one of them.
+
+## When the mic opens, per atom
+
+Scene length plus the 12 second notice of §1.2. The board's requirement is a spoken turn inside 90 seconds; §1.2's own target is tighter, 0:50, and never later than 1:00.
+
+| Atom | Scene | Mic opens | Against 90s | Against §1.2 |
+| --- | --- | --- | --- | --- |
+| ATM-A2-INT-0001 At the cafe | 50s video | **1:02** | met | 2s over, flag F14 |
+| ATM-A2-GRM-0002 Two coffees, some water | 36s cards | 0:48 | met | met |
+| ATM-A2-LST-0004 Platform 4, not 14 | 55s video | 1:07 | met | 7s over, flag F14 |
+| ATM-A1-SPK-0005 Meet Fatima | 45s video | 0:57 | met | met |
+| ATM-A2-RDG-0006 Metro notices | 36s cards | 0:48 | met | met |
+| ATM-A2-WRT-0007 Where are you? | 36s cards | 0:48 | met | met |
+| ATM-A2-MED-0008 The gas bill | 40s video | 0:52 | met | met |
+| ATM-A2-INT-0009 We're out of oat milk | 45s video | 0:57 | met | met |
+| ATM-A2-GRM-0003 Yesterday, today, tomorrow | 45s video | 0:57 | met | met |
+| ATM-A2-INT-0010 The bill, please | 36s cards | 0:48 | met | met |
+
+Before the change the cafe lesson put four tapping items between the notice and the mic, which LP-90 measured at 62s under the tester hook and priced at 115 to 135s at a learner's real pace. The run-up now sits after the first spoken turn, so it costs the mic nothing.
+
+## The cut
+
+The test: an item earns a place in a week-one lesson only if its step ends with the learner producing the whole sentence. A tap, a gap or an error spot survives only as the run-up. Cut items stay in `ITEMS` and in `target_items`, which is the dense bank §1.6 anticipates, so they remain reachable from the Classmates deck and from a placement-seeded recall echo; they are simply not served inside the lesson.
+
+| Atom | Run-up now | Cut from the lesson | Why |
+| --- | --- | --- | --- |
+| ATM-A2-INT-0001 | ITM-INT-0104 | ITM-INT-0101, ITM-INT-0102, ITM-INT-0103 | Three tapping items on a sentence the scene says three times. 0102 is recognition the check repeats; 0103 is listening work and belongs to the LST atom |
+| ATM-A2-GRM-0002 | ITM-GRM-0202, ITM-GRM-0204 | ITM-GRM-0201, ITM-GRM-0203 | One gap and one build are enough as the run-up. 0203 is an error spot, metalinguistic judgement rather than production |
+| ATM-A2-LST-0004 | 0401, 0402, 0403, 0404 | none | In LST the recognition work **is** the criterion |
+| ATM-A1-SPK-0005 | ITM-SPK-0504, ITM-SPK-0502 | ITM-SPK-0503 | SPK takes support turns, not taps (§1.5): shadow with the model, read aloud with the model withdrawn, then unaided. 0503's sentence is modelled in 0504 and produced in 0505 |
+| ATM-A2-RDG-0006 | 0601, 0602, 0603, 0604 | none | As LST: the recognition work is the criterion |
+| ATM-A2-WRT-0007 | ITM-WRT-0702, ITM-WRT-0703 | ITM-WRT-0701 | A sentence build of the same two lines the typed item produces |
+| ATM-A2-MED-0008 | 0801, 0802, 0803 | none | Reading the three facts off the bill is what the relay then has to carry |
+| ATM-A2-INT-0009 | ITM-INT-0901, ITM-INT-0902 | ITM-INT-0903 | An inference item on what "out of" means. The scene says it and the check tests the form, so it was recognition twice over |
+| ATM-A2-GRM-0003 | 0301, 0302, 0303 | none | The three run-up items are the three time frames, so dropping one drops a frame the criterion names |
+| ATM-A2-INT-0010 | ITM-INT-1001, ITM-INT-1002 | ITM-INT-1003 | Pick the picture from "Can I pay by card?" is listening work in an interaction atom, the same fault as 0103 |
+
+Seven items leave the ten lessons. Six of them are a tap, a gap or a picture choice; none is a say-it, a use-it or a check.
+
+**One disagreement with the hand-off, named as it asked.** Its wider note in `docs/lesson-flow.md` also lists `ITM-GRM-0206` and `ITM-WRT-0705` for the cut. Those two are the **delayed checks** of their atoms. Cutting them would take the one production moment that decides mastery away, which §1.5 forbids in every variant, so both stay. The per-atom table in the ticket description does not ask for them; only the looser paragraph does.
+
+## The nine items the shape needed
+
+Seven week-one atoms had one production item where the shape needs two, and two of them (WRT and MED) had no spoken turn at all. These are new, on the atom's own criterion, introducing no form the scene has not shown.
+
+| Item | Atom | Type | Slot | Level | Descriptor it serves |
+| --- | --- | --- | --- | --- | --- |
+| ITM-INT-0107 | ATM-A2-INT-0001 | roleplay, 3 turns, need 2 | Use it | A2.1 | Transactions to obtain goods and services A2: can order and change the order when a size is not available |
+| ITM-GRM-0207 | ATM-A2-GRM-0002 | roleplay, 3 turns, need 2 | Use it | A2.1 | Transactions A2 plus grammatical accuracy A2: countable and uncountable held across a whole order, with one repair |
+| ITM-LST-0407 | ATM-A2-LST-0004 | roleplay, 3 turns, need 2 | Use it | A2.1 | Understanding a native speaker interlocutor A2: can ask for repetition of a number and confirm what was said |
+| ITM-RDG-0607 | ATM-A2-RDG-0006 | relay, need 2 of 3 | Use it | A2.1 | Relaying specific information in speech A2: tells a friend what a notice does not allow, in their own words |
+| ITM-WRT-0706 | ATM-A2-WRT-0007 | shadow | **Say it** | A1.2 | Phonological control A1: repeats the message's key sentence aloud before writing it |
+| ITM-MED-0806 | ATM-A2-MED-0008 | dialogue_turn, need 1 | **Say it** | A2.1 | Relaying specific information in speech A2: gives the payment date from a short bill in one turn |
+| ITM-INT-0906 | ATM-A2-INT-0009 | dialogue_turn, need 1 | **Say it** | A2.1 | Transactions A2: asks for an alternative in one turn when the item is unavailable |
+| ITM-GRM-0306 | ATM-A2-GRM-0003 | dialogue_turn, need 1 | **Say it** | A2.1 | Describing experience A2: answers a question about yesterday with a past form |
+| ITM-INT-1006 | ATM-A2-INT-0010 | roleplay, 3 turns, need 2 | Use it | A2.1 | Transactions to obtain goods and services A2: asks for the bill and settles how to pay when the card machine fails |
+
+Every repair is inside the atom's own criterion, which is the reason none of them reuses an item from another atom. The hand-off suggested `ITM-INT-0902` or `ITM-INT-0904` for the cafe lesson's use-it slot; both belong to `CRI-A2.1-INT-01-02` and teach "instead" and "we're out of", which is atom 8's target and has not been shown yet when atom 1 runs. Borrowing either one would record atom 1's evidence against another criterion and break "comprehensible input first". `ITM-INT-0107` keeps the problem on the size of the cup, which is this criterion's own business.
+
+The written strand keeps its ruling from §1.2: spoken at step 3 (`ITM-WRT-0706`), typed at steps 5 and 6.
+
+## Item counts after the change
+
+| Atom | Items in the lesson | In the bank, not served | Density by §1.5 |
+| --- | --- | --- | --- |
+| ATM-A2-INT-0001 | 4 | 3 | light |
+| ATM-A2-GRM-0002 | 5 | 2 | standard |
+| ATM-A2-LST-0004 | 7 | 0 | above dense, by the hand-off's ruling on LST |
+| ATM-A1-SPK-0005 | 5 | 1 | standard |
+| ATM-A2-RDG-0006 | 7 | 0 | above dense, same ruling |
+| ATM-A2-WRT-0007 | 5 | 1 | standard |
+| ATM-A2-MED-0008 | 6 | 0 | dense |
+| ATM-A2-INT-0009 | 5 | 1 | standard |
+| ATM-A2-GRM-0003 | 6 | 0 | dense |
+| ATM-A2-INT-0010 | 5 | 1 | standard |
+
+The cafe lesson is deliberately the leanest: one run-up between two spoken turns, which is what the ticket asks the board to look at. §1.2 allows 1 to 3 run-up items, so 1 is in range; §1.5's standard density wants 2, and `Atom.cuts` is the field that would let one bank serve both. The cut lists for week one are below, in the same form as part two's.
+
+| Atom | Bank in the lesson | `cuts.standard` | `cuts.light` |
+| --- | --- | --- | --- |
+| ATM-A2-INT-0001 | 4 | none | none |
+| ATM-A2-GRM-0002 | 5 | none | ITM-GRM-0204 |
+| ATM-A2-LST-0004 | 7 | ITM-LST-0404, ITM-LST-0402 | ITM-LST-0404, ITM-LST-0402, ITM-LST-0403 |
+| ATM-A1-SPK-0005 | 5 | none | ITM-SPK-0502 |
+| ATM-A2-RDG-0006 | 7 | ITM-RDG-0603, ITM-RDG-0604 | ITM-RDG-0603, ITM-RDG-0604, ITM-RDG-0602 |
+| ATM-A2-WRT-0007 | 5 | none | ITM-WRT-0703 |
+| ATM-A2-MED-0008 | 6 | ITM-MED-0801 | ITM-MED-0801, ITM-MED-0803 |
+| ATM-A2-INT-0009 | 5 | none | ITM-INT-0902 |
+| ATM-A2-GRM-0003 | 6 | ITM-GRM-0303 | ITM-GRM-0303, ITM-GRM-0302 |
+| ATM-A2-INT-0010 | 5 | none | ITM-INT-1002 |
+
+No cut list touches a say-it, a use-it or a check.
+
+## Mastery arithmetic, checked before the cut was made
+
+Five week-one criteria are `mastery_rule: "keyed"`. A keyed sitting passes at `total >= 3 && correct / total >= 0.75` over the session's **non-spoken** first attempts (`store.tsx` `complete_session`), so cutting tapping items can make a criterion unreachable. Counted after the cut, with the delayed check included:
+
+| Keyed criterion | Atom | Non-spoken items in the lesson | Pass needs |
+| --- | --- | --- | --- |
+| CRI-A2.1-GRM-02-01 | ATM-A2-GRM-0002 | 3 | 3 of 3 |
+| CRI-A2.1-LST-03-01 | ATM-A2-LST-0004 | 5 | 4 of 5 |
+| CRI-A2.1-RDG-04-01 | ATM-A2-RDG-0006 | 5 | 4 of 5 |
+| CRI-A2.1-GRM-07-01 | ATM-A2-GRM-0003 | 4 | 3 of 4 |
+| CRI-A2.1-INT-01-03 | ATM-A2-INT-0010 | 3 | 3 of 3 |
+
+No keyed criterion drops below three, which is why GRM-0002 keeps two run-up items rather than the one the cafe lesson keeps, and why the three keyed atoms with no cut keep theirs. The two at exactly three are tight but not blocked: `applyAttempt` also records an AI sitting for a keyed criterion from the spoken turns (`store.tsx`, the `a.ai` branch), and `updateCriterion` masters a keyed criterion on passes across two days whichever path produced them. Flag F15 is the question of whether week one's keyed criteria should become `ai` like week two's.
+
+## Flags for other owners
+
+Continuing the numbering.
+
+| # | What | Who | Why it is not in this change |
+| --- | --- | --- | --- |
+| F14 | Two scenes run long enough that the mic opens after §1.2's 1:00: "At the cafe" at 50s and "Platform 4, not 14" at 55s, against the 35s first-pass cap in §5.2. Both are inside the board's 90 seconds | The explainer owner, with me | `duration_sec` and the `lines` timings are mine, but the Remotion compositions are rendered to those scripts and belong to LEA-11, LEA-12 and LEA-37. Trimming the script without the composition would desynchronise the captions |
+| F15 | Week one has five `keyed` criteria; week two and the starter slice are all `ai`, because the spine's delayed check is a spoken say-it. Week one's checks are still non-spoken gap fills, so keyed still functions, but the two rules now sit side by side in one file | Me, with the Learning Designer | Changing a mastery rule changes what the Progress screen shows and re-opens part one's audit. It wants a decision, not a quiet edit |
+| F16 | `isRecallable` excludes `say_it_see_it`, `roleplay`, `shadow` and `relay` from recall echoes but not `dialogue_turn`, so the new one-turn items can be picked for a recall echo out of their scene | Learning Designer | `isRecallable` is in my file, but learning-model §1.3 rules that it **stays** as it is because `strandStrength` also calls it, and the recall phase itself is slated for deletion. Changing the membership would change strand strength |
+| F17 | A cut item is only reachable through the Classmates deck or a placement-seeded recall, because `dueItems` reads `state.items`, which holds attempted items only. "They stay in the bank for the practice deck" is true; "and for recall echoes" is true only after the learner has met them once | Learning Designer | It is the engine's selection rule, not the content. Worth knowing before more items are banked rather than served |
+
+## Verification
+
+`npx tsc --noEmit` clean. A data check over the built arrays confirms, for all nineteen learning atoms: the phase order is exactly `input -> noticing -> free_use -> controlled -> free_use -> check`; every served item resolves, belongs to its atom's own criterion, appears in `target_items`, and is served once; every item has an `ITEM_CEFR` entry; and every keyed criterion has at least three non-spoken items in its lesson. The nine new items are appended inside their atom's group in `ITEMS`, so no existing id, index or ordering moves. Nothing in part one or part two was re-levelled.

@@ -5,9 +5,12 @@
 // through here when it is used in a free-use phase: a model line to repeat, an
 // open answer, a three-turn conversation, or retelling a notice to a friend.
 //
-// She opens by speaking, then listens, then answers what was actually said. A
-// weak attempt is never a mark: the word she did not hear comes back slowly and
-// big, then she asks once more. After the third try she still says "good try"
+// She opens by speaking, then listens, then answers what was actually said.
+// Every turn ends in exactly one of three named responses and there is no
+// fourth: Clear, Nearly, or Hard word (LP-80, voice ruled on LP-70). A weak
+// attempt is never a mark: the word she did not hear comes back slowly and big,
+// behind a spoken lead-in that says what is coming, then she asks once more.
+// When the tries are spent the difficulty sits in the item, not in the learner,
 // and there is always a way to try again. No red, no crosses, no score.
 //
 // Four things are on the screen and nothing else, to the board's element
@@ -22,7 +25,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Character, type Gesture, type Mood } from "../explainer/lib";
 import { Recorder, type ItemProps } from "../items";
-import { loc } from "@/lib/learning-path/i18n";
+import { loc, makeT } from "@/lib/learning-path/i18n";
 import { classifyTurn, scoreOpenResponse, scoreReadAloud, scoreRelay, type SceneIntent, type SpeechScore } from "@/lib/learning-path/scoring";
 import { say as sayAtRate, stopSpeaking } from "@/lib/learning-path/speech";
 import type { Item } from "@/lib/learning-path/types";
@@ -40,10 +43,14 @@ const MIN_TALK_MS = 900;
 /** One try and two retries before she offers the choice to carry on. */
 const MAX_TRIES = 3;
 
-/** What she says when the third try is spent: no blame, no fail state. */
-const GOOD_TRY = "Good try.";
 /** A target word shorter than this teaches nothing on its own (a suffix). */
 const MIN_TEACH_LEN = 3;
+
+// The three named responses and the tries-spent line are interface strings, so
+// the text on screen is translated. Her voice is always the English value:
+// CLAUDE.md keeps the lesson audio in English, and a learner who has just
+// missed a line should not be handed the retry as a second listening task.
+const tEn = makeT("en");
 
 /** A typed stand-in rich enough to pass any open task, for the tester hook. */
 const OPEN_AUTO = "I'm Fatima. I live in Dubai and I work in a shop. Yesterday I worked and tomorrow I will visit a friend. I'd like a coffee please, could I have the bill instead.";
@@ -159,26 +166,40 @@ function hardestWord(missed: string[], line: string): string {
   return (words.sort((a, b) => clean(b).length - clean(a).length)[0] ?? line).replace(/[.,?!]/g, "");
 }
 
-/** What she does about this attempt: a word she did not hear, said slowly and
- *  shown big, or the whole line again slowly when every word was there and it
- *  was the shape of it that slipped. Never a generic retry line. */
-function reactTo(score: SpeechScore, turn: Turn): { say: string; show: string; big: boolean } {
+/** One of the two near responses. Hard word: a word she did not hear, said
+ *  slowly and shown big. Nearly: the whole line again slowly, when every word
+ *  was there and it was the shape of it that slipped. Each one opens with a
+ *  spoken lead-in, because a bare word with no frame teaches nothing. */
+type Near = { lead: string; say: string; show: string; big: boolean };
+
+/** Nearly: the whole line once more, slowly. */
+function nearly(turn: Turn): Near {
+  const line = turn.model ?? turn.line;
+  return { lead: tEn("coach_nearly"), say: line, show: line, big: false };
+}
+
+/** Which of the two near responses this attempt earns. */
+function reactTo(score: SpeechScore, turn: Turn): Near {
   const line = turn.model ?? turn.line;
   const teachable = score.missed.filter((m) => m.length >= MIN_TEACH_LEN);
   if (teachable.length) {
     const word = hardestWord(teachable, line);
-    return { say: word, show: word, big: true };
+    return { lead: tEn("coach_hard_word"), say: word, show: word, big: true };
   }
-  return { say: line, show: line, big: false };
+  return nearly(turn);
 }
 
-/** The one short sentence she answers a landed attempt with: the scene's own
- *  reply where there is one, otherwise a line about what she actually heard. */
-function replyTo(score: SpeechScore, plan: Plan): string {
-  if (plan.sceneReply) return plan.sceneReply;
-  if (plan.kind === "model") return score.missed.length ? "Good. Almost every word." : "Every word. Well done.";
+/** Clear: what she says to a landed attempt. The scene's own reply where there
+ *  is one, otherwise the single ruled Clear line, which is never sorted by how
+ *  clean the attempt was. `show` left out means the sentence stays on screen,
+ *  settled, and the feedback slot alone names the Clear in the learner's
+ *  language, so the same sentence never appears twice. */
+function replyTo(score: SpeechScore, plan: Plan): { say: string; show?: string } {
+  if (plan.sceneReply) return { say: plan.sceneReply, show: plan.sceneReply };
+  if (plan.kind === "model") return { say: tEn("coach_clear") };
   const heard = score.matched.find((m) => m.length >= MIN_TEACH_LEN);
-  return heard ? `Thank you. I heard “${tidy(heard)}”.` : plan.endReply;
+  const line = heard ? `Thank you. I heard “${tidy(heard)}”.` : plan.endReply;
+  return { say: line, show: line };
 }
 
 /** A 30 fps clock. Still at a settled frame when the learner reduces motion. */
@@ -210,10 +231,10 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
   const [stage, setStage] = useState<Stage>("say");
   const [talking, setTalking] = useState(true);
   const [turnIdx, setTurnIdx] = useState(0);
-  const [score, setScore] = useState<SpeechScore | null>(null);
-  // The one line on screen is always the last thing the coach said.
+  // The one line on screen is always the last thing the coach said. The
+  // sub-scores are never state: they go to onAnswer() as evidence and the
+  // learner is shown words, never a number and never a marked-up sentence.
   const [lineText, setLineText] = useState(plan.turns[0]?.line ?? "");
-  const [note, setNote] = useState("");
   const [bigWord, setBigWord] = useState("");
   const [bowFrom, setBowFrom] = useState<number | null>(null);
   const timers = useRef<number[]>([]);
@@ -286,44 +307,46 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
   useEffect(() => () => { clearTimers(); stopSpeaking(); }, [clearTimers]);
 
   /** The attempt landed: she answers it and the turn rests. */
-  const land = (line: string) => {
+  const land = (r: { say: string; show?: string }) => {
     setStage("reply");
     setBowFrom(frameRef.current);
-    setLineText(line);
-    speak(line, () => undefined);
+    if (r.show !== undefined) setLineText(r.show);
+    speak(r.say, () => undefined);
   };
 
-  /** The tries are spent. She says good try; the word stays on screen and
-   *  there is still a way to have another go. Never a mark, never a fail. */
+  /** The tries are spent. The difficulty goes in the item, not the learner: no
+   *  praise for effort and no fail. The word stays on screen and there is still
+   *  a way to have another go, by choice and never by instruction. */
   const rest = () => {
     setStage("end");
-    speak(GOOD_TRY, () => undefined);
+    speak(tEn("coach_tries_spent"), () => undefined);
   };
 
-  /** One word or the line again, slowly, then she asks once more. */
-  const teach = (r: { say: string; show: string; big: boolean }) => {
+  /** A near response: the lead-in that says what is coming, then the word or
+   *  the line itself slowly, then she asks once more. A hard word is said twice,
+   *  because one pass of a single unfamiliar word is not a model to copy. */
+  const teach = (r: Near) => {
     setBigWord(r.big ? r.show : "");
     setLineText(r.show);
     setStage("word");
     const last = triesRef.current >= MAX_TRIES || practice.current;
     if (!last) triesRef.current += 1;
-    speak(r.say, () => later(() => (last ? rest() : ask()), 300), true);
+    const onward = () => later(() => (last ? rest() : ask()), 300);
+    const target = (then: () => void) => speak(r.say, then, true);
+    speak(r.lead, () => target(r.big ? () => later(() => target(onward), 250) : onward));
   };
 
   const judgeSaid = (transcript: string, ms: number) => {
     const s = turn.model
       ? scoreReadAloud(turn.model, transcript, ms)
       : scoreOpenResponse(transcript, plan.open ?? {}, ms);
-    // Below the confidence gate nothing is written as evidence and nothing is
-    // scored on screen: she says the line again, slowly, and asks once more.
+    // Below the confidence gate nothing is written as evidence: this is the
+    // Nearly response, so it is the Nearly lead-in and the line again slowly.
+    // No second on-screen instruction, which the lead-in already carries.
     if (s.confidence < 0.6) {
-      setScore(null);
-      setNote(t("practise_again"));
-      teach({ say: turn.model ?? turn.line, show: turn.model ?? turn.line, big: false });
+      teach(nearly(turn));
       return;
     }
-    setNote("");
-    setScore(s);
     if (!practice.current) {
       onAnswer({
         correct: s.pass,
@@ -377,7 +400,7 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
         task_id: item.item_id,
       });
     }
-    if (correct) land(plan.endReply);
+    if (correct) land({ say: plan.endReply, show: plan.endReply });
     else { setLineText(turn.line); rest(); }
   };
 
@@ -413,7 +436,7 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
         task_id: item.item_id,
       });
     }
-    if (ok) land(plan.endReply);
+    if (ok) land({ say: plan.endReply, show: plan.endReply });
     else rest();
   };
 
@@ -445,8 +468,6 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
     repaired.current = false;
     asked.current = 0;
     spentMs.current = 0;
-    setScore(null);
-    setNote("");
     setBowFrom(null);
     open(0);
   };
@@ -464,12 +485,10 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
   // paragraph, not a row of word buttons: nothing there is big enough to tap.
   const words = bigWord ? [bigWord] : lineText.split(/\s+/).filter(Boolean);
   const long = !bigWord && words.length > 8;
-  // Only the model line itself has words to mark as missed.
-  const missedNow = turn.model && lineText === turn.model ? score?.missed ?? [] : [];
   // One line in words, never a score and never two lines at once: what to do
-  // before the learner speaks, what she heard after.
-  const feedback = note ? note
-    : stage === "word" ? (bigWord ? t("coach_hard_word") : t("coach_nearly"))
+  // before the learner speaks, which of the three responses after. This slot is
+  // the only place the judgement is written, and it is written in words.
+  const feedback = stage === "word" ? (bigWord ? t("coach_hard_word") : t("coach_nearly"))
     : stage === "end" ? t("coach_tries_spent")
     : stage === "reply" && plan.kind === "model" ? t("coach_clear")
     : plan.instruction;
@@ -495,42 +514,33 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
         tapLabel={t("listen")}
       />
       {/* The line she just said. Tap a word to hear that word on its own: the
-          words are the line, not a second row of chips under it. */}
+          words are the line, not a second row of chips under it. Every word
+          reads the same, landed or missed: the sentence is a sentence, not a
+          marked-up answer. */}
       <div className="mt-4 text-center" style={{ color: "var(--lp-paper)" }} dir="ltr">
         {long ? (
           <p className="lp-lesson">{lineText}</p>
         ) : (
           <span className="flex flex-wrap items-center justify-center">
-            {words.map((w, i) => {
-              const c = clean(w);
-              const missed = missedNow.some((m) => c === m || (c.length > 3 && (c.startsWith(m.slice(0, 4)) || m.startsWith(c.slice(0, 4)))));
-              return (
-                <button
-                  key={`${lineText}-${i}`}
-                  type="button"
-                  onClick={() => say(w.replace(/[.,?!]/g, ""))}
-                  className="inline-flex items-center justify-center"
-                  style={bigWord
-                    ? { minHeight: 64, padding: "0 10px", fontSize: "calc(40px * var(--lp-scale))", fontWeight: 700, color: "var(--lp-accent)" }
-                    : {
-                      minHeight: 44,
-                      minWidth: 44,
-                      padding: "0 3px",
-                      fontSize: "calc(22px * var(--lp-scale))",
-                      fontWeight: 500,
-                      ...(missed ? { color: "var(--lp-accent)" } : {}),
-                    }}
-                >
-                  {w}
-                </button>
-              );
-            })}
+            {words.map((w, i) => (
+              <button
+                key={`${lineText}-${i}`}
+                type="button"
+                onClick={() => say(w.replace(/[.,?!]/g, ""))}
+                className="inline-flex items-center justify-center"
+                style={bigWord
+                  ? { minHeight: 64, padding: "0 10px", fontSize: "calc(40px * var(--lp-scale))", fontWeight: 700, color: "var(--lp-accent)" }
+                  : { minHeight: 44, minWidth: 44, padding: "0 3px", fontSize: "calc(22px * var(--lp-scale))", fontWeight: 500 }}
+              >
+                {w}
+              </button>
+            ))}
           </span>
         )}
       </div>
       {/* One line of feedback, in words. The slot is always there, so nothing
           on the screen moves when she answers. */}
-      <div className="lp-small mt-2 text-center" style={{ color: note ? "var(--lp-sand)" : "var(--lp-paper-faint)", minHeight: 19 }}>{feedback}</div>
+      <div className="lp-small mt-2 text-center" style={{ color: "var(--lp-paper-faint)", minHeight: 19 }}>{feedback}</div>
       <div className="mt-auto pt-3">
         {ended ? (
           <div className="flex gap-2">

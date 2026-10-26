@@ -725,10 +725,13 @@ export function TapCue({ frame, from, x, y, kind = "tap", size = 92, color = SAF
             <path d="M-7.5 -7a7.5 7.5 0 0 0 15 0M0 0.5v7M-4.5 7.5h9" />
           </g>
         ) : (
-          <g transform={`scale(${g})`} fill={INK}>
-            {/* a hand with one finger out, tapping */}
-            <rect x="-24" y="-4" width="40" height="30" rx="15" />
-            <rect x="-6" y="-34" width="15" height="34" rx="7.5" transform="rotate(12 1.5 -17)" />
+          <g transform={`scale(${g * 2.2}) translate(-12 -12)`} fill="none" stroke={INK} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            {/* a hand with the index finger out, about to tap */}
+            <path d="M22 14a8 8 0 0 1-8 8" />
+            <path d="M18 11v-1a2 2 0 0 0-2-2a2 2 0 0 0-2 2" />
+            <path d="M14 10V9a2 2 0 0 0-2-2a2 2 0 0 0-2 2v1" />
+            <path d="M10 9.5V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v10" />
+            <path d="M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15" />
           </g>
         )}
       </Pulse>

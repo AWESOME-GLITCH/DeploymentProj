@@ -95,7 +95,7 @@ Four things follow that are not negotiable:
 - **Word tutorials get the same spine.** At most 3 cards before step 3, the rest return in step 5. The template this replaces gave word-tutorial chunks no spoken turn at all.
 - **The first production turn comes before the scaffolds, not after.** The learner tries, then the scaffolds repair what the attempt showed. This is the generation effect and productive failure (Bjork; Kapur), so the old order recognise, complete, produce is reversed and §5.3 is rewritten to match.
 
-**Ruling for typed strands, which answers R5's first half.** Step 3 is spoken in **every** strand, WRT included: the learner says the message's key sentence to the coach before typing anything. The mastery evidence then stays in the strand's own modality, because WRT's step 5 is the typed 20 to 60 word message and its step 6 is one typed key sentence of 8 to 15 words (§1.7). So "ends with the learner producing the whole sentence" means aloud at step 3 in all seven strands, and at steps 5 and 6 in the strand's own modality. Reasons: oral rehearsal before writing is the cheapest route to a live mic at 0:50, and transfer-appropriate processing (Morris et al. 1977) only binds the step that decides mastery.
+**Ruling for typed strands, which answers R5's first half.** Step 3 is spoken in **every** strand, WRT included: the learner says the message's key sentence to the coach before typing anything. The mastery evidence then stays in the strand's own modality, because WRT's step 5 is the typed 20 to 60 word message and its step 6 is one typed key sentence of 8 to 15 words (§1.7). So "ends with the learner producing the whole sentence" means aloud at step 3 in all seven strands, and at steps 5 and 6 in the strand's own modality. Reasons: oral rehearsal before writing is the cheapest route to a live mic inside the first minute, and transfer-appropriate processing (Morris et al. 1977) only binds the step that decides mastery.
 
 `AtomPhase[]` is authored in exactly that order, so `free_use` appears twice. `AtomRun` walks `atom.phases` in authored order with `check` filtered out (`Capsule.tsx:165`), so the repeat needs no type change.
 
@@ -106,7 +106,7 @@ Four things follow that are not negotiable:
 | 1 | `atom` | `new`, the scene-led chunk of §1.2 | 4 |
 | 2 | `atom` | `use`, a second scene built from old material only, carrying due items at Consolidating or better as `tryItems` | 3 |
 | 3 | `story` | One story at 98% or higher known-word coverage, no checks attached | 1.5 |
-| 4 | `close` | The delayed say-it, a one-tap "I can / not yet", then the can-do line in plain words | 0.5 |
+| 4 | `close` | The delayed production of the sentence, said aloud in six strands and typed in WRT, then a one-tap "I can / not yet", then the can-do line in plain words | 0.5 |
 
 Nine minutes, inside the ten-minute target with a minute of headroom. There is no `plan` phase, no `recall` phase and no `vote` phase. Where their work goes:
 
@@ -122,9 +122,9 @@ Nine minutes, inside the ten-minute target with a minute of headroom. There is n
 
 | Item state when due | Returns in | Owned by | What the learner does |
 | --- | --- | --- | --- |
-| New, Learning | Step 4, as the **sentence a scaffold is built from** | A new function, `dueSentences(state, at, exclude, max 3)` | Builds or repairs that sentence, then says it. The sentence is on screen, which is what §3.2 promises at these two rungs |
+| New, Learning | Step 4, as the **sentence a scaffold is built from** | A new function, `dueSentences(state, at, exclude, max)`, where `max` is the number of step 4 items this variant serves, so 1 at light and 3 at dense | Builds or repairs that sentence, then says it. The sentence is on screen, which is what §3.2 promises at these two rungs |
 | Consolidating, Known, Mastered | Step 5, as `tryItems` | `tryToUse`, filter unchanged | Uses it unprompted inside the exchange. Nothing on screen |
-| Any state, item is today's target | Neither. It is already the lesson | The `exclude` argument both functions take | — |
+| Any state, item is today's target | Neither. It is already the lesson | The `exclude` argument both functions take | Nothing extra |
 
 Three things a developer needs from this, all in §1.4 rows 2 and 3:
 
@@ -142,7 +142,7 @@ Re-derived from the file for v1.2 after QA's R6. Four rows of v1.1 described an 
 
 | # | The code today | This spec | Change needed |
 | --- | --- | --- | --- |
-| 1 | **No plan push.** `engine.ts:381-382` is the comment "The lesson opens on the scene, never on a plan screen", and `composeSession` never pushes one. The residue is still live: `{ kind: "plan" }` (`types.ts:162`), `PlanPhase` (`Capsule.tsx:77`), the `plan` branch of `PhaseView` (`Capsule.tsx:67`), the `p.kind !== "plan"` filter (`Capsule.tsx:81`) and `phaseMinutes`' `plan` case (`engine.ts:477`) | No plan phase, and no type that can express one | Delete the four residue sites and the type member. Nothing to remove from the composer. v1.1 said the composer pushes it; it does not |
+| 1 | **No plan push.** `engine.ts:381-382` is the comment "The lesson opens on the scene, never on a plan screen", and `composeSession` never pushes one. The residue is still live: `{ kind: "plan" }` (`types.ts:162`), `PlanPhase` (`Capsule.tsx:77`), the `plan` branch of `PhaseView` (`Capsule.tsx:67`), the `p.kind !== "plan"` filter (`Capsule.tsx:81`) and `phaseMinutes`' `plan` case (`engine.ts:477`) | No plan phase, and no type that can express one | Delete all five residue sites listed. Nothing to remove from the composer. v1.1 said the composer pushes it; it does not |
 | 2 | `composeSession` builds `recallPhase` at `engine.ts:383-384` and pushes it at `engine.ts:426`, **after** the new atom and the use atom, under the comment "older material is retrieved once today's sentence has landed". 8 items, 10 on a warm restart | No recall phase. Due items return by state, per §1.3 | Remove the build and the push, drop `{ kind: "recall" }` (`types.ts:163`), remove the `recall` branch of `PhaseView` (`Capsule.tsx:68`) and `recall` from `ItemRun`'s `mode` union (`Capsule.tsx:99`). Delete `pickRecall` (`engine.ts:261`) |
 | 3 | Nothing populates step 4's scaffold sentences. `AtomRun`'s `controlled` branch passes `phase.items` and `variant` only (`Capsule.tsx:188`) | Up to 3 due items at New or Learning supply the sentences | **Add `dueSentences(state, at, exclude, max)`** per §1.3, filtered by state not by `isRecallable`, and pass its result into the `controlled` branch. This is the row that makes the recall deletion safe |
 | 4 | **Step 5 of a new atom carries no due items.** `AtomRun`'s `free_use` branch calls `ItemRun` with no `tryItems` and no `variant` (`Capsule.tsx:192`). The only `tryToUse` call is in the `USE:` branch, for the use atom (`Capsule.tsx:151`) | Step 5 carries up to 3 due items at Consolidating or better | Call `tryToUse(state, now, [today's targets])` in the `free_use` branch and pass it down. Easy to miss, because the use atom already does it and the session therefore looks correct from the outside |
@@ -211,7 +211,7 @@ Allowed types are the survivors of the LP-20 cut list (`docs/exercises.md`). A s
 | --- | --- | --- | --- | --- | --- | --- |
 | GRM Grammar | Grammar | `tap_order`, `magnet_tiles`, `error_spot` | `transform`, spoken | `transform`, spoken, keyboard as fallback | spoken, typed | keyed |
 | RDG Reading | Reading | `tfng`, at most 2, on one notice | `read_aloud` of the line of the notice the first item turned on | `read_aloud` of the line that answers it. From B1 also `open_response`: say the claim in your own words | spoken | keyed |
-| WRT Writing | Writing | `dictation`, then `tap_order` of the key sentence | The key sentence said aloud to the coach before any typing | Step 5 `correct_message` or `short_production`, 20 to 60 words typed. Step 6 one key sentence, 8 to 15 words, typed, inside 0:25 | typed at steps 5 and 6, spoken at step 3 | ai |
+| WRT Writing | Writing | `dictation`, then `tap_order` of the key sentence | The key sentence said aloud to the coach before any typing | Step 5 `correct_message` or `short_production`, typed, 15 words at A1 rising to 300 at C1 (the band per level is in §2.2). Step 6 one key sentence, 8 to 15 words, typed, inside 0:25 | typed at steps 5 and 6, spoken at step 3 | ai |
 | LST Listening | Listening | `listen_and_do`, natural speed, no replay before the first attempt. May repeat twice, see below | `shadow`: say back the number or line just heard | `shadow` or `dialogue_turn`, the number or line said back inside an exchange. From B1 also `open_response`: say what the speaker wanted | spoken | keyed |
 | SPK Speaking | Speaking | Support turns: `say_it_see_it`, `read_aloud`, `open_response` (§1.5) | `open_response` through the coach | `read_aloud`, `open_response`, all through the coach | spoken | ai |
 | MED Mediation | Explaining | `tfng` on the source, then `tap_order` of the relay sentence | `relay` of the first of the three things | `relay` to a named listener who cannot see the source | spoken | ai |
@@ -314,7 +314,7 @@ A chunk is not finished until all thirteen are true. This is the list QA runs, a
 9. No rule on screen anywhere, and no caption that explains instead of showing.
 10. Every instruction is 6 words or fewer and carries an icon or a worked example.
 11. Every miss shows the right form said slowly and shown big, then one more try, with a 12-word why in context. No red, no mark, no counter.
-12. The closing line, the delayed say-it stem and the "I can" line use the same wording. All media has alt text, all video has captions, all text has tap-to-hear.
+12. The closing line, the delayed production stem and the "I can" line use the same wording. All media has alt text, all video has captions, all text has tap-to-hear.
 13. Prerequisites are listed as criterion IDs, and each one really is needed.
 
 ---
@@ -441,7 +441,7 @@ That line lives in the i18n files for all seven interface languages and is the o
 
 ### 3.2 The ladder
 
-Each item (phrase item, pattern, pronunciation feature) has its own forgetting curve per learner. Recall probability is `p = 2^(-elapsed_days / half_life_days)`. An item is **due when p falls to 0.8**, which is `elapsed = 0.3219 x half_life`.
+Each item (phrase item, pattern, pronunciation feature) has its own forgetting curve per learner. Recall probability is `p = 2^(-elapsed_days / half_life_days)`. An item is **due when p falls to 0.8**, which is `elapsed = 0.3219 x half_life`, **or at the rung's interval cap, whichever comes first** (§3.2.1).
 
 Each state has two rungs, `rung: 0` and `rung: 1` on `ItemMastery`. The second rung is earned by surviving a gap, never by being asked more often.
 
@@ -518,6 +518,8 @@ The two-modality rule: an item cannot reach Known until it has been retrieved co
 | Hesitation or self-correction in speech | no change | no change | Logged, never penalised |
 
 A missed item also returns once at the end of the same chunk: the right form said slowly and shown big, then one more try. No lives, no hearts, no lockout, no red, no mark, anywhere (PRD R9, board note point 5).
+
+Two returns, which are not the same thing and a developer should not conflate them. The **same-session** return in the table above is the requeue `applyAttempt` already sets (`requeue: true`), and it happens inside the chunk the learner is in, with the sentence on screen. The **next-session** return is §1.3's, by state: step 4's sentence at New and Learning, step 5's `tryItems` at Consolidating and above. An item can therefore be seen twice today and once more in two days, and only the second kind is scheduled.
 
 ### 3.4 How mastery is decided
 
@@ -614,7 +616,7 @@ Written as numbered rules against the implemented types. A developer should be a
 | Week can-do | Rule 4.3 | `outcome_id` |
 | Goal | Onboarding | `work`, `study`, `travel`, `family` |
 | Rolling accuracy | Last 20 scaffold and typed first attempts. Spoken attempts are excluded because an AI rubric score is not a right-or-wrong event | number or null |
-| Due items | `dueItems(state, now)` | `ItemMastery[]`, feeding the use step's `tryItems` and the scaffolds' sentences |
+| Due items | `dueItems(state, now)` | `ItemMastery[]`, split by state into step 5's `tryItems` (`tryToUse`) and step 4's sentences (`dueSentences`), per §1.3 |
 
 ### 4.2 Placement to a starting path
 
@@ -645,7 +647,7 @@ Fixed order, so the learner always knows what comes next. The session opens on t
 | 1 | New chunk | Rule 4.5, run as the spine in §1.2. The learner is speaking by 0:50 of the session, 0:55 from B2. Skipped if the review cap is hit or a non-second session already completed today | 4 |
 | 2 | Use chunk | A second scene: a speaking or interaction task from a chunk already seen, lowest predicted recall first, carrying today's targets plus up to 3 due items at Consolidating or better. On week day 5 this is the teach-it-back performance instead | 3 |
 | 3 | Story | One story chunk at 98% or higher known-word coverage for this learner, no checks attached | 1.5 |
-| 4 | Close | The delayed say-it from phase 1, a one-tap "I can / not yet", then the can-do line in plain words | 0.5 |
+| 4 | Close | The delayed production from phase 1, a one-tap "I can / not yet", then the can-do line in plain words | 0.5 |
 
 Due items have no phase of their own. By state (§1.3): at Consolidating or better they are carried into phase 1's step 5 and phase 2 as `tryItems` (`tryToUse`), and at New or Learning they supply the sentences phase 1's step 4 scaffolds are built from (`dueSentences`). That is what "spaced return inside new situations" means, and it is why no learner's item is left without a return path in its first three days.
 
@@ -781,7 +783,7 @@ function nextSession(state, now):
   if daysMissed(state) >= 2: return warmRestart(state, due)
 
   # A due item returns by its state, never as a phase of its own (1.3).
-  sentences  = dueSentences(due, states = [new, learning],              max = 3)
+  sentences  = dueSentences(due, states = [new, learning],              max = step4Count(variant(state)))
   tryItems   = tryToUse(due,      states = [consolidating, known, mastered], max = 3)
 
   phases = []
@@ -892,7 +894,7 @@ Warm, calm, respectful of adult intelligence. No exclamation marks, no baby talk
 
 | Gate | Owner | Checks |
 | --- | --- | --- |
-| A Pedagogical | Senior writer | Section 1.10 checklist, the three scene beats, level lexis against the word list, and the 0:50 mic timing on the built lesson |
+| A Pedagogical | Senior writer | Section 1.10 checklist, the three scene beats, level lexis against the word list, and the mic timing on the built lesson against the band in §5.2 |
 | B Linguistic | QA linguist | Pronunciation, stress, naturalness, caption sync |
 | C Accessibility | Accessibility reviewer | WCAG 2.2 AA, alt text, captions, 44px minimum tap targets, visible focus, 4.5:1 text contrast |
 | D Bias and cultural fit | Content lead | The inclusion rules in 5.4, across Gulf, UK and international settings |
@@ -923,7 +925,7 @@ The three outputs pass if: each has one "I can" line of 10 words or fewer; each 
 | # | Principle | Source | Where it is used here |
 | --- | --- | --- | --- |
 | 1 | Retrieval beats restudy by 30 to 50% at one week | Roediger and Karpicke 2006 | Every item ends in production, never recognition (1.2, 1.7, 5.3) |
-| 2 | Optimal spacing gap is 10 to 20% of the retention interval | Cepeda et al. 2006 | Expanding half-life ladder (3.2) |
+| 2 | Optimal spacing gap is 10 to 20% of the retention interval | Cepeda et al. 2006 | Expanding half-life ladder (3.2), and the ceiling on how far it may expand (3.2.1) |
 | 3 | Learning is fastest at about 80 to 85% success | Wilson et al. 2019 | Due at p = 0.8, variant switch, 0.30 term in the path score (3.2, 4.5) |
 | 4 | Interleaving roughly doubles delayed test scores | Rohrer and Taylor 2007 | Interleaving guard, day 4, 3 strands per session (4.4) |
 | 5 | Comprehensible input at i+1 | Krashen; Nation | 95% known plus one new element (1.2, 5.1) |

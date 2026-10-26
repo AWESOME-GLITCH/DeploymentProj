@@ -320,47 +320,74 @@ async function advance(run, what, { timeout = 12000, selector = ".lp-btn-primary
   return false;
 }
 
-/** The explainer: play it, take the "say it with me" turn, satisfy the 80% gate. */
+/** The explainer: watch it through, take the ask turn, satisfy the 80% gate.
+ *
+ *  It plays in real time on purpose. An earlier version skipped ahead with the
+ *  beat dots to save a minute, and when the cafe explainer grew from six beats
+ *  to nine that shortcut jumped straight past the "say it with me" pause: the
+ *  run stayed green while silently never opening the one screen where the
+ *  learner speaks. Watching it the way a learner does cannot skip anything.
+ */
 async function driveExplainer(run) {
   const page = run.page;
   const start = page.locator('.lp-video button[aria-label="Listen"]');
   if (await start.count()) await start.first().click({ timeout: 5000 }).catch(() => {});
   await run.shotOnce("explainer", "lesson-explainer-playing", { settle: 1200 });
 
-  // The secondary controls live behind "More"; the parts of the video are
-  // there. Jumping to the practise part is a learner action and keeps the
-  // walkthrough to seconds instead of a minute of real-time playback.
-  const more = page.locator('button[aria-label="More options"]');
-  if (await more.count()) {
-    await more.first().click({ timeout: 4000 }).catch(() => {});
-    await sleep(300);
-    const beats = page.locator(".lp-beat");
-    const count = await beats.count();
-    if (count >= 2) await beats.nth(count - 2).click({ timeout: 4000 }).catch(() => {});
-    await more.first().click({ timeout: 4000 }).catch(() => {}); // tidy up behind us
-  }
-
   const t0 = Date.now();
-  let pauseSeen = false;
-  while (Date.now() - t0 < 100000) {
-    if (!(await page.locator(".lp-btn-gated").count())) return true; // watched enough
-    const mic = page.locator(".lp-video .lp-mic");
-    if (await mic.count()) {
-      if (!pauseSeen) { pauseSeen = true; await run.shotOnce("explainer-pause", "lesson-explainer-say-it-with-me", { settle: 400 }); }
+  let asks = 0;
+  let replayed = false;
+  while (Date.now() - t0 < 180000) {
+    if (!(await page.locator(".lp-btn-gated").count())) break; // watched enough
+
+    // The ask: the explainer stops and hands the line to the learner.
+    if (await page.locator(".lp-video .lp-glass").count()) {
+      asks += 1;
+      await run.shotOnce(`explainer-ask-${asks}`, `lesson-explainer-say-it-with-me-${asks}`, { settle: 400 });
+      // It may want the key words tapped before the mic appears.
+      if (!(await page.locator(".lp-video .lp-mic").count())) {
+        const words = page.locator(".lp-video .lp-glass button");
+        const n = Math.min(await words.count(), 8);
+        for (let i = 0; i < n; i++) await words.nth(i).click({ timeout: 2000 }).catch(() => {});
+        await sleep(400);
+      }
       await fire(page);
-      await sleep(600);
+      await sleep(700);
       const cont = page.locator(".lp-video button.lp-btn-primary:not([disabled])");
       if (await cont.count()) await cont.first().click({ timeout: 4000 }).catch(() => {});
       else await page.locator(".lp-video").getByText("Skip", { exact: true }).first().click({ timeout: 2000 }).catch(() => {});
-      await sleep(400);
+      await sleep(500);
       continue;
     }
+
+    // It ended before the gate opened: watch it again, once.
     const again = page.locator('.lp-video button[aria-label="Try again"]');
-    if (await again.count()) await again.first().click({ timeout: 4000 }).catch(() => {}); // it ended early, watch again
-    await sleep(600);
+    if ((await again.count()) && !replayed) { replayed = true; await again.first().click({ timeout: 4000 }).catch(() => {}); }
+    await sleep(700);
   }
-  await run.note("lesson-explainer", "the explainer never reached the 80% mark, so Continue stayed locked");
-  return false;
+
+  if (await page.locator(".lp-btn-gated").count()) {
+    // Last resort so one stuck player does not cost the rest of the walk.
+    const more = page.locator('button[aria-label="More options"]');
+    if (await more.count()) {
+      await more.first().click({ timeout: 4000 }).catch(() => {});
+      await sleep(300);
+      const beats = page.locator(".lp-beat");
+      const n = await beats.count();
+      if (n) await beats.nth(n - 1).click({ timeout: 4000 }).catch(() => {});
+      await sleep(2000);
+      await more.first().click({ timeout: 4000 }).catch(() => {});
+    }
+    if (await page.locator(".lp-btn-gated").count()) {
+      await run.note("lesson-explainer", "the explainer never reached the 80% mark, so Continue stayed locked");
+      return false;
+    }
+    await run.note("lesson-explainer", "the explainer only reached the 80% mark after jumping to the last part: it does not play through on its own", "WARN");
+  }
+  if (!asks) {
+    await run.note("lesson-explainer", "the explainer played all the way through without ever asking the learner to say the line", "WARN");
+  }
+  return true;
 }
 
 /** One pass of "do whatever this screen needs". */
