@@ -31,8 +31,8 @@ Three moves make the whole system:
 
 ## Palette
 
-No purple. No orange. Yellow is allowed in dark mode only, and only on the "you are here"
-marker. One primary-action hue in both modes so the button is learnable.
+No purple. No orange. Yellow is allowed in dark mode only, on the "you are here" marker
+and the review tint. One primary-action hue in both modes so the button is learnable.
 
 ### Light
 
@@ -42,7 +42,7 @@ marker. One primary-action hue in both modes so the button is learnable.
 | Card | `--lp-surface`, `--lp-glass` | `#ffffff` |
 | Ink | `--lp-paper` | `#101f1d` |
 | Ink soft | `--lp-paper-soft` | `#425c58` |
-| Ink faint | `--lp-paper-faint` | `#6f8a85` |
+| Ink faint | `--lp-paper-faint` | `#56736f` (4.7:1 on paper) |
 | Primary action | `--lp-glow` | `#0b7a6c` (white text, 5.2:1) |
 | Primary deep | `--lp-glow-2` | `#0a6a5e` |
 | Known, correct | `--lp-sea` | `#157f62` |
@@ -68,7 +68,7 @@ marker. One primary-action hue in both modes so the button is learnable.
 | Road surface | `--lp-road` | `rgba(255,255,255,0.07)` |
 
 Strand colours stay as a set of seven but lose the pink and the coral-red that read as
-errors: grammar teal, reading blue, writing sand, listening sky, speaking cyan, mediation
+errors: grammar teal, reading blue, writing gold, listening sky, speaking cyan, mediation
 emerald, interaction deep blue.
 
 ## Type scale
@@ -81,7 +81,7 @@ Linear. Everything multiplies by `--lp-scale` so the learner can reach 130%.
 | `.lp-display` | 34px | 1.08 | 700 | -0.03em |
 | `.lp-head` | 28px | 1.14 | 700 | -0.022em |
 | `.lp-lesson` | 22px | 1.35 | 500 | -0.01em |
-| `.lp-body` | 17px | 1.45 | 450 | 0 |
+| `.lp-body` | 17px | 1.45 | 400 | 0 |
 | `.lp-small` | 13.5px | 1.4 | 500 | +0.005em |
 | `.lp-eyebrow` | 11px | 1.2 | 700 | 0.14em, caps |
 

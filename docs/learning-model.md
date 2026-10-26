@@ -1,4 +1,4 @@
-# Learning model: chunk template, CEFR map, repetition and path rules
+# Learning model: the lesson spine, CEFR map, repetition and path rules
 
 LP-02 · Learning Designer · 26 October 2026 · v1.1, for QA then the board
 
@@ -420,7 +420,7 @@ Two levels, and only the second one moves the Road.
 
 | Criterion type | Pass on one sitting | Mastered when |
 | --- | --- | --- |
-| Keyed (GRM, RDG, LST, and keyed INT) | 3 or more checks attempted and at least 75% correct | Passed on two sittings on two different calendar days |
+| Keyed (GRM, RDG, LST, and keyed INT) | 3 or more items attempted and at least 75% correct, of which at least one is the strand's production step (§1.7) | Passed on two sittings on two different calendar days |
 | AI-scored (WRT, SPK, MED, and AI INT) | Rubric score 0.70 or above, confidence 0.60 or above | Passed on two different days, and the second task is one the learner has not seen |
 
 Why the separate-day rule: it is the cheapest defence against mastery inflation from item exposure and guessing (PRD risk 6). Why 0.80 as the target success rate rather than 1.0: Wilson et al. 2019.
@@ -431,7 +431,7 @@ Outcome and level gates:
 
 | Gate | Condition |
 | --- | --- |
-| Chunk complete | Input watched to 80% and the first check attempted |
+| Chunk complete | The scene watched to 80% and the first spoken turn taken. A lesson the learner did not speak in is not complete |
 | Outcome achieved | All of its criteria mastered |
 | Strand marker advances | All outcomes in that strand at that sub-level achieved |
 | Sub-level provisional | 80% of the sub-level's outcomes achieved and no strand below 60% strength. From here, 30% of new chunks come from the next sub-level |
@@ -446,12 +446,12 @@ Phrase item `ITM-INT-0001` "I'd like", first met on day 1 in `ATM-A2-INT-0001`. 
 
 | Day | Event | Modality | Half-life before | After | State after | Next due |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | First exposure, then a recognition check 2 chunks later: correct | recognition | 0.1 | 1.0 | Learning | 1.3 |
-| 2 | Recall echo, gap-fill: correct | cued | 1.0 | 2.0 | Learning (2 correct, needs 3) | 2.6 |
-| 3 | Recall echo, say it: correct, 3 correct across 3 days | spoken | 2.0 | 5.6 | Consolidating | 4.8 |
+| 1 | First exposure in the scene, then said inside the use step of the same session: correct | cued | 0.1 | 1.0 | Learning | 1.3 |
+| 2 | Rides into day 2's use step as a `tryItem`, said from the tiles: correct | cued | 1.0 | 2.0 | Learning (2 correct, needs 3) | 2.6 |
+| 3 | Supplies the sentence for a day 3 scaffold, then said alone: correct, 3 correct across 3 days | spoken | 2.0 | 5.6 | Consolidating | 4.8 |
 | 5 | Due. Free-use task: **wrong** | spoken | 5.6 | 2.8 | Consolidating, re-queued today and tomorrow | 5.9 |
-| 6 | Re-queue, gap-fill: correct | cued | 2.8 | 5.6 | Consolidating | 7.8 |
-| 8 | Due. Cued recall: correct. Gap of 2 days, so no rung advance | cued | 5.6 | 11.2 | Consolidating | 11.6 |
+| 6 | Comes back in the use step, said from a cue: correct | cued | 2.8 | 5.6 | Consolidating | 7.8 |
+| 8 | Due. Said from a cue inside a new scene: correct. Gap of 2 days, so no rung advance | cued | 5.6 | 11.2 | Consolidating | 11.6 |
 | 12 | Due. Say it: correct. Gap of 4 days, rung advances | spoken | 11.2 | 31.4 | Consolidating, rung 1 | 22.1 |
 | 22 | Due after a 10-day gap, two modalities banked, one productive | spoken | 31.4 | 87.8 | **Known** | 50.3 |
 | 50 | Due. Free production in an interaction chunk: correct | spoken | 87.8 | 245.9 | Known, rung 1 | 129.2 |
@@ -469,7 +469,7 @@ Overdue non-provisional items are counted at session start. **Above 25, new chun
 
 ## 4. Path logic
 
-Written as numbered rules against the implemented types. A developer should be able to read section 4 alone and build it.
+Written as numbered rules against the implemented types. A developer should be able to read sections 1 and 4 alone and build it: section 1 is the order inside a session, section 4 is which content the session gets.
 
 ### 4.1 Inputs
 
@@ -481,7 +481,8 @@ Written as numbered rules against the implemented types. A developer should be a
 | Sessions completed | Session close | `{ day, minutes, spoken, second, completed }[]` |
 | Week can-do | Rule 4.3 | `outcome_id` |
 | Goal | Onboarding | `work`, `study`, `travel`, `family` |
-| Rolling check accuracy | Last 20 non-spoken first attempts | number or null |
+| Rolling accuracy | Last 20 scaffold and typed first attempts. Spoken attempts are excluded because an AI rubric score is not a right-or-wrong event | number or null |
+| Due items | `dueItems(state, now)` | `ItemMastery[]`, feeding the use step's `tryItems` and the scaffolds' sentences |
 
 ### 4.2 Placement to a starting path
 
@@ -810,4 +811,13 @@ Open questions for the board, none blocking:
 
 ---
 
-Hand-off: QA Reviewer against the acceptance criteria in LP-02, then "Ready for board".
+Hand-off: QA Reviewer against the acceptance criteria in LP-02 and against the six items returned on 26 October, then "Ready for board".
+
+Dependent tickets, so nobody waits on the wrong thing:
+
+| Ticket | What it takes from here | Status |
+| --- | --- | --- |
+| LP-30 Re-order the session so the lesson opens on the scene | §1.2, §1.3 and the divergences table in §1.4 are its spec | Blocked, and this unblocks it |
+| LP-20 part 2 (`items.tsx`, `content.ts`) | §1.7's surviving item types; the authored phase reorder in §1.4 row 6 | Held on the cut-list approval card |
+| LP-35 Author one full A2.1 week on the spine | §1.2, §1.5, §1.6, §1.9, §1.10 and §5 | Blocked on this document |
+| LP-03 / LP-04 the lesson capsule | §1.2's phase list and the 0:50 mic rule | Backlog |
