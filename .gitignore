@@ -30,3 +30,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 .lp-artifact/
+
+# Machine-local Claude Code settings written by Paperclip agent runs
+.claude/settings.local.json
