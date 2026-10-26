@@ -635,14 +635,24 @@ function nextSession(state, now):
   new_ok     = overdue <= 25 and not completedNewToday(state)
   if daysMissed(state) >= 2: return warmRestart(state, due)
 
-  phases = [plan(weekCanDo(state))]
-  phases += recall(pick(due, 8, minStrands = 3, noTwoInARow = strand))
-  if new_ok: phases += chunk(argmax(score(c) for c in candidates(state)), variant(state))
-  phases += weekDay(state) == 5 ? teachItBack() : useTask(state, todaysTargets, tryToUse(due, 3))
-  if weekDay(state) == 4: phases += voteSeeRevote()
+  phases = []
+  if new_ok:
+    chunk    = argmax(score(c) for c in candidates(state))
+    # Due items are the scaffolds' sentences, not a phase of their own.
+    phases  += sceneLedChunk(chunk, variant(state), scaffoldSentences = pick(due, 3))
+  phases += weekDay(state) == 5
+            ? teachItBack()
+            : useTask(state, todaysTargets, tryItems = tryToUse(due, 3))
+  if not new_ok: phases += useTask(state, [], tryItems = pick(due, 3, offset = 3))
   phases += story(coverage >= 0.98)
-  phases += close(delayedCheckOf(newChunk), reflection, canDoLine)
+  phases += close(delayedSayItOf(chunk), reflection, canDoLine)
   return phases
+
+# sceneLedChunk emits atom.phases in authored order, check filtered out:
+#   input -> noticing -> free_use -> controlled -> free_use
+# with phase.items filtered through atom.cuts[variant].
+# Invariant a developer can assert in a test: the first phase whose kind is
+# free_use starts no later than 50 s of wall clock from session start.
 ```
 
 ---
@@ -658,53 +668,66 @@ One row per chunk, filled in before any script is written. Gate A rejects a chun
 | Criterion ID | Exactly one | `CRI-A2.1-INT-01-02` |
 | "I can" line | 10 words or fewer, learner-facing, British English | "I can answer when something is not available" |
 | Strand and sub-level | From the criterion | INT, A2.1 |
-| Input type | Video if it needs modelling (pronunciation, gesture, interaction), word tutorial otherwise | video |
+| Scene type | Video if it needs modelling (pronunciation, gesture, interaction), word tutorial otherwise | video |
+| The situation | One line: where this happens and why the phrase is needed. If you cannot write it, there is no scene | "The barista has run out of what she ordered" |
 | Target | One form or phrase only | "We're out of... / Then I'll have..." |
-| Known-language budget | 95% of the input must already be known at this sub-level; list any word that is not | "oat milk" (glossed) |
+| Known-language budget | 95% of the scene must already be known at this sub-level; list any word that is not | "oat milk" (glossed) |
 | Prerequisite criteria | Only what is genuinely needed | `CRI-A2.1-INT-01-01` |
-| Checks | 6 authored, cut lists for 5 and 3 | see 1.3 |
+| Items | 6 authored in the dense bank, `cuts.standard` and `cuts.light` marked | see 1.5 and 1.6 |
+| First spoken turn | The coach's opening line and the response she gives to a correct and to a wrong attempt | "Where do you work?" |
 | Setting and cast | From the PRD's six recurring characters and its settings list | Shoreditch cafe, Brazilian barista |
 | L1 needs | Which lines need an L1 gloss or card | one L1 "what this is" card |
 
-### 5.2 Writing the input
+### 5.2 Writing the scene
 
-| Level | Video length | Speech rate | L1 allowance | Word cards per screen |
-| --- | --- | --- | --- | --- |
-| Pre-A1 | 30 to 45 s | 90 to 100 wpm | L1 subtitles on by default, L1 card at the start | 12 |
-| A1 | 45 to 60 s | 100 to 110 | L1 subtitles optional, gloss 3 to 5 key words | 12 |
-| A2 | 60 to 75 s | 110 to 125 | L1 glosses on tap only | 25 |
-| B1 | 60 to 90 s | 125 to 140 | Tap to translate only | 25 |
-| B2 | 75 to 90 s | 140 to 155 | None | 40 |
-| C1 | 75 to 90 s | 155 to 170 | None | 40 |
+The scene's first pass is capped so the mic is live by 0:50 (§1.2). The full scene exists, and it is offered as a replay in the close and as the framing of the use step; it is the **first pass** these caps govern.
 
-Five beats, every video, no exceptions: Hook 10%, Notice 20%, Explain 30%, Practise aloud 25%, Recap 15%. The Recap card uses the same wording as the delayed check stem and the "I can" line.
+| Level | First pass | Full scene | Speech rate | L1 allowance | Word cards before the first spoken turn |
+| --- | --- | --- | --- | --- | --- |
+| Pre-A1 | 25 s | 30 to 45 s | 90 to 100 wpm | L1 subtitles on by default, L1 card at the start | 3 |
+| A1 | 30 s | 45 to 60 s | 100 to 110 | L1 subtitles optional, gloss 3 to 5 key words | 3 |
+| A2 | 35 s | 60 to 75 s | 110 to 125 | L1 glosses on tap only | 3 |
+| B1 | 35 s | 60 to 90 s | 125 to 140 | Tap to translate only | 3 |
+| B2 | 45 s | 75 to 90 s | 140 to 155 | None | 4 |
+| C1 | 45 s | 75 to 90 s | 155 to 170 | None | 4 |
+
+Three beats in the first pass, every scene, no exceptions: **Situation 40%, the phrase in use 45%, the phrase again 15%.** The beats this replaces were Hook, Notice, Explain, Practise aloud, Recap, and two of those are now gone on purpose:
+
+| Old beat | What happened to it |
+| --- | --- |
+| Explain, 30% of the video | **Cut.** An explanation standing in for the scene is what the board ruled out, and it was a third of every video |
+| Practise aloud, 25% at 60% of runtime | **Cut from the video.** It was the only aloud moment in the old template, it was video-only so word tutorials had none, and it was a beat inside a film rather than a turn with someone. The coach owns it now, as step 3 of §1.2 |
+| Recap, 15% | **Moved to the close**, where it is the delayed say-it rather than a card to read |
+
+Video rules that QA checks mechanically: vertical 9:16; captions always available, word-synced to A2 and phrase-level from B1; L1 subtitles a separate toggle, never burnt in; 7 words per caption line and 2 lines maximum; only the target language appears as on-screen text; the target form in the accent colour and nothing else; **no rule, label or grammar term on screen at any point**; one idea per shot; a face on screen for at least 60% of the running time. Explainer videos are 2D flat-vector motion graphics, never 3D (design rules).
 
 Video rules that QA checks mechanically: vertical 9:16; captions always available, word-synced to A2 and phrase-level from B1; L1 subtitles a separate toggle, never burnt in; 7 words per caption line and 2 lines maximum; only the target language appears as on-screen text; the target form in the accent colour and nothing else; one idea per shot; a face on screen for at least 60% of the running time. Explainer videos are 2D flat-vector motion graphics, never 3D (design rules).
 
-### 5.3 Writing the checks
+### 5.3 Writing the items
 
 General rules:
 
 | Rule | Detail |
 | --- | --- |
-| Order | Recognise, then complete, then produce. Never produce first inside controlled practice; the generation attempt belongs in free use |
-| One target per check | A check that can fail for two reasons teaches nothing |
+| Order | **Produce first, then scaffold.** The learner's unscaffolded spoken attempt is step 3; the scaffolds in step 4 exist to repair what that attempt showed. This reverses the old recognise, complete, produce order (generation effect and productive failure: Bjork; Kapur) |
+| Every item ends in a sentence said | No item may end on a tick, a tap or a score. A scaffold hands straight to the mic, with the whole sentence as the thing said |
+| One target per item | An item that can fail for two reasons teaches nothing |
 | Distractors | 3 maximum, each a real learner error (L1 transfer first: Arabic article omission and p/b, Spanish false friends, Hindi retroflex and article use), never a joke option |
 | Facility band | Expected 0.4 to 0.9 correct. Outside that band after 30 days live, the item is flagged and revised |
-| The "why" | 12 words maximum, shows the correct form in context, never a rule statement |
-| Forbidden | "Tap to reveal, mark as known", any check answerable from the picture alone where the strand is not RDG or LST, any multiple-choice proxy for a production strand |
+| Feedback | 12 words maximum, says the right form slowly and shows it big, then one more try. Never a rule statement, never a mark |
+| Forbidden | "Tap to reveal, mark as known"; any item answerable from a picture or an emoji; any multiple-choice item at all inside a lesson; any score row shown before the learner has spoken; any item whose last screen is not the learner producing |
 
-Per strand:
+Per strand, the production step and the scaffold that leads to it:
 
 | Strand | Write it like this | Do not |
 | --- | --- | --- |
-| GRM | Reorder, gap-fill, spot the error, transform one sentence into another time or number | Ask for a rule name, or test two forms at once |
-| RDG | Short authentic notice, then true / false / not given, headings, or one inference | Ask a question answerable without reading |
-| WRT | Give a named person and a reason to write: "Amira is late. Ask where she is. Two lines." | Ask for free writing with no audience or purpose |
-| LST | Natural speed, one replay allowed after the first attempt, confusable numbers and minimal pairs | Allow unlimited replays before the first attempt |
-| SPK | Give a prompt, a time (20 to 45 s) and a visible target list of 3 to 5 items | Score on accent; score intelligibility, rhythm and target use |
-| MED | Name the listener and what they cannot do: "Your flatmate cannot read this bill. Tell them the three things they must do." | Allow copying; cap source overlap at 60% |
-| INT | The partner must create one problem to repair (out of stock, wrong price, did not hear) | Write a partner who only agrees |
+| GRM | Reorder or spot the error, then say the whole corrected sentence. Transform one sentence into another time or number, spoken, keyboard as fallback | Ask for a rule name, test two forms at once, or end on the tiles being correct |
+| RDG | Short authentic notice, at most 2 true / false items on it, then read aloud the line of the notice that answers them | Ask for "not given", match headings, or ask anything answerable without reading |
+| WRT | Give a named person and a reason to write: "Amira is late. Ask where she is. Two lines." | Ask for free writing with no audience or purpose, or show a live word counter |
+| LST | Natural speed, one replay after the first attempt, confusable numbers and minimal pairs, then say the number or line back | Allow unlimited replays before the first attempt, or use emoji as the "picture" |
+| SPK | Give a prompt, a time (20 to 45 s) and a visible target list of 3 to 5 items, through the coach | Score on accent (score intelligibility, rhythm and target use), or put a mic under a prompt with score bars after it |
+| MED | Name the listener and what they cannot do: "Your flatmate cannot read this bill. Tell them the three things they must do." | Allow copying (cap source overlap at 60%), or label the source panel in English |
+| INT | The partner must create one problem to repair (out of stock, wrong price, did not hear), and answers in one short sentence so a miss still gives a model | Write a partner who only agrees, or let the chat log grow until the mic leaves a 375x812 screen |
 
 ### 5.4 Tone and inclusion
 
@@ -714,7 +737,7 @@ Warm, calm, respectful of adult intelligence. No exclamation marks, no baby talk
 
 | Gate | Owner | Checks |
 | --- | --- | --- |
-| A Pedagogical | Senior writer | Section 1.7 checklist, beat structure, level lexis against the word list |
+| A Pedagogical | Senior writer | Section 1.10 checklist, the three scene beats, level lexis against the word list, and the 0:50 mic timing on the built lesson |
 | B Linguistic | QA linguist | Pronunciation, stress, naturalness, caption sync |
 | C Accessibility | Accessibility reviewer | WCAG 2.2 AA, alt text, captions, 44px minimum tap targets, visible focus, 4.5:1 text contrast |
 | D Bias and cultural fit | Content lead | The inclusion rules in 5.4, across Gulf, UK and international settings |
@@ -728,7 +751,7 @@ This is the ticket's acceptance criterion, and the test QA should actually run. 
 2. `CRI-A2.1-WRT-05-01` "A two-line message that asks a question" (AI-scored, word tutorial, A2.1).
 3. `CRI-A2.1-MED-06-01` "Tell someone the three things they must do" (AI-scored, video, A2.1, prerequisite `CRI-A2.1-RDG-04-01`).
 
-The three outputs pass if: each has one "I can" line of 10 words or fewer; each has 6 authored checks with cut lists; each check sits in the right phase and the right modality for its strand; no instruction exceeds 6 words; every wrong answer has a 12-word why; and the Recap, the delayed check stem and the "I can" line use identical wording. If two authors produce chunks that feel different in difficulty or shape, the template has failed, not the author.
+The three outputs pass if: each has one "I can" line of 10 words or fewer; each has 6 items in a dense bank with `cuts.standard` and `cuts.light` marked and no cut touching a `free_use` or `check` item; `phases` is in the §1.2 order in all three; the first `free_use` phase starts by 0:50 in all three, including the word-tutorial one; every item ends with the learner saying the whole sentence; each production step is in the right modality for its strand per §1.7; no instruction exceeds 6 words; every miss shows the right form in 12 words or fewer; and the closing line, the delayed say-it stem and the "I can" line use identical wording. If two authors produce chunks that feel different in difficulty or shape, the template has failed, not the author.
 
 ---
 
@@ -736,7 +759,7 @@ The three outputs pass if: each has one "I can" line of 10 words or fewer; each 
 
 | # | Principle | Source | Where it is used here |
 | --- | --- | --- | --- |
-| 1 | Retrieval beats restudy by 30 to 50% at one week | Roediger and Karpicke 2006 | Every check is recall or production (1.2, 5.3) |
+| 1 | Retrieval beats restudy by 30 to 50% at one week | Roediger and Karpicke 2006 | Every item ends in production, never recognition (1.2, 1.7, 5.3) |
 | 2 | Optimal spacing gap is 10 to 20% of the retention interval | Cepeda et al. 2006 | Expanding half-life ladder (3.2) |
 | 3 | Learning is fastest at about 80 to 85% success | Wilson et al. 2019 | Due at p = 0.8, variant switch, 0.30 term in the path score (3.2, 4.5) |
 | 4 | Interleaving roughly doubles delayed test scores | Rohrer and Taylor 2007 | Interleaving guard, day 4, 3 strands per session (4.4) |
@@ -744,13 +767,14 @@ The three outputs pass if: each has one "I can" line of 10 words or fewer; each 
 | 6 | Four strands in balance, about 25% each | Nation 2007 | `strand_deficit` term (4.5) |
 | 7 | Formulaic sequences are learned and stored as units | Ellis 2002; Boers and Lindstromberg | Phrase items scheduled whole (0, 3.2) |
 | 8 | Explicit noticing and focus on form, d = 0.9 | Schmidt 1990; Norris and Ortega 2000 | The noticing phase, one target only (1.2) |
-| 9 | Segmenting, modality and redundancy | Mayer; Sweller | 45 to 90 s input, no on-screen text duplicating audio (5.2) |
-| 10 | Corrected errors beat errorless learning | Metcalfe 2017 | Miss rules, meaning-first feedback, no penalties (1.5, 3.3) |
-| 11 | Generation effect, productive failure | Bjork; Kapur | Free use precedes the model answer (1.2, 1.7 item 7) |
+| 9 | Segmenting, modality and redundancy | Mayer; Sweller | A 35 s first pass in three beats, no on-screen text duplicating audio, no rule on screen (5.2) |
+| 10 | Corrected errors beat errorless learning | Metcalfe 2017 | Miss rules, meaning-first feedback, no penalties (1.8, 3.3) |
+| 11 | Generation effect, productive failure | Bjork; Kapur | The unscaffolded spoken turn comes before the scaffolds and before any model answer (1.2 step 3, 5.3) |
 | 12 | Fluency needs time pressure on known material | Nation; 4/3/2 | Fluency chunks use mastered items only (4.4) |
-| 13 | Transfer-appropriate processing | Morris et al. 1977 | Matching-modality checks per strand (1.4) |
+| 13 | Transfer-appropriate processing | Morris et al. 1977 | The production step is always in the strand's own modality (1.7) |
 | 14 | Mastery learning gates on demonstrated criteria | Bloom 1984 | Two sittings on two days, outcome and level gates (3.4) |
 | 15 | Distributed practice and habit formation at about 66 days | Lally 2010 | 10 minutes daily, four sessions a week counts as on track (4.4) |
+| 16 | Input must be understood before it can be produced, and comprehension is driven by situation not explanation | Krashen; VanPatten | The scene opens every lesson and no rule appears on screen (1.1, 1.2, 5.2) |
 
 ---
 
