@@ -206,7 +206,6 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
 
   const [stage, setStage] = useState<Stage>("say");
   const [talking, setTalking] = useState(true);
-  const [tries, setTries] = useState(1);
   const [turnIdx, setTurnIdx] = useState(0);
   const [score, setScore] = useState<SpeechScore | null>(null);
   // The one line on screen is always the last thing the coach said.
@@ -306,8 +305,7 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
     setLineText(r.show);
     setStage("word");
     const last = triesRef.current >= MAX_TRIES || practice.current;
-    triesRef.current = last ? triesRef.current : triesRef.current + 1;
-    if (!last) setTries(triesRef.current);
+    if (!last) triesRef.current += 1;
     speak(r.say, () => later(() => (last ? rest() : ask()), 300), true);
   };
 
@@ -486,7 +484,15 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
         mood={mood}
         bow={bow}
         label="Your coach"
-        onTap={() => { clearTimers(); stopSpeaking(); speak(lineText, () => (ended ? undefined : setStage("listen"))); }}
+        onTap={() => {
+          clearTimers();
+          stopSpeaking();
+          // Tap her to hear it again: the word she is teaching, then the line
+          // again; her last line when the turn is at rest.
+          if (ended) speak(lineText, () => undefined);
+          else if (stage === "word") speak(lineText, () => later(ask, 250), true);
+          else ask();
+        }}
         tapLabel={t("listen")}
       />
       <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5" dir="ltr">
@@ -514,7 +520,7 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
         })}
       </div>
       {/* One dot per thing still to do: the only progress signal on screen. */}
-      {dots.length && stage !== "word" ? (
+      {dots.length > 0 && stage !== "word" ? (
         <div className="mt-3 flex items-center justify-center gap-2">
           {dots.map((on, i) => <span key={i} className={`lp-dot ${on ? "lp-dot-on" : ""}`} />)}
         </div>
@@ -530,7 +536,7 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
       <div className="mt-auto pt-3">
         {ended ? (
           <div className="flex gap-2">
-            <GlowButton secondary size="normal" className="!w-32" onClick={again}>{t("retry")}</GlowButton>
+            <GlowButton secondary size="normal" className="!w-28 shrink-0" onClick={again}>{t("retry")}</GlowButton>
             <GlowButton size="normal" onClick={() => { clearTimers(); stopSpeaking(); onNext(); }}>{stage === "reply" ? t("continue") : t("keep_going")}</GlowButton>
           </div>
         ) : (

@@ -515,7 +515,7 @@ function OfficeScene({ frame }: { frame: number }) {
       <Stage>
         {frame >= 676 && frame < 714 ? (
           <g opacity={tween(frame, 676, 692, 0, 1, EASE.out) * (1 - tween(frame, 704, 714, 0, 1, EASE.in))}>
-            <Chair x={132} baseY={1130} scale={0.5} ghost />
+            <Chair x={116} baseY={1124} scale={0.62} ghost />
           </g>
         ) : null}
         <g transform={`translate(0 ${relief})`}>
@@ -741,13 +741,13 @@ function RecapScene({ frame }: { frame: number }) {
         })}
 
         {/* the thread shrinks into the corner */}
-        <g transform={`translate(540 976) scale(${springIn(frame, 1124, { damping: 9, stiffness: 180 })}) translate(-540 -976)`}>
-          <rect x="480" y="882" width="120" height="196" rx="24" fill={PHONE_BODY} stroke={PAPER} strokeWidth="5" />
-          <rect x="490" y="898" width="100" height="164" rx="14" fill={PHONE_SCREEN} />
-          <rect x="496" y="904" width="88" height="22" rx="8" fill={ACCENT} />
-          <rect x="528" y="936" width="56" height="26" rx="11" fill={SAFFRON} />
-          <rect x="496" y="972" width="52" height="26" rx="11" fill={GREY_BUBBLE} />
-          <rect x="528" y="1008" width="56" height="26" rx="11" fill={SAFFRON} />
+        <g transform={`translate(936 1036) scale(${springIn(frame, 1124, { damping: 9, stiffness: 180 })}) translate(-936 -1036)`}>
+          <rect x="876" y="942" width="120" height="196" rx="24" fill={PHONE_BODY} stroke={PAPER} strokeWidth="5" />
+          <rect x="886" y="958" width="100" height="164" rx="14" fill={PHONE_SCREEN} />
+          <rect x="892" y="964" width="88" height="22" rx="8" fill={ACCENT} />
+          <rect x="924" y="996" width="56" height="26" rx="11" fill={SAFFRON} />
+          <rect x="892" y="1032" width="52" height="26" rx="11" fill={GREY_BUBBLE} />
+          <rect x="924" y="1068" width="56" height="26" rx="11" fill={SAFFRON} />
         </g>
       </Stage>
 
