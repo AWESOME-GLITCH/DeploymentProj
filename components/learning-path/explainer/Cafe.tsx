@@ -10,7 +10,7 @@ import { AbsoluteFill, useCurrentFrame } from "remotion";
 import type { CSSProperties } from "react";
 import {
   ACCENT, Badge, BeatProgress, Birds, CaptionBar, Character, Confetti, CREAM, Cup, EASE, Eyebrow, FaceChip, FAINT, FOG, FONT, Highlight, INK, KineticText, karaoke, MenuBoard,
-  PAPER, Parallax, Pastry, PendantLamp, PINK, Plant, Pulse, SAFFRON, SEA, SpeechBubble, springIn, Stage, Till, Transition, tween, WallShelf, Waveform, Window, WOOD, WOOD_DARK, WOOD_LIGHT,
+  PAPER, Parallax, Pastry, PendantLamp, PINK, Plant, SAFFRON, SEA, SpeechBubble, springIn, Stage, TapCue, Till, Transition, tween, WallShelf, Waveform, Window, WOOD, WOOD_DARK, WOOD_LIGHT,
 } from "./lib";
 
 export { karaoke };
@@ -21,16 +21,35 @@ export const CAFE_H = 1440;
 
 export type Beat = { id: string; from: number; to: number; line: string; target?: string[]; kind: "hook" | "notice" | "explain" | "practise" | "recap"; pauseAt?: number };
 
+// Beats are 5 to 7 seconds and every teaching beat ends on its stopping line,
+// so the learner acts before anything passive runs past 8 seconds (board rule,
+// 26 Oct 2026). The asks grow: tap the key words, say the line, say it with a
+// new word. The player derives the stop from `target` and `pauseAt`, so a
+// `pauseAt` must sit strictly inside its own beat.
 export const CAFE_BEATS: Beat[] = [
   { id: "hook", kind: "hook", from: 0, to: 150, line: "Monday morning. Shoreditch. Coffee first." },
   { id: "n1", kind: "notice", from: 150, to: 300, line: "I'd like a coffee, please.", target: ["I'd like", "please"] },
   { id: "n2", kind: "notice", from: 300, to: 450, line: "I'd like two coffees, please.", target: ["I'd like", "please"] },
   { id: "n3", kind: "notice", from: 450, to: 600, line: "Could I have a tea?", target: ["Could I have"] },
-  { id: "explain", kind: "explain", from: 600, to: 990, line: "I'd like means I want, but polite.", target: ["I'd like"] },
-  { id: "practise", kind: "practise", from: 990, to: 1350, line: "Say it with me. I'd like a coffee, please.", target: ["I'd like", "please"], pauseAt: 1200 },
-  { id: "recap", kind: "recap", from: 1350, to: 1560, line: "I'd like ... please.", target: ["I'd like", "please"] },
+  { id: "explain", kind: "explain", from: 600, to: 795, line: "I want is direct. I'd like is polite.", target: ["I'd like"] },
+  { id: "polite", kind: "explain", from: 795, to: 990, line: "Add please. It sounds warm.", target: ["please"] },
+  { id: "practise", kind: "practise", from: 990, to: 1200, line: "Say it with me. I'd like a coffee, please.", target: ["I'd like", "please"], pauseAt: 1186 },
+  { id: "again", kind: "practise", from: 1200, to: 1350, line: "I'd like a tea, please.", target: ["a tea"], pauseAt: 1320 },
+  { id: "recap", kind: "recap", from: 1350, to: 1560, line: "You can order a coffee politely.", target: ["politely"] },
 ];
 export const CAFE_DURATION = 1560;
+
+/** Captions in the learner's own language, one line per beat id. The lead
+ *  registers this in ExplainerPlayer; it lives here so the beat list and its
+ *  captions cannot drift apart. */
+export const CAFE_L1: Record<string, Record<string, string>> = {
+  ar: { hook: "صباح الاثنين. شورديتش. القهوة أولًا.", n1: "أريد قهوة، من فضلك.", n2: "أريد قهوتين، من فضلك.", n3: "هل يمكنني الحصول على شاي؟", explain: "I want مباشرة. I'd like مؤدبة.", polite: "أضف please. تصبح أدفأ.", practise: "قلها معي.", again: "أريد شايًا، من فضلك.", recap: "يمكنك الآن طلب قهوة بأدب." },
+  es: { hook: "Lunes por la mañana. Shoreditch. Primero, café.", n1: "Quisiera un café, por favor.", n2: "Quisiera dos cafés, por favor.", n3: "¿Podría tomar un té?", explain: "I want es directo. I'd like es cortés.", polite: "Añade please. Suena más amable.", practise: "Dilo conmigo.", again: "Quisiera un té, por favor.", recap: "Ya puedes pedir un café con cortesía." },
+  hi: { hook: "सोमवार की सुबह। शोरडिच। पहले कॉफ़ी।", n1: "मुझे एक कॉफ़ी चाहिए, कृपया।", n2: "मुझे दो कॉफ़ी चाहिए, कृपया।", n3: "क्या मुझे एक चाय मिल सकती है?", explain: "I want सीधा है। I'd like विनम्र है।", polite: "please जोड़ें। यह और गर्मजोशी भरा लगता है।", practise: "मेरे साथ बोलो।", again: "मुझे एक चाय चाहिए, कृपया।", recap: "अब आप विनम्रता से कॉफ़ी माँग सकते हैं।" },
+  ru: { hook: "Утро понедельника. Шордич. Сначала кофе.", n1: "Я бы хотел кофе, пожалуйста.", n2: "Я бы хотел два кофе, пожалуйста.", n3: "Можно мне чай?", explain: "I want — прямо. I'd like — вежливо.", polite: "Добавьте please. Звучит теплее.", practise: "Скажи со мной.", again: "Я бы хотел чай, пожалуйста.", recap: "Теперь вы можете вежливо заказать кофе." },
+  tr: { hook: "Pazartesi sabahı. Shoreditch. Önce kahve.", n1: "Bir kahve istiyorum, lütfen.", n2: "İki kahve istiyorum, lütfen.", n3: "Bir çay alabilir miyim?", explain: "I want düz. I'd like kibar.", polite: "please ekle. Daha sıcak olur.", practise: "Benimle söyle.", again: "Bir çay istiyorum, lütfen.", recap: "Artık kibarca kahve sipariş edebilirsin." },
+  zh: { hook: "星期一早晨。肖尔迪奇。先来杯咖啡。", n1: "我想要一杯咖啡，谢谢。", n2: "我想要两杯咖啡，谢谢。", n3: "可以给我一杯茶吗？", explain: "I want 很直接。I'd like 很礼貌。", polite: "加上 please，听起来更温暖。", practise: "跟我一起说。", again: "我想要一杯茶，谢谢。", recap: "现在你可以礼貌地点一杯咖啡了。" },
+};
 
 export function beatAt(frame: number): Beat {
   return CAFE_BEATS.find((b) => frame >= b.from && frame < b.to) ?? CAFE_BEATS[CAFE_BEATS.length - 1];
@@ -198,6 +217,8 @@ function NoticeScene({ frame }: { frame: number }) {
           </Stage>
         ) },
       ]} />
+      {/* the stop at the end of this line: a tap on the first one, then saying it */}
+      <Stage><TapCue frame={frame} from={bs + 114} x={470} y={700} kind={beat === 0 ? "tap" : "say"} size={86} /></Stage>
       <SpeechBubble text="Hi there!" x={402} y={172} w={268} from={154} until={184} frame={frame} tail="right" tailX={168} size={46} typing={false} />
       {beat === 0 ? <SpeechBubble text="I'd like a coffee, please." targets={["I'd like", "please"]} x={58} y={128} w={580} from={196} frame={frame} tail="left" tailX={188} size={50} /> : null}
       {beat === 1 ? <SpeechBubble text="I'd like two coffees, please." targets={["I'd like", "please"]} x={58} y={128} w={580} from={322} frame={frame} tail="left" tailX={188} size={50} /> : null}
@@ -206,15 +227,14 @@ function NoticeScene({ frame }: { frame: number }) {
   );
 }
 
-// ---------------------------------------------------------------- explain: kinetic typography
+// ------------------------------------------- explain, part one: direct or polite
 function ExplainScene({ frame }: { frame: number }) {
   const local = frame - 600;
   const arc = tween(local, 40, 100, 0, 1, EASE.out);
-  const needle = -180 + 180 * springIn(local, 206, { damping: 10, stiffness: 60 });
+  const needle = -180 + 180 * springIn(local, 126, { damping: 10, stiffness: 60 });
   const r = 190, cx = 540, cy = 1120;
   const pt = (deg: number, rad: number) => ({ x: cx + rad * Math.cos((deg * Math.PI) / 180), y: cy + rad * Math.sin((deg * Math.PI) / 180) });
   const seg = (a: number, b: number) => { const p1 = pt(a, r), p2 = pt(b, r); return `M${p1.x} ${p1.y} A${r} ${r} 0 0 1 ${p2.x} ${p2.y}`; };
-  const spark = (i: number) => springIn(local, 162 + i * 5, { damping: 7, stiffness: 240 });
   return (
     <AbsoluteFill style={{ background: PAPER }}>
       <Stage>

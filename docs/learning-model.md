@@ -116,39 +116,68 @@ Nine minutes, inside the ten-minute target with a minute of headroom. There is n
 | `recall` | A front-loaded recall drill is the thing the board ruled out, and it put up to 2 minutes of items in front of a learner who had not seen anything yet. Today it is pushed after the two atoms (`engine.ts:426`), which is better than the PRD's order and still a drill | Split in two by state, below |
 | `vote` | `vote_see_revote` was cut on LP-20: the peer percentages are invented numbers in `config.peers`, the model answer is revealed before the second vote, and the learner produces nothing | Nothing. Day 4 interleaves across strands, which was always the pedagogical point of day 4 |
 
-**Ruling on QA's open question.** A dedicated recall phase does **not** count as "inside the scene", wherever it sits in the order. Inside the scene means the due item is retrieved because the situation needs it. That is only true of step 5, which is why the phase goes rather than moving.
+**Ruling on QA's open question.** A dedicated recall phase does **not** count as "inside the scene", wherever it sits in the order. Inside the scene means the due item is retrieved because the situation needs it. That is only true of steps 4 and 5, which is why the phase goes rather than moving.
+
+**The two return paths, which answers R1.** QA was right that deleting the phase without this left items at New and Learning with nowhere to go: `tryToUse` (`engine.ts:464`) admits only `consolidating`, `known` and `mastered`, so on day 2 of an item's life `dueItems` returns it and `tryToUse` does not. A due item returns by its **state**, and the state decides which step carries it:
+
+| Item state when due | Returns in | Owned by | What the learner does |
+| --- | --- | --- | --- |
+| New, Learning | Step 4, as the **sentence a scaffold is built from** | A new function, `dueSentences(state, at, exclude, max 3)` | Builds or repairs that sentence, then says it. The sentence is on screen, which is what §3.2 promises at these two rungs |
+| Consolidating, Known, Mastered | Step 5, as `tryItems` | `tryToUse`, filter unchanged | Uses it unprompted inside the exchange. Nothing on screen |
+| Any state, item is today's target | Neither. It is already the lesson | The `exclude` argument both functions take | — |
+
+Three things a developer needs from this, all in §1.4 rows 2 and 3:
+
+- `dueSentences` is a **new function**, not `pickRecall` with a smaller count. `pickRecall` filters through `isRecallable` (`content.ts:709`), which excludes `say_it_see_it`, `roleplay`, `relay` and `shadow`: exactly the production types §1.7 makes the backbone. Reusing it would let no spoken item back in, which is R1's mirror problem.
+- `isRecallable` itself **stays**, because `strandStrength` also calls it (`engine.ts:183`). It must not be reused as the return-path filter. Its doc comment should say so.
+- The filter for `dueSentences` is by state and by whether the item has a single target sentence to build, not by item type. Order is lowest recall probability first, the same order `dueItems` already returns (`engine.ts:258`).
+
+So the first three days of an item's life are covered: day 2 it is at Learning and comes back as tomorrow's scaffold sentence, and it reaches step 5 free use only once it is at Consolidating, which is the rung at which §3.2 says it can be said from a cue with nothing shown. The spacing is unchanged; what changes is how much scaffolding is standing when the learner produces it.
 
 ### 1.4 Divergences from the code as it stands
 
-Against `composeSession` (`engine.ts:356`), `phaseMinutes` (`engine.ts:468`) and the `AtomRun` order (`Capsule.tsx:139`). Document only. The code change is LP-30's, not this ticket's.
+Against `composeSession` (`engine.ts:356`), `phaseMinutes` (`engine.ts:475`), `ringSlice` (`engine.ts:487`) and the `AtomRun` order (`Capsule.tsx:141`). Document only. The code change is LP-30's, not this ticket's.
+
+Re-derived from the file for v1.2 after QA's R6. Four rows of v1.1 described an engine revision that no longer exists, and the engine had already moved in this spec's direction: there is no plan push, and recall is pushed after the atoms rather than before them. Rows 1, 2, 6 and 15 carry the correction.
 
 | # | The code today | This spec | Change needed |
 | --- | --- | --- | --- |
-| 1 | `composeSession` pushes `plan` first (`engine.ts:381`) | No plan phase | Remove the push, drop `{ kind: "plan" }` from `SessionPhase`, delete `PlanPhase` (`Capsule.tsx:75`) |
-| 2 | `composeSession` pushes `recall` second, 8 items, 10 on a warm restart (`engine.ts:382-384`) | No recall phase | Remove the push and the `recall` branch of `PhaseView` (`Capsule.tsx:66`), drop `{ kind: "recall" }`. Keep `pickRecall`: it becomes the source of step 5's `tryItems` |
-| 3 | `phaseMinutes`: `plan` 0.33, `recall` up to 2 | Neither phase exists | Delete both cases |
-| 4 | `phaseMinutes`: `atom` with role `new` bills 4 | 4, unchanged, now spent scene-first | None |
-| 5 | A week-day-4 session bills 0.33 + 2 + 4 + 3 + 1 + 1.5 + 0.5 = **12.33 min**, over the 12-minute ceiling in §4.4 | 9 min | Fixed by rows 1 to 3 and 7 |
-| 6 | `AtomRun` runs input, noticing, controlled, free_use, so the first spoken turn lands at roughly minute 4 to 6 of the session | Scene, notice, say it, scaffolds, use it, with the mic live by 0:50 | **No change to `AtomRun`.** Reorder the authored `phases` array in `content.ts` so the two `free_use` phases sit either side of `controlled` |
-| 7 | `composeSession` pushes `vote` on week day 4 (`engine.ts:420`) | No vote phase | Remove the push, drop `{ kind: "vote" }`, delete the `vote` branch of `PhaseView` (`Capsule.tsx:68`) and the `vote_q` i18n key |
-| 8 | `composeSession` can stack a new atom, a use atom, a fluency atom, a vote and a story in one ten minutes | One `role: "new"`, one `use`, one story | The `new` limit already holds via `alreadyNewToday` (`engine.ts:405`). What actually overfills the session is the vote, so row 7. The fluency atom is only composed in a second session, so row 9 |
-| 9 | A second session the same day pushes a use atom and `ATM-A2-FLU-0001` (`engine.ts:396-398`) | Unchanged, and correct: both are old material returning | None |
-| 10 | `Atom.variant` is one scalar and `AtomPhase.items` is a flat `string[]`, so there is nowhere to record a cut list | One atom carrying the dense bank plus two drop lists | Add `Atom.cuts`, §1.6 |
-| 11 | `pickVariant` sets the density from rolling accuracy and `AtomRun` passes it down (`Capsule.tsx:163`) | Unchanged | None, once `cuts` exists for it to filter with |
-| 12 | Delayed `check` items are served in `close`, not inside the atom (`Capsule.tsx:160-161`) | Unchanged, and the right place | None |
-| 13 | `ringSlice` (`engine.ts:480`) maps `plan`, `recall` and the new atom to ring slice 0, and `vote` to slice 1 | Three phases, so three slices: new atom, use atom, then story plus close | Rewrite: `new` atom to 0, `use` atom to 1, `story` and `close` to 2 |
+| 1 | **No plan push.** `engine.ts:381-382` is the comment "The lesson opens on the scene, never on a plan screen", and `composeSession` never pushes one. The residue is still live: `{ kind: "plan" }` (`types.ts:162`), `PlanPhase` (`Capsule.tsx:77`), the `plan` branch of `PhaseView` (`Capsule.tsx:67`), the `p.kind !== "plan"` filter (`Capsule.tsx:81`) and `phaseMinutes`' `plan` case (`engine.ts:477`) | No plan phase, and no type that can express one | Delete the four residue sites and the type member. Nothing to remove from the composer. v1.1 said the composer pushes it; it does not |
+| 2 | `composeSession` builds `recallPhase` at `engine.ts:383-384` and pushes it at `engine.ts:426`, **after** the new atom and the use atom, under the comment "older material is retrieved once today's sentence has landed". 8 items, 10 on a warm restart | No recall phase. Due items return by state, per §1.3 | Remove the build and the push, drop `{ kind: "recall" }` (`types.ts:163`), remove the `recall` branch of `PhaseView` (`Capsule.tsx:68`) and `recall` from `ItemRun`'s `mode` union (`Capsule.tsx:99`). Delete `pickRecall` (`engine.ts:261`) |
+| 3 | Nothing populates step 4's scaffold sentences. `AtomRun`'s `controlled` branch passes `phase.items` and `variant` only (`Capsule.tsx:188`) | Up to 3 due items at New or Learning supply the sentences | **Add `dueSentences(state, at, exclude, max)`** per §1.3, filtered by state not by `isRecallable`, and pass its result into the `controlled` branch. This is the row that makes the recall deletion safe |
+| 4 | **Step 5 of a new atom carries no due items.** `AtomRun`'s `free_use` branch calls `ItemRun` with no `tryItems` and no `variant` (`Capsule.tsx:192`). The only `tryToUse` call is in the `USE:` branch, for the use atom (`Capsule.tsx:151`) | Step 5 carries up to 3 due items at Consolidating or better | Call `tryToUse(state, now, [today's targets])` in the `free_use` branch and pass it down. Easy to miss, because the use atom already does it and the session therefore looks correct from the outside |
+| 5 | `phaseMinutes`: `plan` 0.33, `recall` up to 2 (`engine.ts:477-478`) | Neither phase exists | Delete both cases |
+| 6 | `phaseMinutes`: `atom` with role `new` bills 4 | 4, unchanged, now spent scene-first | None. The chunk is 4:25 to B1 and 4:31 from B2 (§1.2), so the close's 0.5 absorbs the delayed check |
+| 7 | A week-day-4 session today bills 2 + 4 + 3 + 1 + 1.5 + 0.5 = **12.0 min**, which is **at** §4.4's 12-minute ceiling, not over it | 9 min | Fixed by rows 2, 5 and 9. v1.1 claimed 12.33 by billing a plan phase that is not pushed; the correction does not weaken the case, because a session at its own hard ceiling every week day 4 has no headroom for a mic that waits |
+| 8 | `AtomRun` runs the authored phase order, and `content.ts`'s atoms are authored input, noticing, controlled, free_use, so the first spoken turn lands at roughly minute 4 to 6 of the session | Scene, notice, say it, scaffolds, use it, with the mic live inside the first minute | **No change to `AtomRun`.** Reorder the authored `phases` array in `content.ts` so the two `free_use` phases sit either side of `controlled`. `ATM-A2-INT-0001` (`content.ts:233`) is the pattern to copy |
+| 9 | `composeSession` pushes `vote` on week day 4 (`engine.ts:427`) | No vote phase | Remove the push, drop `{ kind: "vote" }`, delete the `vote` branch of `PhaseView` (`Capsule.tsx:70`) and the `vote_q` i18n key |
+| 10 | `composeSession` can stack a new atom, a use atom, a recall phase, a vote and a story in one ten minutes | One `role: "new"`, one `use`, one story | The `new` limit already holds via `alreadyNewToday` (`engine.ts:409`). What overfills the session is the vote and the recall phase, so rows 2 and 9. The fluency atom is only composed in a second session, so row 11 |
+| 11 | A second session the same day pushes a recall phase, a use atom and `ATM-A2-FLU-0001` (`engine.ts:397-403`) | The use atom and the fluency atom are correct, both old material returning. The recall phase goes with row 2 | Remove the recall push only |
+| 12 | `Atom.variant` is one scalar (`types.ts:79`) and `AtomPhase.items` is a flat `string[]`, so there is nowhere to record a cut list | One atom carrying the dense bank plus two drop lists | Add `Atom.cuts`, §1.6 |
+| 13 | `pickVariant` (`engine.ts:314`) sets the density from rolling accuracy, and `AtomRun` picks it with a **local duplicate**, `pickVariantLocal` (`Capsule.tsx:167`, defined at `Capsule.tsx:203`) | One density rule, one implementation | Not blocking, worth folding in when `cuts` lands: have `AtomRun` call `pickVariant` so the two cannot drift. The cut lists are filtered where `variant` is already in hand |
+| 14 | Delayed `check` items are filtered out of the atom (`Capsule.tsx:165`) and served in `close` (`engine.ts:432-433`) | Unchanged, and the right place | None |
+| 15 | `ringSlice` (`engine.ts:487-490`) maps `plan` and the new atom to slice 0, then `atom`, `recall` and `vote` to slice 1, everything else to 2 | Three phases, so three slices: new atom, use atom, then story plus close | Rewrite: `new` atom to 0, `use` atom to 1, `story` and `close` to 2. v1.1 put `recall` in slice 0; it is in slice 1. The rewrite is needed either way, because deleting `plan`, `recall` and `vote` empties three of the five cases |
 
 ### 1.5 Variants: what changes, and what never changes
 
 Each chunk is authored at one density so the engine can change how a lesson is told, not only which lesson comes next.
 
-| Variant | Served when | Scaffolds, step 4 | Say it, step 3 | Use it, step 5 | Come back later, step 6 | Items |
+| Variant | Served when | Step 4 items | Say it, step 3 | Use it, step 5 | Come back later, step 6 | Items |
 | --- | --- | --- | --- | --- | --- | --- |
 | Light | Rolling check accuracy below 0.70 | 1 | 1 | 1 | 1 | 4 |
 | Standard | Accuracy 0.70 to 0.90, or fewer than 5 recent attempts | 2 | 1 | 1 | 1 | 5 |
 | Dense | Accuracy above 0.90 | 3 | 1 | 1 | 1 | 6 |
 
-The variant changes the number of scaffolds and nothing else. **The first spoken turn, the use turn and the delayed say-it are in every variant, light included.** The table this replaces dropped the delayed check from light, which took the one production moment that decides mastery away from the learner who most needed it.
+The variant changes the number of step 4 items and nothing else. Step 4's window is a fixed 80 s either way (§1.2), so light means more time per attempt, not a shorter lesson. **The first spoken turn, the use turn and the delayed production are in every variant, light included.** The table this replaces dropped the delayed check from light, which took the one production moment that decides mastery away from the learner who most needed it.
+
+**What step 4 holds, which answers R4.** QA was right that §1.7 left SPK and INT with no scaffolds, so there was nothing for a variant to cut and nothing to make up six items. Step 4 holds one of two things, and every strand has one of them:
+
+| Strand group | Step 4 holds | Dense example |
+| --- | --- | --- |
+| GRM, RDG, WRT, LST, MED | 1 to 3 **scaffolds**: a tap or drag that builds the sentence, each handing straight to production | `tap_order`, then `error_spot`, then the one permitted cross-strand scaffold |
+| SPK, INT | 1 to 3 **support turns**: the same sentence produced again through the coach with less support each time. Not a different kind of item, the same production at falling support | `say_it_see_it` (whole sentence shown), then `read_aloud` (shown, model withdrawn), then `open_response` (prompt only) |
+
+Support turns are authored as items of the `controlled` phase, so they are cuttable exactly like scaffolds and the item counts in the table above hold for all seven strands. Why falling support rather than none: scaffolding that fades is what makes an unaided production possible, and the alternative for SPK and INT was three items and no density at all.
 
 Why about 80% success: Wilson et al. 2019, the "85% rule". The variant switch exists to hold first-attempt accuracy between 0.75 and 0.85.
 
@@ -168,35 +197,43 @@ Why one row. `pickVariant(state)` chooses the density per learner per session, a
 | Where the bank lives | `phases` always carries the **dense** set. Dense has no `cuts` entry and drops nothing |
 | What a cut list is | The item IDs **removed** at that density. `cuts.light` is a superset of `cuts.standard`, so the three densities cannot drift apart |
 | How the player applies it | `phase.items.filter(id => !(atom.cuts?.[variant] ?? []).includes(id))` |
-| What may be cut | Items in the `controlled` phase only. A cut that touches a `free_use` or `check` item fails Gate A |
+| What may be cut | Items of the `controlled` phase only, which is scaffolds in five strands and support turns in SPK and INT (§1.5). A cut that touches a `free_use` or `check` item fails Gate A |
+| Cut order | The author writes step 4 **most supportive first**, and the cut lists remove from the **end**: `cuts.standard` drops the last item, `cuts.light` drops the last two. So the struggling learner keeps the most supported attempt, which is the whole point of the light variant |
 | Type change | `cuts?: { standard: string[]; light: string[] }` on `Atom`. `variant` stays as the fallback density that `AtomRun` reads when `role !== "new"` |
 
 An author writes six items once and marks two drops. The schema this replaces asked authors for three cut lists and gave them nowhere to put them.
 
 ### 1.7 Item types per strand
 
-Allowed types are the survivors of the LP-20 cut list (`docs/exercises.md`). A scaffold earns its place only by handing straight to the mic; the production column is the step that counts.
+Allowed types are the survivors of the LP-20 cut list (`docs/exercises.md`). A scaffold or support turn earns its place only by handing straight to production; the production column is the step that counts. Step 3 is spoken in every strand, including WRT (§1.2).
 
-| Strand | Learner word | Scaffolds, step 4 | Production, steps 3, 5 and 6 | Modality recorded | Mastery rule |
-| --- | --- | --- | --- | --- | --- |
-| GRM Grammar | Grammar | `tap_order`, `error_spot`, `magnet_tiles` (at most 1 per lesson) | `transform`, spoken, keyboard as fallback | spoken, typed | keyed |
-| RDG Reading | Reading | `tfng`, at most 2, on one notice | `read_aloud` of the line of the notice that answers it | spoken | keyed |
-| WRT Writing | Writing | `dictation` | `correct_message` or `short_production`, 20 to 60 words typed | typed | ai |
-| LST Listening | Listening | `listen_and_do`, natural speed, no replay before the first attempt | Say the number or line just heard | spoken | keyed |
-| SPK Speaking | Speaking | None. Speaking is produced from the first turn | `read_aloud`, `say_it_see_it`, `open_response`, all through the coach | spoken | ai |
-| MED Mediation | Explaining | `tfng` on the source | `relay` to a named listener who cannot see the source | spoken | ai |
-| INT Interaction | Talking with someone | None | `roleplay` / `dialogue_turn`, `say_it_see_it`. The partner creates one problem to repair | spoken | ai |
+| Strand | Learner word | Step 4, most supportive first | Step 3, first turn | Production, steps 5 and 6 | Modality recorded | Mastery rule |
+| --- | --- | --- | --- | --- | --- | --- |
+| GRM Grammar | Grammar | `tap_order`, `magnet_tiles`, `error_spot` | `transform`, spoken | `transform`, spoken, keyboard as fallback | spoken, typed | keyed |
+| RDG Reading | Reading | `tfng`, at most 2, on one notice | `read_aloud` of the line of the notice the first item turned on | `read_aloud` of the line that answers it. From B1 also `open_response`: say the claim in your own words | spoken | keyed |
+| WRT Writing | Writing | `dictation`, then `tap_order` of the key sentence | The key sentence said aloud to the coach before any typing | Step 5 `correct_message` or `short_production`, 20 to 60 words typed. Step 6 one key sentence, 8 to 15 words, typed, inside 0:25 | typed at steps 5 and 6, spoken at step 3 | ai |
+| LST Listening | Listening | `listen_and_do`, natural speed, no replay before the first attempt. May repeat twice, see below | `shadow`: say back the number or line just heard | `shadow` or `dialogue_turn`, the number or line said back inside an exchange. From B1 also `open_response`: say what the speaker wanted | spoken | keyed |
+| SPK Speaking | Speaking | Support turns: `say_it_see_it`, `read_aloud`, `open_response` (§1.5) | `open_response` through the coach | `read_aloud`, `open_response`, all through the coach | spoken | ai |
+| MED Mediation | Explaining | `tfng` on the source, then `tap_order` of the relay sentence | `relay` of the first of the three things | `relay` to a named listener who cannot see the source | spoken | ai |
+| INT Interaction | Talking with someone | Support turns: `say_it_see_it`, `read_aloud`, `open_response` (§1.5) | `dialogue_turn` with the coach | `roleplay` / `dialogue_turn`. The partner creates one problem to repair | spoken | ai |
 
 Cut on LP-20 and not to be authored: `gap_fill`, `gist_mcq`, `inference_mcq`, `heading_match`, `time_slider`, `vote_see_revote`, `pick_picture` with emoji, `sentence_build` (merged into `tap_order`), `explain_chart`, `translate_gist`, `picture_describe`.
 
+Two notes on the type names, so an author is never guessing:
+
+- **`listen_and_do` is LP-20's rename of `pick_picture` (numbers), with `detail_gap` folded into it** (`docs/exercises.md`, the LST rows). It is not yet a member of `ItemType` in `lib/learning-path/types.ts`; adding it, and removing the eleven cut names, is LP-20 part 2's change to `types.ts`, `items.tsx` and `content.ts`. Author against this spec and the name will exist when the chunk ships.
+- Everything else named above is already in `ItemType`.
+
+**May a scaffold type repeat inside a chunk? Yes, up to twice**, which answers R5's second half. LST is the case that forces the ruling: `listen_and_do` is its only in-strand scaffold, so a dense LST chunk is two `listen_and_do` items on different numbers plus the one permitted cross-strand scaffold. The conditions: no two items share a target sentence, the second use is harder than the first (a closer minimal pair, a faster delivery), and the third step 4 item must be a different type. The §4.4 interleaving guard does **not** forbid this: it applies across the session's phases, not inside one chunk, where every item is one target by §1.1.
+
+Cross-strand rule: a chunk may use at most one step 4 item from outside its own strand, and no step 4 item is ever mastery evidence. Mastery evidence is always the production step, in the strand's own modality (transfer-appropriate processing, Morris et al. 1977).
+
 Two consequences worth stating:
 
-- Every strand now ends in a spoken item, so the two-modality rule in §3.2 (Known needs two modalities, one of them productive) is satisfied by the spine itself rather than by hoping a production item turns up.
-- Every delayed check is a say-it of the whole sentence. On LP-20 all six delayed checks in `content.ts` were `gap_fill`, so the one moment that decided mastery was a three-way tap.
+- Every strand now has a spoken step 3 and a production step 5, so the two-modality rule in §3.2 (Known needs two modalities, one of them productive) is satisfied by the spine itself rather than by hoping a production item turns up. WRT banks both modalities inside one chunk: spoken at step 3, typed at step 5.
+- Every delayed check is a production of the whole sentence, said aloud in six strands and typed in WRT. On LP-20 all six delayed checks in `content.ts` were `gap_fill`, so the one moment that decided mastery was a three-way tap.
 
 Enabler chunks (grammar, vocabulary, pronunciation) carry the GRM or SPK item set but are never credited as communicative mastery. Their mastery is inferred from correct use in three communicative productions (PRD: grammar and vocabulary are enablers, not modes).
-
-Cross-strand rule: a chunk may use at most one scaffold from outside its own strand, and no scaffold is ever mastery evidence. Mastery evidence is always the production step, in the strand's own modality (transfer-appropriate processing, Morris et al. 1977).
 
 ### 1.8 Instructions inside a chunk
 
@@ -210,7 +247,9 @@ Learners may have almost no English. The chunk is only usable if it works with t
 | Audio | Every word, sentence and instruction has tap-to-hear; audio auto-plays on first exposure; 0.75 and 1.0 speed |
 | The "why" line after a wrong answer | 12 words maximum, shows the correct form in context, in L1 below B1 |
 | Lesson text | English only. L1 is the interface and the caption, never the lesson |
-| Forbidden | A rule on screen anywhere, grammar metalanguage below B1, red, any "wrong" wording, counters, timers below B1, a score row shown before the learner has spoken |
+| Forbidden | A rule on screen anywhere, grammar metalanguage below B1, red, any "wrong" wording, counters, a visible countdown below B1, a score row shown before the learner has spoken |
+
+**A response window is not a timer, which answers R12.** The window in §2.2 and §5.3 (20 s at A1 up to 90 s at C1) is how long the coach waits before she offers help. Below B1 nothing counts down on screen, the window never ends the attempt, and the learner can take as long as they like; the window only decides when a prompt reappears. What is forbidden below B1 is a **visible countdown that ends the turn**. The one exception is the fluency chunk in §4.4, where time pressure on known material is the point and the timer is visible and opt-in below B1 (Nation, 4/3/2).
 
 Why: errors are information and corrected errors beat errorless learning (Metcalfe 2017), so feedback shows the right form rather than a penalty. Feedback is a patient person, not a mark: say it again slowly, show it big, one more try.
 
@@ -229,22 +268,26 @@ One chunk is one JSON object. Field names match `Atom` in `lib/learning-path/typ
   "variant": "standard",
   "language_use": true,
   "title": { "en": "Two coffees, please", "ar": "...", "es": "..." },
-  "target_items": ["ITM-INT-0001", "ITM-INT-0002"],
+  "target_items": ["ITM-INT-0101", "ITM-INT-0102", "ITM-INT-0103", "ITM-INT-0104", "ITM-INT-0105", "ITM-INT-0106"],
   "prerequisites": ["CRI-A2.1-GRM-02-01"],
   "phases": [
     { "kind": "input", "media": { "kind": "video", "title": "...", "presenter": "...", "lines": [{ "text": "I'd like two coffees, please.", "at": 12, "target": true }], "duration_sec": 34, "l1_card": { "en": "..." } } },
     { "kind": "noticing", "highlight": "I'd like", "why": { "en": "Ask for it this way.", "ar": "..." } },
-    { "kind": "free_use", "items": ["ITM-INT-0006"] },
-    { "kind": "controlled", "items": ["ITM-INT-0003", "ITM-INT-0004", "ITM-INT-0005"] },
-    { "kind": "free_use", "items": ["ITM-INT-0008"] },
-    { "kind": "check", "items": ["ITM-INT-0007"], "delayed": true }
+    { "kind": "free_use", "items": ["ITM-INT-0101"] },
+    { "kind": "controlled", "items": ["ITM-INT-0102", "ITM-INT-0103", "ITM-INT-0104"] },
+    { "kind": "free_use", "items": ["ITM-INT-0105"] },
+    { "kind": "check", "items": ["ITM-INT-0106"], "delayed": true }
   ],
-  "cuts": { "standard": ["ITM-INT-0005"], "light": ["ITM-INT-0005", "ITM-INT-0004"] },
+  "cuts": { "standard": ["ITM-INT-0104"], "light": ["ITM-INT-0104", "ITM-INT-0103"] },
   "status": "published"
 }
 ```
 
-Read the `phases` array against §1.2: `input` is the scene, `noticing` is the notice, the first `free_use` is say it with a response, `controlled` is the scaffolds, the second `free_use` is use it, and `check` is come back later. The order of this array is the lesson order, so it is the one thing in the file an author may not rearrange.
+Read the `phases` array against §1.2: `input` is the scene, `noticing` is the notice, the first `free_use` is say it with a response, `controlled` is step 4, the second `free_use` is use it, and `check` is come back later. The order of this array is the lesson order, so it is the one thing in the file an author may not rearrange.
+
+**`target_items` is the chunk's own item list, which answers R7.** It holds exactly the IDs the `phases` carry, in the same order: six at dense, and the cut lists do not change it. The v1.1 example listed two IDs that appeared in no phase, which breaks three things in the engine, all keyed off `targets` in `scoreNewAtoms` (`engine.ts:339-346`): `predicted_success` would sit at its 0.80 default for ever, the already-served penalty would never fire, and the re-teach bonus would never fire. It also left §1.1's "what counts as new is a target item" with no referent. The convention is already uniform in the bank: `ATM-A2-INT-0001` lists its six `ITM-INT-01xx` (`content.ts:235`), and so do the other seven atoms. Note the IDs in this example match that convention too, because an author copying a schema copies its ID shape as well.
+
+Cut order follows §1.6: step 4 is authored most supportive first, so the cut lists drop `0104` then `0103`, never `0102`.
 
 ID conventions, all stable and never reused:
 
@@ -261,12 +304,12 @@ ID conventions, all stable and never reused:
 A chunk is not finished until all thirteen are true. This is the list QA runs, and items 4, 5 and 7 are the lesson order made checkable.
 
 1. One criterion, one "I can" line of 10 words or fewer.
-2. The scene carries the phrase in a situation where the meaning is obvious, its first pass is 35 s or less to A2, and 95% of its language is already known at this sub-level.
-3. Exactly one new target form or phrase, highlighted once in the notice step.
-4. **The mic is live by 0:50.** Timed on a stopwatch against the built lesson, not read off the script.
-5. `phases` is authored in the order `input`, `noticing`, `free_use`, `controlled`, `free_use`, `check`.
-6. Six items in the dense bank, with `cuts.standard` and `cuts.light` marked, and no cut touching a `free_use` or `check` item.
-7. **Every item ends with the learner saying the whole sentence.** Any tap or drag hands straight to the mic.
+2. The scene carries the phrase in a situation where the meaning is obvious, its first pass is 35 s or less to B1 and 45 s or less from B2, and 95% of its language is already known at this sub-level.
+3. Exactly one new target form or phrase, highlighted once in the notice step. The notice is 12 s to B1, 8 s from B2.
+4. **The mic is live by 0:50 to B1, by 0:55 from B2, never later than 1:00.** Timed on a stopwatch against the built lesson, not read off the script.
+5. `phases` is authored in the order `input`, `noticing`, `free_use`, `controlled`, `free_use`, `check`, and `target_items` holds exactly the IDs those phases carry.
+6. Six items in the dense bank, with `cuts.standard` and `cuts.light` marked, dropping the last step 4 item then the last two, and no cut touching a `free_use` or `check` item.
+7. **Every item ends with the learner producing the whole sentence**, aloud in six strands and typed at WRT's steps 5 and 6. Any tap or drag hands straight to production.
 8. The production step for the strand is present, in the strand's own modality, per §1.7.
 9. No rule on screen anywhere, and no caption that explains instead of showing.
 10. Every instruction is 6 words or fewer and carries an icon or a worked example.
@@ -295,67 +338,69 @@ Pacing rule: 8 to 10 can-do outcomes per sub-level per strand group, one can-do 
 
 ### 2.2 Can-do descriptors per strand
 
-Adapted from the CEFR Companion Volume, shortened to learner-readable English. Each is the parent of 1 to 4 criteria. "Checked by" names the check type that must carry the mastery decision.
+Adapted from the CEFR Companion Volume, shortened to learner-readable English. Each is the parent of 1 to 4 criteria.
+
+**The third column is the production step that carries the mastery decision, and it is drawn from §1.7, which answers R2.** The v1.1 column was built from the old item bank and named nine types §1.7 cuts, including four multiple-choice ones, so an author writing A1 reading from this table would have made a `picture_match` the thing that decides mastery. The production step is the same type all the way up a strand; what changes with the level is the length, the speed and the support withdrawn. The response windows below are windows, not countdowns (§1.8).
 
 **A1**
 
-| Strand | Can do | Checked by |
+| Strand | Can do | Mastery decided by |
 | --- | --- | --- |
-| GRM | Can use I am, I have, this is and the simple present of about 20 common verbs to make short statements | `transform` |
-| RDG | Can understand single words and very short phrases on signs, labels and menus, with picture support | `picture_match` |
-| WRT | Can complete a simple form and write 2 to 3 phrases about themselves | `sentence_build` |
-| LST | Can recognise familiar words, numbers to 100, prices and clock times in slow, clear speech | `pick_picture` |
-| SPK | Can describe themselves, where they live and what they do, in short simple phrases | `open_response` 20 s |
+| GRM | Can use I am, I have, this is and the simple present of about 20 common verbs to make short statements | `transform`, spoken |
+| RDG | Can understand single words and very short phrases on signs, labels and menus, with picture support | `read_aloud` of the words on the sign that answer the question |
+| WRT | Can complete a simple form and write 2 to 3 phrases about themselves | `short_production`, 15 to 25 words typed |
+| LST | Can recognise familiar words, numbers to 100, prices and clock times in slow, clear speech | `shadow`: the number or word said back |
+| SPK | Can describe themselves, where they live and what they do, in short simple phrases | `open_response`, 20 s window |
 | MED | Can pass on one fact (a time, a price, a place) from a short text to another person | `relay` |
 | INT | Can ask and answer simple questions about immediate needs, with repetition and help | `dialogue_turn` |
 
 **A2**
 
-| Strand | Can do | Checked by |
+| Strand | Can do | Mastery decided by |
 | --- | --- | --- |
-| GRM | Can use past, present and future of common regular verbs, countable and uncountable quantity, and and / but / because | `transform`, `time_slider` |
-| RDG | Can understand short notices, signs, menus and messages, and say what is and is not stated | `tfng` |
-| WRT | Can write a message or note of 20 to 50 words that asks or answers a question | `short_production` |
-| LST | Can understand the main point and key details of short announcements and simple conversations, including similar numbers such as fourteen and forty | `detail_gap`, `dictation` |
-| SPK | Can give a short prepared description of a routine, a job or a recent event in connected sentences | `open_response` 30 s |
-| MED | Can tell a friend the key points of a simple notice or bill and say what they must do | `relay` |
-| INT | Can handle a short everyday exchange, ask for repetition, and respond when something is not available | `roleplay`, `say_it_see_it` |
+| GRM | Can use past, present and future of common regular verbs, countable and uncountable quantity, and and / but / because | `transform`, spoken, across two time references |
+| RDG | Can understand short notices, signs, menus and messages, and say what is and is not stated | `read_aloud` of the line that answers the `tfng` item, then say which part is not stated |
+| WRT | Can write a message or note of 20 to 50 words that asks or answers a question | `correct_message` or `short_production`, 20 to 50 words typed |
+| LST | Can understand the main point and key details of short announcements and simple conversations, including similar numbers such as fourteen and forty | `shadow`: the confusable number or line said back |
+| SPK | Can give a short prepared description of a routine, a job or a recent event in connected sentences | `open_response`, 30 s window |
+| MED | Can tell a friend the key points of a simple notice or bill and say what they must do | `relay`, three things, named listener |
+| INT | Can handle a short everyday exchange, ask for repetition, and respond when something is not available | `roleplay` with one problem to repair |
 
 **B1** (academic strand starts here, see 2.3)
 
-| Strand | Can do | Checked by |
+| Strand | Can do | Mastery decided by |
 | --- | --- | --- |
-| GRM | Can use present perfect, past continuous, first conditional and modals of obligation and advice with reasonable accuracy on familiar topics | `transform`, `error_spot` |
-| RDG | Can understand the main points and specific detail of straightforward factual texts, letters and online articles | `inference_mcq`, `heading_match` |
-| WRT | Can write a clear connected text of 100 to 150 words with a simple structure, such as an email or a complaint | `short_production` |
-| LST | Can follow the main points of clear standard speech, including longer announcements, instructions and short talks | `gist_mcq`, `detail_gap` |
-| SPK | Can give a straightforward description or short talk on a familiar topic and explain reasons | `open_response` 45 s |
-| MED | Can summarise the main points of a short factual text or talk for someone who has not seen it, reformulating rather than copying | `relay` |
-| INT | Can take an active part in routine conversation and transactional calls, and repair a misunderstanding | `roleplay` |
+| GRM | Can use present perfect, past continuous, first conditional and modals of obligation and advice with reasonable accuracy on familiar topics | `transform`, spoken, model withdrawn |
+| RDG | Can understand the main points and specific detail of straightforward factual texts, letters and online articles | `read_aloud` of the claim, then say it again in the learner's own words |
+| WRT | Can write a clear connected text of 100 to 150 words with a simple structure, such as an email or a complaint | `short_production`, 100 to 150 words typed |
+| LST | Can follow the main points of clear standard speech, including longer announcements, instructions and short talks | `dialogue_turn`: say back what the speaker asked for, inside an exchange |
+| SPK | Can give a straightforward description or short talk on a familiar topic and explain reasons | `open_response`, 45 s window |
+| MED | Can summarise the main points of a short factual text or talk for someone who has not seen it, reformulating rather than copying | `relay`, source overlap capped at 60% |
+| INT | Can take an active part in routine conversation and transactional calls, and repair a misunderstanding | `roleplay`, two turns of repair |
 
 **B2**
 
-| Strand | Can do | Checked by |
+| Strand | Can do | Mastery decided by |
 | --- | --- | --- |
-| GRM | Can use a broad range of tense, aspect, passive, relative clause and hedging forms so that errors rarely cause misunderstanding | `error_spot`, `transform` |
-| RDG | Can read articles, reports and correspondence on contemporary issues and identify the writer's position | `inference_mcq` |
-| WRT | Can write a clear, detailed text of 180 to 250 words that develops an argument and weighs options | `short_production` |
-| LST | Can understand extended speech, talks and news, and follow a complex line of argument on reasonably familiar subjects | `gist_mcq`, `detail_gap` |
-| SPK | Can give a clear, systematically developed talk with reasons and examples, and handle questions | `open_response` 60 s |
-| MED | Can summarise a complex text for someone who has not read it, adapt the register to the listener, and signal source and stance | `relay` |
-| INT | Can interact with fluency and spontaneity, hold their own in a discussion, account for views and negotiate an outcome | `roleplay` |
+| GRM | Can use a broad range of tense, aspect, passive, relative clause and hedging forms so that errors rarely cause misunderstanding | `transform`, spoken, with the hedge chosen by the learner |
+| RDG | Can read articles, reports and correspondence on contemporary issues and identify the writer's position | `open_response`: state the writer's position in the learner's own words |
+| WRT | Can write a clear, detailed text of 180 to 250 words that develops an argument and weighs options | `short_production`, 180 to 250 words typed |
+| LST | Can understand extended speech, talks and news, and follow a complex line of argument on reasonably familiar subjects | `open_response`: say the line of argument back, from the learner's own notes |
+| SPK | Can give a clear, systematically developed talk with reasons and examples, and handle questions | `open_response`, 60 s window, then one unseen question |
+| MED | Can summarise a complex text for someone who has not read it, adapt the register to the listener, and signal source and stance | `relay`, register set by the named listener |
+| INT | Can interact with fluency and spontaneity, hold their own in a discussion, account for views and negotiate an outcome | `roleplay`, partner disagrees once |
 
 **C1**
 
-| Strand | Can do | Checked by |
+| Strand | Can do | Mastery decided by |
 | --- | --- | --- |
-| GRM | Can use complex structures, including cleft, inversion, nominalisation and modal hedging, flexibly and with consistent control | `transform`, `error_spot` |
-| RDG | Can understand long, demanding and specialised texts and appreciate implicit meaning and style | `inference_mcq` |
-| WRT | Can write clear, well-structured texts of 300 words or more on complex subjects, choosing the style for the reader | `short_production` |
-| LST | Can understand extended speech even when it is not clearly structured and relationships are only implied | `gist_mcq` |
-| SPK | Can give a clear, well-structured talk on a complex subject, develop points, digress and return, and deliver it fluently | `open_response` 90 s |
-| MED | Can act as an informal interpreter, relay complex information clearly, and mediate between people who disagree | `relay` |
-| INT | Can use language flexibly and precisely for social, academic and professional purposes, with skilful turn-taking | `roleplay` |
+| GRM | Can use complex structures, including cleft, inversion, nominalisation and modal hedging, flexibly and with consistent control | `transform`, spoken, the learner chooses the structure |
+| RDG | Can understand long, demanding and specialised texts and appreciate implicit meaning and style | `open_response`: the implied stance, with the evidence for it |
+| WRT | Can write clear, well-structured texts of 300 words or more on complex subjects, choosing the style for the reader | `short_production`, 300 words or more typed |
+| LST | Can understand extended speech even when it is not clearly structured and relationships are only implied | `open_response`: the unstated relationship between two points |
+| SPK | Can give a clear, well-structured talk on a complex subject, develop points, digress and return, and deliver it fluently | `open_response`, 90 s window, then two unseen questions |
+| MED | Can act as an informal interpreter, relay complex information clearly, and mediate between people who disagree | `relay` in both directions between two speakers |
+| INT | Can use language flexibly and precisely for social, academic and professional purposes, with skilful turn-taking | `roleplay`, the learner holds a position under challenge |
 
 **Pre-A1 bridge** (launch scope, outside the ticket's A1 to C1 range): survival only. Can recognise the written alphabet and numbers to 20; can say and understand greetings, their own name, nationality and job; can respond to a yes or no question about an immediate need; can point to the right picture for 100 very frequent words. All seven strands exist but MED and INT carry two outcomes each, and every instruction is in L1 with audio.
 
@@ -398,18 +443,56 @@ That line lives in the i18n files for all seven interface languages and is the o
 
 Each item (phrase item, pattern, pronunciation feature) has its own forgetting curve per learner. Recall probability is `p = 2^(-elapsed_days / half_life_days)`. An item is **due when p falls to 0.8**, which is `elapsed = 0.3219 x half_life`.
 
-| State | Entered when | Half-life on entry (days) | Due after, at that half-life | How it comes back |
-| --- | --- | --- | --- | --- |
-| New | First exposure | 0.1 | Same session, in the use step | Said with the sentence still on screen |
-| Learning | 1 correct retrieval | 1 | 0.3 days, so the next session | A scaffold that hands to the mic, then said alone |
-| Consolidating | 3 correct across 2 or more days | 3, then 7 | 1, then 2 days | Said from a cue, no sentence shown |
-| Known | Correct after a gap of 7 days or more, in 2 modalities, one of them productive | 14, then 30 | 4, then 10 days | Free production in a new scene |
-| Mastered | Correct after a gap of 30 days or more in a productive modality | 60, then 120 | 19, then 39 days | Only inside fluency and interaction chunks |
-| Retired | 180 days at Mastered | n/a | Spot check every 21 to 28 days | Free use only |
+Each state has two rungs, `rung: 0` and `rung: 1` on `ItemMastery`. The second rung is earned by surviving a gap, never by being asked more often.
 
-Note what that last column no longer says. The earlier version of this table had items returning as recognition at New and Learning, which is the half of the review stack the board ruled out. Every rung of the ladder is now a production event; what changes with the rung is how much scaffolding is left standing when the learner speaks.
+| State | Entered when | Half-life floor, rung 0 then rung 1 | Rung 1 earned by | Interval: at the floor, and the cap (§3.2.1) | How it comes back |
+| --- | --- | --- | --- | --- | --- |
+| New | First exposure | 0.1 | n/a | Same session | Said with the sentence still on screen, in the use step |
+| Learning | 1 correct retrieval | 1 | n/a | 0.3 days, capped at 1 | As the sentence a step 4 scaffold is built from (§1.3) |
+| Consolidating | 3 correct across 2 or more days | 3, then 7 | A correct retrieval after a gap of **2.5 days or more** | 1 then 2.3, capped at 2.5 then 7 | Said from a cue, no sentence shown. From here it can ride into step 5 |
+| Known | Correct after a gap of 7 days or more, in 2 modalities, one of them productive | 14, then 30 | A correct retrieval after a gap of **12 days or more** | 4.5 then 9.7, capped at 12 then 30 | Free production in a new scene, as a step 5 `tryItem` |
+| Mastered | Correct after a gap of 30 days or more in a productive modality | 60, then 120 | A correct retrieval after a gap of **50 days or more** | 19 then 39, capped at 50 then 60 | Only inside fluency and interaction chunks |
+| Retired | 180 days at Mastered | n/a | n/a | Spot check every 21 to 28 days | Free use only |
 
-Important: the half-life column is the **floor applied on entering the state**, not the interval the learner actually gets. The multipliers below compound on top of it, so real intervals run longer than this table suggests. Section 3.5 traces a real item, and section 7 row 6 asks the board and the engineer to decide whether to cap that compounding.
+The rung gates in column four were implemented but unpublished, which was R10: they are `elapsedDays >= 2.5`, `>= 12` and `>= 50` in `applyAttempt` (`engine.ts:105`, `:111`, `:115`), and §3.5 silently turns on the first of them. The state gates are in the same function: `>= 7` with two modalities for Known (`engine.ts:103`), `>= 30` with a productive modality for Mastered (`engine.ts:109`). A developer now has every number the trace depends on.
+
+Note what the last column no longer says. The earlier version of this table had items returning as recognition at New and Learning, which is the half of the review stack the board ruled out. Every rung of the ladder is now a production event; what changes with the rung is how much scaffolding is left standing when the learner produces it.
+
+Important: the half-life column is the **floor applied on entering the state**, not the interval the learner gets. The multipliers below compound on top of it, so without a ceiling the real intervals run far longer than the published ladder. That ceiling is the next section.
+
+### 3.2.1 The interval cap
+
+**Rule.** The scheduler presents a due item at
+
+```
+next_due = last_seen + min(0.3219 x half_life_days, CAP[state][rung]) days
+
+CAP = { learning:      { 0: 1,    1: 1  },
+        consolidating: { 0: 2.5,  1: 7  },
+        known:         { 0: 12,   1: 30 },
+        mastered:      { 0: 50,   1: 60 },
+        retired:       { 0: 28,   1: 28 } }     // days
+```
+
+New items are served in the same session and take no cap. The learner is served on the first session on or after `next_due`, so in practice intervals round up to the next session day.
+
+**Why those numbers and not others.** Each cap is that rung's own promotion gap, so a gate the spec publishes is a gate the schedule can actually reach: 2.5 is the Consolidating rung gate, 7 is the Known gate, 12 is the Known rung gate, 30 is the Mastered gate, 50 is the Mastered rung gate. A naive cap at the published half-life would have frozen the ladder: an item capped at 7 days of half-life is presented every 2.25 days and never clears the 7-day gap Known requires, so it would sit at Consolidating for ever. The longest an item is ever unseen becomes **60 days**, which is inside the 180-day retirement rule rather than three times it.
+
+**What it changes.** Three things, and only the third is a loss:
+
+| | Without the cap | With the cap |
+| --- | --- | --- |
+| Mastered arrives | day 129 | **day 60** (§3.5.1) |
+| Longest gap before Mastered | 79 days | 30 days |
+| Longest gap after Mastered | 221 days | 60 days |
+| Retrievals to Mastered | 9 correct plus 1 miss | 9 correct plus 1 miss, the same |
+| Reviews the learner does | fewer, spread wider | about 2 more per item per year |
+
+The cost is honest: slightly more review. Cepeda et al. 2006 puts the optimal gap at 10 to 20% of the retention interval, and a 221-day gap is only optimal if we are testing for retention at three years, which is not what a learner on a 12-week level is doing.
+
+The learner-facing sentence in §3.1 does not change, because the cap only ever moves an item **earlier**: "just before you forget it" is still true when we ask a little sooner than that.
+
+**Implementation note.** This is a cap on the **interval**, not on `half_life_days`, so the multipliers, `recallProbability` and the strand strength maths are untouched. `nextReviewAt` takes the `min`, and `isDue` becomes `at >= nextReviewAt(m)` rather than a second `p <= 0.8` test, so the two cannot disagree. Until the PRD's half-life regression model exists in `lib/` the cap has no hand-over condition and applies at every attempt count; the PRD's "6 or more attempts" condition is recorded in §7 row 6 and does nothing today, because there is nothing to hand over to.
 
 Why expanding intervals: Cepeda et al. 2006, the optimal gap is 10 to 20% of the retention interval. Why the review budget is owned by the engine and not the learner: PRD rule 2.
 
@@ -483,9 +566,32 @@ Phrase item `ITM-INT-0001` "I'd like", first met on day 1 in `ATM-A2-INT-0001`. 
 | 50 | Due. Free production in an interaction chunk: correct | spoken | 87.8 | 245.9 | Known, rung 1 | 129.2 |
 | 129 | Due after a 79-day gap, productive modality | spoken | 245.9 | 688.4 | **Mastered** | 350.6 |
 
-Four things to read off that table. The schedule is self-correcting. A miss costs days, not weeks. Spoken retrievals carry the item fastest, which is what we want from a product whose weakest competitor feature is speaking. And the promotion gates are gap-based, not calendar-based, so Known arrives on day 22 rather than day 15: an item cannot be promoted by being asked often, only by surviving a long gap.
+This table is the engine **as built**, with no interval cap. QA reproduced all ten rows cell for cell from `applyAttempt` and `nextReviewAt`, so it stays in the document as the baseline the cap is measured against. §3.5.1 is the same item under §3.2.1.
 
-The last two rows are the problem flagged in section 7 row 6. Because each correct retrieval multiplies the half-life with no ceiling, an item that has had only nine successful retrievals is scheduled 79 days out, and once Mastered it is not seen for another 220 days. That is longer than the evidence supports and longer than the 180-day retirement rule assumes.
+Four things to read off it. The schedule is self-correcting. A miss costs days, not weeks. Spoken retrievals carry the item fastest, which is what we want from a product whose weakest competitor feature is speaking. And the promotion gates are gap-based, not calendar-based, so Known arrives on day 22 rather than day 15: an item cannot be promoted by being asked often, only by surviving a long gap.
+
+The last two rows are the problem §3.2.1 now fixes. Because each correct retrieval multiplies the half-life with no ceiling, the **eighth** correct retrieval, on day 50, schedules the item 79 days out, and the ninth, on day 129, schedules it 221 days out. (v1.1 said "nine retrievals, 79 days"; QA's count is the right one, and the retrieval numbering is days 1, 2, 3, 6, 8, 12, 22, 50 for one to eight, the day-5 miss not counting.) An item unseen for 221 days is not spaced repetition, it is forgetting, and it is longer than the 180-day retirement rule assumes.
+
+### 3.5.1 The same item under the interval cap
+
+Same item, same ten events, same modalities, same miss on day 5. The only difference is §3.2.1's `min`. Dates are session days, so an interval is served on the first session on or after it.
+
+| Day | Event | Modality | h before | After | State after | Rung | Interval | Next served |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | First exposure, then said in the use step: correct | cued | 0.1 | 1.0 | Learning | 0 | 0.32, uncapped | day 2 |
+| 2 | Step 4 scaffold sentence, then said: correct | cued | 1.0 | 2.0 | Learning, 2 correct | 0 | 0.64, uncapped | day 3 |
+| 3 | Said alone: correct, 3 correct across 3 days | spoken | 2.0 | 5.6 | Consolidating | 0 | 1.8, uncapped | day 5 |
+| 5 | Free-use task: **wrong** | spoken | 5.6 | 2.8 | Consolidating | 0 | 0.9, uncapped | day 6 |
+| 6 | Said from a cue: correct | cued | 2.8 | 5.6 | Consolidating | 0 | 1.8, uncapped | day 8 |
+| 8 | Said from a cue in a new scene: correct. Gap 2, under 2.5, no rung | cued | 5.6 | 11.2 | Consolidating | 0 | **2.5, capped** from 3.6 | day 11 |
+| 11 | Say it: correct. Gap 3, so rung 1 | spoken | 11.2 | 31.4 | Consolidating | 1 | **7, capped** from 10.1 | day 18 |
+| 18 | Gap 7, two modalities banked, one productive | spoken | 31.4 | 87.8 | **Known** | 0 | **12, capped** from 28.3 | day 30 |
+| 30 | Free production in an interaction chunk: correct. Gap 12, so rung 1 | spoken | 87.8 | 245.9 | Known | 1 | **30, capped** from 79.1 | day 60 |
+| 60 | Gap 30, productive modality | spoken | 245.9 | 688.4 | **Mastered** | 0 | **50, capped** from 221.6 | day 110 |
+
+After that: day 110 clears the 50-day gate, so rung 1 and a 60-day interval; day 170 and every 60 days after it; 180 days at Mastered falls on day 240, when the item retires to a 21 to 28 day spot check.
+
+What to read off it. The first five rows are **identical** to §3.5, because at those intervals the forgetting curve is the binding constraint and the cap is not. The cap first bites on day 8. Known arrives on day 18 instead of day 22 and Mastered on day 60 instead of day 129, on the same nine correct retrievals, because the item is asked at the gate rather than long after it. The learner's experience of the difference is roughly two extra sightings of that item in its first two months, and never a two-thirds-of-a-year gap.
 
 ### 3.6 Review budget
 
@@ -536,12 +642,12 @@ Fixed order, so the learner always knows what comes next. The session opens on t
 
 | # | Phase | Rule | Minutes |
 | --- | --- | --- | --- |
-| 1 | New chunk | Rule 4.5, run as the spine in §1.2. The learner is speaking by 0:50 of the session. Skipped if the review cap is hit or a non-second session already completed today | 4 |
-| 2 | Use chunk | A second scene: a speaking or interaction task from a chunk already seen, lowest predicted recall first, carrying today's targets plus up to 3 due items eligible for free use. On week day 5 this is the teach-it-back performance instead | 3 |
+| 1 | New chunk | Rule 4.5, run as the spine in §1.2. The learner is speaking by 0:50 of the session, 0:55 from B2. Skipped if the review cap is hit or a non-second session already completed today | 4 |
+| 2 | Use chunk | A second scene: a speaking or interaction task from a chunk already seen, lowest predicted recall first, carrying today's targets plus up to 3 due items at Consolidating or better. On week day 5 this is the teach-it-back performance instead | 3 |
 | 3 | Story | One story chunk at 98% or higher known-word coverage for this learner, no checks attached | 1.5 |
 | 4 | Close | The delayed say-it from phase 1, a one-tap "I can / not yet", then the can-do line in plain words | 0.5 |
 
-Due items have no phase of their own. They are carried into phase 2 as `tryItems` and they supply the sentences the phase 1 scaffolds are built from, which is what "spaced return inside new situations" means (§1.3).
+Due items have no phase of their own. By state (§1.3): at Consolidating or better they are carried into phase 1's step 5 and phase 2 as `tryItems` (`tryToUse`), and at New or Learning they supply the sentences phase 1's step 4 scaffolds are built from (`dueSentences`). That is what "spaced return inside new situations" means, and it is why no learner's item is left without a return path in its first three days.
 
 Variations:
 
@@ -549,8 +655,8 @@ Variations:
 - **Warm restart** (2 or more days missed): one use chunk and the story, 3 to 5 minutes, plus a welcome-back story unlock. Never a penalty, and any four sessions in a week count as on track.
 - **Second session the same day**: one use chunk, one fluency chunk built only from mastered items. No new chunk below B1, ever.
 - **First run**: one light chunk plus its close, so install to first completed chunk stays under 4 minutes. Scene-first, so the first spoken turn is inside the first minute of the app.
-- **Interleaving guard**, applied to the whole composed list: no two consecutive items from the same strand or the same target pattern, and at least three strands per session.
-- **Fluency** uses mastered items only, with a visible timer, opt-in below B1 (Nation's fluency strand, 4/3/2 technique).
+- **Interleaving guard**, applied to the session's **phase order**: no two consecutive phases from the same strand or the same target pattern, and at least three strands per session. It does not apply inside a chunk, where every item serves one target by §1.1, nor to a repeated scaffold type inside one chunk (§1.7).
+- **Fluency** uses mastered items only, with a visible timer, opt-in below B1 (Nation's fluency strand, 4/3/2 technique). This is the one visible countdown the product has, and §1.8 excepts it by name.
 
 ### 4.5 Choosing the next chunk
 
@@ -570,8 +676,10 @@ score = 0.40 x readiness
 | --- | --- |
 | `readiness` | Fraction of the chunk's prerequisite criteria at Known or better (mean item state 3 of 4, or criterion mastered). 1.0 when there are no prerequisites |
 | `strand_deficit` | `clamp((weekly_quota - strand_minutes_this_week) / weekly_quota, 0, 1)`, where `weekly_quota = max(1, week_minutes / 7)` |
-| `predicted_success` | Mean recall probability of the chunk's target items. 0.80 when none has been seen |
-| `strand_strength` | Item-state weighted mean for that strand, 0 to 1 (`new` 0.1, `learning` 0.3, `consolidating` 0.55, `known` 0.8, `mastered` 1.0, each scaled by `0.5 + 0.5p`) |
+| `strand_minutes_this_week` | **Attempts in that strand since `week_start_day`, times 0.5** (`engine.ts:328-329`). It is a proxy: the engine bills every attempt at half a minute rather than timing it. R10 was right that a developer could not derive this, and it is worth knowing it is a proxy, because a strand whose items are slow to answer is under-counted |
+| `week_minutes` | Sum of `minutes` over this week's sessions, floored at 1 so the first session of a week cannot divide by zero (`engine.ts:327`) |
+| `predicted_success` | Mean recall probability of the chunk's target items. 0.80 when none has been seen, which is why `target_items` must be the real item list (§1.9) |
+| `strand_strength` | Item-state weighted mean for that strand, 0 to 1 (`new` 0.1, `learning` 0.3, `consolidating` 0.55, `known` 0.8, `mastered` 1.0, each scaled by `0.5 + 0.5p`), over items passing `isRecallable` (`strandStrength`, `engine.ts:182-192`) |
 
 Take the highest score. Then set the variant from rolling check accuracy: below 0.70 light, above 0.90 dense, otherwise standard. The variant selects the cut list in §1.6, which only ever removes scaffolds.
 
@@ -587,13 +695,15 @@ Fatima, 52, Arabic L1, placement day 0. Scores put her at A1.2 for SPK and GRM, 
 
 **Day 1, next chunk.** No attempts exist yet, so every eligible chunk ties:
 
-| Chunk | readiness | strand_deficit | predicted | Base score | Week bonus | Total |
-| --- | --- | --- | --- | --- | --- | --- |
-| `ATM-A1-SPK-0005` "Meet Fatima" | 1.00 | 1.00 | 0.80 | 1.000 | +0.25 | **1.250** |
-| `ATM-A2-GRM-0002` "Two coffees, some water" | 1.00 | 1.00 | 0.80 | 1.000 | 0 | 1.000 |
-| `ATM-A2-LST-0004` "Platform 4, not 14" | 1.00 | 1.00 | 0.80 | 1.000 | 0 | 1.000 |
+| Chunk | readiness | strand_deficit | predicted | Base score | Tie-break `+0.01 x (1 - strand_strength)` | Week bonus | Total |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `ATM-A1-SPK-0005` "Meet Fatima" | 1.00 | 1.00 | 0.80 | 1.000 | +0.010 | +0.25 | **1.260** |
+| `ATM-A2-GRM-0002` "Two coffees, some water" | 1.00 | 1.00 | 0.80 | 1.000 | +0.010 | 0 | 1.010 |
+| `ATM-A2-LST-0004` "Platform 4, not 14" | 1.00 | 1.00 | 0.80 | 1.000 | +0.010 | 0 | 1.010 |
 
-The cold-start tie is broken entirely by the week's can-do, which is the behaviour we want: day one is never arbitrary. Variant is standard, because fewer than 5 attempts exist, so `cuts.standard` drops one scaffold and she gets 2.
+The tie-break term is in the formula and the code applies it (`engine.ts:348`), so it is in the arithmetic here too, which was R11. At cold start every strand strength is 0, so it adds 0.010 to every row and changes no ranking; it matters on day 30, not day 1.
+
+The cold-start tie is broken entirely by the week's can-do, which is the behaviour we want: day one is never arbitrary. Variant is standard, because fewer than 5 attempts exist, so `cuts.standard` drops the last step 4 item and she gets 2.
 
 Her session, phase by phase, with the clock:
 
@@ -602,9 +712,9 @@ Her session, phase by phase, with the clock:
 | 0:00 | `ATM-A1-SPK-0005` scene | Fatima (the character) says who she is outside a shop in Hackney. 33 s, no rule on screen |
 | 0:33 | Notice | "I work in" highlighted once, in the frame it was said in, with an Arabic why of 9 words |
 | 0:47 | Say it with a response | The coach asks where she works. Fatima speaks. The coach answers what was said. This is her first spoken turn, at 0:47 of her first ever session |
-| 1:30 | Say it again | 2 scaffolds: a `tap_order` of "I work in a shop", then an `error_spot`. Each ends with her saying the whole sentence |
+| 1:30 | Say it again | SPK, so 2 support turns in the 80 s window (§1.5): a `say_it_see_it` of "I work in a shop" with the sentence shown, then a `read_aloud` of it with the model withdrawn. v1.1 gave this chunk a `tap_order` and an `error_spot`, which are two GRM items in an SPK chunk and broke the one-cross-strand cap. That was R4's own example |
 | 2:50 | Use it | The whole exchange. Nothing due yet, so no `tryItems` ride along |
-| 4:00 | Use chunk | A `say_it_see_it` turn on an already-seen item. Nothing is seen yet, so `pickUseItem`'s unseen fallback serves an eligible `say_it_see_it` (`engine.ts:446`) |
+| 4:00 | Use chunk | A `say_it_see_it` turn on an already-seen item. Nothing is seen yet, so `pickUseItem`'s unseen fallback serves an eligible `say_it_see_it` (`engine.ts:453`) |
 | 7:00 | Story | A story at 98% known-word coverage, no checks |
 | 8:30 | Close | The delayed say-it of the whole sentence, one tap "I can / not yet", the can-do line |
 
@@ -614,9 +724,9 @@ Nine minutes. No plan screen, no recall drill, and she has spoken four times.
 
 | Day | What the engine does | Why |
 | --- | --- | --- |
-| 2 | The new chunk is the next criterion of the same can-do. 6 items from day 1 are due, so 3 ride into the use chunk as `tryItems` and the other 3 become the sentences of the new chunk's scaffolds | Items at Learning are due at 1 day. Week days 1 to 3 serve the can-do. Due items return inside a scene, never as a drill |
+| 2 | The new chunk is the next criterion of the same can-do. All 6 items from day 1 are due and all 6 are at **Learning**, so 3 of them become the sentences the new chunk's step 4 scaffolds are built from (`dueSentences`) and **none** rides into the use chunk as a `tryItem`, because nothing has reached Consolidating yet. The use chunk runs on its own item | Items at Learning are due at 1 day. A due item returns by its state (§1.3): at Learning the sentence is still shown. This row was R1: v1.1 had 3 items riding in as `tryItems` on day 2, which `tryToUse` cannot do |
 | 3 | Fatima misses "I work in a shop" twice. `reteach = true`, so the day 3 new chunk is replaced by the scene for that item (+0.30), and she meets it as a situation again rather than as a correction | Two consecutive errors trigger re-teach before further retrieval |
-| 4 | Interleaved session: a GRM enabler chunk (strand deficit 1.00 for GRM), a use chunk carrying 3 due items from a different strand, a story. 4 strands across the session | Day 4 interleaves. No two consecutive items from one strand |
+| 4 | Interleaved session: a GRM enabler chunk (strand deficit 1.00 for GRM), a use chunk carrying 3 due items from a different strand, which by now are at Consolidating and so eligible for `tryToUse`, a story. 4 strands across the session | Day 4 interleaves. No two consecutive phases from one strand |
 | 5 | Teach it back: 30 seconds explaining who she is to a beginner character. AI-scored, pass needs 3 of 5 target items used. First pass recorded; mastery needs a second pass on another day with an unseen task | Mastery gates on a can-do demonstrated in free use |
 
 **Day 8.** Three criteria have one pass each. Due count is 14, under the cap, so new chunks continue. The SPK marker on the Road has not moved yet and that is correct: one pass is not mastery.
@@ -637,17 +747,19 @@ Lowest progress wins, so the week is mediation. This is the point of the rule: Y
 
 **Day 2, next chunk.** Three candidates, with his real memory state:
 
-| Chunk | readiness | strand_deficit | predicted | Arithmetic | Week bonus | Total |
-| --- | --- | --- | --- | --- | --- | --- |
-| `ATM-B2-MED-0042` reformulate, do not copy | 1.00 | 0.80 | 0.86 | 0.400 + 0.240 + 0.282 = 0.922 | +0.25 | **1.172** |
-| `ATM-B2-GRM-0051` hedging and stance verbs | 1.00 | 0.20 | 0.94 | 0.400 + 0.060 + 0.258 = 0.718 | 0 | 0.718 |
-| `ATM-B2-SPK-0033` extended turn with examples | 0.50 | 1.00 | 0.55 | 0.200 + 0.300 + 0.225 = 0.725 | 0 | 0.725 |
+| Chunk | readiness | strand_deficit | predicted | Arithmetic | strand_strength | Tie-break | Week bonus | Total |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `ATM-B2-MED-0042` reformulate, do not copy | 1.00 | 0.80 | 0.86 | 0.400 + 0.240 + 0.282 = 0.922 | 0.21 | +0.0079 | +0.25 | **1.180** |
+| `ATM-B2-GRM-0051` hedging and stance verbs | 1.00 | 0.20 | 0.94 | 0.400 + 0.060 + 0.258 = 0.718 | 0.79 | +0.0021 | 0 | 0.720 |
+| `ATM-B2-SPK-0033` extended turn with examples | 0.50 | 1.00 | 0.55 | 0.200 + 0.300 + 0.225 = 0.725 | 0.31 | +0.0069 | 0 | 0.732 |
+
+The tie-break column is R11's fix here too. Yusuf's strand strengths on day 2 are the reason it is worth printing: it adds four times as much to the mediation chunk as to the grammar one, because he is strong in grammar. It is still a tie-break, not a term that decides anything on its own, and the winner is unchanged.
 
 `ATM-B2-MED-0042` wins. Note what the formula did to the other two: the grammar chunk is penalised for being easy and for a strand already over quota, and the speaking chunk is penalised for unmet prerequisites and a predicted success of 0.55, which is too far below 0.80 to be useful. The engine's answer is that Yusuf is not ready for that speaking chunk yet, not that speaking should be skipped. Its prerequisite criterion rises in the week's candidate set as soon as its readiness clears 1.0, and the use phase gives him a spoken task every single session regardless.
 
-Variant: his rolling accuracy is 0.93, so dense. No cut list applies, so he gets all 3 scaffolds and the full six-item bank.
+Variant: his rolling accuracy is 0.93, so dense. No cut list applies, so he gets all 3 step 4 items and the full six-item bank.
 
-His session opens on the scene too, and that is the point for a learner like Yusuf. The spec he would have written for himself begins with the rule; the spine puts him in a situation at 0:00 and on the mic at 0:47, which is the strand he avoids. Nothing in the composer lets him opt out of the spoken turn, because there is no phase before it to hide in.
+His session opens on the scene too, and that is the point for a learner like Yusuf. The spec he would have written for himself begins with the rule; the spine puts him in a situation at 0:00 and on the mic at **0:53**, because this is a B2 chunk: a 45 s first pass and an 8 s notice (§1.2). Inside the first minute, and later than an A1 learner's 0:47, which is R3's answer in a worked case. Nothing in the composer lets him opt out of the spoken turn, because there is no phase before it to hide in.
 
 **Day 5 and after.**
 
@@ -663,29 +775,39 @@ His session opens on the scene too, and that is the point for a learner like Yus
 
 ```
 function nextSession(state, now):
-  due        = items where p(item, now) <= 0.8, sorted by p ascending
+  due        = items where now >= nextReviewAt(item), sorted by p ascending
   overdue    = count(due where not provisional)
   new_ok     = overdue <= 25 and not completedNewToday(state)
   if daysMissed(state) >= 2: return warmRestart(state, due)
 
+  # A due item returns by its state, never as a phase of its own (1.3).
+  sentences  = dueSentences(due, states = [new, learning],              max = 3)
+  tryItems   = tryToUse(due,      states = [consolidating, known, mastered], max = 3)
+
   phases = []
   if new_ok:
     chunk    = argmax(score(c) for c in candidates(state))
-    # Due items are the scaffolds' sentences, not a phase of their own.
-    phases  += sceneLedChunk(chunk, variant(state), scaffoldSentences = pick(due, 3))
+    phases  += sceneLedChunk(chunk, variant(state),
+                             scaffoldSentences = sentences,
+                             step5TryItems     = tryItems)
   phases += weekDay(state) == 5
             ? teachItBack()
-            : useTask(state, todaysTargets, tryItems = tryToUse(due, 3))
-  if not new_ok: phases += useTask(state, [], tryItems = pick(due, 3, offset = 3))
+            : useTask(state, todaysTargets, tryItems = tryItems)
+  if not new_ok: phases += useTask(state, [], tryItems = next(tryItems, 3))
   phases += story(coverage >= 0.98)
-  phases += close(delayedSayItOf(chunk), reflection, canDoLine)
+  phases += close(delayedProductionOf(chunk), reflection, canDoLine)
   return phases
 
 # sceneLedChunk emits atom.phases in authored order, check filtered out:
 #   input -> noticing -> free_use -> controlled -> free_use
-# with phase.items filtered through atom.cuts[variant].
-# Invariant a developer can assert in a test: the first phase whose kind is
-# free_use starts no later than 50 s of wall clock from session start.
+# with phase.items filtered through atom.cuts[variant], and both due-item
+# lists passed in: sentences to controlled, tryItems to the second free_use.
+#
+# Invariant a developer can assert in a test, per band (1.2):
+#   firstFreeUseStart(session) <= 50 s   for sublevel <= B1.2
+#   firstFreeUseStart(session) <= 55 s   for sublevel >= B2.1
+#   firstFreeUseStart(session) <= 60 s   always
+# Measured from session start on the built lesson, not from the script.
 ```
 
 ---
@@ -713,16 +835,18 @@ One row per chunk, filled in before any script is written. Gate A rejects a chun
 
 ### 5.2 Writing the scene
 
-The scene's first pass is capped so the mic is live by 0:50 (§1.2). The full scene exists, and it is offered as a replay in the close and as the framing of the use step; it is the **first pass** these caps govern.
+The scene's first pass is capped so the mic is live inside the first minute (§1.2). The full scene exists, and it is offered as a replay in the close and as the framing of the use step; it is the **first pass** these caps govern.
 
-| Level | First pass | Full scene | Speech rate | L1 allowance | Word cards before the first spoken turn |
-| --- | --- | --- | --- | --- | --- |
-| Pre-A1 | 25 s | 30 to 45 s | 90 to 100 wpm | L1 subtitles on by default, L1 card at the start | 3 |
-| A1 | 30 s | 45 to 60 s | 100 to 110 | L1 subtitles optional, gloss 3 to 5 key words | 3 |
-| A2 | 35 s | 60 to 75 s | 110 to 125 | L1 glosses on tap only | 3 |
-| B1 | 35 s | 60 to 90 s | 125 to 140 | Tap to translate only | 3 |
-| B2 | 45 s | 75 to 90 s | 140 to 155 | None | 4 |
-| C1 | 45 s | 75 to 90 s | 155 to 170 | None | 4 |
+| Level | First pass | Notice | Mic live by | Full scene | Speech rate | L1 allowance | Word cards before the first spoken turn |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Pre-A1 | 25 s | 12 s | 0:37 | 30 to 45 s | 90 to 100 wpm | L1 subtitles on by default, L1 card at the start | 3 |
+| A1 | 30 s | 12 s | 0:42 | 45 to 60 s | 100 to 110 | L1 subtitles optional, gloss 3 to 5 key words | 3 |
+| A2 | 35 s | 12 s | 0:47 | 60 to 75 s | 110 to 125 | L1 glosses on tap only | 3 |
+| B1 | 35 s | 12 s | 0:47 | 60 to 90 s | 125 to 140 | Tap to translate only | 3 |
+| B2 | 45 s | 8 s | 0:53 | 75 to 90 s | 140 to 155 | None | 4 |
+| C1 | 45 s | 8 s | 0:53 | 75 to 90 s | 155 to 170 | None | 4 |
+
+The "mic live by" column is the sum of the two before it, and it is the per-band invariant §1.2 publishes: 0:50 to B1, 0:55 from B2, never past 1:00. R3 was right that v1.1's single 0:50 could not hold at B2 on a 45 s first pass; the notice shortens from B2 rather than the scene, because from B2 the notice is the highlight alone with no L1 why.
 
 Three beats in the first pass, every scene, no exceptions: **Situation 40%, the phrase in use 45%, the phrase again 15%.** The beats this replaces were Hook, Notice, Explain, Practise aloud, Recap, and two of those are now gone on purpose:
 
@@ -734,8 +858,6 @@ Three beats in the first pass, every scene, no exceptions: **Situation 40%, the 
 
 Video rules that QA checks mechanically: vertical 9:16; captions always available, word-synced to A2 and phrase-level from B1; L1 subtitles a separate toggle, never burnt in; 7 words per caption line and 2 lines maximum; only the target language appears as on-screen text; the target form in the accent colour and nothing else; **no rule, label or grammar term on screen at any point**; one idea per shot; a face on screen for at least 60% of the running time. Explainer videos are 2D flat-vector motion graphics, never 3D (design rules).
 
-Video rules that QA checks mechanically: vertical 9:16; captions always available, word-synced to A2 and phrase-level from B1; L1 subtitles a separate toggle, never burnt in; 7 words per caption line and 2 lines maximum; only the target language appears as on-screen text; the target form in the accent colour and nothing else; one idea per shot; a face on screen for at least 60% of the running time. Explainer videos are 2D flat-vector motion graphics, never 3D (design rules).
-
 ### 5.3 Writing the items
 
 General rules:
@@ -743,7 +865,7 @@ General rules:
 | Rule | Detail |
 | --- | --- |
 | Order | **Produce first, then scaffold.** The learner's unscaffolded spoken attempt is step 3; the scaffolds in step 4 exist to repair what that attempt showed. This reverses the old recognise, complete, produce order (generation effect and productive failure: Bjork; Kapur) |
-| Every item ends in a sentence said | No item may end on a tick, a tap or a score. A scaffold hands straight to the mic, with the whole sentence as the thing said |
+| Every item ends in the whole sentence produced | No item may end on a tick, a tap or a score. A scaffold hands straight to production, with the whole sentence as the thing produced: said aloud in six strands, typed at WRT's steps 5 and 6, and said aloud at WRT's step 3 (§1.2) |
 | One target per item | An item that can fail for two reasons teaches nothing |
 | Distractors | 3 maximum, each a real learner error (L1 transfer first: Arabic article omission and p/b, Spanish false friends, Hindi retroflex and article use), never a joke option |
 | Facility band | Expected 0.4 to 0.9 correct. Outside that band after 30 days live, the item is flagged and revised |
@@ -758,7 +880,7 @@ Per strand, the production step and the scaffold that leads to it:
 | RDG | Short authentic notice, at most 2 true / false items on it, then read aloud the line of the notice that answers them | Ask for "not given", match headings, or ask anything answerable without reading |
 | WRT | Give a named person and a reason to write: "Amira is late. Ask where she is. Two lines." | Ask for free writing with no audience or purpose, or show a live word counter |
 | LST | Natural speed, one replay after the first attempt, confusable numbers and minimal pairs, then say the number or line back | Allow unlimited replays before the first attempt, or use emoji as the "picture" |
-| SPK | Give a prompt, a time (20 to 45 s) and a visible target list of 3 to 5 items, through the coach | Score on accent (score intelligibility, rhythm and target use), or put a mic under a prompt with score bars after it |
+| SPK | Give a prompt, a response window (20 to 45 s, a window and not a countdown, §1.8) and a visible target list of 3 to 5 items, through the coach | Score on accent (score intelligibility, rhythm and target use), put a mic under a prompt with score bars after it, or show a countdown below B1 |
 | MED | Name the listener and what they cannot do: "Your flatmate cannot read this bill. Tell them the three things they must do." | Allow copying (cap source overlap at 60%), or label the source panel in English |
 | INT | The partner must create one problem to repair (out of stock, wrong price, did not hear), and answers in one short sentence so a miss still gives a model | Write a partner who only agrees, or let the chat log grow until the mic leaves a 375x812 screen |
 
@@ -784,7 +906,15 @@ This is the ticket's acceptance criterion, and the test QA should actually run. 
 2. `CRI-A2.1-WRT-05-01` "A two-line message that asks a question" (AI-scored, word tutorial, A2.1).
 3. `CRI-A2.1-MED-06-01` "Tell someone the three things they must do" (AI-scored, video, A2.1, prerequisite `CRI-A2.1-RDG-04-01`).
 
-The three outputs pass if: each has one "I can" line of 10 words or fewer; each has 6 items in a dense bank with `cuts.standard` and `cuts.light` marked and no cut touching a `free_use` or `check` item; `phases` is in the §1.2 order in all three; the first `free_use` phase starts by 0:50 in all three, including the word-tutorial one; every item ends with the learner saying the whole sentence; each production step is in the right modality for its strand per §1.7; no instruction exceeds 6 words; every miss shows the right form in 12 words or fewer; and the closing line, the delayed say-it stem and the "I can" line use identical wording. If two authors produce chunks that feel different in difficulty or shape, the template has failed, not the author.
+The three outputs pass if: each has one "I can" line of 10 words or fewer; each has 6 items in a dense bank with `cuts.standard` and `cuts.light` marked, dropping the last step 4 item then the last two, and no cut touching a `free_use` or `check` item; `target_items` holds exactly the IDs the phases carry; `phases` is in the §1.2 order in all three; the first `free_use` phase starts by 0:50 in all three, including the word-tutorial one, these three briefs all being A2.1; every item ends with the learner producing the whole sentence in the modality §1.7 gives its strand; no instruction exceeds 6 words; every miss shows the right form in 12 words or fewer; and the closing line, the delayed production stem and the "I can" line use identical wording. If two authors produce chunks that feel different in difficulty or shape, the template has failed, not the author.
+
+**What each brief needs that v1.1 did not give it**, which is R5. QA tried to author these three from the document alone and brief 2 could not be written. The three answers, all now in §1.2 and §1.7:
+
+| Brief | The question v1.1 could not answer | The answer |
+| --- | --- | --- |
+| 1, LST | `listen_and_do` is its only in-strand scaffold, so where do 3 step 4 items come from? | Two `listen_and_do` items on different numbers, harder the second time, plus the one permitted cross-strand scaffold (§1.7) |
+| 2, WRT | "Ends with the learner saying the whole sentence" against a 20 to 60 word typed message, and a 0:25 delayed say-it of it | Step 3 is the key sentence said aloud, step 5 is the typed message, step 6 is one typed key sentence of 8 to 15 words inside 0:25 (§1.2, §1.7) |
+| 3, MED | Nothing: it was authorable in v1.1 and stays so | `tfng` on the source then `tap_order` of the relay sentence, `relay` at steps 3, 5 and 6 |
 
 ---
 
@@ -822,28 +952,32 @@ Flagged rather than quietly changed. None of them blocks implementation.
 | 3 | Academic English is a tag on existing outcomes from B1, not an eighth strand | Open question Q4 leaves this undecided | Keeps the seven-bar "How I'm doing" design and the seven-strand framework intact. Academic Lead and ST |
 | 4 | Retire at 180 days with a spot check every 21 to 28 days | Retire at 180 with spot checks | Same rule, with the interval made explicit so it is implementable |
 | 5 | Provisional items from placement are excluded from the 25-item review cap | Cap stated without the exclusion | Otherwise a learner placed at B2 is capped out on day one by items they already know. Matches the implemented behaviour |
-| 6 | **Recommends capping the half-life at the state's nominal ceiling (learning 1, consolidating 7, known 30, mastered 120) until an item has 6 attempts** | Multipliers compound with no ceiling, and the regression model takes over at 6 or more attempts | Traced against the implemented rules (3.5), an item reaches Mastered on day 129 and is then unseen for 220 days on the strength of nine retrievals. Capping until the regression model owns the half-life brings Mastered to about day 85 and keeps the published ladder honest. This needs a separate engine ticket for the Front-end Builder; it is not a content change and not in LP-02's scope |
+| 6 | **Caps the review interval at each rung's own promotion gap: 1, 2.5, 7, 12, 30, 50, 60 days (§3.2.1)**, so the longest an item is ever unseen is 60 days | Multipliers compound with no ceiling, and a half-life regression model takes over at 6 or more attempts | Specified rather than recommended, on the Product Lead's ruling of 26 October. As built, an item reaches Mastered on day 129 and is then unseen for 221 days (§3.5); under the cap it reaches Mastered on day 60 and is never unseen for more than 60 (§3.5.1). Two corrections to v1.1's version of this row: the 221-day interval follows the **eighth** correct retrieval, not the ninth, and the "about day 85" figure is withdrawn, because the PRD's regression model exists only in `PRD.md:133` and `:486` and not in `lib/`, so nothing could have produced it. The cap therefore does not wait for that model and does not depend on the 6-attempt hand-over. A build ticket for the Front-end Builder, three lines in `nextReviewAt` and `isDue`; the Product Lead raises it once this document is approved |
 | 7 | A score is never shown on day one, but the sub-level **name** may appear from the path reveal onwards (§4.2 rule 4) | The earlier wording of this spec said no level name on day one either, and the running app shows CEFR labels and an `A2.1` badge on day one (screenshots on LEA-5) | QA flagged the conflict and did not call it; I am calling it in the app's favour. A label read as a position on the road is the visible journey the board asked for in point 6, not a mark. What stays hidden is anything that reads as a score: the placement number, percentages, and the strand strength bars, which need a week of data to mean anything. No app change; the spec moved |
-| 8 | No `plan`, `recall` or `vote` phase in a session (§1.3, §1.4) | The PRD and the prototype have all three, and the PRD's session shape leads with plan and recall | Board direction of 26 October: the lesson opens on the scene, due items return inside the scene, and a front-loaded recall drill is ruled out. `vote_see_revote` was cut on LP-20 on its own evidence. Removing the three also brings a week-day-4 session from 12.33 minutes back to 9. Board, already given; the code change is LP-30's |
+| 8 | No `plan`, `recall` or `vote` phase in a session (§1.3, §1.4) | The PRD and the prototype have `recall` and `vote`, and `plan` survives in the types. The PRD's session shape leads with plan and recall | Board direction of 26 October: the lesson opens on the scene, due items return inside the scene, and a front-loaded recall drill is ruled out. `vote_see_revote` was cut on LP-20 on its own evidence. The engine has already moved half way: there is no plan push, and recall is pushed after the atoms (§1.4 rows 1 and 2). Removing all three brings a week-day-4 session from 12.0 minutes, which is at the hard ceiling, back to 9. Board, already given; the code change is LP-30's |
+| 9 | A due item at New or Learning returns as a step 4 scaffold sentence, and only an item at Consolidating or better rides into step 5 free use (§1.3) | `tryToUse` admits Consolidating and above, and the only other return path is the recall drill that §1.3 removes | Without this the recall deletion would leave an item with no return path for its first three days, which is QA's R1. It needs one new function, `dueSentences`, and one extra argument on the `free_use` branch of `AtomRun`. LP-30 owns both; the rows are §1.4 rows 3 and 4 |
+| 10 | A SPK or INT chunk's step 4 is support turns, the same production at falling support, not scaffolds of another type (§1.5) | Not addressed | v1.1 gave these two strands no step 4 items, so a variant had nothing to cut and a chunk could not reach six items. Content-side only, no engine change. Learning Designer |
 
 Open questions for the board, none blocking:
 
 1. Confirm the academic tag decision in row 3 above, which also answers PRD Q4.
 2. Confirm the 0.70 AI rubric pass threshold and the 0.60 confidence floor against AZE's own banding, once Q2 on speech sub-score latency is answered.
 3. Confirm that "four sessions a week counts as on track" is the retention rule we want to publish, since it is the only place this model deliberately loosens daily spacing.
-4. Approve the half-life cap in row 6 above, which is the one recommendation in this document that changes code rather than content.
+4. Approve the interval cap in row 6 and §3.2.1, which is the one rule in this document that changes code rather than content. The number to approve is the 60-day ceiling on how long an item can go unseen.
 5. Confirm the 4 to 6 item band in row 1, which is one above the brief's "3 to 5" at the dense end and one above at the light end, because the three production steps are now fixed in every variant.
 6. Note rather than decide: row 7 moves the spec to match the app on day-one labels. Say so if the board wants it the other way, because then the path reveal and the lesson badge both change and that is a design ticket.
+7. Note rather than decide: the mic is now published per band, 0:50 to B1 and 0:55 from B2 (§1.2, §5.2). The board's rule was "inside the first minute" and that holds everywhere; the single 0:50 figure in v1.1 was not reachable at B2 on a 45 s scene.
 
 ---
 
-Hand-off: QA Reviewer against the acceptance criteria in LP-02 and against the six items returned on 26 October, then "Ready for board".
+Hand-off: QA Reviewer on LEA-54, against the acceptance criteria in LP-02 and against R1 to R12 returned on 26 October. The board gate is the Product Lead's to open, and only on a QA pass.
 
 Dependent tickets, so nobody waits on the wrong thing:
 
 | Ticket | What it takes from here | Status |
 | --- | --- | --- |
-| LP-30 Re-order the session so the lesson opens on the scene | §1.2, §1.3 and the divergences table in §1.4 are its spec | Blocked, and this unblocks it |
-| LP-20 part 2 (`items.tsx`, `content.ts`) | §1.7's surviving item types; the authored phase reorder in §1.4 row 6 | Held on the cut-list approval card |
+| LP-30 Re-order the session so the lesson opens on the scene | §1.2, §1.3 and the divergences table in §1.4 are its spec. Rows 3 and 4 are the two it did not have in v1.1, and row 15 is the one easiest to miss | Blocked, and this unblocks it |
+| LP-20 part 2 (`items.tsx`, `content.ts`, `types.ts`) | §1.7's surviving item types, the `listen_and_do` rename, and the authored phase reorder in §1.4 row 8 | Held on the cut-list approval card |
 | LP-35 Author one full A2.1 week on the spine | §1.2, §1.5, §1.6, §1.9, §1.10 and §5 | Blocked on this document |
-| LP-03 / LP-04 the lesson capsule | §1.2's phase list and the 0:50 mic rule | Backlog |
+| The interval cap (not yet raised) | §3.2.1 is the rule, §3.5.1 the expected trace. Three lines in `nextReviewAt` and `isDue` | The Product Lead raises it after board approval |
+| LP-03 / LP-04 the lesson capsule | §1.2's phase list and the per-band mic rule | Backlog |

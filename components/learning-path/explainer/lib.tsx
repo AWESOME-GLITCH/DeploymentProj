@@ -703,6 +703,45 @@ export function Pulse({ frame, x, y, size = 130, color = SAFFRON, period = 48, c
   );
 }
 
+/**
+ * The "your turn" cue: a tapping hand or a mic, pulsing where the learner is
+ * about to act. Every teaching beat now ends on an ask and the video stops
+ * there, so the stop has to be visible in the picture, not only in the player's
+ * sheet. SVG, so it goes inside a `Stage`.
+ *
+ * Key `from` about 24 frames before the beat's stop frame: a spring keyed to
+ * the stop frame itself is still at scale 0 on the frame that gets held.
+ */
+export function TapCue({ frame, from, x, y, kind = "tap", size = 92, color = SAFFRON, label }: { frame: number; from: number; x: number; y: number; kind?: "tap" | "say"; size?: number; color?: string; label?: string }) {
+  if (frame < from) return null;
+  const s = springIn(frame, from, { damping: 9, stiffness: 150 });
+  const g = size / 92;
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      <Pulse frame={frame} x={0} y={0} size={size} color={color}>
+        {kind === "say" ? (
+          <g transform={`scale(${g * 1.7})`} fill="none" stroke={INK} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="-3.2" y="-16" width="6.4" height="13" rx="3.2" />
+            <path d="M-7.5 -7a7.5 7.5 0 0 0 15 0M0 0.5v7M-4.5 7.5h9" />
+          </g>
+        ) : (
+          <g transform={`scale(${g})`} fill={INK}>
+            {/* a hand with one finger out, tapping */}
+            <rect x="-24" y="-4" width="40" height="30" rx="15" />
+            <rect x="-6" y="-34" width="15" height="34" rx="7.5" transform="rotate(12 1.5 -17)" />
+          </g>
+        )}
+      </Pulse>
+      {label ? (
+        <>
+          <text x="0" y={size / 2 + 52} textAnchor="middle" fontFamily={FONT} fontWeight="800" fontSize="34" fill={PAPER} stroke={PAPER} strokeWidth="10" strokeLinejoin="round">{label}</text>
+          <text x="0" y={size / 2 + 52} textAnchor="middle" fontFamily={FONT} fontWeight="800" fontSize="34" fill={INK}>{label}</text>
+        </>
+      ) : null}
+    </g>
+  );
+}
+
 /** Seeded confetti falling from the top. */
 export function Confetti({ frame, from, count = 70, seed = 7, colors = [SAFFRON, PAPER, SEA, PINK, "#ffd166"], w = STAGE_W, h = STAGE_H }: { frame: number; from: number; count?: number; seed?: number; colors?: string[]; w?: number; h?: number }) {
   if (frame < from) return null;

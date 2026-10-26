@@ -4,6 +4,12 @@
 // composition (1080x1440, 30 fps, 40 s, 1200 frames). Seven beats from
 // docs/explainers/storyboards.md: hook, four word beats, say it with me, recap.
 // One target: "No" plus ing means do not do it, and its opposite on a sign is "allowed".
+//
+// Re-cut on 26 Oct 2026 for the board's attention rule. The beat ids, the set and
+// the single target are the storyboard's; the timings and the narration lines are
+// not. Each teaching beat now holds one sayable line, ends on a designed stopping
+// frame with its payoff kept back for the resume, and the asks grow from one tap
+// to both rules spoken. See METRO_BEATS for the stop frames.
 // Everything is a pure function of useCurrentFrame(), so the same component plays in
 // the Remotion Player and renders deterministically to MP4.
 //
@@ -932,10 +938,13 @@ function W2Scene({ frame }: { frame: number }) {
 }
 
 // ---------------------------------------------------------------- w3: stand on the right
-const W3 = 510;
+// He rides further up the flight than before, so on the stop frame at 594 his
+// feet and the tread he is standing on are above the ask panel: the one thing
+// the beat teaches must still be visible while the learner answers.
+const W3 = 474;
 
 function W3Scene({ frame }: { frame: number }) {
-  const youT = tween(frame, W3 + 6, W3 + 170, 0.36, 0.5, EASE.inOut);
+  const youT = tween(frame, W3 + 6, W3 + 168, 0.4, 0.66, EASE.inOut);
   const famT = tween(frame, W3 + 8, W3 + 150, 0.02, 1.02, EASE.inOut);
   const youP = escPoint(youT, 0);
   const famP = escPoint(famT, 0);
@@ -962,8 +971,8 @@ function W3Scene({ frame }: { frame: number }) {
           facing={1}
           enter={W3 + 10}
           walking={frame < W3 + 150}
-          arm={frame >= W3 + 74 ? "wave" : "idle"}
-          armAt={W3 + 74}
+          arm={frame >= W3 + 56 ? "wave" : "idle"}
+          armAt={W3 + 56}
           smile
         />
         <Character
@@ -974,7 +983,7 @@ function W3Scene({ frame }: { frame: number }) {
           facing={1}
           frame={frame}
           enter={W3 + 6}
-          mood={frame >= W3 + 80 && frame < W3 + 124 ? "happy" : "neutral"}
+          mood={frame >= W3 + 64 && frame < W3 + 136 ? "happy" : "neutral"}
         />
         <EscalatorFront />
         <EscalatorSign x={252} y={452} frame={frame} from={W3 + 20} k={1.12} />
@@ -985,28 +994,32 @@ function W3Scene({ frame }: { frame: number }) {
 }
 
 // ---------------------------------------------------------------- w4: priority seat
-const W4 = 690;
+// Prediction without a second question: the stop at 774 holds the offer, so the
+// learner says the line while it is still open what happens. He sits, the seat
+// turns, and fatima nods only on the resume.
+const W4 = 648;
 
 function W4Scene({ frame }: { frame: number }) {
   const stands = frame >= W4 + 54;
+  const sat = frame >= W4 + 132;
   return (
     <AbsoluteFill style={{ background: WALL }}>
       <Stage>
         <Carriage frame={frame} keyId="w4" />
         {/* the priority seat itself */}
         <g>
-          <rect x="642" y={SEAT_T} width="186" height="62" rx="18" fill={frame >= W4 + 116 ? "#cfeee3" : SEAT} />
-          <rect x="642" y={SEAT_T} width="186" height="62" rx="18" fill="none" stroke={frame >= W4 + 116 ? SEA : INK} strokeWidth={frame >= W4 + 116 ? 6 : 3} opacity={frame >= W4 + 116 ? 1 : 0.2} />
+          <rect x="642" y={SEAT_T} width="186" height="62" rx="18" fill={frame >= W4 + 140 ? "#cfeee3" : SEAT} />
+          <rect x="642" y={SEAT_T} width="186" height="62" rx="18" fill="none" stroke={frame >= W4 + 140 ? SEA : INK} strokeWidth={frame >= W4 + 140 ? 6 : 3} opacity={frame >= W4 + 140 ? 1 : 0.2} />
           <g transform={`translate(735 ${SEAT_T + 30}) scale(0.4)`} opacity="0.5">
             <circle cx="4" cy="-38" r="13" fill={ACCENT} />
             <path d="M-42 -34 L-42 30 L30 30" fill="none" stroke={ACCENT} strokeWidth="12" strokeLinecap="round" strokeLinejoin="round" />
             <path d="M4 -24 L4 2 L30 2" fill="none" stroke={ACCENT} strokeWidth="12" strokeLinecap="round" strokeLinejoin="round" />
           </g>
         </g>
-        <Fatima x={210} y={1040} frame={frame} scale={1.18} facing={1} enter={W4 + 6} sit smile nodAt={W4 + 130} />
+        <Fatima x={210} y={1040} frame={frame} scale={1.18} facing={1} enter={W4 + 6} sit smile nodAt={W4 + 146} />
         {/* you: seated, then up and offering the seat */}
         {!stands ? <Character who="you" x={712} y={1040} scale={1.18} facing={-1} frame={frame} enter={W4 + 4} legs={false} mood="neutral" /> : null}
-        {frame >= W4 + 110 ? <Silhouette x={735} y={1040} frame={frame} scale={1.1} facing={-1} sit enter={W4 + 70} /> : null}
+        {sat ? <Silhouette x={735} y={1040} frame={frame} scale={1.1} facing={-1} sit enter={W4 + 132} /> : null}
         <CarriageFloor />
         {stands ? (
           <Character
@@ -1022,20 +1035,23 @@ function W4Scene({ frame }: { frame: number }) {
             gestureAt={W4 + 70}
           />
         ) : null}
-        {frame < W4 + 110 ? <Silhouette x={735} y={1168} frame={frame} scale={1.1} facing={-1} enter={W4 + 70} slideFrom={300} /> : null}
+        {!sat ? <Silhouette x={735} y={1168} frame={frame} scale={1.1} facing={-1} enter={W4 + 60} slideFrom={300} /> : null}
         <SeatSign x={920} y={700} frame={frame} from={W4 + 12} k={0.92} />
-        <Glow frame={frame} from={W4 + 112} x={735} y={SEAT_T + 30} r={104} color={SEA} />
+        <Glow frame={frame} from={W4 + 138} x={735} y={SEAT_T + 30} r={104} color={SEA} />
       </Stage>
+      {/* Who the seat is for is acted out, not written: the card and the caption
+          are the only text, so this beat keeps to one line on screen. */}
       <WordCard frame={frame} from={W4 + 4} parts={[{ t: "Priority seat", a: true }]} size={80} />
-      <div style={{ position: "absolute", left: 0, right: 0, top: 262, textAlign: "center", fontSize: 42, fontWeight: 800, color: FAINT, opacity: tween(frame, W4 + 90, W4 + 108, 0, 1, EASE.out) }}>
-        for people who need it more
-      </div>
     </AbsoluteFill>
   );
 }
 
 // ---------------------------------------------------------------- practise: say it with me
-const P0 = 860;
+// The culminating ask: both rules in one go, which is the hardest thing in the
+// atom and so comes last. Stop at 1008; the cue starts 24 frames early so it is
+// settled on the held frame rather than at scale 0.
+const P0 = 828;
+const P_PAUSE = 1008;
 const SAY_A: Piece[][] = [
   [{ t: "No", a: true }],
   [{ t: "eat" }, { t: "ing", a: true }],
@@ -1065,8 +1081,9 @@ function KaraokeLine({ frame, words, start, step, y, size }: { frame: number; wo
 
 function PractiseScene({ frame }: { frame: number }) {
   const circle = springIn(frame, P0 + 6, { damping: 12, stiffness: 120 });
-  const turn = springIn(frame, 1050, { damping: 11, stiffness: 150 });
-  const yourTurn = frame >= 1050;
+  const cue = P_PAUSE - 24;
+  const turn = springIn(frame, cue, { damping: 11, stiffness: 150 });
+  const yourTurn = frame >= cue;
   return (
     <AbsoluteFill style={{ background: PALE }}>
       <Stage>
@@ -1085,18 +1102,19 @@ function PractiseScene({ frame }: { frame: number }) {
             scale={1.42}
             facing={1}
             enter={P0 + 10}
-            talking={frame > P0 + 24 && frame < 1046}
-            smile={frame >= 1050}
-            nodAt={1056}
+            talking={frame > P0 + 24 && frame < cue - 4}
+            smile={frame >= cue}
+            nodAt={P_PAUSE + 6}
           />
         </g>
         <circle cx="540" cy="452" r={292 * circle} fill="none" stroke={INK} strokeWidth="8" />
         {/* both signs pop a tick when the learner comes back */}
         <NoFoodSign x={386} y={1104} frame={frame} from={P0 + 30} k={0.62} />
         <TickSign x={694} y={1104} frame={frame} from={P0 + 42} k={0.62} />
-        {/* just off the plate corner, so the badge never covers the sign it is ticking */}
-        <TickBadge x={440} y={1050} frame={frame} from={1060} k={0.72} />
-        <TickBadge x={748} y={1050} frame={frame} from={1072} k={0.72} />
+        {/* just off the plate corner, so the badge never covers the sign it is
+            ticking. These tick the two rules on the resume, not the learner. */}
+        <TickBadge x={440} y={1050} frame={frame} from={P_PAUSE + 6} k={0.72} />
+        <TickBadge x={748} y={1050} frame={frame} from={P_PAUSE + 18} k={0.72} />
         {yourTurn ? (
           <g>
             <g transform={`translate(150 266) scale(${turn}) translate(-150 -266)`}>
@@ -1114,14 +1132,19 @@ function PractiseScene({ frame }: { frame: number }) {
         <div style={{ position: "absolute", left: 40, top: 356, width: 220, textAlign: "center", fontSize: 36, fontWeight: 800, color: INK }}>Your turn</div>
       ) : null}
       <Eyebrow text="SAY IT WITH ME" x={0} y={774} align="center" frame={frame} from={P0 + 14} />
+      {/* both lines are sung through 40 frames before the stop, so the learner is
+          not cut off mid-karaoke by the mic */}
       <KaraokeLine frame={frame} words={SAY_A} start={P0 + 30} step={20} y={834} size={72} />
-      <KaraokeLine frame={frame} words={SAY_B} start={P0 + 108} step={20} y={944} size={72} />
+      <KaraokeLine frame={frame} words={SAY_B} start={P0 + 100} step={20} y={944} size={72} />
     </AbsoluteFill>
   );
 }
 
 // ---------------------------------------------------------------- recap
-const R0 = 1110;
+// Self-efficacy close: the line says what the learner can now do, and the tag
+// under the signs names when it comes back, so the loop stays open. The fifth
+// sign was already the bonus, so it is what tomorrow is pinned to.
+const R0 = 1062;
 
 function RecapScene({ frame }: { frame: number }) {
   const card = springIn(frame, R0 + 6, { damping: 11, stiffness: 115 });
@@ -1163,6 +1186,13 @@ function RecapScene({ frame }: { frame: number }) {
           <div style={{ marginTop: 10, fontSize: 86, fontWeight: 800, color: INK }}>= do not</div>
         </div>
       </div>
+      {/* Zeigarnik: name the next visit, pinned to the sign that just slid in. */}
+      <div style={{ position: "absolute", left: 0, right: 0, top: 800, display: "flex", justifyContent: "center", opacity: tween(frame, R0 + 66, R0 + 82, 0, 1, EASE.out) }}>
+        <div style={{ background: "rgba(255,255,255,0.95)", borderRadius: 24, padding: "10px 30px", fontSize: 38, fontWeight: 800, color: INK }}>
+          <span style={{ color: FAINT, letterSpacing: 3 }}>TOMORROW </span>
+          Mind the gap
+        </div>
+      </div>
     </AbsoluteFill>
   );
 }
@@ -1172,7 +1202,11 @@ export function MetroExplainer({ l1 }: { l1?: Record<string, string> }) {
   const frame = useCurrentFrame();
   const beat = metroBeatAt(frame);
   const progress = (frame - beat.from) / Math.max(1, Math.min(120, beat.to - beat.from));
-  const k = karaoke(beat.line, Math.min(1, progress));
+  // karaoke() compares a running character count against progress, so at exactly
+  // 1 the final word is still ahead of the playhead and stays grey. Every beat now
+  // holds on a stop frame, so an unlit last word is what the learner stares at
+  // while answering. Overshooting the cap lights the whole line a beat early.
+  const k = karaoke(beat.line, Math.min(1.1, progress));
   const font: CSSProperties = { fontFamily: FONT };
   return (
     <AbsoluteFill style={{ ...font, background: PAPER, overflow: "hidden" }}>

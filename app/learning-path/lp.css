@@ -221,7 +221,10 @@
    sentence, not as a row of chips: the words keep their spacing and baseline,
    and only a faint underline says "you can tap me". The target form is the one
    coloured thing. Each word keeps a 44px tap target through vertical padding. */
+/* The negative block margin pulls wrapped rows back together without shrinking
+   the 44px tap box, which stays in the padding. */
 .lp-wordline { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 7px; row-gap: 0; }
+.lp-wordline .lp-word { margin-block: -5px; }
 .lp-word {
   background: none; border: none; cursor: pointer; padding: 11px 0; margin: 0;
   font-size: calc(19px * var(--lp-scale)); font-weight: 500; line-height: 1.15; color: var(--lp-paper);

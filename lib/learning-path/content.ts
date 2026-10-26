@@ -74,6 +74,10 @@ export const ITEMS: Item[] = [
   I("ITM-INT-0104", "CRI-A2.1-INT-01-01", "INT", "transform", { stem: { en: "Make it polite: I want a sandwich." }, key: "I'd like a sandwich", config: { accept: ["i'd like a sandwich", "i would like a sandwich", "could i have a sandwich", "can i have a sandwich"] }, modality: "typed", why: { en: "I'd like a sandwich, or Could I have a sandwich. Both are polite.", ar: "I'd like a sandwich أو Could I have a sandwich. كلاهما مهذب.", es: "I'd like a sandwich o Could I have a sandwich. Las dos son corteses." } }),
   I("ITM-INT-0105", "CRI-A2.1-INT-01-01", "INT", "say_it_see_it", { stem: { en: "Order two large coffees." }, config: { scene: "cafe", intent: { action: "order", item: "coffee", quantity: 2, size: "large" }, model: "I'd like two large coffees, please." }, modality: "spoken", why: { en: "I'd like two large coffees, please.", ar: "I'd like two large coffees, please.", es: "I'd like two large coffees, please." } }),
   I("ITM-INT-0106", "CRI-A2.1-INT-01-01", "INT", "gap_fill", { stem: { en: "I'd like two ___ coffees, please." }, audio: "I'd like two large coffees, please.", options: ["large", "larges", "large size"], key: 0, modality: "recognition", why: { en: "Two large coffees. The size word never takes an s.", ar: "Two large coffees. كلمة الحجم لا تأخذ s أبدًا.", es: "Two large coffees. La palabra del tamaño nunca lleva s." } }),
+  // Step 5, the whole exchange with one problem to repair (learning-model.md
+  // §1.2). The problem is the size, which is this criterion's own business, so
+  // nothing new is taught: "instead" is accepted but never modelled here.
+  I("ITM-INT-0107", "CRI-A2.1-INT-01-01", "INT", "roleplay", { stem: { en: "Order two large coffees. The cafe has no large cups today." }, config: { character: "Maya", turns: [{ say: "Morning. What can I get you?", keywords: ["like", "have", "could i", "can i", "two", "coffees", "coffee", "large", "please"] }, { say: "Sorry, we've only got small cups today.", keywords: ["small", "two", "then", "fine", "ok", "okay", "please", "thank", "instead"] }, { say: "Two small coffees. Anything else?", keywords: ["no", "thank", "thanks", "that's", "all", "nothing", "water", "please"] }], need: 2 }, modality: "spoken", why: { en: "Two small coffees, then, please.", ar: "Two small coffees, then, please.", es: "Two small coffees, then, please." } }),
 
   // Atom 2: Two coffees, some water (GRM-02-01)
   I("ITM-GRM-0201", "CRI-A2.1-GRM-02-01", "GRM", "magnet_tiles", { stem: { en: "Build the sentence." }, options: ["coffees", "I'd", "water", "two", "like", "and", "some"], key: "I'd like two coffees and some water", modality: "cued", why: { en: "Two coffees: you can count them, so add s. Some water: you cannot count it.", ar: "Two coffees: يمكن عدّها فنضيف s. Some water: لا يمكن عدّه.", es: "Two coffees: se pueden contar, por eso la s. Some water: no se puede contar." } }),
@@ -83,6 +87,8 @@ export const ITEMS: Item[] = [
   I("ITM-GRM-0205", "CRI-A2.1-GRM-02-01", "GRM", "say_it_see_it", { stem: { en: "Ask for some water." }, config: { scene: "cafe", intent: { action: "order", item: "water", quantity: 1 }, model: "Could I have some water, please?" }, modality: "spoken", why: { en: "Could I have some water, please?", ar: "Could I have some water, please?", es: "Could I have some water, please?" } }),
   I("ITM-GRM-0206", "CRI-A2.1-GRM-02-01", "GRM", "gap_fill", { stem: { en: "Two ___ and some water, please." }, audio: "Two coffees and some water, please.", options: ["coffees", "coffee", "coffee's"], key: 0, modality: "recognition", why: { en: "Two coffees. For more than one, add s on its own, with no apostrophe.", ar: "Two coffees. للجمع نضيف s فقط بدون فاصلة عليا.", es: "Two coffees. Para más de uno, solo s, sin apóstrofo." } }),
 
+  I("ITM-GRM-0207", "CRI-A2.1-GRM-02-01", "GRM", "roleplay", { stem: { en: "Order two coffees and some water. The cafe has no still water." }, config: { character: "Maya", turns: [{ say: "Hello. What would you like?", keywords: ["two", "coffees", "some", "water", "please", "like", "have", "could i"] }, { say: "We've no still water today, only sparkling.", keywords: ["some", "sparkling", "water", "fine", "ok", "okay", "thank", "please", "then"] }, { say: "Two coffees and some sparkling water. Anything else?", keywords: ["no", "some", "sugar", "thank", "thanks", "that's", "all", "nothing"] }], need: 2 }, modality: "spoken", why: { en: "Some sparkling water is fine, thank you.", ar: "Some sparkling water is fine, thank you.", es: "Some sparkling water is fine, thank you." } }),
+
   // Atom 3: Platform 4, not 14 (LST-03-01)
   I("ITM-LST-0401", "CRI-A2.1-LST-03-01", "LST", "pick_picture", { stem: { en: "Listen. Which platform?" }, audio: "The next train leaves from platform fourteen.", pictures: [{ emoji: "4", label: "four" }, { emoji: "14", label: "fourteen" }, { emoji: "40", label: "forty" }], key: 1, modality: "recognition", why: { en: "FourTEEN has the stress at the end. FORty has it at the start.", ar: "FourTEEN النبرة في النهاية. FORty النبرة في البداية.", es: "FourTEEN lleva el acento al final. FORty lo lleva al principio." } }),
   I("ITM-LST-0402", "CRI-A2.1-LST-03-01", "LST", "dictation", { stem: { en: "Listen and type the price." }, audio: "That's three pounds fifty.", key: "3.50", config: { accept: ["3.50", "£3.50", "3,50", "three pounds fifty", "3 pounds 50", "3 pounds fifty"] }, modality: "typed", why: { en: "Three pounds fifty is £3.50.", ar: "Three pounds fifty تعني £3.50.", es: "Three pounds fifty es £3.50." } }),
@@ -90,6 +96,8 @@ export const ITEMS: Item[] = [
   I("ITM-LST-0404", "CRI-A2.1-LST-03-01", "LST", "pick_picture", { stem: { en: "Listen. How much?" }, audio: "Two coffees and two sandwiches. That's seventeen pounds.", pictures: [{ emoji: "7", label: "seven" }, { emoji: "17", label: "seventeen" }, { emoji: "70", label: "seventy" }], key: 1, modality: "recognition", why: { en: "SevenTEEN, stress at the end, so 17.", ar: "SevenTEEN، النبرة في النهاية، إذن 17.", es: "SevenTEEN, acento al final, así que 17." } }),
   I("ITM-LST-0405", "CRI-A2.1-LST-03-01", "LST", "read_aloud", { stem: { en: "Say it. Stress the end of fourteen." }, key: "Platform fourteen, not forty.", modality: "spoken", why: { en: "Platform fourTEEN, not FORty.", ar: "Platform fourTEEN, not FORty.", es: "Platform fourTEEN, not FORty." } }),
   I("ITM-LST-0406", "CRI-A2.1-LST-03-01", "LST", "pick_picture", { stem: { en: "Listen. Which platform?" }, audio: "Platform thirty.", pictures: [{ emoji: "13", label: "thirteen" }, { emoji: "30", label: "thirty" }, { emoji: "3", label: "three" }], key: 1, modality: "recognition", why: { en: "THIRty, stress at the start, so 30.", ar: "THIRty، النبرة في البداية، إذن 30.", es: "THIRty, acento al principio, así que 30." } }),
+
+  I("ITM-LST-0407", "CRI-A2.1-LST-03-01", "LST", "roleplay", { stem: { en: "Listen to the platform. Check the number you heard." }, config: { character: "Arjun", turns: [{ say: "The Dubai train leaves from platform fourteen.", keywords: ["sorry", "again", "pardon", "repeat", "did you say", "fourteen", "forty", "platform"] }, { say: "Fourteen. One four.", keywords: ["fourteen", "one four", "14", "thank", "thanks", "ok", "got it", "platform"] }], need: 2 }, modality: "spoken", why: { en: "Sorry, did you say fourteen or forty? Fourteen, thank you.", ar: "Sorry, did you say fourteen or forty? Fourteen, thank you.", es: "Sorry, did you say fourteen or forty? Fourteen, thank you." } }),
 
   // Atom 4: Meet Fatima (A1.2 SPK-03-01)
   I("ITM-SPK-0501", "CRI-A1.2-SPK-03-01", "SPK", "shadow", { stem: { en: "Speak along with Fatima." }, key: "I live in Dubai and I work in a shop.", modality: "spoken", why: { en: "I LIVE in DuBAI and I WORK in a SHOP.", ar: "I LIVE in DuBAI and I WORK in a SHOP.", es: "I LIVE in DuBAI and I WORK in a SHOP." } }),
@@ -107,7 +115,13 @@ export const ITEMS: Item[] = [
   I("ITM-RDG-0605", "CRI-A2.1-RDG-04-01", "RDG", "relay", { stem: { en: "Tell a friend one rule from the notice, in your words." }, config: { source: "No eating or drinking on the train. Water is allowed. Please stand on the right.", questions: [{ q: "Can you eat on the train?", keywords: ["no eat", "not eat", "can't eat", "cannot eat", "no food", "don't eat"] }, { q: "What can you drink?", keywords: ["water"] }, { q: "Where do you stand?", keywords: ["right"] }], need: 1 }, modality: "spoken", why: { en: "You can't eat on the train, but water is OK.", ar: "You can't eat on the train, but water is OK.", es: "You can't eat on the train, but water is OK." } }),
   I("ITM-RDG-0606", "CRI-A2.1-RDG-04-01", "RDG", "tfng", { stem: { en: "You should stand if someone needs the seat." }, config: { text: "Priority seat. Please give this seat to someone who needs it more." }, options: ["True", "False", "It does not say"], key: 0, modality: "recognition", why: { en: "Give the seat to someone who needs it. True.", ar: "أعطِ المقعد لمن يحتاجه. صحيح.", es: "Dar el asiento a quien lo necesite. Verdadero." } }),
 
+  I("ITM-RDG-0607", "CRI-A2.1-RDG-04-01", "RDG", "relay", { stem: { en: "Your friend has a coffee on the platform. Tell her what the notice says." }, config: { source: "No eating or drinking on the train. Water is allowed. Please stand on the right.", questions: [{ q: "Can she drink her coffee on the train?", keywords: ["no", "can't", "cannot", "not allowed", "only water", "no drinking"] }, { q: "What can she drink?", keywords: ["water"] }, { q: "Where should she stand?", keywords: ["right"] }], need: 2, character: "Amira" }, modality: "spoken", why: { en: "You can't drink coffee on the train. Only water.", ar: "You can't drink coffee on the train. Only water.", es: "You can't drink coffee on the train. Only water." } }),
+
   // Atom 6: Where are you? (WRT-05-01)
+  // The spoken first turn (learning-model.md §1.2): the learner says the
+  // message's key sentence to the coach before typing anything, so the atom
+  // has a live mic inside the first minute like the other six strands.
+  I("ITM-WRT-0706", "CRI-A2.1-WRT-05-01", "WRT", "shadow", { stem: { en: "Speak along with Maya." }, key: "Hi Amira. Where are you? I'm at the cafe.", modality: "spoken", why: { en: "Hi aMIra. WHERE are you? I'm at the CAfe.", ar: "Hi aMIra. WHERE are you? I'm at the CAfe.", es: "Hi aMIra. WHERE are you? I'm at the CAfe." } }),
   I("ITM-WRT-0701", "CRI-A2.1-WRT-05-01", "WRT", "sentence_build", { stem: { en: "Build the message." }, options: ["Where", "Hi", "you?", "are", "Amira."], key: "Hi Amira. Where are you?", modality: "cued", why: { en: "Hi and the name first, then the question. Where are you?", ar: "ابدأ بـ Hi والاسم، ثم السؤال. Where are you?", es: "Primero Hi y el nombre, luego la pregunta. Where are you?" } }),
   I("ITM-WRT-0702", "CRI-A2.1-WRT-05-01", "WRT", "correct_message", { stem: { en: "Fix the message: Where you are?" }, key: "where are you", config: { accept: ["where are you", "where are you?"] }, modality: "typed", why: { en: "In a question, are comes before you. Where are you?", ar: "في السؤال تأتي are قبل you. Where are you?", es: "En una pregunta, are va antes de you. Where are you?" } }),
   I("ITM-WRT-0703", "CRI-A2.1-WRT-05-01", "WRT", "gap_fill", { stem: { en: "I'm at the cafe. ___ you coming?" }, audio: "I'm at the cafe. Are you coming?", options: ["Are", "Do", "Is"], key: 0, modality: "recognition", why: { en: "Are you coming? With coming, use are.", ar: "Are you coming? مع coming نستخدم are.", es: "Are you coming? Con coming se usa are." } }),
@@ -115,6 +129,7 @@ export const ITEMS: Item[] = [
   I("ITM-WRT-0705", "CRI-A2.1-WRT-05-01", "WRT", "tap_order", { stem: { en: "Are you coming to the cafe?" }, options: ["coming", "Are", "the", "to", "you", "cafe?"], key: "Are you coming to the cafe?", modality: "cued", why: { en: "Are you coming to the cafe? Are first, then you, then coming.", ar: "Are you coming to the cafe? تبدأ بـ Are ثم you ثم coming.", es: "Are you coming to the cafe? Are primero, luego you y coming." } }),
 
   // Atom 7: The gas bill (MED-06-01)
+  I("ITM-MED-0806", "CRI-A2.1-MED-06-01", "MED", "dialogue_turn", { stem: { en: "Sami cannot read the bill. Tell him when to pay." }, config: { character: "Sami", turns: [{ say: "What does it say? When do I have to pay?", keywords: ["30", "thirty", "thirtieth", "may", "by", "pay", "end of"] }], need: 1 }, modality: "spoken", why: { en: "Pay by the thirtieth of May.", ar: "Pay by the thirtieth of May.", es: "Pay by the thirtieth of May." } }),
   I("ITM-MED-0801", "CRI-A2.1-MED-06-01", "MED", "gist_mcq", { stem: { en: "What must your flatmate do?" }, audio: "This is your gas bill. Please pay by the thirtieth of May. You can pay online or at the shop. Use reference number four four seven one.", options: ["Pay before the end of May", "Pay at the end of June", "Phone the gas company"], key: 0, modality: "recognition", why: { en: "Pay by the thirtieth of May means on that day or before it.", ar: "Pay by the thirtieth of May تعني في ذلك اليوم أو قبله.", es: "Pay by the thirtieth of May significa ese día o antes." } }),
   I("ITM-MED-0802", "CRI-A2.1-MED-06-01", "MED", "detail_gap", { stem: { en: "Pay by ___ May." }, audio: "Please pay by the thirtieth of May.", options: ["30", "13", "3"], key: 0, modality: "recognition", why: { en: "THIRtieth. Stress at the start, so 30.", ar: "THIRtieth. النبرة في البداية، إذن 30.", es: "THIRtieth. Acento al principio, así que 30." } }),
   I("ITM-MED-0803", "CRI-A2.1-MED-06-01", "MED", "gap_fill", { stem: { en: "Use the ___ number." }, audio: "Use the reference number.", options: ["reference", "telephone", "account"], key: 0, modality: "recognition", why: { en: "The reference number tells them which bill you are paying.", ar: "رقم المرجع يوضح أي فاتورة تدفع.", es: "El número de referencia indica qué factura pagas." } }),
@@ -122,6 +137,7 @@ export const ITEMS: Item[] = [
   I("ITM-MED-0805", "CRI-A2.1-MED-06-01", "MED", "gist_mcq", { stem: { en: "How can they pay?" }, audio: "You can pay on our website, or at the shop on the corner.", options: ["On the internet or at the shop", "Only with cash at the bank", "Only by phone"], key: 0, modality: "recognition", why: { en: "On our website means on the internet. The shop is the other way to pay.", ar: "On our website تعني على الإنترنت. والمتجر هو الطريقة الأخرى للدفع.", es: "On our website es por internet. La tienda es la otra forma de pagar." } }),
 
   // Atom 8: We're out of oat milk (INT-01-02)
+  I("ITM-INT-0906", "CRI-A2.1-INT-01-02", "INT", "dialogue_turn", { stem: { en: "The cafe has no oat milk. Ask for another milk." }, config: { character: "Leo", turns: [{ say: "Sorry, we're out of oat milk.", keywords: ["instead", "soy", "almond", "normal", "regular", "milk", "do you have", "have you got"] }], need: 1 }, modality: "spoken", why: { en: "Do you have soy milk instead?", ar: "Do you have soy milk instead?", es: "Do you have soy milk instead?" } }),
   I("ITM-INT-0901", "CRI-A2.1-INT-01-02", "INT", "gap_fill", { stem: { en: "Do you have soy milk ___?" }, audio: "Do you have soy milk instead?", options: ["instead", "inside", "outside"], key: 0, modality: "recognition", why: { en: "Instead means in place of the thing you wanted.", ar: "Instead تعني بدلًا من الشيء الذي أردته.", es: "Instead significa en lugar de lo que querías." } }),
   I("ITM-INT-0902", "CRI-A2.1-INT-01-02", "INT", "tap_order", { stem: { en: "That's fine, thank you." }, options: ["thank", "fine,", "That's", "you."], key: "That's fine, thank you.", modality: "cued", why: { en: "That's fine, thank you. A calm way to say OK.", ar: "That's fine, thank you. طريقة هادئة لقول حسنًا.", es: "That's fine, thank you. Una forma tranquila de decir vale." } }),
   I("ITM-INT-0903", "CRI-A2.1-INT-01-02", "INT", "inference_mcq", { stem: { en: "We're out of oat milk means..." }, audio: "Sorry, we're out of oat milk.", options: ["There is no oat milk today", "The oat milk is in the fridge", "The oat milk costs more today"], key: 0, modality: "recognition", why: { en: "Out of something means there is none left.", ar: "Out of شيء تعني لم يبقَ منه.", es: "Out of algo significa que no queda." } }),
@@ -129,6 +145,7 @@ export const ITEMS: Item[] = [
   I("ITM-INT-0905", "CRI-A2.1-INT-01-02", "INT", "gap_fill", { stem: { en: "Sorry, we're ___ of oat milk." }, audio: "Sorry, we're out of oat milk.", options: ["out", "off", "over"], key: 0, modality: "recognition", why: { en: "Out of: none left.", ar: "Out of: لم يبقَ شيء.", es: "Out of: no queda nada." } }),
 
   // Atom 9: Yesterday, today, tomorrow (GRM-07-01)
+  I("ITM-GRM-0306", "CRI-A2.1-GRM-07-01", "GRM", "dialogue_turn", { stem: { en: "Yusuf asks about yesterday. Answer him." }, config: { character: "Yusuf", turns: [{ say: "Hello. What did you do yesterday?", keywords: ["yesterday", "worked", "studied", "watched", "played", "visited", "went", "i"] }], need: 1 }, modality: "spoken", why: { en: "Yesterday I worked in the shop.", ar: "Yesterday I worked in the shop.", es: "Yesterday I worked in the shop." } }),
   I("ITM-GRM-0301", "CRI-A2.1-GRM-07-01", "GRM", "time_slider", { stem: { en: "Move the slider to match the time word." }, config: { frame: "I ___ in Dubai.", forms: { past: "worked", present: "work", future: "will work" }, cues: [{ label: "Yesterday", emoji: "⏮️", target: "past" }, { label: "Tomorrow", emoji: "⏭️", target: "future" }, { label: "Today", emoji: "📍", target: "present" }, { label: "Last week", emoji: "📅", target: "past" }], need: 3 }, modality: "cued", why: { en: "Yesterday: worked. Today: work. Tomorrow: will work.", ar: "Yesterday: worked. Today: work. Tomorrow: will work.", es: "Yesterday: worked. Today: work. Tomorrow: will work." } }),
   I("ITM-GRM-0302", "CRI-A2.1-GRM-07-01", "GRM", "gap_fill", { stem: { en: "Yesterday I ___ in the shop." }, audio: "Yesterday I worked in the shop.", options: ["worked", "work", "will work"], key: 0, modality: "recognition", why: { en: "Yesterday is past, so add ed: worked.", ar: "Yesterday في الماضي، فنضيف ed: worked.", es: "Yesterday es pasado, así que añade ed: worked." } }),
   I("ITM-GRM-0303", "CRI-A2.1-GRM-07-01", "GRM", "magnet_tiles", { stem: { en: "Build the sentence." }, options: ["visit", "I", "Tomorrow", "will", "London"], key: "Tomorrow I will visit London", modality: "cued", why: { en: "Tomorrow needs will: I will visit.", ar: "Tomorrow تحتاج will: I will visit.", es: "Tomorrow necesita will: I will visit." } }),
@@ -141,6 +158,7 @@ export const ITEMS: Item[] = [
   I("ITM-INT-1003", "CRI-A2.1-INT-01-03", "INT", "pick_picture", { stem: { en: "Listen. Which one?" }, audio: "Can I pay by card?", pictures: [{ emoji: "💳", label: "card" }, { emoji: "💵", label: "cash" }, { emoji: "🧾", label: "bill" }], key: 0, modality: "recognition", why: { en: "Card. The small plastic card.", ar: "Card. البطاقة البلاستيكية.", es: "Card. La tarjeta de plástico." } }),
   I("ITM-INT-1004", "CRI-A2.1-INT-01-03", "INT", "say_it_see_it", { stem: { en: "Ask for the bill." }, config: { scene: "cafe", intent: { action: "bill" }, model: "Could I have the bill, please?" }, modality: "spoken", why: { en: "Could I have the bill, please?", ar: "Could I have the bill, please?", es: "Could I have the bill, please?" } }),
   I("ITM-INT-1005", "CRI-A2.1-INT-01-03", "INT", "gap_fill", { stem: { en: "Could I have the ___, please?" }, audio: "Could I have the bill, please?", options: ["bill", "bell", "ball"], key: 0, modality: "recognition", why: { en: "The bill. In the US they say the check.", ar: "The bill. في أمريكا يقولون the check.", es: "The bill. En EE. UU. dicen the check." } }),
+  I("ITM-INT-1006", "CRI-A2.1-INT-01-03", "INT", "roleplay", { stem: { en: "Ask for the bill. The card machine is not working." }, config: { character: "Maya", turns: [{ say: "Was everything all right?", keywords: ["bill", "could i", "can i", "have", "please", "yes", "thank"] }, { say: "Here you are. Sorry, the card machine isn't working.", keywords: ["cash", "pay in cash", "i'll pay", "fine", "ok", "okay", "no problem", "have"] }, { say: "Thank you. Here is your change.", keywords: ["thank", "thanks", "keep the change", "change", "that's fine"] }], need: 2 }, modality: "spoken", why: { en: "Could I have the bill, please? I'll pay in cash, then.", ar: "Could I have the bill, please? I'll pay in cash, then.", es: "Could I have the bill, please? I'll pay in cash, then." } }),
 
   // Teach it back (day 5) and vote item
   I("ITM-TEACH-0001", "CRI-A2.1-INT-01-01", "INT", "open_response", { stem: { en: "Tell Maya how to order in a cafe. 30 seconds." }, config: { targets: ["i'd like", "please", "could i have", "bill", "instead"], need: 3, min_sentences: 2, seconds: 30, teach_back: true }, modality: "spoken", why: { en: "Say I'd like, then what you want, then please. Ask for the bill at the end.", ar: "Say I'd like, then what you want, then please. Ask for the bill at the end.", es: "Say I'd like, then what you want, then please. Ask for the bill at the end." } }),
@@ -228,11 +246,26 @@ export const ITEMS: Item[] = [
   I("ITM-GRM-2006", "CRI-A1.1-GRM-16-01", "GRM", "read_aloud", { stem: { en: "Say it. Name, country, city." }, key: "I'm Ana. I'm from Spain. I'm in London.", modality: "spoken", why: { en: "I'm Ana. I'm from Spain. I'm in London.", ar: "I'm Ana. I'm from Spain. I'm in London.", es: "I'm Ana. I'm from Spain. I'm in London." } }),
 ];
 
+// ===== A2.1, week one =====================================================
+// `phases` is authored in the lesson order of docs/learning-model.md §1.2 and
+// docs/lesson-flow.md: input, noticing, free_use (the learner's first spoken
+// turn, mic live inside the first minute), controlled (the run-up that repairs
+// what the turn showed), free_use (the whole exchange with one problem to
+// repair), check (the delayed say-it). AtomRun walks the array in authored
+// order, so the two free_use phases need no code change.
+//
+// Brought onto that shape on LEA-46, with the item cut it asks for. An item
+// earns a place in a week-one atom only if its step ends in the learner
+// producing the whole sentence; a tap or a gap survives only as the run-up.
+// Cut items stay in `ITEMS` and in `target_items`, which is the dense bank
+// §1.6 anticipates, so they are still reachable from the Classmates deck and
+// from a placement-seeded recall echo. The run-up count is 1 to 3 (§1.2), and
+// LST and RDG keep four because there the recognition work is the criterion.
 export const ATOMS: Atom[] = [
   {
     atom_id: "ATM-A2-INT-0001", version: 1, criterion_id: "CRI-A2.1-INT-01-01", strand: "INT", sublevel: "A2.1", type: "video", variant: "standard", language_use: true, status: "published",
     title: { en: "At the cafe", ar: "في المقهى", es: "En la cafetería", hi: "कैफ़े में", ru: "В кафе", tr: "Kafede", zh: "在咖啡馆" },
-    target_items: ["ITM-INT-0101", "ITM-INT-0102", "ITM-INT-0103", "ITM-INT-0104", "ITM-INT-0105", "ITM-INT-0106"],
+    target_items: ["ITM-INT-0101", "ITM-INT-0102", "ITM-INT-0103", "ITM-INT-0104", "ITM-INT-0105", "ITM-INT-0106", "ITM-INT-0107"],
     prerequisites: [],
     phases: [
       { kind: "input", media: { kind: "video", title: "At the cafe", presenter: "Maya, Shoreditch", duration_sec: 50, l1_card: { en: "How to ask for a drink politely", ar: "كيف تطلب مشروبًا بأدب", es: "Cómo pedir una bebida con cortesía", hi: "विनम्रता से पेय कैसे माँगें", ru: "Как вежливо попросить напиток", tr: "Nazikçe içecek nasıl istenir", zh: "如何礼貌地点饮品" }, lines: [
@@ -245,15 +278,21 @@ export const ATOMS: Atom[] = [
         { text: "I'd like ... please.", at: 40, target: true },
       ] } },
       { kind: "noticing", highlight: "I'd like", why: { en: "I'd like is softer than I want. Use it in shops and cafes.", ar: "I'd like ألطف من I want. استخدمها في المتاجر والمقاهي.", es: "I'd like es más suave que I want. Úsalo en tiendas y cafeterías.", hi: "I'd like, I want से नरम है। दुकानों और कैफ़े में इसका प्रयोग करें।", ru: "I'd like мягче, чем I want. Используйте в магазинах и кафе.", tr: "I'd like, I want'tan daha naziktir. Dükkan ve kafelerde kullanın.", zh: "I'd like 比 I want 更委婉。在商店和咖啡馆里用它。" } },
-      { kind: "controlled", items: ["ITM-INT-0101", "ITM-INT-0102", "ITM-INT-0103", "ITM-INT-0104"] },
+      // Say it: the coached turn now opens here, at about 1:00. The three
+      // tapping items that used to stand in front of it are cut: 0101 was a
+      // third tap on a sentence the scene says three times, 0102 is
+      // recognition the check repeats, and 0103 is listening work that
+      // belongs to the LST atom.
       { kind: "free_use", items: ["ITM-INT-0105"] },
+      { kind: "controlled", items: ["ITM-INT-0104"] },
+      { kind: "free_use", items: ["ITM-INT-0107"] },
       { kind: "check", items: ["ITM-INT-0106"], delayed: true },
     ],
   },
   {
     atom_id: "ATM-A2-GRM-0002", version: 1, criterion_id: "CRI-A2.1-GRM-02-01", strand: "GRM", sublevel: "A2.1", type: "word_tutorial", variant: "standard", language_use: false, status: "published",
     title: { en: "Two coffees, some water", ar: "قهوتان وبعض الماء", es: "Dos cafés, algo de agua", hi: "दो कॉफ़ी, थोड़ा पानी", ru: "Два кофе, немного воды", tr: "İki kahve, biraz su", zh: "两杯咖啡，一些水" },
-    target_items: ["ITM-GRM-0201", "ITM-GRM-0202", "ITM-GRM-0203", "ITM-GRM-0204", "ITM-GRM-0205", "ITM-GRM-0206"],
+    target_items: ["ITM-GRM-0201", "ITM-GRM-0202", "ITM-GRM-0203", "ITM-GRM-0204", "ITM-GRM-0205", "ITM-GRM-0206", "ITM-GRM-0207"],
     prerequisites: ["CRI-A2.1-INT-01-01"],
     phases: [
       { kind: "input", media: { kind: "word_tutorial", cards: [
@@ -264,15 +303,20 @@ export const ATOMS: Atom[] = [
         { word: "a juice, two juices", emoji: "🧃", meaning: { en: "In a cafe, a juice means one glass.", ar: "في المقهى a juice تعني كوبًا واحدًا.", es: "En una cafetería, a juice es un vaso.", hi: "कैफ़े में a juice का मतलब एक गिलास।", ru: "В кафе a juice значит один стакан.", tr: "Kafede a juice bir bardak demektir.", zh: "在咖啡馆 a juice 指一杯。" }, examples: ["Two juices, please.", "A juice after work.", "Juices for the children."] },
       ] } },
       { kind: "noticing", highlight: "two coffees, some water", why: { en: "Count it: a number and s. Cannot count it: some.", ar: "إذا كان معدودًا: رقم و s. غير معدود: some.", es: "Si se cuenta: número y s. Si no: some.", hi: "गिन सकते हैं: संख्या और s। नहीं गिन सकते: some।", ru: "Считаем: число и s. Не считаем: some.", tr: "Sayılıyorsa: sayı ve s. Sayılmıyorsa: some.", zh: "可数：数字加 s。不可数：some。" } },
-      { kind: "controlled", items: ["ITM-GRM-0201", "ITM-GRM-0202", "ITM-GRM-0203", "ITM-GRM-0204"] },
+      // Cut: 0201 (a second build of the same noun phrase) and 0203, an
+      // error spot, which is metalinguistic judgement rather than production.
+      // 0202 and 0204 stay as the run-up: one gap, one build, both ending in
+      // the whole phrase.
       { kind: "free_use", items: ["ITM-GRM-0205"] },
+      { kind: "controlled", items: ["ITM-GRM-0202", "ITM-GRM-0204"] },
+      { kind: "free_use", items: ["ITM-GRM-0207"] },
       { kind: "check", items: ["ITM-GRM-0206"], delayed: true },
     ],
   },
   {
     atom_id: "ATM-A2-LST-0004", version: 1, criterion_id: "CRI-A2.1-LST-03-01", strand: "LST", sublevel: "A2.1", type: "video", variant: "standard", language_use: false, status: "published",
     title: { en: "Platform 4, not 14", ar: "الرصيف 4 وليس 14", es: "Andén 4, no 14", hi: "प्लेटफ़ॉर्म 4, 14 नहीं", ru: "Платформа 4, не 14", tr: "Peron 4, 14 değil", zh: "4 号站台，不是 14 号" },
-    target_items: ["ITM-LST-0401", "ITM-LST-0402", "ITM-LST-0403", "ITM-LST-0404", "ITM-LST-0405", "ITM-LST-0406"],
+    target_items: ["ITM-LST-0401", "ITM-LST-0402", "ITM-LST-0403", "ITM-LST-0404", "ITM-LST-0405", "ITM-LST-0406", "ITM-LST-0407"],
     prerequisites: [],
     phases: [
       { kind: "input", media: { kind: "video", title: "Platform 4, not 14", presenter: "Arjun, Dubai Metro", duration_sec: 55, l1_card: { en: "Hearing 14 and 40", ar: "سماع 14 و 40", es: "Oír 14 y 40", hi: "14 और 40 सुनना", ru: "Слышим 14 и 40", tr: "14 ve 40'ı duymak", zh: "听清 14 和 40" }, lines: [
@@ -285,8 +329,11 @@ export const ATOMS: Atom[] = [
         { text: "thirTEEN, THIRty.", at: 44, target: true },
       ] } },
       { kind: "noticing", highlight: "fourTEEN, FORty", why: { en: "Teen numbers are stressed at the end. Tens at the start.", ar: "الأرقام المنتهية بـ teen نبرتها في النهاية، والعشرات في البداية.", es: "Los teen se acentúan al final. Las decenas al principio.", hi: "teen वाले नंबर अंत में ज़ोर, दहाई वाले शुरू में।", ru: "Числа на teen ударяются в конце, десятки в начале.", tr: "Teen sayılar sonda, onluklar başta vurgulanır.", zh: "teen 结尾的数重音在后，整十数重音在前。" } },
-      { kind: "controlled", items: ["ITM-LST-0401", "ITM-LST-0402", "ITM-LST-0403", "ITM-LST-0404"] },
+      // No cut. In LST the recognition work is the criterion, so all four
+      // stay as the run-up; the 80 second window (§1.2) gives 20 seconds each.
       { kind: "free_use", items: ["ITM-LST-0405"] },
+      { kind: "controlled", items: ["ITM-LST-0401", "ITM-LST-0402", "ITM-LST-0403", "ITM-LST-0404"] },
+      { kind: "free_use", items: ["ITM-LST-0407"] },
       { kind: "check", items: ["ITM-LST-0406"], delayed: true },
     ],
   },
@@ -306,7 +353,12 @@ export const ATOMS: Atom[] = [
         { text: "I'm ... I live in ... I work in ...", at: 40, target: true },
       ] } },
       { kind: "noticing", highlight: "I live in, I work in", why: { en: "Live in a city. Work in a place, or work as a job.", ar: "live in مع المدينة. work in مع المكان، أو work as مع الوظيفة.", es: "Live in con la ciudad. Work in con un lugar, o work as con un trabajo.", hi: "शहर के साथ live in। जगह के साथ work in, या नौकरी के साथ work as।", ru: "Live in с городом. Work in с местом, work as с профессией.", tr: "Şehirle live in. Yerle work in, meslekle work as.", zh: "城市用 live in。地点用 work in，职业用 work as。" } },
-      { kind: "controlled", items: ["ITM-SPK-0501", "ITM-SPK-0502", "ITM-SPK-0503", "ITM-SPK-0504"] },
+      // SPK and INT take support turns rather than taps in the run-up
+      // (§1.5): shadow with the model, then read_aloud with the model
+      // withdrawn, then the unaided turn. 0503, a tap order, is cut; its
+      // sentence is modelled in 0504 and produced in 0505.
+      { kind: "free_use", items: ["ITM-SPK-0501"] },
+      { kind: "controlled", items: ["ITM-SPK-0504", "ITM-SPK-0502"] },
       { kind: "free_use", items: ["ITM-SPK-0505"] },
       { kind: "check", items: ["ITM-SPK-0506"], delayed: true },
     ],
@@ -314,7 +366,7 @@ export const ATOMS: Atom[] = [
   {
     atom_id: "ATM-A2-RDG-0006", version: 1, criterion_id: "CRI-A2.1-RDG-04-01", strand: "RDG", sublevel: "A2.1", type: "word_tutorial", variant: "standard", language_use: false, status: "published",
     title: { en: "Metro notices", ar: "إشعارات المترو", es: "Avisos del metro", hi: "मेट्रो के नोटिस", ru: "Объявления в метро", tr: "Metro duyuruları", zh: "地铁告示" },
-    target_items: ["ITM-RDG-0601", "ITM-RDG-0602", "ITM-RDG-0603", "ITM-RDG-0604", "ITM-RDG-0605", "ITM-RDG-0606"],
+    target_items: ["ITM-RDG-0601", "ITM-RDG-0602", "ITM-RDG-0603", "ITM-RDG-0604", "ITM-RDG-0605", "ITM-RDG-0606", "ITM-RDG-0607"],
     prerequisites: [],
     phases: [
       { kind: "input", media: { kind: "word_tutorial", cards: [
@@ -325,15 +377,19 @@ export const ATOMS: Atom[] = [
         { word: "Mind the gap", emoji: "⚠️", meaning: { en: "Be careful of the space between train and platform.", ar: "انتبه للفراغ بين القطار والرصيف.", es: "Cuidado con el hueco entre tren y andén.", hi: "ट्रेन और प्लेटफ़ॉर्म के बीच की जगह से सावधान।", ru: "Осторожно, зазор между поездом и платформой.", tr: "Tren ile peron arasındaki boşluğa dikkat.", zh: "小心列车与站台间的空隙。" }, examples: ["Mind the gap.", "Mind the step at work.", "Mind the door at school."] },
       ] } },
       { kind: "noticing", highlight: "No eating or drinking", why: { en: "No plus ing means do not do it.", ar: "No مع ing تعني لا تفعل ذلك.", es: "No más ing significa no lo hagas.", hi: "No के साथ ing का मतलब मत करो।", ru: "No плюс ing значит нельзя.", tr: "No artı ing yapma demektir.", zh: "No 加 ing 表示禁止。" } },
-      { kind: "controlled", items: ["ITM-RDG-0601", "ITM-RDG-0602", "ITM-RDG-0603", "ITM-RDG-0604"] },
+      // No cut, for the same reason as LST: in RDG the recognition work is
+      // the criterion. 0605 relays one rule, 0607 is the same job with a
+      // friend who has a coffee in her hand, which is the problem to repair.
       { kind: "free_use", items: ["ITM-RDG-0605"] },
+      { kind: "controlled", items: ["ITM-RDG-0601", "ITM-RDG-0602", "ITM-RDG-0603", "ITM-RDG-0604"] },
+      { kind: "free_use", items: ["ITM-RDG-0607"] },
       { kind: "check", items: ["ITM-RDG-0606"], delayed: true },
     ],
   },
   {
     atom_id: "ATM-A2-WRT-0007", version: 1, criterion_id: "CRI-A2.1-WRT-05-01", strand: "WRT", sublevel: "A2.1", type: "word_tutorial", variant: "standard", language_use: true, status: "published",
     title: { en: "Where are you?", ar: "أين أنت؟", es: "¿Dónde estás?", hi: "तुम कहाँ हो?", ru: "Где ты?", tr: "Neredesin?", zh: "你在哪里？" },
-    target_items: ["ITM-WRT-0701", "ITM-WRT-0702", "ITM-WRT-0703", "ITM-WRT-0704", "ITM-WRT-0705"],
+    target_items: ["ITM-WRT-0701", "ITM-WRT-0702", "ITM-WRT-0703", "ITM-WRT-0704", "ITM-WRT-0705", "ITM-WRT-0706"],
     prerequisites: [],
     phases: [
       { kind: "input", media: { kind: "word_tutorial", cards: [
@@ -343,7 +399,11 @@ export const ATOMS: Atom[] = [
         { word: "See you soon", emoji: "🕒", meaning: { en: "A friendly ending.", ar: "خاتمة ودّية.", es: "Un final amistoso.", hi: "दोस्ताना अंत।", ru: "Дружеское окончание.", tr: "Samimi bir kapanış.", zh: "友好的结尾。" }, examples: ["See you soon.", "See you at work.", "See you in class."] },
       ] } },
       { kind: "noticing", highlight: "Where are you?", why: { en: "Question word first, then are, then you.", ar: "كلمة السؤال أولًا ثم are ثم you.", es: "Primero la palabra interrogativa, luego are, luego you.", hi: "पहले प्रश्न शब्द, फिर are, फिर you।", ru: "Сначала вопросительное слово, потом are, потом you.", tr: "Önce soru kelimesi, sonra are, sonra you.", zh: "先疑问词，再 are，再 you。" } },
-      { kind: "controlled", items: ["ITM-WRT-0701", "ITM-WRT-0702", "ITM-WRT-0703"] },
+      // The written strand is spoken at step 3 and typed at steps 5 and 6
+      // (§1.2 and §1.7), so 0706 says the message aloud, 0704 types it.
+      // 0701, a sentence build of the same two lines, is cut.
+      { kind: "free_use", items: ["ITM-WRT-0706"] },
+      { kind: "controlled", items: ["ITM-WRT-0702", "ITM-WRT-0703"] },
       { kind: "free_use", items: ["ITM-WRT-0704"] },
       { kind: "check", items: ["ITM-WRT-0705"], delayed: true },
     ],
@@ -351,7 +411,7 @@ export const ATOMS: Atom[] = [
   {
     atom_id: "ATM-A2-MED-0008", version: 1, criterion_id: "CRI-A2.1-MED-06-01", strand: "MED", sublevel: "A2.1", type: "video", variant: "standard", language_use: true, status: "published",
     title: { en: "The gas bill", ar: "فاتورة الغاز", es: "La factura del gas", hi: "गैस का बिल", ru: "Счёт за газ", tr: "Gaz faturası", zh: "燃气账单" },
-    target_items: ["ITM-MED-0801", "ITM-MED-0802", "ITM-MED-0803", "ITM-MED-0804", "ITM-MED-0805"],
+    target_items: ["ITM-MED-0801", "ITM-MED-0802", "ITM-MED-0803", "ITM-MED-0804", "ITM-MED-0805", "ITM-MED-0806"],
     prerequisites: ["CRI-A2.1-RDG-04-01"],
     phases: [
       { kind: "input", media: { kind: "video", title: "The gas bill", presenter: "Sami, a flat share in London", duration_sec: 40, l1_card: { en: "Telling a friend what a letter says", ar: "إخبار صديق بما في الرسالة", es: "Contar a un amigo lo que dice una carta", hi: "दोस्त को बताना कि पत्र में क्या लिखा है", ru: "Рассказать другу, что в письме", tr: "Bir arkadaşa mektupta ne yazdığını söylemek", zh: "告诉朋友信里说了什么" }, lines: [
@@ -364,6 +424,10 @@ export const ATOMS: Atom[] = [
         { text: "Pay by ... Pay online or ... Use the reference number.", at: 34, target: true },
       ] } },
       { kind: "noticing", highlight: "Pay by 30 May", why: { en: "Pay by a date means on or before that date.", ar: "Pay by مع تاريخ تعني في ذلك التاريخ أو قبله.", es: "Pay by con una fecha significa ese día o antes.", hi: "Pay by तारीख़ का मतलब उस दिन या उससे पहले।", ru: "Pay by с датой значит не позже этой даты.", tr: "Pay by bir tarih: o gün ya da öncesi.", zh: "Pay by 加日期表示在该日期或之前。" } },
+      // No cut: MED keeps its three, because reading the three facts off the
+      // bill is what the relay then has to carry. 0806 hands Sami the first
+      // fact at 1:00; 0804 relays all three.
+      { kind: "free_use", items: ["ITM-MED-0806"] },
       { kind: "controlled", items: ["ITM-MED-0801", "ITM-MED-0802", "ITM-MED-0803"] },
       { kind: "free_use", items: ["ITM-MED-0804"] },
       { kind: "check", items: ["ITM-MED-0805"], delayed: true },
@@ -372,7 +436,7 @@ export const ATOMS: Atom[] = [
   {
     atom_id: "ATM-A2-INT-0009", version: 1, criterion_id: "CRI-A2.1-INT-01-02", strand: "INT", sublevel: "A2.1", type: "video", variant: "standard", language_use: true, status: "published",
     title: { en: "We're out of oat milk", ar: "نفد حليب الشوفان", es: "No queda leche de avena", hi: "ओट मिल्क ख़त्म है", ru: "Овсяное молоко закончилось", tr: "Yulaf sütü bitti", zh: "燕麦奶没了" },
-    target_items: ["ITM-INT-0901", "ITM-INT-0902", "ITM-INT-0903", "ITM-INT-0904", "ITM-INT-0905"],
+    target_items: ["ITM-INT-0901", "ITM-INT-0902", "ITM-INT-0903", "ITM-INT-0904", "ITM-INT-0905", "ITM-INT-0906"],
     prerequisites: ["CRI-A2.1-INT-01-01"],
     phases: [
       { kind: "input", media: { kind: "video", title: "We're out of oat milk", presenter: "Leo, cafe owner", duration_sec: 45, l1_card: { en: "When the cafe does not have what you want", ar: "عندما لا يتوفر ما تريده في المقهى", es: "Cuando la cafetería no tiene lo que quieres", hi: "जब कैफ़े में आपकी चीज़ न हो", ru: "Когда в кафе нет того, что вы хотите", tr: "Kafede istediğiniz şey yoksa", zh: "咖啡馆没有你要的东西时" }, lines: [
@@ -386,7 +450,10 @@ export const ATOMS: Atom[] = [
         { text: "Do you have ... instead? That's fine.", at: 40, target: true },
       ] } },
       { kind: "noticing", highlight: "instead", why: { en: "Instead goes at the end of the question.", ar: "Instead تأتي في نهاية السؤال.", es: "Instead va al final de la pregunta.", hi: "Instead प्रश्न के अंत में आता है।", ru: "Instead ставится в конец вопроса.", tr: "Instead sorunun sonuna gelir.", zh: "Instead 放在问句末尾。" } },
-      { kind: "controlled", items: ["ITM-INT-0901", "ITM-INT-0902", "ITM-INT-0903"] },
+      // Cut: 0903, an inference item on what "out of" means. The scene says
+      // it and 0905 checks the form, so it was recognition twice over.
+      { kind: "free_use", items: ["ITM-INT-0906"] },
+      { kind: "controlled", items: ["ITM-INT-0901", "ITM-INT-0902"] },
       { kind: "free_use", items: ["ITM-INT-0904"] },
       { kind: "check", items: ["ITM-INT-0905"], delayed: true },
     ],
@@ -394,7 +461,7 @@ export const ATOMS: Atom[] = [
   {
     atom_id: "ATM-A2-GRM-0003", version: 1, criterion_id: "CRI-A2.1-GRM-07-01", strand: "GRM", sublevel: "A2.1", type: "video", variant: "standard", language_use: false, status: "published",
     title: { en: "Yesterday, today, tomorrow", ar: "أمس، اليوم، غدًا", es: "Ayer, hoy, mañana", hi: "कल, आज, कल", ru: "Вчера, сегодня, завтра", tr: "Dün, bugün, yarın", zh: "昨天、今天、明天" },
-    target_items: ["ITM-GRM-0301", "ITM-GRM-0302", "ITM-GRM-0303", "ITM-GRM-0304", "ITM-GRM-0305"],
+    target_items: ["ITM-GRM-0301", "ITM-GRM-0302", "ITM-GRM-0303", "ITM-GRM-0304", "ITM-GRM-0305", "ITM-GRM-0306"],
     prerequisites: ["CRI-A1.2-SPK-03-01"],
     phases: [
       { kind: "input", media: { kind: "video", title: "Yesterday, today, tomorrow", presenter: "Yusuf, Riyadh", duration_sec: 45, l1_card: { en: "One verb, three times", ar: "فعل واحد، ثلاثة أزمنة", es: "Un verbo, tres tiempos", hi: "एक क्रिया, तीन समय", ru: "Один глагол, три времени", tr: "Bir fiil, üç zaman", zh: "一个动词，三个时间" }, lines: [
@@ -406,6 +473,10 @@ export const ATOMS: Atom[] = [
         { text: "worked, work, will work", at: 38, target: true },
       ] } },
       { kind: "noticing", highlight: "worked, work, will work", why: { en: "Time word first, then the verb changes.", ar: "كلمة الزمن أولًا، ثم يتغير الفعل.", es: "Primero la palabra de tiempo, luego cambia el verbo.", hi: "पहले समय शब्द, फिर क्रिया बदलती है।", ru: "Сначала слово времени, потом меняется глагол.", tr: "Önce zaman kelimesi, sonra fiil değişir.", zh: "先说时间词，动词随之变化。" } },
+      // No cut. The three run-up items are the three time frames, so dropping
+      // one would drop a frame the criterion names. 0306 asks for one past
+      // form at 1:00; 0304 asks for a past and a future in the same turn.
+      { kind: "free_use", items: ["ITM-GRM-0306"] },
       { kind: "controlled", items: ["ITM-GRM-0301", "ITM-GRM-0302", "ITM-GRM-0303"] },
       { kind: "free_use", items: ["ITM-GRM-0304"] },
       { kind: "check", items: ["ITM-GRM-0305"], delayed: true },
@@ -414,7 +485,7 @@ export const ATOMS: Atom[] = [
   {
     atom_id: "ATM-A2-INT-0010", version: 1, criterion_id: "CRI-A2.1-INT-01-03", strand: "INT", sublevel: "A2.1", type: "word_tutorial", variant: "standard", language_use: true, status: "published",
     title: { en: "The bill, please", ar: "الفاتورة من فضلك", es: "La cuenta, por favor", hi: "बिल, कृपया", ru: "Счёт, пожалуйста", tr: "Hesap, lütfen", zh: "请结账" },
-    target_items: ["ITM-INT-1001", "ITM-INT-1002", "ITM-INT-1003", "ITM-INT-1004", "ITM-INT-1005"],
+    target_items: ["ITM-INT-1001", "ITM-INT-1002", "ITM-INT-1003", "ITM-INT-1004", "ITM-INT-1005", "ITM-INT-1006"],
     prerequisites: ["CRI-A2.1-INT-01-01"],
     phases: [
       { kind: "input", media: { kind: "word_tutorial", cards: [
@@ -424,8 +495,11 @@ export const ATOMS: Atom[] = [
         { word: "keep the change", emoji: "🪙", meaning: { en: "The extra money is for you.", ar: "النقود الزائدة لك.", es: "El dinero extra es para ti.", hi: "बाक़ी पैसे आप रखें।", ru: "Сдачу оставьте себе.", tr: "Üstü kalsın.", zh: "不用找零。" }, examples: ["Keep the change.", "Keep the change, thank you.", "Here you are. Keep the change."] },
       ] } },
       { kind: "noticing", highlight: "Could I have the bill, please?", why: { en: "Same shape as ordering: Could I have ... please.", ar: "نفس شكل الطلب: Could I have ... please.", es: "La misma forma que al pedir: Could I have ... please.", hi: "ऑर्डर जैसा ही ढाँचा: Could I have ... please।", ru: "Та же форма, что при заказе: Could I have ... please.", tr: "Sipariş gibi: Could I have ... please.", zh: "和点餐一样的句型：Could I have ... please。" } },
-      { kind: "controlled", items: ["ITM-INT-1001", "ITM-INT-1002", "ITM-INT-1003"] },
+      // Cut: 1003, pick the picture from "Can I pay by card?", which is
+      // listening work in an interaction atom, the same fault as 0103.
       { kind: "free_use", items: ["ITM-INT-1004"] },
+      { kind: "controlled", items: ["ITM-INT-1001", "ITM-INT-1002"] },
+      { kind: "free_use", items: ["ITM-INT-1006"] },
       { kind: "check", items: ["ITM-INT-1005"], delayed: true },
     ],
   },
@@ -449,7 +523,7 @@ export const ATOMS: Atom[] = [
   // (the scaffolds that repair what the turn showed), free_use (the whole
   // exchange), check (the delayed say-it). AtomRun walks the array in authored
   // order, so the two free_use phases need no code change. The week one atoms
-  // above are still in the old order and are LP-30's reorder, not this ticket's.
+  // above were brought onto this shape on LEA-46.
   {
     atom_id: "ATM-A2-INT-0012", version: 1, criterion_id: "CRI-A2.1-INT-08-01", strand: "INT", sublevel: "A2.1", type: "video", variant: "standard", language_use: true, status: "published",
     title: { en: "Monday at ten", ar: "الاثنين في العاشرة", es: "El lunes a las diez", hi: "सोमवार दस बजे", ru: "В понедельник в десять", tr: "Pazartesi saat onda", zh: "星期一十点" },
@@ -729,6 +803,7 @@ export const ITEM_CEFR: Record<string, CefrNote> = {
   "ITM-INT-0104": { level: "A2.1", descriptor: "Sociolinguistic appropriateness A2: can perform basic functions politely" },
   "ITM-INT-0105": { level: "A2.1", descriptor: "Transactions to obtain goods and services A2: can order a meal or drink" },
   "ITM-INT-0106": { level: "A2.1", descriptor: "Grammatical accuracy A2: number plus size plus plural noun" },
+  "ITM-INT-0107": { level: "A2.1", descriptor: "Transactions to obtain goods and services A2: can order and change the order when a size is not available" },
 
   // Atom 2, Two coffees, some water. Countable and uncountable with some is
   // Core Inventory A2; the plural s on its own is A1.
@@ -738,6 +813,7 @@ export const ITEM_CEFR: Record<string, CefrNote> = {
   "ITM-GRM-0204": { level: "A2.1", descriptor: "Transactions A2 plus grammatical accuracy A2: Could I have some ..." },
   "ITM-GRM-0205": { level: "A2.1", descriptor: "Transactions to obtain goods and services A2: asks for an uncountable item" },
   "ITM-GRM-0206": { level: "A1.2", descriptor: "Orthographic control A1 to A2: plural s, no apostrophe" },
+  "ITM-GRM-0207": { level: "A2.1", descriptor: "Transactions A2 plus grammatical accuracy A2: countable and uncountable held across a whole order, with one repair" },
 
   // Atom 3, Platform 4 not 14. Teen against ty is Phonological control; the
   // task around it (public announcements, prices) is A2.
@@ -747,6 +823,7 @@ export const ITEM_CEFR: Record<string, CefrNote> = {
   "ITM-LST-0404": { level: "A2.1", descriptor: "Understanding a native speaker interlocutor A2: catches a total price" },
   "ITM-LST-0405": { level: "A2.1", descriptor: "Phonological control A2: word stress on teen against ty" },
   "ITM-LST-0406": { level: "A2.1", descriptor: "Understanding announcements and instructions A2: tens against teens in a notice" },
+  "ITM-LST-0407": { level: "A2.1", descriptor: "Understanding a native speaker interlocutor A2: can ask for repetition of a number and confirm what was said" },
 
   // Atom 4, Meet Fatima. Correctly at A1.2 throughout.
   "ITM-SPK-0501": { level: "A1.2", descriptor: "Phonological control A1: repeats a model sentence intelligibly" },
@@ -764,6 +841,7 @@ export const ITEM_CEFR: Record<string, CefrNote> = {
   "ITM-RDG-0604": { level: "A2.1", descriptor: "Reading for orientation A2: finds what a short public notice is about" },
   "ITM-RDG-0605": { level: "A2.1", descriptor: "Relaying specific information in speech A2: one rule from a notice, in their own words" },
   "ITM-RDG-0606": { level: "A2.1", descriptor: "Reading instructions A2: understands a request on a public sign" },
+  "ITM-RDG-0607": { level: "A2.1", descriptor: "Relaying specific information in speech A2: tells a friend what a notice does not allow, in their own words" },
 
   // Atom 6, Where are you. The video teaches A1.1 chunks; the items carry the
   // A2.1 work, which is message shape and a question about an arrangement.
@@ -772,6 +850,7 @@ export const ITEM_CEFR: Record<string, CefrNote> = {
   "ITM-WRT-0703": { level: "A2.1", descriptor: "Grammatical accuracy A2: present continuous for an arrangement" },
   "ITM-WRT-0704": { level: "A2.1", descriptor: "Correspondence A2: can write short simple notes and messages on matters of immediate need" },
   "ITM-WRT-0705": { level: "A2.1", descriptor: "Grammatical accuracy A2: question with are plus ing and a place" },
+  "ITM-WRT-0706": { level: "A1.2", descriptor: "Phonological control A1: repeats the message's key sentence aloud before writing it" },
 
   // Atom 7, The gas bill. Mediation of a short written text.
   "ITM-MED-0801": { level: "A2.1", descriptor: "Processing text in speech A2: identifies the obligation in a short bill" },
