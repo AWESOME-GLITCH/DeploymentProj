@@ -133,7 +133,9 @@ function Fridge({ x, y, w, h, children }: { x: number; y: number; w: number; h: 
       <rect x={inx} y={y + 16} width={inw} height={h - 32} rx="12" fill={FRIDGE_GLASS} opacity="0.4" />
       <path d={`M${inx + 30} ${y + h - 40} L${inx + inw - 36} ${y + 40} L${inx + inw - 4} ${y + 40} L${inx + 62} ${y + h - 40} Z`} fill="#fff" opacity="0.3" />
       <rect x={x} y={y} width={w} height={h} rx="20" fill="none" stroke={INK} strokeWidth="6" />
-      <rect x={x + w - 34} y={y + h / 2 - 60} width="12" height="120" rx="6" fill={INK} opacity="0.75" />
+      {/* handle on the left edge: the right edge is where the learner's raised
+          hand lands in n2, and a dark bar there reads as grabbing the door */}
+      <rect x={x + 22} y={y + h / 2 - 60} width="12" height="120" rx="6" fill={INK} opacity="0.35" />
     </g>
   );
 }
@@ -222,7 +224,9 @@ function CafeScene({ frame }: { frame: number }) {
   // the soy carton slides along the shelf from the right into the empty slot
   const soyIn = tween(frame, 326, 368, 0, 1, EASE.out);
   const bump = frame > 360 ? Math.sin((frame - 360) / 2.2) * 3 * Math.max(0, 1 - (frame - 360) / 16) : 0;
-  const soyX = 790 + (SLOT_X[0] - 790) * soyIn + bump;
+  // it starts in the right-hand slot it has occupied since the hook and slides
+  // left along the shelf, so it never floats on the wall outside the fridge
+  const soyX = SLOT_X[2] + (SLOT_X[0] - SLOT_X[2]) * soyIn + bump;
 
   const leoTalks = (frame > 164 && frame < 236) || (frame > 468 && frame < 500);
   const youTalks = (frame > 40 && frame < 118) || (frame > 318 && frame < 400) || (frame > 558 && frame < 628);
@@ -244,7 +248,7 @@ function CafeScene({ frame }: { frame: number }) {
         ? { g: "raise" as const, at: 316, from: "think" as const }
         : n3
           ? { g: "idle" as const, at: 456, from: "raise" as const }
-          : { g: "thumbs" as const, at: 584, from: "idle" as const };
+          : { g: "cup" as const, at: 584, from: "idle" as const };
   const youMood = n1 ? (frame > 236 ? "surprised" as const : "neutral" as const) : n2 ? "think" as const : frame > 470 ? "happy" as const : "neutral" as const;
   const leoMood = n1 ? "think" as const : frame >= 450 ? "happy" as const : "happy" as const;
 
@@ -261,10 +265,12 @@ function CafeScene({ frame }: { frame: number }) {
             <Carton x={FR.x + 112} baseY={FR.y + 199} w={56} color={SOY} opacity={0.9} />
             <Carton x={FR.x + 192} baseY={FR.y + 199} w={56} color={ALMOND} opacity={0.9} />
             {/* middle shelf: the oat slot, the almond, and the soy that arrives */}
-            {slotEmpty ? <Carton x={SLOT_X[0]} baseY={SLOT_Y} w={64} color={OAT} dotted /> : null}
+            {/* the dotted slot goes once the soy has seated in it, otherwise the
+                dashes read through the carton that is meant to have filled it */}
+            {slotEmpty && frame < 366 ? <Carton x={SLOT_X[0]} baseY={SLOT_Y} w={64} color={OAT} dotted /> : null}
             {!slotEmpty ? <Carton x={SLOT_X[0]} baseY={SLOT_Y} w={64} color={OAT} sprig /> : null}
             <Carton x={SLOT_X[1]} baseY={SLOT_Y} w={64} color={ALMOND} />
-            {frame >= 300 ? <Carton x={soyX} baseY={SLOT_Y} w={64} color={SOY} label="SOY" /> : <Carton x={SLOT_X[2]} baseY={SLOT_Y} w={64} color={SOY} label="SOY" />}
+            <Carton x={soyX} baseY={SLOT_Y} w={64} color={SOY} label="SOY" />
             {/* bottom shelf */}
             <Carton x={FR.x + 72} baseY={FR.y + 199 + 340} w={56} color={ALMOND} opacity={0.75} />
             <Carton x={FR.x + 152} baseY={FR.y + 199 + 340} w={56} color={SOY} opacity={0.75} />
@@ -318,9 +324,9 @@ function CafeScene({ frame }: { frame: number }) {
         </Stage>
       </Layer>
 
-      {hook ? <SpeechBubble text="A latte with oat milk, please." x={150} y={168} w={660} from={30} frame={frame} tail="right" tailX={530} /> : null}
+      {hook ? <SpeechBubble text="A latte with oat milk, please." x={150} y={168} w={620} from={30} frame={frame} tail="right" tailX={520} /> : null}
       {n1 ? <SpeechBubble text="Sorry, we're out of oat milk." targets={["out of"]} x={96} y={176} w={620} from={162} frame={frame} tail="left" tailX={236} /> : null}
-      {n2 ? <SpeechBubble text="Do you have soy milk instead?" targets={["instead"]} x={150} y={168} w={660} from={314} frame={frame} tail="right" tailX={530} /> : null}
+      {n2 ? <SpeechBubble text="Do you have soy milk instead?" targets={["instead"]} x={150} y={168} w={620} from={314} frame={frame} tail="right" tailX={520} /> : null}
       {n3 ? <SpeechBubble text="Yes, we do." x={96} y={214} w={400} from={464} frame={frame} tail="left" tailX={210} /> : null}
       {n4 ? <SpeechBubble text="That's fine, thank you." targets={["That's fine"]} x={150} y={196} w={620} from={554} frame={frame} tail="right" tailX={500} /> : null}
 
@@ -368,7 +374,9 @@ function ExplainScene({ frame }: { frame: number }) {
             <g opacity={oatSolid}><Carton x={300} baseY={478} w={104} color={OAT} sprig /></g>
           ) : null}
           {/* right slot: the almond that was never the question */}
-          <Carton x={640} baseY={478} w={104} color={ALMOND} opacity={0.45} />
+          {/* kept solid: at a low opacity the white band washed out to the
+              background and the carton read as two detached pieces */}
+          <Carton x={640} baseY={478} w={104} color={ALMOND} opacity={0.85} />
           {/* the soy slides in and takes the oat's place */}
           {frame >= 836 ? <Carton x={soyX} baseY={478} w={104} color={SOY} label="SOY" /> : null}
         </g>
@@ -435,8 +443,10 @@ function PractiseScene({ frame }: { frame: number }) {
     return 1104 + (acc / total) * 140;
   });
   const circle = springIn(frame, 1050, { damping: 11, stiffness: 120 });
-  const yourTurn = frame >= 1260;
-  const turn = springIn(frame, 1260, { damping: 9, stiffness: 160 });
+  // the cue springs in before the pause, so it is fully on screen and pulsing
+  // on frame 1260 itself, which is the frame the player holds on
+  const yourTurn = frame >= 1236;
+  const turn = springIn(frame, 1236, { damping: 9, stiffness: 160 });
   const leoGesture = frame < 1292 ? { g: "listen" as const, at: 1068, from: "idle" as const } : { g: "thumbs" as const, at: 1292, from: "listen" as const };
 
   return (

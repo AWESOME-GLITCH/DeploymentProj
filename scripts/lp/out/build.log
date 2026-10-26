@@ -1,0 +1,60 @@
+  ▲ Next.js 14.2.5
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/35) ...
+   Generating static pages (8/35) 
+   Generating static pages (17/35) 
+   Generating static pages (26/35) 
+ ✓ Generating static pages (35/35)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+┌ ○ /                                    3.98 kB         112 kB
+├ ○ /_not-found                          871 B            88 kB
+├ ● /[slug]                              136 B          87.3 kB
+├   ├ /roadmap
+├   ├ /prioritization
+├   └ /strategy
+├ ○ /analytics                           6.47 kB         108 kB
+├ ƒ /api/brief                           0 B                0 B
+├ ƒ /api/clarify                         0 B                0 B
+├ ƒ /api/competitors                     0 B                0 B
+├ ○ /api/competitors/cron                0 B                0 B
+├ ƒ /api/feedback                        0 B                0 B
+├ ƒ /api/flow                            0 B                0 B
+├ ƒ /api/health                          0 B                0 B
+├ ƒ /api/learning-path/tts               0 B                0 B
+├ ƒ /api/market                          0 B                0 B
+├ ƒ /api/marketing                       0 B                0 B
+├ ƒ /api/parse                           0 B                0 B
+├ ƒ /api/pricing                         0 B                0 B
+├ ƒ /api/proposal                        0 B                0 B
+├ ƒ /api/speaking                        0 B                0 B
+├ ƒ /api/think-lab                       0 B                0 B
+├ ○ /brief                               6.05 kB         111 kB
+├ ○ /competitors                         7.86 kB        99.5 kB
+├ ○ /feedback                            6.54 kB         108 kB
+├ ○ /flow                                10.7 kB         116 kB
+├ ○ /knowledge                           7.08 kB         108 kB
+├ ○ /learning-path                       203 kB          291 kB
+├ ○ /library                             3.45 kB         112 kB
+├ ○ /marketing                           7.49 kB         109 kB
+├ ○ /portfolio                           4.85 kB         106 kB
+├ ○ /pricing                             7.42 kB         109 kB
+├ ○ /quotation                           7.08 kB         108 kB
+├ ○ /speaking                            10.6 kB         112 kB
+└ ○ /think-lab                           3.97 kB         109 kB
++ First Load JS shared by all            87.1 kB
+  ├ chunks/23-9890678149516b14.js        31.5 kB
+  ├ chunks/fd9d1056-f87219907c36e908.js  53.6 kB
+  └ other shared chunks (total)          1.96 kB
+
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses getStaticProps)
+ƒ  (Dynamic)  server-rendered on demand
+

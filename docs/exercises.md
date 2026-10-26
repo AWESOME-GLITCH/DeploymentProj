@@ -102,7 +102,7 @@ Per atom after part 2: one scaffold, one listening or reading scaffold if the st
 
 ## The minimal screen
 
-One instruction line in plain words (six words at most, PRD principle 2, localised, never a hardcoded English string), the stimulus, the response control, the feedback. Nothing else above the fold.
+One instruction line in plain words (six words at most, PRD principle 2, localised, never a hardcoded English string), the stimulus, the response control, the feedback. Nothing else above the fold. That is the board's item budget of 26 October, and it is four elements, not four plus whatever was already there.
 
 | Item type | Instruction | Stimulus | Response | Feedback |
 | --- | --- | --- | --- | --- |
@@ -118,6 +118,37 @@ One instruction line in plain words (six words at most, PRD principle 2, localis
 | coach say-it (`read_aloud`, `shadow`, `say_it_see_it`, `open_response`) | the coach's own line | the coach, her line, nothing else while she talks | mic, keyboard as fallback | owned by the coach, see below |
 | `roleplay` | "Turn 1 of 3" as a localised line | the last two turns only, the character's line large | mic | the character answers in one short sentence |
 | `relay` | "Tell Sami what to do" | the notice, unlabelled | mic | the character asks for the one thing that is missing |
+
+### The type budget: three sizes, and which three
+
+The board allows three type sizes on any screen. An item screen is at five before the learner acts and six after, so this is a cut, not a note. A `listen_and_do` screen today:
+
+| Size | Where | After part 2 |
+| --- | --- | --- |
+| 11px `lp-eyebrow` | the instruction, faint and upper case (defect 7) | becomes 17px `lp-body` |
+| 17px `lp-body` | the word "Listen" in the audio button | stays |
+| 22px `lp-lesson` | the stem | stays |
+| 34px / 30px inline | the option glyph in `ChoiceItem` | goes with the emoji cut; numbers render at the choice size |
+| 12px inline | the option label span in `ChoiceItem` | cut. A label under "7" that reads "seven" tells a beginner nothing |
+| 13.5px `lp-small`, after answering | the faint `wrong_fb` lead-in in `Feedback` | cut, see below |
+
+The three an item screen may use, by role:
+
+| Role | Size | What it carries |
+| --- | --- | --- |
+| Stimulus | 22px, the `lp-lesson` band | The one thing the learner must look at: the stem, the notice, the choices, the tiles, and on a retry the model sentence shown big |
+| Voice | 17px `lp-body` | The instruction line, the one line of why, the primary button label (already 17px) |
+| Chrome | 13.5px `lp-small` | Not used by an item. Reserved for the capsule header line, which is LP-10's, so that the chrome does not push an item over the budget |
+
+In practice an item screen uses two sizes and leaves the third to the chrome. No item may add an inline `fontSize`.
+
+**One honest caveat for whoever measures.** The stimulus band is three near values in `lp.css`: `.lp-word` 19px, `.lp-tile` 20px, `.lp-choice` and `.lp-lesson` 22px. A `tap_order` screen therefore measures 19, 20 and 22 where it means one size. Three values within 3px are one size to a learner and three to a probe. Collapsing them is a token change in `lp.css`, which is the UX Designer's on LP-10, so part 2 does not touch it and does not paper over it with inline styles. Counted by role, the screen is inside the budget; counted by pixel, it is not until LP-10 collapses the band. Raising it there.
+
+### Feedback is one line, and the model is not the line
+
+The board asks for one line of feedback. The wrong-answer panel is three blocks at three sizes today: the faint 13.5px lead-in ("This is the one."), the model sentence at 22px, the why at 17px.
+
+The lead-in goes. It says nothing the panel does not already say by appearing. What stays is the model sentence and one line of why, and those are not two lines of feedback: the model sentence **is** the board's point 5, say it again slowly and show it big, so it is the stimulus of the retry, in the stimulus band. The why is the one line, in the voice band. So the panel is one stimulus plus one line, at two sizes.
 
 ## Feedback
 

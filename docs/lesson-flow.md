@@ -43,24 +43,52 @@ never counts, never says well done twice.
 | Opening the Say it turn | The task in her own words: "What can I get you?" |
 | After a landed attempt | The scene's reply, or the Clear response. |
 | After a near attempt | Nearly, or Hard word. |
-| When the tries are spent | "Good try." The sentence stays on screen and the turn can be reopened. |
+| When the tries are spent | "That one is hard." The sentence stays on screen and the turn can be reopened. |
 
 ## The three responses
 
 Every spoken turn ends in exactly one of three. There is no fourth, and none of
 them is a mark.
 
-| Response | When | What she says | What is on screen | What happens next |
-|---|---|---|---|---|
-| **Clear** | The attempt passes the speech score. | The scene's own reply where there is one ("Two large coffees. Anything else?"), otherwise "Clear. That is how you ask it." | The sentence, settled. | The turn rests. No retry offered. |
-| **Nearly, once more slower** | Below the pass mark with nothing single to fix, or below the confidence gate, so nothing is written as evidence. | "Nearly. Listen once more." then the whole line again, slower. | The whole line. | She asks again. Up to the try limit. |
-| **Let's hear the hard word** | Below the pass mark with one word clearly missed (three letters or more). | "This word." then the word alone, slowly, twice. | That word, large, alone. | She asks the whole line again. |
+Strings are **ruled by the Copywriter on LP-70** (LEA-50, reasoning in
+`docs/voice.md` under "The spoken turn") and are live in `lib/learning-path/i18n.ts`
+with all six translations. They are settled there and nowhere else; this table
+quotes them and does not compete with them.
 
-Exit line when the tries are spent: **"Good try."** The word or line stays on
-screen and the turn can be reopened by choice, never by instruction.
+| Response | When | Key | What she says | What is on screen | What happens next |
+|---|---|---|---|---|---|
+| **Clear** | The attempt passes the speech score. | `coach_clear` | The scene's own reply where there is one ("Two large coffees. Anything else?"), otherwise "Clear. That is how you say it." | The sentence, settled. | The turn rests. No retry offered. |
+| **Nearly, once more slower** | Below the pass mark with nothing single to fix, or below the confidence gate, so nothing is written as evidence. | `coach_nearly` | "Nearly. Listen once more." then the whole line again, slower. | The whole line. | She asks again. Up to the try limit. |
+| **Let's hear the hard word** | Below the pass mark with one word clearly missed (three letters or more). | `coach_hard_word` | "This word." then the word alone, slowly, twice. | That word, large, alone. | She asks the whole line again. |
 
-Strings go to the Copywriter on LP-70 before they ship, and need i18n keys for
-the interface language. The lesson itself stays in English.
+Exit line when the tries are spent: **"That one is hard."** (`coach_tries_spent`).
+The word or line stays on screen and the turn can be reopened by choice, never by
+instruction. It is not "Good try.": praise for effort after a miss is the thing
+that stops a learner trusting the Clear, and naming the item as hard rather than
+the learner is what removes the fail state.
+
+Two strings go, and both for the same reason. `"Good. Almost every word."` fired
+on a **passing** attempt that had missed words, and `"Every word. Well done."`
+fired on a clean one. Sorting a landed attempt by how clean it was is the single
+thing that makes a spoken turn read as marked rather than answered, and "well
+done" is the praise the row above forbids. Both branches fall to `coach_clear`.
+
+`Thank you. I heard "X".` stays as it is, for the open, convo and relay kinds. It
+names what she actually heard, which is the most specific feedback in the app, and
+it is not one of the three.
+
+### Which language she speaks them in
+
+The ruling left this open as a product call. It is a pedagogy call, so: **the
+three lead-ins are shown and spoken in the interface language. The line and the
+word she then says are always English.**
+
+The lead-in is a stage direction, not teaching material, so CLAUDE.md's "lessons
+are in English" is satisfied by the line and the word, which are the lesson. A
+learner who has just missed a sentence has no spare attention for a second
+English utterance, and the repair instruction is the one thing in the turn that
+has to be understood instantly rather than worked out. This matters most at
+Pre-A1 and A1, where "Nearly. Listen once more." is itself harder than the item.
 
 ## What returns, and where
 
@@ -68,15 +96,34 @@ The lesson is not finished when the close screen appears. The same can-do comes
 back in a new situation, which is what makes it feel learned rather than
 rehearsed.
 
-| Return | When | In which situation | Shape |
-|---|---|---|---|
-| First echo | Tomorrow | Same cafe, different order: a tea, a sandwich | One spoken line in the recall echo |
-| Second echo | In four days | A cafe that is out of what you wanted | The next lesson's Use it step, as the run-up |
-| Free use | Day five of the week | Teach it back: tell Maya how to order | The week's free-use performance |
-| Long echo | After the next correct return | A shop, not a cafe: the same polite ask | Recall echo, spoken |
+The schedule is **not a calendar**. `engine.ts` holds a half-life per item and
+brings it back when predicted recall falls to 0.8, so each return is earned by
+the one before it. Days below are the ladder replayed against `applyAttempt` for
+a spoken item answered correctly every time, counting from the lesson:
+
+| Return | Lands about | State after | In which situation | Shape |
+|---|---|---|---|---|
+| First echo | 8 hours later, so the same day or the next session | Learning | Same cafe, different order: a tea, a sandwich | One spoken line in the recall echo |
+| Second echo | Day 1 | Learning | A cafe that is out of what you wanted | The next lesson's Use it step, as the run-up |
+| Third echo | Day 1 to 2 | Consolidating | Teach it back: tell Maya how to order | The week's free-use performance, day five |
+| Fourth echo | Day 4 | Consolidating, second rung | A shop, not a cafe: the same polite ask | Recall echo, spoken |
+| Fifth echo | Day 11 | **Known** | Anywhere the polite ask fits | Recall echo, and it stops being taught |
+
+So the first week carries four returns, close together and each in a changed
+situation, and the gaps only open out once the item is Known: day 11, then day
+30, then two months. There is no fixed four-day step anywhere in it.
+
+A miss moves the ladder, it does not reset it. One miss in Learning or
+Consolidating halves the half-life and requeues the item inside the same session;
+a miss on a Known or Mastered item drops it to Consolidating with the interval
+back to three days, never to zero. Two consecutive misses set `reteach`, which is
+what pulls the atom's scene back in front of the learner instead of another check.
 
 Said to the learner in one sentence on the close screen: **"This comes back
-tomorrow, and again in four days."**
+tomorrow, and again until you know it."** (`close_returns`). That sentence is true
+at every state, which "again in four days" was not: a learner told four days and
+echoed on day one has been given a false promise by the one screen whose job is
+to be trusted.
 
 ## The cut
 
@@ -165,9 +212,15 @@ familiar material.
 
 ## What this asks of the build
 
-| Owner | Change |
-|---|---|
-| Learning Designer | `composeSession` in `lib/learning-path/engine.ts`: the session opens on the scene, the recall echo moves after the new atom, the plan screen goes (Home already carries the plan). |
-| CEFR Content Lead (LP-60) | Atom phase order in `lib/learning-path/content.ts`: `input` → `noticing` → `free_use` → `controlled` → `check`, and the item cut above. |
-| Front-end Builder | `Coach.tsx`: the three responses named and nothing else; no score shown on a near attempt. |
-| Copywriter (LP-70) | The exact strings in the three responses table, and the one close sentence. |
+| Owner | Change | Where | State |
+|---|---|---|---|
+| Learning Designer | `composeSession` in `lib/learning-path/engine.ts`: the session opens on the scene, the recall echo moves after the new atom, the plan screen goes (Home already carries the plan). | this ticket | **Done**, and the five session shapes above are its output |
+| Copywriter (LP-70) | The exact strings in the three responses table, and the one close sentence. | LEA-48, ruled on LEA-50 | **Delivered.** Five keys live in `i18n.ts` with six translations; folded into this doc above |
+| CEFR Content Lead (LP-60) | Atom phase order in `lib/learning-path/content.ts`: `input` → `noticing` → `free_use` → `controlled` → `check`, and the item cut above. | LEA-46 | **Open, and it is the one thing still holding the 90-second rule.** `content.ts` is theirs; not touched from here |
+| Front-end Builder | `Coach.tsx`: the three responses named and nothing else; no score shown on a near attempt; both landed branches fall to `coach_clear`. | LEA-47 | **Open.** `"Good try."`, `"Good. Almost every word."` and `"Every word. Well done."` are all still in the file |
+
+The 90-second rule is met in the engine and not yet met in the product. The only
+remaining blocker is the atom phase swap on LEA-46: until `free_use` sits before
+`controlled`, four tapping items stand between the scene and the first spoken
+turn, which prices the coached turn at 115 to 135 seconds at a learner's real
+pace. Nothing else on this list changes that number.

@@ -149,6 +149,83 @@ export const ITEMS: Item[] = [
   // Fluency (second session) items, known material under light time pressure
   I("ITM-FLU-0001", "CRI-A2.1-INT-01-01", "INT", "read_aloud", { stem: { en: "Say it three times, a little faster each time." }, key: "I'd like two coffees and some water, please.", config: { fluency: true, seconds: 8 }, modality: "spoken", why: { en: "I'd like two coffees and some water, please.", ar: "I'd like two coffees and some water, please.", es: "I'd like two coffees and some water, please." } }),
   I("ITM-FLU-0002", "CRI-A1.2-SPK-03-01", "SPK", "read_aloud", { stem: { en: "Say it three times, a little faster each time." }, key: "I live in Dubai and I work in a shop.", config: { fluency: true, seconds: 8 }, modality: "spoken", why: { en: "I live in Dubai and I work in a shop.", ar: "I live in Dubai and I work in a shop.", es: "I live in Dubai and I work in a shop." } }),
+
+  // ===== A2.1, week two: an appointment, and getting to it ==================
+  // Authored to the lesson spine of docs/learning-model.md §1.2: the first item
+  // of every atom is the learner's spoken turn with the coach, the scaffolds come
+  // after it, the use-it item is the whole exchange with one problem to repair,
+  // and the delayed check is a say-it of the whole sentence.
+
+  // Atom 11: Monday at ten (INT-08-01). Target: Could I make an appointment, please?
+  I("ITM-INT-1201", "CRI-A2.1-INT-08-01", "INT", "dialogue_turn", { stem: { en: "Ask for an appointment." }, config: { character: "Noor", turns: [{ say: "Good morning, Hillside Health Centre.", keywords: ["appointment", "could i", "can i", "doctor", "please", "make", "see"] }], need: 1 }, modality: "spoken", why: { en: "Could I make an appointment, please?", ar: "Could I make an appointment, please?", es: "Could I make an appointment, please?" } }),
+  I("ITM-INT-1202", "CRI-A2.1-INT-08-01", "INT", "tap_order", { stem: { en: "Could I make an appointment, please?" }, options: ["an", "Could", "please?", "appointment,", "I", "make"], key: "Could I make an appointment, please?", modality: "cued", why: { en: "Could I, then what you want, then please.", ar: "Could I أولًا، ثم ما تريده، ثم please.", es: "Primero Could I, luego lo que quieres y después please." } }),
+  I("ITM-INT-1203", "CRI-A2.1-INT-08-01", "INT", "transform", { stem: { en: "Make it polite: I want to see the doctor." }, key: "Could I see the doctor, please", config: { accept: ["could i see the doctor please", "could i see the doctor, please", "could i see the doctor", "can i see the doctor please", "can i see the doctor"] }, modality: "typed", why: { en: "Could I see the doctor, please? The same words as the cafe.", ar: "Could I see the doctor, please? نفس كلمات المقهى.", es: "Could I see the doctor, please? Las mismas palabras que en la cafetería." } }),
+  I("ITM-INT-1204", "CRI-A2.1-INT-08-01", "INT", "roleplay", { stem: { en: "Make an appointment. Monday is full, so agree another day." }, config: { character: "Noor", turns: [{ say: "Good morning, Hillside Health Centre.", keywords: ["appointment", "could i", "can i", "doctor", "please", "make", "see"] }, { say: "I'm sorry, Monday is full. Tuesday at nine?", keywords: ["tuesday", "nine", "fine", "ok", "okay", "yes", "thank", "later", "earlier", "anything", "afternoon"] }, { say: "Tuesday at nine, then. What is your name?", keywords: ["i'm", "my name", "name is", "it's", "thank"] }], need: 2 }, modality: "spoken", why: { en: "Tuesday at nine is fine, thank you.", ar: "Tuesday at nine is fine, thank you.", es: "Tuesday at nine is fine, thank you." } }),
+  I("ITM-INT-1205", "CRI-A2.1-INT-08-01", "INT", "read_aloud", { stem: { en: "Say it. Ask for an appointment." }, key: "Could I make an appointment, please? Monday at ten is fine.", modality: "spoken", why: { en: "Could I make an appointment, please? Monday at ten is fine.", ar: "Could I make an appointment, please? Monday at ten is fine.", es: "Could I make an appointment, please? Monday at ten is fine." } }),
+
+  // Atom 12: Earlier or later? (GRM-09-01). Target: the er form plus than.
+  I("ITM-GRM-1301", "CRI-A2.1-GRM-09-01", "GRM", "dialogue_turn", { stem: { en: "The taxi is £12. The bus is £2. Tell Maya." }, config: { character: "Maya", turns: [{ say: "The taxi is twelve pounds. The bus is two pounds.", keywords: ["cheaper", "bus", "than", "less"] }], need: 1 }, modality: "spoken", why: { en: "The bus is cheaper than the taxi.", ar: "The bus is cheaper than the taxi.", es: "The bus is cheaper than the taxi." } }),
+  I("ITM-GRM-1302", "CRI-A2.1-GRM-09-01", "GRM", "magnet_tiles", { stem: { en: "Build the sentence." }, options: ["than", "The", "cheaper", "bus", "the", "is", "taxi"], key: "The bus is cheaper than the taxi", modality: "cued", why: { en: "Cheaper, then than, then the second thing.", ar: "cheaper ثم than ثم الشيء الثاني.", es: "Cheaper, luego than, luego la segunda cosa." } }),
+  I("ITM-GRM-1303", "CRI-A2.1-GRM-09-01", "GRM", "error_spot", { stem: { en: "Tap the word that is wrong." }, options: ["The", "bus", "is", "more", "cheap."], key: 3, modality: "recognition", why: { en: "Short words add er: cheaper. Not more cheap.", ar: "الكلمات القصيرة تأخذ er: cheaper، وليس more cheap.", es: "Las palabras cortas añaden er: cheaper, no more cheap." } }),
+  I("ITM-GRM-1304", "CRI-A2.1-GRM-09-01", "GRM", "tap_order", { stem: { en: "Is there anything earlier?" }, options: ["anything", "Is", "earlier?", "there"], key: "Is there anything earlier?", modality: "cued", why: { en: "Is there anything earlier? Ask this for a better time.", ar: "Is there anything earlier? اسأل هكذا عن وقت أفضل.", es: "Is there anything earlier? Pregunta así por una hora mejor." } }),
+  I("ITM-GRM-1305", "CRI-A2.1-GRM-09-01", "GRM", "open_response", { stem: { en: "Compare two ways to get to work. Say two sentences." }, config: { targets: ["than", "cheaper", "quicker", "nearer", "earlier", "later"], need: 2, min_sentences: 2, seconds: 30, variants: ["Compare two ways to get to work. Say two sentences.", "Compare two shops near you. Say two sentences."] }, modality: "spoken", why: { en: "The bus is cheaper than the taxi, but the taxi is quicker.", ar: "The bus is cheaper than the taxi, but the taxi is quicker.", es: "The bus is cheaper than the taxi, but the taxi is quicker." } }),
+  I("ITM-GRM-1306", "CRI-A2.1-GRM-09-01", "GRM", "read_aloud", { stem: { en: "Say it. Compare the two." }, key: "The bus is cheaper than the taxi, but the train is quicker.", modality: "spoken", why: { en: "The bus is cheaper than the taxi, but the train is quicker.", ar: "The bus is cheaper than the taxi, but the train is quicker.", es: "The bus is cheaper than the taxi, but the train is quicker." } }),
+
+  // Atom 13: Which way to the health centre? (SPK-10-01). Target: how do I get to ...
+  I("ITM-SPK-1401", "CRI-A2.1-SPK-10-01", "SPK", "dialogue_turn", { stem: { en: "You are lost. Ask the way." }, config: { character: "Elena", turns: [{ say: "Are you all right? You look lost.", keywords: ["excuse me", "how do i get", "where is", "health centre", "way", "please"] }], need: 1 }, modality: "spoken", why: { en: "Excuse me, how do I get to the health centre?", ar: "Excuse me, how do I get to the health centre?", es: "Excuse me, how do I get to the health centre?" } }),
+  I("ITM-SPK-1402", "CRI-A2.1-SPK-10-01", "SPK", "tap_order", { stem: { en: "How do I get to the station?" }, options: ["get", "How", "to", "do", "I", "the", "station?"], key: "How do I get to the station?", modality: "cued", why: { en: "How do I get to, then the place you want.", ar: "How do I get to ثم المكان الذي تريده.", es: "How do I get to y después el lugar." } }),
+  I("ITM-SPK-1403", "CRI-A2.1-SPK-10-01", "SPK", "dictation", { stem: { en: "Listen and type the directions." }, audio: "Go straight on and take the second left.", key: "Go straight on and take the second left", config: { accept: ["go straight on and take the second left", "go straight on and take the second left.", "straight on and take the second left", "go straight on, take the second left"] }, modality: "typed", why: { en: "Go straight on and take the second left.", ar: "Go straight on and take the second left.", es: "Go straight on and take the second left." } }),
+  I("ITM-SPK-1404", "CRI-A2.1-SPK-10-01", "SPK", "roleplay", { stem: { en: "Ask the way to the health centre. Say the directions back." }, config: { character: "Elena", turns: [{ say: "Hello. Can I help you?", keywords: ["excuse me", "how do i get", "health centre", "way", "please", "where is"] }, { say: "Go straight on and take the second left.", keywords: ["second left", "straight", "thank", "so", "again", "sorry", "left"] }, { say: "That's right. It is next to the chemist.", keywords: ["thank", "thanks", "chemist", "next to", "ok", "got it"] }], need: 2 }, modality: "spoken", why: { en: "The second left, next to the chemist. Thank you.", ar: "The second left, next to the chemist. Thank you.", es: "The second left, next to the chemist. Thank you." } }),
+  I("ITM-SPK-1405", "CRI-A2.1-SPK-10-01", "SPK", "read_aloud", { stem: { en: "Say it. Ask the way." }, key: "Excuse me, how do I get to the health centre?", modality: "spoken", why: { en: "Excuse me, how do I get to the health centre?", ar: "Excuse me, how do I get to the health centre?", es: "Excuse me, how do I get to the health centre?" } }),
+
+  // Atom 14: Thursday at half past six (LST-11-01). Target: the day plus the clock time.
+  I("ITM-LST-1501", "CRI-A2.1-LST-11-01", "LST", "dialogue_turn", { stem: { en: "Listen. Say the day and the time back." }, config: { character: "Noor", turns: [{ say: "Your appointment is on Thursday at half past six.", keywords: ["thursday", "half past six", "six thirty", "half six", "6.30"] }], need: 1 }, modality: "spoken", why: { en: "Thursday at half past six.", ar: "Thursday at half past six.", es: "Thursday at half past six." } }),
+  I("ITM-LST-1502", "CRI-A2.1-LST-11-01", "LST", "dictation", { stem: { en: "Listen and type the day and the time." }, audio: "Your appointment is on Thursday at half past six.", key: "Thursday half past six", config: { accept: ["thursday half past six", "thursday at half past six", "thursday, half past six", "thursday 6.30", "thursday 6:30", "thursday 18.30", "thursday 18:30", "thursday six thirty"] }, modality: "typed", why: { en: "Half past six is 6.30.", ar: "Half past six تعني 6.30.", es: "Half past six es 6.30." } }),
+  I("ITM-LST-1503", "CRI-A2.1-LST-11-01", "LST", "detail_gap", { stem: { en: "The dentist can see you on ___." }, audio: "The dentist can see you on Tuesday at nine.", options: ["Tuesday", "Thursday", "Saturday"], key: 0, modality: "recognition", why: { en: "TUESday starts with a t sound and a long oo.", ar: "TUESday تبدأ بصوت t ثم oo طويلة.", es: "TUESday empieza con t y una u larga." } }),
+  I("ITM-LST-1504", "CRI-A2.1-LST-11-01", "LST", "dictation", { stem: { en: "Listen and type the time." }, audio: "Quarter to five, please.", key: "4.45", config: { accept: ["4.45", "4:45", "quarter to five", "16.45", "16:45", "four forty five"] }, modality: "typed", why: { en: "Quarter to five is 4.45, fifteen minutes before five.", ar: "Quarter to five تعني 4.45، أي ربع ساعة قبل الخامسة.", es: "Quarter to five es 4.45, un cuarto antes de las cinco." } }),
+  I("ITM-LST-1505", "CRI-A2.1-LST-11-01", "LST", "roleplay", { stem: { en: "Listen and check the day and the time. Ask again if you are not sure." }, config: { character: "Noor", turns: [{ say: "Hello, this is Hillside Health Centre. Your appointment is on Thursday at half past six.", keywords: ["sorry", "again", "repeat", "pardon", "say that", "thursday", "half past"] }, { say: "Of course. Thursday, half past six.", keywords: ["thursday", "half past six", "six thirty", "half six", "thank", "yes", "got it"] }, { say: "That's right. Please come ten minutes early.", keywords: ["ten minutes", "early", "twenty past", "thank", "ok", "yes"] }], need: 2 }, modality: "spoken", why: { en: "Sorry, could you say that again? Thursday at half past six.", ar: "Sorry, could you say that again? Thursday at half past six.", es: "Sorry, could you say that again? Thursday at half past six." } }),
+  I("ITM-LST-1506", "CRI-A2.1-LST-11-01", "LST", "read_aloud", { stem: { en: "Say it. The day and the time." }, key: "My appointment is on Thursday at half past six.", modality: "spoken", why: { en: "My appointment is on Thursday at half past six.", ar: "My appointment is on Thursday at half past six.", es: "My appointment is on Thursday at half past six." } }),
+
+  // Atom 15: Sorry, I can't come at ten (WRT-12-01). Target: sorry, reason, new time.
+  I("ITM-WRT-1601", "CRI-A2.1-WRT-12-01", "WRT", "shadow", { stem: { en: "Speak along with Maya." }, key: "I'm sorry, I can't come at ten.", modality: "spoken", why: { en: "I'm SORry, I CAN'T come at TEN.", ar: "I'm SORry, I CAN'T come at TEN.", es: "I'm SORry, I CAN'T come at TEN." } }),
+  I("ITM-WRT-1602", "CRI-A2.1-WRT-12-01", "WRT", "tap_order", { stem: { en: "Could we make it later?" }, options: ["make", "Could", "later?", "we", "it"], key: "Could we make it later?", modality: "cued", why: { en: "Could we make it later? This asks for a new time.", ar: "Could we make it later? هذا سؤال عن وقت جديد.", es: "Could we make it later? Así pides una hora nueva." } }),
+  I("ITM-WRT-1603", "CRI-A2.1-WRT-12-01", "WRT", "correct_message", { stem: { en: "Fix the message: I no can come at ten." }, key: "I can't come at ten", config: { accept: ["i can't come at ten", "i cannot come at ten", "i can't come at ten.", "i'm sorry i can't come at ten"] }, modality: "typed", why: { en: "I can't come. Can't goes after I, before the verb.", ar: "I can't come. تأتي can't بعد I وقبل الفعل.", es: "I can't come. Can't va después de I y antes del verbo." } }),
+  I("ITM-WRT-1604", "CRI-A2.1-WRT-12-01", "WRT", "dictation", { stem: { en: "Listen and type it." }, audio: "I can't come at ten because I'm at work.", key: "I can't come at ten because I'm at work", config: { accept: ["i can't come at ten because i'm at work", "i can't come at ten because i am at work", "i cannot come at ten because i'm at work", "i can't come at ten because i'm at work."] }, modality: "typed", why: { en: "Because gives the reason: because I'm at work.", ar: "because تذكر السبب: because I'm at work.", es: "Because da el motivo: because I'm at work." } }),
+  I("ITM-WRT-1605", "CRI-A2.1-WRT-12-01", "WRT", "short_production", { stem: { en: "You cannot come at ten. Write two lines: say sorry with a reason, and ask for a later time." }, config: { targets: ["sorry", "because", "later"], min_words: 12, max_words: 60, variants: ["You cannot come at ten. Write two lines: say sorry with a reason, and ask for a later time.", "You cannot come on Monday. Write two lines: say sorry with a reason, and ask for another day."] }, modality: "typed", why: { en: "I'm sorry, I can't come at ten because I'm at work. Could we make it later?", ar: "I'm sorry, I can't come at ten because I'm at work. Could we make it later?", es: "I'm sorry, I can't come at ten because I'm at work. Could we make it later?" } }),
+  I("ITM-WRT-1606", "CRI-A2.1-WRT-12-01", "WRT", "read_aloud", { stem: { en: "Say it. Sorry, the reason, the new time." }, key: "I'm sorry, I can't come at ten because I'm at work. Could we make it later?", modality: "spoken", why: { en: "I'm sorry, I can't come at ten because I'm at work. Could we make it later?", ar: "I'm sorry, I can't come at ten because I'm at work. Could we make it later?", es: "I'm sorry, I can't come at ten because I'm at work. Could we make it later?" } }),
+
+  // Atom 16: Pass on the appointment (MED-13-01). Target: the day, the time and the place.
+  I("ITM-MED-1701", "CRI-A2.1-MED-13-01", "MED", "dialogue_turn", { stem: { en: "Sami cannot read the card. Tell him the day." }, config: { character: "Sami", turns: [{ say: "What does the card say? When do I go?", keywords: ["thursday", "half past six", "six thirty", "18.30", "appointment", "on"] }], need: 1 }, modality: "spoken", why: { en: "Your appointment is on Thursday at half past six.", ar: "Your appointment is on Thursday at half past six.", es: "Your appointment is on Thursday at half past six." } }),
+  I("ITM-MED-1702", "CRI-A2.1-MED-13-01", "MED", "tfng", { stem: { en: "Sami must come at six o'clock." }, config: { text: "Appointment card. Hillside Health Centre. Thursday 18.30. Please arrive ten minutes early." }, options: ["True", "False", "It does not say"], key: 1, modality: "recognition", why: { en: "18.30 is half past six, not six o'clock. False.", ar: "18.30 تعني السادسة والنصف وليس السادسة. خطأ.", es: "18.30 es las seis y media, no las seis. Falso." } }),
+  I("ITM-MED-1703", "CRI-A2.1-MED-13-01", "MED", "tfng", { stem: { en: "Sami can bring his brother." }, config: { text: "Appointment card. Hillside Health Centre. Thursday 18.30. Please arrive ten minutes early." }, options: ["True", "False", "It does not say"], key: 2, modality: "recognition", why: { en: "The card says nothing about other people. It does not say.", ar: "البطاقة لا تذكر أشخاصًا آخرين. غير مذكور.", es: "La tarjeta no dice nada de otras personas. No lo dice." } }),
+  I("ITM-MED-1704", "CRI-A2.1-MED-13-01", "MED", "relay", { stem: { en: "Tell Sami the three things on the card." }, config: { source: "Appointment card. Hillside Health Centre. Thursday 18.30. Please arrive ten minutes early.", questions: [{ q: "Which day?", keywords: ["thursday"] }, { q: "What time?", keywords: ["half past six", "6.30", "six thirty", "18.30", "half six"] }, { q: "When must he arrive?", keywords: ["ten minutes", "early", "twenty past", "6.20"] }], need: 2, character: "Sami" }, modality: "spoken", why: { en: "Thursday, half past six, and be there ten minutes early.", ar: "Thursday, half past six, and be there ten minutes early.", es: "Thursday, half past six, and be there ten minutes early." } }),
+  I("ITM-MED-1705", "CRI-A2.1-MED-13-01", "MED", "read_aloud", { stem: { en: "Say it. The day, the time, the place." }, key: "Your appointment is on Thursday at half past six, at the health centre.", modality: "spoken", why: { en: "Your appointment is on Thursday at half past six, at the health centre.", ar: "Your appointment is on Thursday at half past six, at the health centre.", es: "Your appointment is on Thursday at half past six, at the health centre." } }),
+
+  // ===== Pre-A1 to A1.1 starter slice =====================================
+  // Instructions are five words or fewer, every item ends in the learner saying
+  // the whole sentence, and nothing is tested that the scene has not shown.
+
+  // Atom 17: Hello, I'm Ana (PreA1.1 SPK-14-01). Target: Hello. I'm + name.
+  I("ITM-SPK-1801", "CRI-PreA1.1-SPK-14-01", "SPK", "dialogue_turn", { stem: { en: "Say hello. Say your name." }, config: { character: "Ana", turns: [{ say: "Hello. I'm Ana. What is your name?", keywords: ["i'm", "im", "hello", "hi", "my name", "name is"] }], need: 1 }, modality: "spoken", why: { en: "Hello. I'm and then your name.", ar: "Hello. I'm ثم اسمك.", es: "Hello. I'm y después tu nombre." } }),
+  I("ITM-SPK-1802", "CRI-PreA1.1-SPK-14-01", "SPK", "tap_order", { stem: { en: "Hello. I'm Omar." }, options: ["I'm", "Hello.", "Omar."], key: "Hello. I'm Omar.", modality: "cued", why: { en: "Hello first. Then I'm and the name.", ar: "Hello أولًا، ثم I'm والاسم.", es: "Primero Hello. Después I'm y el nombre." } }),
+  I("ITM-SPK-1803", "CRI-PreA1.1-SPK-14-01", "SPK", "magnet_tiles", { stem: { en: "Build the question." }, options: ["name?", "What", "your", "is"], key: "What is your name", modality: "cued", why: { en: "What is your name? Ask this to learn a name.", ar: "What is your name? اسأل هكذا لتعرف الاسم.", es: "What is your name? Pregunta así para saber un nombre." } }),
+  I("ITM-SPK-1804", "CRI-PreA1.1-SPK-14-01", "SPK", "open_response", { stem: { en: "Say hello and your name. 20 seconds." }, config: { targets: ["hello", "i'm"], need: 2, min_sentences: 1, seconds: 20, variants: ["Say hello and your name. 20 seconds.", "A new classmate says hello. Say hello and your name. 20 seconds."] }, modality: "spoken", why: { en: "Hello. I'm Ana.", ar: "Hello. I'm Ana.", es: "Hello. I'm Ana." } }),
+  I("ITM-SPK-1805", "CRI-PreA1.1-SPK-14-01", "SPK", "read_aloud", { stem: { en: "Say it. Hello and your name." }, key: "Hello. I'm Ana.", modality: "spoken", why: { en: "Hello. I'm Ana.", ar: "Hello. I'm Ana.", es: "Hello. I'm Ana." } }),
+
+  // Atom 18: Two, please (PreA1.2 INT-15-01). Target: number plus thing plus please.
+  I("ITM-INT-1901", "CRI-PreA1.2-INT-15-01", "INT", "dialogue_turn", { stem: { en: "Ask for two apples." }, config: { character: "Leo", turns: [{ say: "Hello. What would you like?", keywords: ["two", "apples", "apple", "please", "one"] }], need: 1 }, modality: "spoken", why: { en: "Two apples, please.", ar: "Two apples, please.", es: "Two apples, please." } }),
+  I("ITM-INT-1902", "CRI-PreA1.2-INT-15-01", "INT", "tap_order", { stem: { en: "Two apples, please." }, options: ["please.", "Two", "apples,"], key: "Two apples, please.", modality: "cued", why: { en: "The number, the thing, then please.", ar: "الرقم، ثم الشيء، ثم please.", es: "El número, la cosa y después please." } }),
+  I("ITM-INT-1903", "CRI-PreA1.2-INT-15-01", "INT", "magnet_tiles", { stem: { en: "Build it." }, options: ["tea,", "One", "please"], key: "One tea please", modality: "cued", why: { en: "One tea, please. One thing, so one.", ar: "One tea, please. شيء واحد، إذن One.", es: "One tea, please. Una cosa, por eso One." } }),
+  I("ITM-INT-1904", "CRI-PreA1.2-INT-15-01", "INT", "roleplay", { stem: { en: "Buy two apples. The shop has no apples today." }, config: { character: "Leo", turns: [{ say: "Hello. What would you like?", keywords: ["two", "apples", "apple", "please"] }, { say: "Sorry, no apples today.", keywords: ["ok", "okay", "water", "tea", "two", "one", "please", "thank", "bananas"] }, { say: "Here you are. Two pounds.", keywords: ["thank", "thanks", "thank you", "here", "ok"] }], need: 2 }, modality: "spoken", why: { en: "No apples. Then: two bananas, please. Thank you.", ar: "No apples. إذن: two bananas, please. Thank you.", es: "No apples. Entonces: two bananas, please. Thank you." } }),
+  I("ITM-INT-1905", "CRI-PreA1.2-INT-15-01", "INT", "read_aloud", { stem: { en: "Say it. Ask for two apples." }, key: "Two apples, please. Thank you.", modality: "spoken", why: { en: "Two apples, please. Thank you.", ar: "Two apples, please. Thank you.", es: "Two apples, please. Thank you." } }),
+
+  // Atom 19: I'm from Spain (A1.1 GRM-16-01). Target: I'm and you're.
+  I("ITM-GRM-2001", "CRI-A1.1-GRM-16-01", "GRM", "shadow", { stem: { en: "Speak along with Ana." }, key: "I'm Ana. I'm from Spain.", modality: "spoken", why: { en: "I'm ANa. I'm from SPAIN.", ar: "I'm ANa. I'm from SPAIN.", es: "I'm ANa. I'm from SPAIN." } }),
+  I("ITM-GRM-2002", "CRI-A1.1-GRM-16-01", "GRM", "tap_order", { stem: { en: "I'm from Egypt." }, options: ["from", "I'm", "Egypt."], key: "I'm from Egypt.", modality: "cued", why: { en: "I'm from, then the country.", ar: "I'm from ثم البلد.", es: "I'm from y después el país." } }),
+  I("ITM-GRM-2003", "CRI-A1.1-GRM-16-01", "GRM", "error_spot", { stem: { en: "Tap the word that is wrong." }, options: ["You", "am", "from", "Egypt."], key: 1, modality: "recognition", why: { en: "You are from Egypt. Am goes with I only.", ar: "You are from Egypt. أما am فتأتي مع I فقط.", es: "You are from Egypt. Am va solo con I." } }),
+  I("ITM-GRM-2004", "CRI-A1.1-GRM-16-01", "GRM", "magnet_tiles", { stem: { en: "Build the question." }, options: ["from?", "Where", "you", "are"], key: "Where are you from", modality: "cued", why: { en: "Where are you from? Are comes before you.", ar: "Where are you from? تأتي are قبل you.", es: "Where are you from? Are va antes de you." } }),
+  I("ITM-GRM-2005", "CRI-A1.1-GRM-16-01", "GRM", "open_response", { stem: { en: "Say your name, your country, your city. 20 seconds." }, config: { targets: ["i'm", "from", "in"], need: 2, min_sentences: 2, seconds: 20, variants: ["Say your name, your country, your city. 20 seconds.", "A new classmate asks about you. Say your name, your country and your city. 20 seconds."] }, modality: "spoken", why: { en: "I'm Ana. I'm from Spain. I'm in London.", ar: "I'm Ana. I'm from Spain. I'm in London.", es: "I'm Ana. I'm from Spain. I'm in London." } }),
+  I("ITM-GRM-2006", "CRI-A1.1-GRM-16-01", "GRM", "read_aloud", { stem: { en: "Say it. Name, country, city." }, key: "I'm Ana. I'm from Spain. I'm in London.", modality: "spoken", why: { en: "I'm Ana. I'm from Spain. I'm in London.", ar: "I'm Ana. I'm from Spain. I'm in London.", es: "I'm Ana. I'm from Spain. I'm in London." } }),
 ];
 
 export const ATOMS: Atom[] = [
@@ -366,6 +443,205 @@ export const ATOMS: Atom[] = [
     target_items: ["ITM-FLU-0001", "ITM-FLU-0002"], prerequisites: [],
     phases: [{ kind: "controlled", items: ["ITM-FLU-0001", "ITM-FLU-0002"] }],
   },
+  // ===== A2.1, week two ====================================================
+  // `phases` is authored in the lesson order of docs/learning-model.md §1.2:
+  // input, noticing, free_use (the learner's first spoken turn), controlled
+  // (the scaffolds that repair what the turn showed), free_use (the whole
+  // exchange), check (the delayed say-it). AtomRun walks the array in authored
+  // order, so the two free_use phases need no code change. The week one atoms
+  // above are still in the old order and are LP-30's reorder, not this ticket's.
+  {
+    atom_id: "ATM-A2-INT-0012", version: 1, criterion_id: "CRI-A2.1-INT-08-01", strand: "INT", sublevel: "A2.1", type: "video", variant: "standard", language_use: true, status: "published",
+    title: { en: "Monday at ten", ar: "الاثنين في العاشرة", es: "El lunes a las diez", hi: "सोमवार दस बजे", ru: "В понедельник в десять", tr: "Pazartesi saat onda", zh: "星期一十点" },
+    target_items: ["ITM-INT-1201", "ITM-INT-1202", "ITM-INT-1203", "ITM-INT-1204", "ITM-INT-1205"],
+    prerequisites: ["CRI-A2.1-INT-01-01"],
+    phases: [
+      { kind: "input", media: { kind: "video", title: "Monday at ten", presenter: "Noor, a health centre in London", duration_sec: 50, l1_card: { en: "Asking for an appointment on the phone", ar: "طلب موعد على الهاتف", es: "Pedir una cita por teléfono", hi: "फ़ोन पर अपॉइंटमेंट माँगना", ru: "Как записаться на приём по телефону", tr: "Telefonda randevu istemek", zh: "打电话预约" }, lines: [
+        { text: "Tuesday morning. Omar has a bad tooth.", at: 0 },
+        { text: "Hillside Health Centre. How can I help?", at: 5 },
+        { text: "Could I make an appointment, please?", at: 11, target: true },
+        { text: "Of course. Monday at ten?", at: 17 },
+        { text: "Monday at ten is fine, thank you.", at: 22, target: true },
+        { text: "Could I ... please. The same words as the cafe.", at: 28 },
+        { text: "Say it with me. Could I make an appointment, please?", at: 35, target: true },
+        { text: "Could I make an appointment, please?", at: 45, target: true },
+      ] } },
+      { kind: "noticing", highlight: "Could I make an appointment, please?", why: { en: "Could I, then what you want. The same words as the cafe.", ar: "Could I ثم ما تريده. نفس كلمات المقهى.", es: "Could I y luego lo que quieres. Las mismas palabras que en la cafetería.", hi: "Could I, फिर आपको क्या चाहिए। कैफ़े जैसे ही शब्द।", ru: "Could I, затем то, что нужно. Те же слова, что в кафе.", tr: "Could I, sonra istediğin şey. Kafedeki aynı sözler.", zh: "先说 Could I，再说你要什么。和咖啡馆一样。" } },
+      { kind: "free_use", items: ["ITM-INT-1201"] },
+      { kind: "controlled", items: ["ITM-INT-1202", "ITM-INT-1203"] },
+      { kind: "free_use", items: ["ITM-INT-1204"] },
+      { kind: "check", items: ["ITM-INT-1205"], delayed: true },
+    ],
+  },
+  {
+    atom_id: "ATM-A2-GRM-0013", version: 1, criterion_id: "CRI-A2.1-GRM-09-01", strand: "GRM", sublevel: "A2.1", type: "word_tutorial", variant: "standard", language_use: false, status: "published",
+    title: { en: "Earlier or later?", ar: "أبكر أم لاحقًا؟", es: "¿Más temprano o más tarde?", hi: "पहले या बाद में?", ru: "Раньше или позже?", tr: "Daha erken mi, daha geç mi?", zh: "早一点还是晚一点？" },
+    target_items: ["ITM-GRM-1301", "ITM-GRM-1302", "ITM-GRM-1303", "ITM-GRM-1304", "ITM-GRM-1305", "ITM-GRM-1306"],
+    prerequisites: ["CRI-A2.1-INT-08-01"],
+    phases: [
+      { kind: "input", media: { kind: "word_tutorial", cards: [
+        { word: "earlier", emoji: "🕗", meaning: { en: "Before the time they said.", ar: "قبل الوقت الذي قالوه.", es: "Antes de la hora que dijeron.", hi: "बताए समय से पहले।", ru: "Раньше названного времени.", tr: "Söyledikleri saatten önce.", zh: "比他们说的时间更早。" }, examples: ["Is there anything earlier?", "An earlier train, please.", "Nine o'clock is earlier than ten."] },
+        { word: "later", emoji: "🕙", meaning: { en: "After the time they said.", ar: "بعد الوقت الذي قالوه.", es: "Después de la hora que dijeron.", hi: "बताए समय के बाद।", ru: "Позже названного времени.", tr: "Söyledikleri saatten sonra.", zh: "比他们说的时间更晚。" }, examples: ["Could we make it later?", "A later appointment, please.", "Tuesday is later than Monday."] },
+        { word: "quicker", emoji: "⚡", meaning: { en: "It takes less time.", ar: "يأخذ وقتًا أقل.", es: "Tarda menos tiempo.", hi: "कम समय लेता है।", ru: "Занимает меньше времени.", tr: "Daha az zaman alır.", zh: "花的时间更少。" }, examples: ["The train is quicker than the bus.", "A quicker way to the station.", "Walking is quicker today."] },
+        { word: "cheaper", emoji: "💷", meaning: { en: "It costs less money.", ar: "يكلف نقودًا أقل.", es: "Cuesta menos dinero.", hi: "कम पैसे लगते हैं।", ru: "Стоит меньше денег.", tr: "Daha az para tutar.", zh: "花的钱更少。" }, examples: ["The bus is cheaper than the taxi.", "A cheaper ticket, please.", "Tea is cheaper than coffee here."] },
+        { word: "nearer", emoji: "📍", meaning: { en: "It is a shorter way.", ar: "الطريق إليه أقصر.", es: "Está más cerca.", hi: "रास्ता छोटा है।", ru: "Это ближе.", tr: "Daha yakın.", zh: "路更近。" }, examples: ["The health centre is nearer than the hospital.", "Is there a nearer stop?", "My flat is nearer the shop."] },
+      ] } },
+      { kind: "noticing", highlight: "cheaper than", why: { en: "Add er to the short word. Than comes before the second thing.", ar: "أضف er إلى الكلمة القصيرة. و than قبل الشيء الثاني.", es: "Añade er a la palabra corta. Than va antes de la segunda cosa.", hi: "छोटे शब्द में er जोड़ें। दूसरी चीज़ से पहले than।", ru: "К короткому слову добавьте er. Than перед вторым предметом.", tr: "Kısa kelimeye er ekle. Than ikinci şeyden önce gelir.", zh: "短词加 er。第二样东西前面用 than。" } },
+      { kind: "free_use", items: ["ITM-GRM-1301"] },
+      { kind: "controlled", items: ["ITM-GRM-1302", "ITM-GRM-1303", "ITM-GRM-1304"] },
+      { kind: "free_use", items: ["ITM-GRM-1305"] },
+      { kind: "check", items: ["ITM-GRM-1306"], delayed: true },
+    ],
+  },
+  {
+    atom_id: "ATM-A2-SPK-0014", version: 1, criterion_id: "CRI-A2.1-SPK-10-01", strand: "SPK", sublevel: "A2.1", type: "video", variant: "standard", language_use: true, status: "published",
+    title: { en: "Which way?", ar: "من أي طريق؟", es: "¿Por dónde?", hi: "किस रास्ते से?", ru: "Куда идти?", tr: "Hangi yoldan?", zh: "怎么走？" },
+    target_items: ["ITM-SPK-1401", "ITM-SPK-1402", "ITM-SPK-1403", "ITM-SPK-1404", "ITM-SPK-1405"],
+    prerequisites: ["CRI-A2.1-INT-08-01"],
+    phases: [
+      { kind: "input", media: { kind: "video", title: "Which way?", presenter: "Omar, north London", duration_sec: 50, l1_card: { en: "Asking the way, and checking you heard it", ar: "السؤال عن الطريق والتأكد أنك سمعته", es: "Preguntar el camino y comprobar que lo has oído", hi: "रास्ता पूछना और सुनी बात जाँचना", ru: "Спросить дорогу и проверить, что услышали", tr: "Yol sormak ve duyduğunu kontrol etmek", zh: "问路并确认听到的" }, lines: [
+        { text: "Ten to ten. Omar cannot find the health centre.", at: 0 },
+        { text: "Excuse me, how do I get to the health centre?", at: 6, target: true },
+        { text: "Go straight on and take the second left.", at: 13 },
+        { text: "The second left. Thank you.", at: 20, target: true },
+        { text: "Say the directions back. Then you know you heard them.", at: 26 },
+        { text: "Say it with me. How do I get to the health centre?", at: 34, target: true },
+        { text: "Excuse me, how do I get to the health centre?", at: 45, target: true },
+      ] } },
+      { kind: "noticing", highlight: "how do I get to", why: { en: "Excuse me first. Then how do I get to and the place.", ar: "Excuse me أولًا، ثم how do I get to والمكان.", es: "Primero Excuse me. Luego how do I get to y el lugar.", hi: "पहले Excuse me। फिर how do I get to और जगह।", ru: "Сначала Excuse me. Потом how do I get to и место.", tr: "Önce Excuse me. Sonra how do I get to ve yer.", zh: "先说 Excuse me，再说 how do I get to 和地点。" } },
+      { kind: "free_use", items: ["ITM-SPK-1401"] },
+      { kind: "controlled", items: ["ITM-SPK-1402", "ITM-SPK-1403"] },
+      { kind: "free_use", items: ["ITM-SPK-1404"] },
+      { kind: "check", items: ["ITM-SPK-1405"], delayed: true },
+    ],
+  },
+  {
+    atom_id: "ATM-A2-LST-0015", version: 1, criterion_id: "CRI-A2.1-LST-11-01", strand: "LST", sublevel: "A2.1", type: "video", variant: "standard", language_use: false, status: "published",
+    title: { en: "Thursday at half past six", ar: "الخميس في السادسة والنصف", es: "El jueves a las seis y media", hi: "गुरुवार साढ़े छह बजे", ru: "В четверг в половине седьмого", tr: "Perşembe altı buçukta", zh: "星期四六点半" },
+    target_items: ["ITM-LST-1501", "ITM-LST-1502", "ITM-LST-1503", "ITM-LST-1504", "ITM-LST-1505", "ITM-LST-1506"],
+    prerequisites: ["CRI-A2.1-LST-03-01"],
+    phases: [
+      { kind: "input", media: { kind: "video", title: "Thursday at half past six", presenter: "Noor, a health centre in London", duration_sec: 45, l1_card: { en: "Catching the day and the time in a message", ar: "التقاط اليوم والوقت في رسالة", es: "Captar el día y la hora en un mensaje", hi: "संदेश में दिन और समय पकड़ना", ru: "Уловить день и время в сообщении", tr: "Mesajdaki günü ve saati yakalamak", zh: "听出留言里的日子和时间" }, lines: [
+        { text: "A voice message. Omar listens twice.", at: 0 },
+        { text: "Your appointment is on Thursday at half past six.", at: 5, target: true },
+        { text: "On Thursday. Not Tuesday.", at: 12, target: true },
+        { text: "At half past six. Six thirty.", at: 17, target: true },
+        { text: "The day after on. The time after at.", at: 23 },
+        { text: "Say it with me. On Thursday at half past six.", at: 30, target: true },
+        { text: "On Thursday at half past six.", at: 40, target: true },
+      ] } },
+      { kind: "noticing", highlight: "on Thursday at half past six", why: { en: "The day comes after on. The time comes after at.", ar: "اليوم بعد on. والوقت بعد at.", es: "El día va después de on. La hora después de at.", hi: "on के बाद दिन। at के बाद समय।", ru: "После on день. После at время.", tr: "on'dan sonra gün. at'ten sonra saat.", zh: "on 后面是日子，at 后面是时间。" } },
+      { kind: "free_use", items: ["ITM-LST-1501"] },
+      { kind: "controlled", items: ["ITM-LST-1502", "ITM-LST-1503", "ITM-LST-1504"] },
+      { kind: "free_use", items: ["ITM-LST-1505"] },
+      { kind: "check", items: ["ITM-LST-1506"], delayed: true },
+    ],
+  },
+  {
+    atom_id: "ATM-A2-WRT-0016", version: 1, criterion_id: "CRI-A2.1-WRT-12-01", strand: "WRT", sublevel: "A2.1", type: "word_tutorial", variant: "standard", language_use: true, status: "published",
+    title: { en: "Sorry, I can't come", ar: "آسف، لا أستطيع الحضور", es: "Lo siento, no puedo ir", hi: "माफ़ कीजिए, मैं नहीं आ सकता", ru: "Извините, я не смогу прийти", tr: "Üzgünüm, gelemiyorum", zh: "抱歉，我来不了" },
+    target_items: ["ITM-WRT-1601", "ITM-WRT-1602", "ITM-WRT-1603", "ITM-WRT-1604", "ITM-WRT-1605", "ITM-WRT-1606"],
+    prerequisites: ["CRI-A2.1-WRT-05-01"],
+    phases: [
+      { kind: "input", media: { kind: "word_tutorial", cards: [
+        { word: "I'm sorry", emoji: "🙏", meaning: { en: "Say this first when you change a plan.", ar: "قل هذا أولًا عندما تغيّر خطة.", es: "Di esto primero cuando cambias un plan.", hi: "योजना बदलते समय यह पहले कहें।", ru: "Скажите это первым, меняя план.", tr: "Bir planı değiştirirken önce bunu söyle.", zh: "改计划时先说这句。" }, examples: ["I'm sorry, I can't come.", "I'm sorry, I'm late.", "I'm sorry about Monday."] },
+        { word: "I can't come at ten", emoji: "🕙", meaning: { en: "You are not free at that time.", ar: "أنت غير متفرغ في ذلك الوقت.", es: "No estás libre a esa hora.", hi: "उस समय आप खाली नहीं हैं।", ru: "В это время вы не свободны.", tr: "O saatte müsait değilsin.", zh: "那个时间你没空。" }, examples: ["I can't come at ten.", "I can't come on Monday.", "I can't come before six."] },
+        { word: "because I'm at work", emoji: "💼", meaning: { en: "Give the reason with because.", ar: "اذكر السبب باستخدام because.", es: "Da el motivo con because.", hi: "because से कारण बताएँ।", ru: "Назовите причину через because.", tr: "Nedeni because ile söyle.", zh: "用 because 说原因。" }, examples: ["I can't come because I'm at work.", "I'm late because the bus was slow.", "No coffee because I'm at work."] },
+        { word: "Could we make it later?", emoji: "📅", meaning: { en: "Ask for a new time.", ar: "اطلب وقتًا جديدًا.", es: "Pide una hora nueva.", hi: "नया समय माँगें।", ru: "Попросите новое время.", tr: "Yeni bir saat iste.", zh: "请求换个时间。" }, examples: ["Could we make it later?", "Could we make it Tuesday?", "Could we make it half past six?"] },
+      ] } },
+      { kind: "noticing", highlight: "because", why: { en: "Sorry first, then the reason with because, then the new time.", ar: "الاعتذار أولًا، ثم السبب مع because، ثم الوقت الجديد.", es: "Primero la disculpa, luego el motivo con because, luego la hora nueva.", hi: "पहले माफ़ी, फिर because से कारण, फिर नया समय।", ru: "Сначала извинение, потом причина с because, потом новое время.", tr: "Önce özür, sonra because ile neden, sonra yeni saat.", zh: "先道歉，再用 because 说原因，最后说新时间。" } },
+      { kind: "free_use", items: ["ITM-WRT-1601"] },
+      { kind: "controlled", items: ["ITM-WRT-1602", "ITM-WRT-1603", "ITM-WRT-1604"] },
+      { kind: "free_use", items: ["ITM-WRT-1605"] },
+      { kind: "check", items: ["ITM-WRT-1606"], delayed: true },
+    ],
+  },
+  {
+    atom_id: "ATM-A2-MED-0017", version: 1, criterion_id: "CRI-A2.1-MED-13-01", strand: "MED", sublevel: "A2.1", type: "video", variant: "standard", language_use: true, status: "published",
+    title: { en: "Pass it on", ar: "انقل الرسالة", es: "Pásalo", hi: "आगे बताओ", ru: "Передай другому", tr: "Başkasına aktar", zh: "转告他" },
+    target_items: ["ITM-MED-1701", "ITM-MED-1702", "ITM-MED-1703", "ITM-MED-1704", "ITM-MED-1705"],
+    prerequisites: ["CRI-A2.1-MED-06-01"],
+    phases: [
+      { kind: "input", media: { kind: "video", title: "Pass it on", presenter: "Sami, a flat share in London", duration_sec: 45, l1_card: { en: "Telling a friend when and where to go", ar: "إخبار صديق بموعد الذهاب ومكانه", es: "Decir a un amigo cuándo y dónde ir", hi: "दोस्त को बताना कब और कहाँ जाना है", ru: "Сказать другу, когда и куда идти", tr: "Bir arkadaşa ne zaman ve nereye gideceğini söylemek", zh: "告诉朋友什么时候去哪里" }, lines: [
+        { text: "Sami has an appointment card. He cannot read it.", at: 0 },
+        { text: "Your appointment is on Thursday.", at: 5, target: true },
+        { text: "At half past six.", at: 10, target: true },
+        { text: "At the health centre.", at: 14, target: true },
+        { text: "Three things: the day, the time, the place.", at: 19 },
+        { text: "Say it with me. On Thursday at half past six, at the health centre.", at: 26, target: true },
+        { text: "On ... at ... at the ...", at: 38, target: true },
+      ] } },
+      { kind: "noticing", highlight: "the day, the time, the place", why: { en: "Three facts. Say all three and your friend cannot go wrong.", ar: "ثلاث معلومات. قلها كلها فلا يخطئ صديقك.", es: "Tres datos. Dilos los tres y tu amigo no se equivoca.", hi: "तीन बातें। तीनों कहें तो दोस्त ग़लती नहीं करेगा।", ru: "Три факта. Назовите все три, и друг не ошибётся.", tr: "Üç bilgi. Üçünü de söyle, arkadaşın şaşırmaz.", zh: "三件事。都说出来，朋友就不会弄错。" } },
+      { kind: "free_use", items: ["ITM-MED-1701"] },
+      { kind: "controlled", items: ["ITM-MED-1702", "ITM-MED-1703"] },
+      { kind: "free_use", items: ["ITM-MED-1704"] },
+      { kind: "check", items: ["ITM-MED-1705"], delayed: true },
+    ],
+  },
+  // ===== Pre-A1 to A1.1 starter slice =====================================
+  {
+    atom_id: "ATM-PA1-SPK-0018", version: 1, criterion_id: "CRI-PreA1.1-SPK-14-01", strand: "SPK", sublevel: "PreA1.1", type: "video", variant: "standard", language_use: true, status: "published",
+    title: { en: "Hello, I'm Ana", ar: "مرحبًا، أنا آنا", es: "Hola, soy Ana", hi: "नमस्ते, मैं आना हूँ", ru: "Здравствуйте, я Ана", tr: "Merhaba, ben Ana", zh: "你好，我是 Ana" },
+    target_items: ["ITM-SPK-1801", "ITM-SPK-1802", "ITM-SPK-1803", "ITM-SPK-1804", "ITM-SPK-1805"],
+    prerequisites: [],
+    phases: [
+      { kind: "input", media: { kind: "video", title: "Hello, I'm Ana", presenter: "Ana, a new class in London", duration_sec: 35, l1_card: { en: "Saying hello and giving your name", ar: "قول مرحبًا وذكر اسمك", es: "Saludar y decir tu nombre", hi: "नमस्ते कहना और नाम बताना", ru: "Поздороваться и назвать имя", tr: "Merhaba demek ve adını söylemek", zh: "打招呼并说出名字" }, lines: [
+        { text: "A new class. Monday morning.", at: 0 },
+        { text: "Hello. I'm Ana.", at: 4, target: true },
+        { text: "Hello. I'm Omar.", at: 9, target: true },
+        { text: "What is your name?", at: 14, target: true },
+        { text: "I'm Ana. I'm Omar. Your name goes after I'm.", at: 19 },
+        { text: "Say it with me. Hello. I'm Ana.", at: 26, target: true },
+        { text: "Hello. I'm ...", at: 32, target: true },
+      ] } },
+      { kind: "noticing", highlight: "I'm", why: { en: "I'm and then your name. Two words, and they know you.", ar: "I'm ثم اسمك. كلمتان، وصاروا يعرفونك.", es: "I'm y después tu nombre. Dos palabras y ya te conocen.", hi: "I'm और फिर आपका नाम। दो शब्द, और वे आपको जान गए।", ru: "I'm и ваше имя. Два слова, и вас знают.", tr: "I'm ve adın. İki kelime, artık seni tanıyorlar.", zh: "I'm 加你的名字。两个词，他们就认识你了。" } },
+      { kind: "free_use", items: ["ITM-SPK-1801"] },
+      { kind: "controlled", items: ["ITM-SPK-1802", "ITM-SPK-1803"] },
+      { kind: "free_use", items: ["ITM-SPK-1804"] },
+      { kind: "check", items: ["ITM-SPK-1805"], delayed: true },
+    ],
+  },
+  {
+    atom_id: "ATM-PA1-INT-0019", version: 1, criterion_id: "CRI-PreA1.2-INT-15-01", strand: "INT", sublevel: "PreA1.2", type: "video", variant: "standard", language_use: true, status: "published",
+    title: { en: "Two, please", ar: "اثنان، من فضلك", es: "Dos, por favor", hi: "दो, कृपया", ru: "Два, пожалуйста", tr: "İki, lütfen", zh: "两个，谢谢" },
+    target_items: ["ITM-INT-1901", "ITM-INT-1902", "ITM-INT-1903", "ITM-INT-1904", "ITM-INT-1905"],
+    prerequisites: ["CRI-PreA1.1-SPK-14-01"],
+    phases: [
+      { kind: "input", media: { kind: "video", title: "Two, please", presenter: "Leo, a small shop", duration_sec: 35, l1_card: { en: "Asking for one thing in a shop", ar: "طلب شيء واحد في المتجر", es: "Pedir una cosa en una tienda", hi: "दुकान में एक चीज़ माँगना", ru: "Попросить одну вещь в магазине", tr: "Dükkanda bir şey istemek", zh: "在商店要一样东西" }, lines: [
+        { text: "A small shop. Ana wants apples.", at: 0 },
+        { text: "Two apples, please.", at: 5, target: true },
+        { text: "Here you are.", at: 10 },
+        { text: "Thank you.", at: 13, target: true },
+        { text: "One. Two. Three. The number, the thing, then please.", at: 17 },
+        { text: "Say it with me. Two apples, please.", at: 24, target: true },
+        { text: "Two apples, please. Thank you.", at: 31, target: true },
+      ] } },
+      { kind: "noticing", highlight: "please", why: { en: "Please at the end. Two words and you have what you need.", ar: "please في النهاية. كلمتان وتحصل على ما تريد.", es: "Please al final. Dos palabras y tienes lo que necesitas.", hi: "अंत में please। दो शब्द और काम हो गया।", ru: "Please в конце. Два слова, и у вас есть нужное.", tr: "Sonda please. İki kelime ve istediğini alırsın.", zh: "please 放在最后。两个词就能买到东西。" } },
+      { kind: "free_use", items: ["ITM-INT-1901"] },
+      { kind: "controlled", items: ["ITM-INT-1902", "ITM-INT-1903"] },
+      { kind: "free_use", items: ["ITM-INT-1904"] },
+      { kind: "check", items: ["ITM-INT-1905"], delayed: true },
+    ],
+  },
+  {
+    atom_id: "ATM-A1-GRM-0020", version: 1, criterion_id: "CRI-A1.1-GRM-16-01", strand: "GRM", sublevel: "A1.1", type: "word_tutorial", variant: "standard", language_use: false, status: "published",
+    title: { en: "I'm from Spain", ar: "أنا من إسبانيا", es: "Soy de España", hi: "मैं स्पेन से हूँ", ru: "Я из Испании", tr: "İspanya'danım", zh: "我来自西班牙" },
+    target_items: ["ITM-GRM-2001", "ITM-GRM-2002", "ITM-GRM-2003", "ITM-GRM-2004", "ITM-GRM-2005", "ITM-GRM-2006"],
+    prerequisites: ["CRI-PreA1.2-INT-15-01"],
+    phases: [
+      { kind: "input", media: { kind: "word_tutorial", cards: [
+        { word: "I'm", emoji: "🙋", meaning: { en: "I am. Say it about you.", ar: "I am. قلها عن نفسك.", es: "I am. Dilo de ti.", hi: "I am। अपने बारे में कहें।", ru: "I am. Говорите о себе.", tr: "I am. Kendin için söyle.", zh: "I am。说你自己。" }, examples: ["I'm Ana.", "I'm from Spain.", "I'm in London."] },
+        { word: "you're", emoji: "👉", meaning: { en: "You are. Say it about one person.", ar: "You are. قلها عن شخص واحد.", es: "You are. Dilo de otra persona.", hi: "You are। दूसरे व्यक्ति के बारे में कहें।", ru: "You are. Говорите о другом человеке.", tr: "You are. Bir kişi için söyle.", zh: "You are。说另一个人。" }, examples: ["You're Omar.", "You're from Egypt.", "You're in my class."] },
+        { word: "from", emoji: "🌍", meaning: { en: "The country you come from.", ar: "البلد الذي أتيت منه.", es: "El país del que vienes.", hi: "वह देश जहाँ से आप हैं।", ru: "Страна, откуда вы.", tr: "Geldiğin ülke.", zh: "你来自的国家。" }, examples: ["I'm from Spain.", "I'm from Egypt.", "Where are you from?"] },
+        { word: "in", emoji: "📍", meaning: { en: "The city you are in now.", ar: "المدينة التي أنت فيها الآن.", es: "La ciudad en la que estás ahora.", hi: "वह शहर जहाँ आप अब हैं।", ru: "Город, где вы сейчас.", tr: "Şu an bulunduğun şehir.", zh: "你现在所在的城市。" }, examples: ["I'm in London.", "You're in London.", "I'm in the shop."] },
+      ] } },
+      { kind: "noticing", highlight: "I'm from", why: { en: "I'm for you. You're for the other person.", ar: "I'm لك. و you're للشخص الآخر.", es: "I'm para ti. You're para la otra persona.", hi: "I'm आपके लिए। You're दूसरे के लिए।", ru: "I'm о себе. You're о другом.", tr: "I'm sen için. You're diğer kişi için.", zh: "I'm 说自己，you're 说对方。" } },
+      { kind: "free_use", items: ["ITM-GRM-2001"] },
+      { kind: "controlled", items: ["ITM-GRM-2002", "ITM-GRM-2003", "ITM-GRM-2004"] },
+      { kind: "free_use", items: ["ITM-GRM-2005"] },
+      { kind: "check", items: ["ITM-GRM-2006"], delayed: true },
+    ],
+  },
   // Stories (no items, 98% known words)
   {
     atom_id: "STO-A2-0001", version: 1, criterion_id: "CRI-A2.1-INT-01-01", strand: "RDG", sublevel: "A2.1", type: "story", variant: "standard", language_use: true, status: "published",
@@ -384,6 +660,18 @@ export const ATOMS: Atom[] = [
     title: { en: "Amira is late", ar: "أميرة متأخرة", es: "Amira llega tarde", hi: "अमीरा देर से", ru: "Амира опаздывает", tr: "Amira geç kaldı", zh: "Amira 迟到了" },
     target_items: [], prerequisites: [], phases: [],
     story: { coverage: 0.98, text: "It is nine o'clock. Amira is not at work. Elena writes a message. \"Hi Amira. Where are you? Are you OK?\" Amira writes back. \"I'm on the metro. There was a problem at platform forty. See you soon.\" Elena makes two coffees. Amira arrives at nine thirteen." },
+  },
+  {
+    atom_id: "STO-A2-0004", version: 1, criterion_id: "CRI-A2.1-INT-08-01", strand: "RDG", sublevel: "A2.1", type: "story", variant: "standard", language_use: true, status: "published",
+    title: { en: "The second left", ar: "الثاني على اليسار", es: "La segunda a la izquierda", hi: "दूसरा बाएँ", ru: "Второй поворот налево", tr: "İkinci sol", zh: "第二个左转" },
+    target_items: [], prerequisites: [], phases: [],
+    story: { coverage: 0.98, text: "Omar has a bad tooth. He phones the health centre. \"Could I make an appointment, please?\" \"Monday at ten?\" \"Monday at ten is fine, thank you.\" On Monday, Omar cannot find the health centre. \"Excuse me, how do I get to the health centre?\" \"Go straight on and take the second left.\" \"The second left. Thank you.\" Omar is there at five to ten. The bus was cheaper than the taxi, and it was quicker." },
+  },
+  {
+    atom_id: "STO-PA1-0005", version: 1, criterion_id: "CRI-PreA1.2-INT-15-01", strand: "RDG", sublevel: "PreA1.2", type: "story", variant: "standard", language_use: true, status: "published",
+    title: { en: "Ana and Omar", ar: "آنا وعمر", es: "Ana y Omar", hi: "आना और ओमर", ru: "Ана и Омар", tr: "Ana ve Omar", zh: "Ana 和 Omar" },
+    target_items: [], prerequisites: [], phases: [],
+    story: { coverage: 0.98, text: "Hello. I'm Ana. I'm from Spain. I'm in London. I'm in a shop. \"Two apples, please.\" \"Here you are.\" \"Thank you.\" Omar is in the shop. \"Hello. I'm Omar.\" \"Hello. I'm Ana. I'm from Spain.\" \"I'm from Egypt.\"" },
   },
 ];
 
@@ -521,6 +809,79 @@ export const ITEM_CEFR: Record<string, CefrNote> = {
   "ITM-FLU-0001": { level: "A2.1", descriptor: "Fluency A2: says a known order at speaking speed" },
   "ITM-FLU-0002": { level: "A1.2", descriptor: "Fluency A1 to A2: says a known self-introduction at speaking speed" },
 
+  // Week two, atom 11: Monday at ten. Making an arrangement by phone is
+  // Telephone and online conversation A2; "make an appointment" is A2 in the
+  // English Vocabulary Profile and is taught as a fixed chunk.
+  "ITM-INT-1201": { level: "A2.1", descriptor: "Telephone and online conversation A2: can make a simple arrangement on the phone" },
+  "ITM-INT-1202": { level: "A2.1", descriptor: "General linguistic range A2: modal request carrying a fixed A2 chunk" },
+  "ITM-INT-1203": { level: "A2.1", descriptor: "Sociolinguistic appropriateness A2: can perform basic functions politely" },
+  "ITM-INT-1204": { level: "A2.1", descriptor: "Telephone and online conversation A2: makes an arrangement and takes a changed time" },
+  "ITM-INT-1205": { level: "A2.1", descriptor: "Phonological control A2: says the whole request and the agreed time aloud" },
+
+  // Atom 12: Earlier or later? Comparative with er and than is Core Inventory A2.
+  "ITM-GRM-1301": { level: "A2.1", descriptor: "Grammatical accuracy A2: comparative er plus than on real prices" },
+  "ITM-GRM-1302": { level: "A2.1", descriptor: "Grammatical accuracy A2: comparative plus than in one sentence" },
+  "ITM-GRM-1303": { level: "A2.1", descriptor: "Grammatical accuracy A2: notices more with a short adjective" },
+  "ITM-GRM-1304": { level: "A2.1", descriptor: "Transactions A2: asks for an earlier time with a comparative" },
+  "ITM-GRM-1305": { level: "A2.1", descriptor: "Sustained monologue, describing experience A2: compares two options" },
+  "ITM-GRM-1306": { level: "A2.1", descriptor: "Grammatical accuracy A2: two comparatives joined with but" },
+
+  // Atom 13: Which way? Asking for and following directions is Transactions A2.
+  "ITM-SPK-1401": { level: "A2.1", descriptor: "Transactions to obtain goods and services A2: can ask for and follow simple directions" },
+  "ITM-SPK-1402": { level: "A2.1", descriptor: "General linguistic range A2: question with do plus get to plus a place" },
+  "ITM-SPK-1403": { level: "A2.1", descriptor: "Understanding announcements and instructions A2: writes down directions heard once" },
+  "ITM-SPK-1404": { level: "A2.1", descriptor: "Transactions A2: asks the way and says the directions back to confirm" },
+  "ITM-SPK-1405": { level: "A2.1", descriptor: "Phonological control A2: says the whole question aloud" },
+
+  // Atom 14: Thursday at half past six. Day plus clock time in a short message.
+  "ITM-LST-1501": { level: "A2.1", descriptor: "Understanding a native speaker interlocutor A2: catches a day and a time and says them back" },
+  "ITM-LST-1502": { level: "A2.1", descriptor: "Understanding announcements and instructions A2: writes down a day and a clock time" },
+  "ITM-LST-1503": { level: "A2.1", descriptor: "Understanding announcements and instructions A2: catches the day in a short message" },
+  "ITM-LST-1504": { level: "A2.2", descriptor: "Understanding announcements A2: minutes to the hour, quarter to five as 4.45" },
+  "ITM-LST-1505": { level: "A2.1", descriptor: "Understanding a native speaker interlocutor A2: asks for repetition, then confirms" },
+  "ITM-LST-1506": { level: "A2.1", descriptor: "Phonological control A2: says the day and the time aloud in one sentence" },
+
+  // Atom 15: Sorry, I can't come. Correspondence A2; the first spoken turn and
+  // the word-order repair are A1.2, which is the right load for a first attempt.
+  "ITM-WRT-1601": { level: "A1.2", descriptor: "Phonological control A1: repeats a model apology intelligibly" },
+  "ITM-WRT-1602": { level: "A2.1", descriptor: "Correspondence A2: asks for a new time politely" },
+  "ITM-WRT-1603": { level: "A1.2", descriptor: "Grammatical accuracy A1 to A2: can't before the verb" },
+  "ITM-WRT-1604": { level: "A2.1", descriptor: "Grammatical accuracy A2: because links the reason to the sentence" },
+  "ITM-WRT-1605": { level: "A2.1", descriptor: "Correspondence A2: can write short simple notes and messages on matters of immediate need" },
+  "ITM-WRT-1606": { level: "A2.1", descriptor: "Phonological control A2: sorry, reason and new time in one turn" },
+
+  // Atom 16: Pass it on. Mediation of a short written card.
+  "ITM-MED-1701": { level: "A2.1", descriptor: "Relaying specific information in speech A2: gives the day from a written card" },
+  "ITM-MED-1702": { level: "A2.1", descriptor: "Reading for orientation A2: reads 18.30 as half past six" },
+  "ITM-MED-1703": { level: "A2.2", descriptor: "Reading for orientation A2: decides the card does not carry the information" },
+  "ITM-MED-1704": { level: "A2.1", descriptor: "Relaying specific information in speech A2: can relay the key points of a short simple text" },
+  "ITM-MED-1705": { level: "A2.1", descriptor: "Relaying specific information in speech A2: day, time and place in one sentence" },
+
+  // Starter atom 17: Hello, I'm Ana. Greetings and own name are Pre-A1
+  // Conversation; the memorised question is the one stretch in the atom.
+  "ITM-SPK-1801": { level: "PreA1.1", descriptor: "Conversation Pre-A1: can use basic greetings and introduce themselves" },
+  "ITM-SPK-1802": { level: "PreA1.1", descriptor: "Grammatical accuracy Pre-A1: I'm plus a name" },
+  "ITM-SPK-1803": { level: "PreA1.2", descriptor: "Conversation Pre-A1: asks a memorised question about personal details" },
+  "ITM-SPK-1804": { level: "PreA1.1", descriptor: "Conversation Pre-A1: greets and gives their name unprompted" },
+  "ITM-SPK-1805": { level: "PreA1.1", descriptor: "Phonological control Pre-A1: says a memorised greeting intelligibly" },
+
+  // Starter atom 18: Two, please. Asking people for things is Pre-A1
+  // Transactions; the repair turn reaches to A1.1 and does not gate the pass.
+  "ITM-INT-1901": { level: "PreA1.2", descriptor: "Transactions to obtain goods and services Pre-A1: can ask people for things" },
+  "ITM-INT-1902": { level: "PreA1.1", descriptor: "Vocabulary range Pre-A1: number plus noun plus please" },
+  "ITM-INT-1903": { level: "PreA1.2", descriptor: "Grammatical accuracy Pre-A1: one plus a singular noun" },
+  "ITM-INT-1904": { level: "A1.1", descriptor: "Transactions A1: changes the order when the thing is not there. need is 2 of 3, so the repair turn is a reach, not the gate" },
+  "ITM-INT-1905": { level: "PreA1.2", descriptor: "Phonological control Pre-A1: says the whole request and thank you aloud" },
+
+  // Starter atom 19: I'm from Spain. Present of be with I and you is Core
+  // Inventory A1; the shadow turn recycles Pre-A1 language on purpose.
+  "ITM-GRM-2001": { level: "PreA1.2", descriptor: "Phonological control Pre-A1 to A1: repeats a two-sentence model" },
+  "ITM-GRM-2002": { level: "A1.1", descriptor: "Grammatical accuracy A1: I'm plus from plus country" },
+  "ITM-GRM-2003": { level: "A1.1", descriptor: "Grammatical accuracy A1: are with you, am with I" },
+  "ITM-GRM-2004": { level: "A1.1", descriptor: "Grammatical accuracy A1: question with are before you" },
+  "ITM-GRM-2005": { level: "A1.1", descriptor: "Describing experience A1: name, country and city in connected phrases" },
+  "ITM-GRM-2006": { level: "A1.1", descriptor: "Phonological control A1: three connected I sentences" },
+
   // Placement ladder, one item per band, Pre-A1 to B1 plus a B2 ceiling probe.
   "PLC-01": { level: "PreA1.1", descriptor: "Reception, Pre-A1: recognises a very frequent everyday word said slowly" },
   "PLC-02": { level: "A1.1", descriptor: "Grammatical accuracy A1: present of be with I" },
@@ -593,6 +954,28 @@ export function placementLevel(answers: PlacementAnswer[]): SubLevel {
   const supporting = seen.filter((a) => a.correct && idx(a.level) <= top).length;
   const placed = supporting >= 2 ? top : Math.max(0, top - 1);
   return SUBLEVELS[Math.min(placed, idx(PLACEMENT_CEILING))];
+}
+
+/**
+ * Which atoms may be served to a learner at `level`.
+ *
+ * Content now spans Pre-A1.1 to A2.1, and `scoreNewAtoms` (engine.ts) filters
+ * candidates by criterion state and prerequisites only, with no level filter.
+ * An unseen atom with no prerequisites scores near the top, so without this an
+ * A2.1 learner with a strand deficit can be served "Hello, I'm Ana". The rule:
+ * at or below the learner's sub-level, and no more than one band (two
+ * sub-levels) below it, which is the consolidation window the Companion Volume
+ * implies and the shape the first A2.1 week already has with its A1.2 atoms.
+ *
+ * Not wired in yet: the one-line change is in engine.ts, which this ticket does
+ * not own. Raised as a flag on LEA-43.
+ */
+export function atomsForLevel(level: SubLevel, atoms: Atom[] = LEARNING_ATOMS): Atom[] {
+  const target = SUBLEVELS.indexOf(level);
+  return atoms.filter((a) => {
+    const d = target - SUBLEVELS.indexOf(a.sublevel);
+    return d >= 0 && d <= 2;
+  });
 }
 
 export const STRAND_LABEL: Record<Strand, string> = {
