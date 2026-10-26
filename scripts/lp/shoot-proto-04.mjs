@@ -68,10 +68,9 @@ await shot("done");
 // 7. keyboard focus ring
 await page.locator("#againBtn").click();
 await page.waitForTimeout(900);
-await page.keyboard.press("Tab");
-await page.keyboard.press("Tab");
-await page.keyboard.press("Tab");
+await page.locator(".tile").first().focus();
 await page.keyboard.press("ArrowRight");
+await page.keyboard.press("ArrowDown");
 await page.waitForTimeout(300);
 await shot("focus");
 
