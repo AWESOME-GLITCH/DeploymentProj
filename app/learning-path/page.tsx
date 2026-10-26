@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Outfit } from "next/font/google";
 import "./lp.css";
 import { LearningPathApp } from "@/components/learning-path/App";
 
@@ -8,11 +8,13 @@ export const metadata: Metadata = {
   description: "Interactive, mobile-first prototype of the Learning Path English app: placement, ten-minute sessions, the atom player, the memory engine, road, progress and settings.",
 };
 
-const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["500", "600", "700", "800"], variable: "--lp-font", display: "swap" });
+// Outfit is the AZE typeface. Four weights cover the whole scale: body, label,
+// heading, display.
+const outfit = Outfit({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--lp-font", display: "swap" });
 
 export default function LearningPathPage() {
   return (
-    <div className={`lp-page fixed inset-0 z-[60] ${jakarta.variable}`} style={{ height: "100dvh" }}>
+    <div className={`lp-page fixed inset-0 z-[60] ${outfit.variable}`} style={{ height: "100dvh" }}>
       <LearningPathApp />
     </div>
   );
