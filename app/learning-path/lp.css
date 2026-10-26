@@ -34,7 +34,7 @@
   --lp-road: #e0e9e7;
   --lp-s-GRM: #0b7a6c; --lp-s-RDG: #2f6fb0; --lp-s-WRT: #6f8f3c; --lp-s-LST: #1f8fb3; --lp-s-SPK: #12a0a8; --lp-s-MED: #2a8f5f; --lp-s-INT: #37558f;
   --lp-glass: #ffffff;
-  --lp-glass-strong: #ffffff;
+  --lp-glass-strong: #fbfcfc;
   --lp-line: rgba(16, 31, 29, 0.08);
   --lp-line-strong: rgba(16, 31, 29, 0.16);
   --lp-track: rgba(16, 31, 29, 0.07);
@@ -43,18 +43,18 @@
   --lp-surface: #ffffff;
   --lp-caption-bg: rgba(255, 255, 255, 0.94);
   --lp-nav-bg: rgba(255, 255, 255, 0.88);
-  --lp-video-bg: linear-gradient(160deg, #e9f1ef, #dfeae8);
+  --lp-video-bg: #e9f1ef;
   --lp-floor: rgba(11, 122, 108, 0.07);
   --lp-floor-line: rgba(11, 122, 108, 0.16);
-  --lp-btn-shadow: 0 10px 24px -12px rgba(11, 122, 108, 0.5), 0 1px 2px rgba(10, 26, 24, 0.06);
-  --lp-card-shadow: 0 1px 2px rgba(10, 26, 24, 0.05), 0 12px 28px -18px rgba(10, 26, 24, 0.2);
-  --lp-tile-shadow: 0 1px 2px rgba(10, 26, 24, 0.05);
+  --lp-btn-shadow: none;
+  --lp-card-shadow: none;
+  --lp-tile-shadow: none;
   --lp-glass-top: transparent;
   --lp-border-w: 1px;
   --lp-blur: none;
-  --lp-head-weight: 700;
-  --lp-head-tracking: -0.022em;
-  --lp-bg-image: radial-gradient(680px 460px at 100% -10%, rgba(13, 127, 156, 0.1), transparent 62%), radial-gradient(560px 460px at -20% 20%, rgba(11, 122, 108, 0.09), transparent 60%), #f3f6f5;
+  --lp-head-weight: 600;
+  --lp-head-tracking: -0.018em;
+  --lp-bg-image: #f3f6f5;
 
   /* Shared across modes: radius, spacing, motion. */
   --lp-r-sm: 10px;
@@ -120,15 +120,15 @@
   --lp-surface: #0f1b1a;
   --lp-caption-bg: rgba(7, 16, 15, 0.9);
   --lp-nav-bg: rgba(10, 22, 21, 0.85);
-  --lp-video-bg: linear-gradient(160deg, #102221, #0a1716);
+  --lp-video-bg: #102221;
   --lp-floor: rgba(47, 184, 159, 0.07);
   --lp-floor-line: rgba(47, 184, 159, 0.18);
-  --lp-btn-shadow: 0 12px 30px -14px rgba(47, 184, 159, 0.5);
-  --lp-card-shadow: 0 18px 40px -28px rgba(0, 0, 0, 0.8);
+  --lp-btn-shadow: none;
+  --lp-card-shadow: none;
   --lp-tile-shadow: none;
-  --lp-glass-top: rgba(255, 255, 255, 0.07);
-  --lp-blur: blur(16px) saturate(1.15);
-  --lp-bg-image: radial-gradient(680px 460px at 100% -10%, rgba(47, 184, 159, 0.1), transparent 62%), radial-gradient(560px 460px at -20% 20%, rgba(79, 195, 221, 0.08), transparent 60%), #07100f;
+  --lp-glass-top: transparent;
+  --lp-blur: none;
+  --lp-bg-image: #07100f;
   color-scheme: dark;
 }
 
@@ -150,7 +150,10 @@
 .lp-head { font-size: calc(28px * var(--lp-scale)); line-height: 1.14; font-weight: var(--lp-head-weight); letter-spacing: var(--lp-head-tracking); }
 .lp-display { font-size: calc(34px * var(--lp-scale)); line-height: 1.08; font-weight: 700; letter-spacing: -0.03em; }
 .lp-small { font-size: calc(13.5px * var(--lp-scale)); line-height: 1.4; font-weight: 500; letter-spacing: 0.005em; }
-.lp-eyebrow { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--lp-paper-faint); font-weight: 700; }
+/* Was a tracked uppercase eyebrow. The board struck tracked caps off every
+   learner-facing screen (26 Oct), so any label left in the app now reads as a
+   plain quiet line in sentence case. */
+.lp-eyebrow { font-size: calc(13.5px * var(--lp-scale)); letter-spacing: 0; text-transform: none; color: var(--lp-paper-faint); font-weight: 500; }
 
 /* Frosted glass panel */
 .lp-glass {
@@ -172,14 +175,17 @@
 }
 .lp-btn-56 { min-height: 56px; }
 .lp-btn-48 { min-height: 48px; }
+/* One accent, used once per screen. Flat: no gradient, no glow. */
 .lp-btn-primary {
   color: var(--lp-on-glow);
-  background: linear-gradient(170deg, var(--lp-glow), var(--lp-glow-2));
+  background: var(--lp-glow);
   border-color: transparent;
-  box-shadow: var(--lp-btn-shadow);
+  box-shadow: none;
 }
 .lp-btn-primary:active { transform: scale(0.985); }
-.lp-btn-primary:disabled { opacity: 0.4; box-shadow: none; cursor: default; }
+/* A disabled primary is still the thing the learner reads, so it loses its
+   colour and keeps its contrast instead of fading to 40% (QA, 26 Oct). */
+.lp-btn-primary:disabled { opacity: 1; background: var(--lp-track); color: var(--lp-paper-soft); box-shadow: none; cursor: default; }
 /* A primary action the learner has not unlocked yet. It reads as a track that
    the video fills, so the wait is shown as movement and never as a percentage.
    The label keeps one colour across both the filled and unfilled parts so the
@@ -195,7 +201,7 @@
 .lp-btn-secondary {
   color: var(--lp-paper); background: var(--lp-glass-strong); border-color: var(--lp-line-strong); box-shadow: var(--lp-tile-shadow);
 }
-.lp-btn-secondary:disabled { opacity: 0.4; }
+.lp-btn-secondary:disabled { opacity: 1; color: var(--lp-paper-faint); background: var(--lp-well); }
 
 .lp-icon-btn {
   width: 48px; height: 48px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center;
@@ -210,10 +216,14 @@
    well so it still reads as something you can press, not as a label. */
 .lp-icon-btn-quiet { background: var(--lp-well); border-color: transparent; box-shadow: none; color: var(--lp-paper-faint); }
 .lp-icon-btn-quiet[data-on="true"] { color: var(--lp-accent); background: var(--lp-accent-tint); border-color: var(--lp-accent-line); }
+/* Listen. The disc stays small so it never competes with the words it belongs
+   to, and an invisible ::after takes the tap box out to 44px (QA, 26 Oct). */
 .lp-speaker {
+  position: relative;
   width: 32px; height: 32px; min-width: 32px; margin-top: 2px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center;
   background: var(--lp-accent-tint); border: var(--lp-border-w) solid var(--lp-accent-line); color: var(--lp-accent); cursor: pointer;
 }
+.lp-speaker::after { content: ""; position: absolute; top: 50%; left: 50%; width: 44px; height: 44px; transform: translate(-50%, -50%); border-radius: 999px; }
 .lp-speaker:active { transform: scale(0.94); }
 .lp-translate { display: block; margin-top: 2px; font-size: 13px; color: var(--lp-accent); background: none; border: none; cursor: pointer; padding: 0; text-align: start; }
 
@@ -320,18 +330,21 @@
 
 /* Mic: the one lit thing on a speaking screen */
 .lp-mic { width: 92px; height: 92px; border-radius: 999px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
-  background: linear-gradient(170deg, var(--lp-glow), var(--lp-glow-2)); color: var(--lp-on-glow); border: none; box-shadow: 0 0 0 8px var(--lp-glow-tint), var(--lp-btn-shadow);
+  background: var(--lp-glow); color: var(--lp-on-glow); border: none; box-shadow: none;
   transition: transform var(--lp-t-press) var(--lp-ease); }
 .lp-mic:active { transform: scale(0.97); }
-.lp-mic-live { animation: lp-breathe var(--lp-t-ambient) ease-in-out infinite; }
-@keyframes lp-breathe { 0%, 100% { box-shadow: 0 0 0 8px var(--lp-glow-tint), 0 14px 36px -14px var(--lp-glow-shadow); } 50% { box-shadow: 0 0 0 20px var(--lp-glow-tint), 0 14px 36px -14px var(--lp-glow-shadow); } }
+/* Recording used to breathe. The board's motion budget (26 Oct) allows no
+   ambient pulse, so a live mic says so with a ring, not with movement. The
+   class is kept so nothing has to change at the call sites. */
+.lp-mic-live { box-shadow: 0 0 0 6px var(--lp-glow-tint); }
+/* A level meter that loops on a timer is not reacting to the learner's voice,
+   so under the motion budget it holds still; the mic's ring says "listening". */
 .lp-wave { display: flex; align-items: center; gap: 3px; height: 40px; }
-.lp-wave > i { width: 4px; border-radius: 4px; background: var(--lp-glow); opacity: 0.9; animation: lp-wave 0.9s ease-in-out infinite; }
-@keyframes lp-wave { 0%, 100% { height: 8px; } 50% { height: 36px; } }
+.lp-wave > i { width: 4px; height: 12px; border-radius: 4px; background: var(--lp-glow); opacity: 0.55; }
 
-/* Feedback is motion: the tick scales in, nothing else announces itself. */
-.lp-fade-in { animation: lp-fade var(--lp-t-swap) var(--lp-ease) both; }
-@keyframes lp-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+/* The only feedback that moves is the tick scaling in when it is earned.
+   Card and text fades are off; the class stays inert at its call sites. */
+.lp-fade-in { animation: none; }
 .lp-tick { width: 40px; height: 40px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; color: #fff; background: var(--lp-sea); animation: lp-tick var(--lp-t-move) var(--lp-ease-emph) both; }
 @keyframes lp-tick { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: scale(1); } }
 
@@ -339,19 +352,35 @@
 .lp-video { position: relative; border-radius: var(--lp-r-lg); overflow: hidden; background: var(--lp-video-bg); border: var(--lp-border-w) solid var(--lp-line); box-shadow: var(--lp-card-shadow); }
 .lp-caption { position: absolute; left: 12px; right: 12px; bottom: 12px; text-align: center; font-size: calc(20px * var(--lp-scale)); font-weight: 500; line-height: 1.3; color: var(--lp-paper); background: var(--lp-caption-bg); border: var(--lp-border-w) solid var(--lp-line); border-radius: var(--lp-r-sm); padding: 8px 10px; backdrop-filter: blur(8px); }
 
+/* The caption on an explainer: the line being spoken, tappable word by word.
+   It sits exactly where the composition draws its own caption and covers it, so
+   the learner sees one caption and not two, and the words that have not been
+   said yet stay above 4.5:1 instead of fading to fog. */
+.lp-vcaption {
+  position: absolute; left: 3%; right: 3%; bottom: 1.5%; z-index: 10;
+  display: flex; flex-direction: column; justify-content: center; gap: 2px;
+  min-height: 11%; padding: 4px 12px; border-radius: 20px;
+  background: var(--lp-surface); border: 1.5px solid var(--lp-line-strong);
+}
+.lp-vcaption[data-l1="true"] { min-height: 16%; }
+.lp-vcaption .lp-wordline { justify-content: center; }
+.lp-vcaption-l1 { text-align: center; font-size: calc(14px * var(--lp-scale)); color: var(--lp-paper-soft); }
+
 /* Road: the drawn journey. The trail is thin, the stops are small, only the
    marker for today is lit. */
 .lp-road-stop { transition: opacity var(--lp-t-move) var(--lp-ease); }
 .lp-road-trail { transition: stroke-dashoffset var(--lp-t-move) var(--lp-ease-emph); }
-.lp-marker-glow { filter: drop-shadow(0 0 10px var(--lp-marker-shadow)); }
-.lp-marker-breathe { animation: lp-marker-pulse var(--lp-t-ambient) ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 50%; }
-@keyframes lp-marker-pulse { 0%, 100% { opacity: 0.35; transform: scale(1); } 50% { opacity: 0.1; transform: scale(1.5); } }
+.lp-marker-glow { filter: none; }
+/* The marker no longer pulses: under the motion budget it only slides to
+   today's stop. The class is kept inert for the call site in Road. */
+.lp-marker-breathe { animation: none; }
 
-/* Nav: a quiet glass bar. The active tab is a tinted pill, not a spotlight. */
-.lp-nav { display: grid; grid-template-columns: repeat(5, 1fr); margin: 0 12px 10px; padding: 4px; border-radius: var(--lp-r-xl); border: 1px solid var(--lp-line); background: var(--lp-nav-bg); box-shadow: var(--lp-card-shadow); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
-.lp-nav button { min-height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; background: none; border: none; border-radius: var(--lp-r-md); cursor: pointer; font-size: 10.5px; font-weight: 600; letter-spacing: 0.01em; color: var(--lp-paper-faint); transition: color var(--lp-t-swap) var(--lp-ease), background var(--lp-t-swap) var(--lp-ease); }
+/* Nav: three tabs on a flat bar, one line above the thumb. The active tab is
+   the ink and the accent; the others are quiet. No glass, no shadow. */
+.lp-nav { display: grid; grid-template-columns: repeat(3, 1fr); margin: 0; padding: 2px 8px 6px; border-top: 1px solid var(--lp-line); background: var(--lp-bg-0); }
+.lp-nav button { min-height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; background: none; border: none; border-radius: var(--lp-r-md); cursor: pointer; font-size: calc(12px * var(--lp-scale)); font-weight: 500; letter-spacing: 0; color: var(--lp-paper-faint); transition: color var(--lp-t-swap) var(--lp-ease), background var(--lp-t-swap) var(--lp-ease); }
 .lp-nav button svg { width: 22px; height: 22px; transition: transform var(--lp-t-swap) var(--lp-ease); }
-.lp-nav button[data-active="true"] { color: var(--lp-glow); background: var(--lp-glow-tint); }
+.lp-nav button[data-active="true"] { color: var(--lp-glow); font-weight: 600; }
 
 /* Scrollbars inside the phone */
 .lp-root ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -384,7 +413,7 @@ body.lp-active > main { margin-left: 0 !important; overflow: hidden; width: 100%
 .lp-scene-counter { position: absolute; left: 50%; bottom: 58px; transform: translateX(-50%); display: flex; gap: 6px; align-items: flex-end; min-height: 48px; }
 .lp-scene-empty { position: relative; font-size: 36px; opacity: 0.5; filter: grayscale(1); }
 .lp-scene-empty i { position: absolute; left: -4px; right: -4px; top: 50%; height: 3px; background: var(--lp-sand); transform: rotate(-30deg); }
-.lp-scene-bubble { position: absolute; top: 16px; left: 16px; max-width: 72%; background: var(--lp-surface); border: var(--lp-border-w) solid var(--lp-line-strong); border-radius: 18px 18px 18px 4px; padding: 10px 14px; font-size: calc(19px * var(--lp-scale)); font-weight: 500; line-height: 1.3; box-shadow: 0 8px 20px -14px rgba(30, 36, 41, 0.5); animation: lp-pop 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: 0.15s; }
+.lp-scene-bubble { position: absolute; top: 16px; left: 16px; max-width: 72%; background: var(--lp-surface); border: var(--lp-border-w) solid var(--lp-line-strong); border-radius: 18px 18px 18px 4px; padding: 10px 14px; font-size: calc(19px * var(--lp-scale)); font-weight: 500; line-height: 1.3; }
 .lp-scene-bubble-right { left: auto; right: 16px; border-radius: 18px 18px 4px 18px; }
 .lp-scene-react { position: absolute; left: 60px; top: 96px; font-size: 26px; }
 .lp-anim-pop { animation: lp-pop 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }

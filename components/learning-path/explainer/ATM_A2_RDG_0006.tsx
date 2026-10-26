@@ -1112,6 +1112,9 @@ function PractiseScene({ frame }: { frame: number }) {
   const cue = P_PAUSE - 24;
   const turn = springIn(frame, cue, { damping: 11, stiffness: 150 });
   const yourTurn = frame >= cue;
+  // The call to action retires once it has been answered, so the resume is not
+  // still asking for a turn the learner has taken.
+  const micOut = 1 - tween(frame, P_PAUSE + 12, P_PAUSE + 30, 0, 1, EASE.out);
   return (
     <AbsoluteFill style={{ background: PALE }}>
       <Stage>
@@ -1157,7 +1160,7 @@ function PractiseScene({ frame }: { frame: number }) {
         ) : null}
       </Stage>
       {yourTurn ? (
-        <div style={{ position: "absolute", left: 40, top: 356, width: 220, textAlign: "center", fontSize: 36, fontWeight: 800, color: INK }}>Your turn</div>
+        <div style={{ position: "absolute", left: 40, top: 356, width: 220, textAlign: "center", fontSize: 36, fontWeight: 800, color: INK, opacity: micOut }}>Your turn</div>
       ) : null}
       <Eyebrow text="SAY IT WITH ME" x={0} y={774} align="center" frame={frame} from={P0 + 14} />
       {/* both lines are sung through 40 frames before the stop, so the learner is

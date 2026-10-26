@@ -5,21 +5,21 @@
 // that pauses and keeps the exact phase, and the session ends itself.
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Captions, Pause, Play, X } from "lucide-react";
+import { Check, Pause, Play, X } from "lucide-react";
 import { ATOM_BY_ID, ITEM_BY_ID } from "@/lib/learning-path/content";
 import { dayIndex, phaseMinutes, tryToUse } from "@/lib/learning-path/engine";
-import { loc } from "@/lib/learning-path/i18n";
+import { CEFR_LABEL, loc } from "@/lib/learning-path/i18n";
 import { useNow, useStore } from "@/lib/learning-path/store";
 import type { Atom, AtomPhase, Item, Localised, SessionPhase } from "@/lib/learning-path/types";
 import { ItemRenderer, type ItemResult } from "./items";
-import { GlowButton, LocText, Pill, ProgressLine, Say, useLp } from "./ui";
+import { GlowButton, LocText, ProgressLine, Say, useLp } from "./ui";
 import { Scene, sceneFor } from "./scenes";
 import { ExplainerPlayer, hasExplainer } from "./explainer/ExplainerPlayer";
 import { Coach, isCoachItem } from "./coach/Coach";
 
 export function Capsule({ onExit, onComplete }: { onExit: () => void; onComplete: () => void }) {
   const { state, dispatch } = useStore();
-  const { t, lang } = useLp();
+  const { t } = useLp();
   const cur = state.current;
   const [paused, setPaused] = useState(false);
   if (!cur) return null;
@@ -37,22 +37,25 @@ export function Capsule({ onExit, onComplete }: { onExit: () => void; onComplete
 
   const exit = () => { dispatch({ type: "exit_session" }); onExit(); };
 
+  // The level in plain words, in the one small line at the top of the lesson and
+  // nowhere else inside it (board, 26 Oct).
+  const sub = state.learner.confirmed_sublevel ?? state.learner.provisional_sublevel;
+
   return (
     <div className="flex h-full flex-col">
+      {/* The chrome is three things: a thin progress line, one way out, and the
+          level in plain words. */}
       <div className="flex items-center gap-3 px-4 pt-3">
         <button type="button" className="lp-icon-btn" style={{ width: 44, height: 44 }} aria-label={t("exit")} onClick={() => setPaused(true)}><X size={18} /></button>
         <div className="flex-1"><ProgressLine value={progress} /></div>
-        {/* Minutes left, not the total: a number that moves with the bar beside
-            it, so "short and safe" is something the learner can watch happen. */}
-        <span className="lp-small tabular-nums" style={{ color: "var(--lp-paper-faint)", minWidth: 36, textAlign: "end" }}>{Math.max(1, Math.ceil(total * (1 - progress)))} min</span>
+        <span className="lp-small" style={{ color: "var(--lp-paper-faint)" }}>{sub ? CEFR_LABEL[sub] : ""}</span>
       </div>
       <div className="flex-1 overflow-hidden px-5 pb-5 pt-3">
         {paused ? (
-          <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
-            <Pause size={40} style={{ color: "var(--lp-glow-2)" }} />
+          <div className="flex h-full flex-col items-center justify-center gap-5 text-center">
             <div className="lp-lesson">{t("paused")}</div>
             <div className="w-full"><GlowButton onClick={() => setPaused(false)}>{t("resume")}</GlowButton></div>
-            <GlowButton secondary size="normal" onClick={exit}>{t("exit")}</GlowButton>
+            <button type="button" onClick={exit} className="lp-body" style={{ background: "none", border: "none", color: "var(--lp-paper-soft)", minHeight: 44, textDecoration: "underline", textUnderlineOffset: 4 }}>{t("exit")}</button>
           </div>
         ) : (
           <PhaseView key={`${session.id}-${cur.phase_index}`} phase={phase} onDone={nextPhase} />
@@ -65,15 +68,16 @@ export function Capsule({ onExit, onComplete }: { onExit: () => void; onComplete
 function PhaseView({ phase, onDone }: { phase: SessionPhase; onDone: () => void }) {
   switch (phase.kind) {
     case "plan": return <PlanPhase canDo={phase.can_do} onDone={onDone} />;
-    case "recall": return <ItemRun items={phase.items} mode="recall" title="recall_title" onDone={onDone} />;
+    case "recall": return <ItemRun items={phase.items} mode="recall" onDone={onDone} />;
     case "atom": return <AtomRun atomId={phase.atom_id} role={phase.role} onDone={onDone} />;
-    case "vote": return <ItemRun items={[phase.item_id]} mode="controlled" title="vote_q" onDone={onDone} />;
+    case "vote": return <ItemRun items={[phase.item_id]} mode="controlled" onDone={onDone} />;
     case "story": return <StoryPhase atomId={phase.atom_id} onDone={onDone} />;
     case "close": return <ClosePhase checkItems={phase.check_items} canDo={phase.can_do} onDone={onDone} />;
   }
 }
 
-/** Today in one line, with a marker per step. A plan, not a list. */
+/** What the learner will be able to do after today, in plain words, with the
+ *  minutes under it. One headline, one line, one button. */
 function PlanPhase({ canDo, onDone }: { canDo: Localised; onDone: () => void }) {
   const { t } = useLp();
   const { state } = useStore();
@@ -83,21 +87,16 @@ function PlanPhase({ canDo, onDone }: { canDo: Localised; onDone: () => void }) 
   useEffect(() => { const id = window.setTimeout(onDone, 20_000); return () => window.clearTimeout(id); }, [onDone]);
   return (
     <div className="flex h-full flex-col">
-      <div className="lp-eyebrow mb-3">{t("plan_phase")}</div>
-      <div className="lp-glass p-5"><LocText text={canDo} size="lesson" auto /></div>
-      <div className="mt-5 flex items-center gap-2">
-        {steps.map((p, i) => <span key={i} className={`lp-dot ${i === 0 ? "lp-dot-today" : ""}`} />)}
-        <span className="lp-small ms-auto tabular-nums" style={{ color: "var(--lp-paper-faint)" }}>{Math.round(total)} {t("minutes")}</span>
-      </div>
-      {session.warm_restart ? <div className="mt-4"><Pill tone="good">{t("welcome_back")}</Pill></div> : null}
+      <div className="lp-small mt-6" style={{ color: "var(--lp-paper-faint)" }}>{t("plan_phase")}</div>
+      <div className="mt-2"><LocText text={canDo} size="head" auto /></div>
+      <div className="lp-body mt-3" style={{ color: "var(--lp-paper-soft)" }}>{Math.round(total)} {t("minutes")}</div>
       <div className="mt-auto"><GlowButton onClick={onDone}>{t("start")}</GlowButton></div>
     </div>
   );
 }
 
 /** Runs a list of items one per screen. Missed items return once at the end. */
-function ItemRun({ items, mode, title, onDone, atomId, tryItems, variant }: { items: string[]; mode: "recall" | "controlled" | "check" | "use"; title?: string; onDone: () => void; atomId?: string; tryItems?: string[]; variant?: Atom["variant"] }) {
-  const { t } = useLp();
+function ItemRun({ items, mode, onDone, atomId, tryItems, variant }: { items: string[]; mode: "recall" | "controlled" | "check" | "use"; onDone: () => void; atomId?: string; tryItems?: string[]; variant?: Atom["variant"] }) {
   const { state, dispatch } = useStore();
   const now = useNow();
   const [queue, setQueue] = useState<{ id: string; attempt: number }[]>(items.map((id) => ({ id, attempt: 1 })));
@@ -117,15 +116,11 @@ function ItemRun({ items, mode, title, onDone, atomId, tryItems, variant }: { it
   };
   const onNext = () => setIdx((i) => i + 1);
 
+  // No phase title, no "3 / 5" counter and no "this comes back" notice above the
+  // item: the thin line at the top is the one progress signal, and the item owns
+  // its single instruction line (board element budget, 26 Oct).
   return (
     <div className="flex h-full flex-col">
-      {title ? (
-        <div className="mb-3 flex items-center justify-between gap-3">
-          <div className="lp-eyebrow">{t(title)}</div>
-          <span className="lp-small tabular-nums" style={{ color: "var(--lp-paper-faint)" }}>{Math.min(idx + 1, queue.length)} / {queue.length}</span>
-        </div>
-      ) : null}
-      {current.attempt === 2 ? <div className="mb-2"><Pill>{t("wrong_again")}</Pill></div> : null}
       <div className="min-h-0 flex-1">
         {/* Speaking practice in a use phase is a turn with the coach, not a mic under a prompt. */}
         {mode === "use" && isCoachItem(item) ? (
@@ -152,8 +147,7 @@ function AtomRun({ atomId, role, onDone }: { atomId: string; role: "new" | "use"
     const coachOnly = !!ITEM_BY_ID[itemId] && isCoachItem(ITEM_BY_ID[itemId]);
     return (
       <div className="flex h-full flex-col">
-        {coachOnly ? null : <div className="mb-3 flex items-center justify-between"><div className="lp-eyebrow">{t("your_turn")}</div><Pill tone="glow">use</Pill></div>}
-        {extra.length ? <div className="mb-2 flex flex-wrap gap-2">{extra.map((id) => <span key={id} className="lp-pill">{ITEM_BY_ID[id]?.key ? String(ITEM_BY_ID[id].key).split(" ").slice(0, 3).join(" ") : ITEM_BY_ID[id]?.stem.en.slice(0, 18)}</span>)}</div> : null}
+        {coachOnly ? null : <div className="lp-small mb-3" style={{ color: "var(--lp-paper-faint)" }}>{t("your_turn")}</div>}
         <div className="min-h-0 flex-1"><ItemRun items={[itemId]} mode="use" onDone={onDone} tryItems={extra} /></div>
       </div>
     );
@@ -185,13 +179,13 @@ function AtomRun({ atomId, role, onDone }: { atomId: string; role: "new" | "use"
         : <VideoPhase atom={atom} media={phase.media} variant={variant} onDone={advance} />)
       : <WordCards atom={atom} cards={phase.media.cards} onDone={advance} />;
     case "noticing": return <NoticingPhase atom={atom} highlight={phase.highlight} why={phase.why} onDone={advance} />;
-    case "controlled": return <ItemRun items={phase.items} mode="controlled" title={role === "fluency" ? "keep_going" : undefined} onDone={advance} atomId={atomId} variant={variant} />;
+    case "controlled": return <ItemRun items={phase.items} mode="controlled" onDone={advance} atomId={atomId} variant={variant} />;
     case "free_use": {
       // The coach owns her screen: no header above her while she is talking.
       const coachOnly = phase.items.every((id) => ITEM_BY_ID[id] && isCoachItem(ITEM_BY_ID[id]));
       return (
         <div className="flex h-full flex-col">
-          {coachOnly ? null : <div className="mb-3 flex items-center justify-between"><div className="lp-eyebrow">{t("your_turn")}</div><Pill tone="glow">{loc(atom.title, "en")}</Pill></div>}
+          {coachOnly ? null : <div className="lp-small mb-3" style={{ color: "var(--lp-paper-faint)" }}>{t("your_turn")}</div>}
           <div className="min-h-0 flex-1"><ItemRun items={phase.items} mode="use" onDone={advance} atomId={atomId} /></div>
         </div>
       );
@@ -243,8 +237,8 @@ function VideoPhase({ atom, media, variant, onDone }: { atom: Atom; media: Extra
   const { state, dispatch } = useStore();
   const [playing, setPlaying] = useState(false);
   const [sec, setSec] = useState(0);
-  const [l1Sub, setL1Sub] = useState(lang !== "en" || variant === "light");
-  const [rate, setRate] = useState(variant === "light" ? 0.75 : speed);
+  const l1Sub = lang !== "en" || variant === "light";
+  const rate = variant === "light" ? 0.75 : speed;
   const spokenIdx = useRef(-1);
   const duration = media.duration_sec;
   const lineIdx = media.lines.reduce((acc, l, i) => (l.at <= sec ? i : acc), -1);
@@ -287,10 +281,8 @@ function VideoPhase({ atom, media, variant, onDone }: { atom: Atom; media: Extra
         </div>
         <div className="absolute inset-x-0 top-0 h-[3px]" style={{ background: "var(--lp-track)" }}><div className="h-full" style={{ width: `${pct * 100}%`, background: "var(--lp-glow)", transition: "width 0.5s linear" }} /></div>
       </div>
-      <div className="mt-3 flex items-center gap-2">
+      <div className="mt-3 flex items-center">
         <button type="button" className="lp-icon-btn lp-icon-btn-lead" aria-label={playing ? "Pause" : "Play"} onClick={() => setPlaying((p) => !p)}>{playing ? <Pause size={20} /> : <Play size={20} />}</button>
-        <button type="button" className="lp-icon-btn lp-icon-btn-quiet" aria-label="Captions in my language" aria-pressed={l1Sub} data-on={l1Sub} onClick={() => setL1Sub((v) => !v)}><Captions size={18} /></button>
-        <button type="button" className="lp-icon-btn lp-icon-btn-quiet lp-small" aria-label="Playback speed" style={{ width: 56 }} onClick={() => setRate((r) => (r === 1 ? 0.75 : 1))}>{rate === 1 ? "1.0×" : "0.75×"}</button>
       </div>
       {/* Same gate as the explainer: the button fills as the video is watched. */}
       <div className="mt-3">
@@ -309,10 +301,7 @@ function WordCards({ atom, cards, onDone }: { atom: Atom; cards: { word: string;
   useEffect(() => { const id = window.setTimeout(() => say(card.word), 300); return () => window.clearTimeout(id); }, [card, say]);
   return (
     <div className="flex h-full flex-col">
-      <div className="mb-3 flex items-center justify-between">
-        <div><div className="lp-eyebrow">Word tutorial</div><div className="lp-body">{loc(atom.title, lang)}</div></div>
-        <span className="lp-small tabular-nums" style={{ color: "var(--lp-paper-faint)" }}>{i + 1} / {cards.length}</span>
-      </div>
+      <div className="lp-small mb-3" style={{ color: "var(--lp-paper-faint)" }}>{loc(atom.title, lang)} · {i + 1}/{cards.length}</div>
       <div className="lp-glass flex flex-1 flex-col p-5 lp-fade-in" key={i}>
         <div className="text-center" style={{ fontSize: 64 }}>{card.emoji}</div>
         <div className="mt-2 text-center"><Say text={card.word} size="head" /></div>
@@ -323,8 +312,7 @@ function WordCards({ atom, cards, onDone }: { atom: Atom; cards: { word: string;
           ))}
         </div>
       </div>
-      <div className="mt-3 flex gap-2">
-        <GlowButton secondary size="normal" disabled={i === 0} onClick={() => setI((x) => x - 1)} className="!w-28">←</GlowButton>
+      <div className="mt-3">
         <GlowButton onClick={() => (i + 1 < cards.length ? setI((x) => x + 1) : onDone())}>{i + 1 < cards.length ? t("next") : t("your_turn")}</GlowButton>
       </div>
     </div>
@@ -336,8 +324,8 @@ function NoticingPhase({ atom, highlight, why, onDone }: { atom: Atom; highlight
   useEffect(() => { const id = window.setTimeout(() => say(highlight), 300); return () => window.clearTimeout(id); }, [highlight, say]);
   return (
     <div className="flex h-full flex-col">
-      <div className="lp-eyebrow mb-4">{t("notice_title")}</div>
-      <div className="lp-glass lp-glass-glow flex flex-1 flex-col items-center justify-center p-6 text-center">
+      <div className="lp-small mb-4" style={{ color: "var(--lp-paper-faint)" }}>{t("notice_title")}</div>
+      <div className="lp-glass flex flex-1 flex-col items-center justify-center p-6 text-center">
         <div className="lp-display lp-target">{highlight}</div>
         <button type="button" onClick={() => say(highlight)} className="lp-speaker mt-5" style={{ width: 48, height: 48, minWidth: 48 }} aria-label={t("listen")}><Play size={20} /></button>
         <div className="lp-body mt-6" style={{ color: "var(--lp-paper-soft)" }}>{(why as Record<string, string>)[lang] ?? why.en}</div>
@@ -357,14 +345,11 @@ function StoryPhase({ atomId, onDone }: { atomId: string; onDone: () => void }) 
   const finish = () => { dispatch({ type: "story_done", story_id: atomId, mode }); onDone(); };
   return (
     <div className="flex h-full flex-col">
-      <div className="mb-2 flex items-center justify-between">
-        <div className="lp-eyebrow">{t("story_title")}</div>
-        <div className="flex gap-1">
-          <button type="button" className={`lp-pill ${mode === "read" ? "lp-pill-glow" : ""}`} onClick={() => setMode("read")}>{t("read")}</button>
-          <button type="button" className={`lp-pill ${mode === "listen" ? "lp-pill-glow" : ""}`} onClick={() => { setMode("listen"); say(story.story!.text, () => setDone(true)); }}>{t("listen_mode")}</button>
-        </div>
+      <div className="mb-3 flex items-start justify-between gap-3">
+        <div className="lp-head">{loc(story.title, lang)}</div>
+        <button type="button" className="lp-speaker" aria-label={t("listen")}
+          onClick={() => { setMode("listen"); say(story.story!.text, () => setDone(true)); }}><Play size={16} /></button>
       </div>
-      <div className="lp-head mb-3">{loc(story.title, lang)}</div>
       <div className="lp-glass flex-1 overflow-y-auto p-5">
         <div className="lp-lesson" style={{ lineHeight: 1.5, fontWeight: 400 }}>{story.story.text.split(/(?<=[.?!"])\s+/).map((s, i) => <span key={i} className="inline"><Say text={s} size="lesson" /> </span>)}</div>
       </div>
@@ -381,15 +366,14 @@ function ClosePhase({ checkItems, canDo, onDone }: { checkItems: string[]; canDo
   if (stage === "check") {
     return (
       <div className="flex h-full flex-col">
-        <ItemRun items={checkItems} mode="check" title="check_title" onDone={() => { if (atomId && atomId.kind === "atom") dispatch({ type: "event", name: "atom_completed", data: { atom_id: atomId.atom_id } }); setStage("reflect"); }} atomId={atomId && atomId.kind === "atom" ? atomId.atom_id : undefined} />
+        <ItemRun items={checkItems} mode="check" onDone={() => { if (atomId && atomId.kind === "atom") dispatch({ type: "event", name: "atom_completed", data: { atom_id: atomId.atom_id } }); setStage("reflect"); }} atomId={atomId && atomId.kind === "atom" ? atomId.atom_id : undefined} />
       </div>
     );
   }
   if (stage === "reflect") {
     return (
       <div className="flex h-full flex-col items-center justify-center text-center">
-        <div className="lp-eyebrow mb-3">{t("this_week")}</div>
-        <div className="lp-lesson mb-2">{loc(canDo, lang)}</div>
+        <div className="lp-body mb-3" style={{ color: "var(--lp-paper-soft)" }}>{loc(canDo, lang)}</div>
         <div className="lp-head mb-8">{t("reflection_q")}</div>
         <div className="flex w-full flex-col gap-3">
           <GlowButton onClick={() => { dispatch({ type: "reflection", can: true }); setStage("cando"); }}>{t("i_can")}</GlowButton>
@@ -400,8 +384,9 @@ function ClosePhase({ checkItems, canDo, onDone }: { checkItems: string[]; canDo
   }
   return (
     <div className="flex h-full flex-col items-center justify-center text-center">
-      <div className="lp-eyebrow mb-3">{t("what_you_can_do")}</div>
-      <div className="lp-glass lp-glass-glow p-6"><LocText text={canDo} size="lesson" auto /></div>
+      <span className="lp-tick mb-5" aria-hidden><Check size={22} strokeWidth={3} /></span>
+      <div className="lp-small mb-2" style={{ color: "var(--lp-paper-faint)" }}>{t("what_you_can_do")}</div>
+      <LocText text={canDo} size="head" auto />
       <div className="mt-8 w-full"><GlowButton onClick={onDone}>{t("done")}</GlowButton></div>
     </div>
   );

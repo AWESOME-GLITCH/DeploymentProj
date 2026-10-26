@@ -96,60 +96,84 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 .paper{fill:#FFFFFF;stroke:#121212;stroke-width:3.2;stroke-linejoin:round}
 .sun{fill:#FFD93D;stroke:#121212;stroke-width:3.2;stroke-linejoin:round}
 
-/* groups animate from the beat attribute, so scrubbing is always correct */
+/* three layers per character: placement, entrance, idle.
+   Keeping them apart means a dim never fights an animation. */
 #g-wall,#g-counter,#g-leo,#g-you,#g-maya,#g-bubble,#g-cup,#g-star{
-  transition:transform .36s var(--spring),opacity .3s var(--ease);
+  transition:transform .36s var(--spring),opacity .32s var(--ease);
 }
-#g-wall,#g-counter,#g-leo,#g-you{transform-box:fill-box;transform-origin:center}
-#g-maya{transform-box:view-box}
+.ent{transform-box:fill-box;transform-origin:center bottom}
+.idle{transform-box:fill-box;transform-origin:center bottom}
 
-/* beat 0: the room draws itself in */
-.stage[data-beat="0"] #g-leo{transform:translateY(0)}
-#g-you{transform:translateY(0)}
-.stage[data-beat="0"] #g-maya{opacity:0;transform:translate(276px,470px) scale(.6)}
-#g-maya{opacity:0;transform:translate(276px,470px) scale(.6)}
+/* beat 0: the cafe draws itself in */
+@keyframes riseIn{
+  0%{opacity:0;transform:translateY(46px) scale(.88)}
+  60%{opacity:1;transform:translateY(-5px) scale(1.03)}
+  100%{opacity:1;transform:none}
+}
+.stage[data-beat="0"] .ent{animation:riseIn .5s var(--spring) both}
+.stage[data-beat="0"] .e2{animation-delay:.12s}
+.stage[data-beat="0"] .e3{animation-delay:.5s}
+.stage[data-beat="0"] .e4{animation-delay:.9s}
+
+/* camera: a small push in when the words matter most */
+#cam{transform-box:view-box;transform-origin:180px 240px;transition:transform .5s var(--ease)}
+.stage[data-beat="3"] #cam{transform:scale(1.05)}
+.stage[data-beat="5"] #cam{transform:scale(1.04)}
+
+/* Maya the coach walks in for the switch, then comes to the front */
+#g-maya{opacity:0;transform:translate(196px,420px) scale(.5)}
 .stage[data-beat="2"] #g-maya,
 .stage[data-beat="3"] #g-maya,
-.stage[data-beat="4"] #g-maya{opacity:1;transform:translate(276px,238px) scale(.78)}
-.stage[data-beat="5"] #g-maya{opacity:1;transform:translate(184px,250px) scale(1.18)}
+.stage[data-beat="4"] #g-maya{opacity:1;transform:translate(196px,244px) scale(.88)}
+.stage[data-beat="5"] #g-maya{opacity:1;transform:translate(180px,232px) scale(1.24)}
+
+/* the cafe softens while the coach teaches, so there is one thing to watch */
+.stage[data-beat="2"] #g-leo,.stage[data-beat="2"] #g-you,
+.stage[data-beat="3"] #g-leo,.stage[data-beat="3"] #g-you{opacity:.4}
 
 /* beat 5: the cafe steps back so the coach is the only thing to look at */
 .stage[data-beat="5"] #g-wall,
 .stage[data-beat="5"] #g-counter,
 .stage[data-beat="5"] #g-leo,
-.stage[data-beat="5"] #g-you{opacity:.22}
+.stage[data-beat="5"] #g-you{opacity:.2}
 
 /* speech bubble from "you" */
-#g-bubble{opacity:0;transform-box:fill-box;transform-origin:85% 100%;transform:scale(.3)}
+#g-bubble{opacity:0;transform-box:fill-box;transform-origin:80% 100%;transform:scale(.3)}
 .stage[data-beat="1"] #g-bubble{opacity:1;transform:scale(1)}
 
 /* the cup Leo hands over */
-#g-cup{opacity:0;transform-box:fill-box;transform-origin:center;transform:translateY(10px) scale(.4)}
+#g-cup{opacity:0;transform-box:fill-box;transform-origin:center;transform:translateY(12px) scale(.3)}
 .stage[data-beat="4"] #g-cup,.stage[data-beat="5"] #g-cup{opacity:1;transform:none}
 
-/* mouths */
-.mouth{transform-box:fill-box;transform-origin:center}
-@keyframes talk{0%,100%{transform:scaleY(.35)}50%{transform:scaleY(1.15)}}
+/* mouths: a smile at rest, an open mouth only while that character speaks */
+.mouth{opacity:0;transform-box:fill-box;transform-origin:center;transition:opacity .12s linear}
+.smile{transition:opacity .12s linear}
+@keyframes talk{0%,100%{transform:scaleY(.3)}50%{transform:scaleY(1.2)}}
 .stage[data-beat="1"] #you-mouth,
 .stage[data-beat="2"] #maya-mouth,
 .stage[data-beat="3"] #maya-mouth,
-.stage[data-beat="4"] #leo-mouth{animation:talk .3s infinite var(--ease)}
+.stage[data-beat="4"] #leo-mouth{opacity:1;animation:talk .3s infinite var(--ease)}
+.stage[data-beat="1"] #you-smile,
+.stage[data-beat="2"] #maya-smile,
+.stage[data-beat="3"] #maya-smile,
+.stage[data-beat="4"] #leo-smile{opacity:0}
 
 /* Maya's pointing arm and her listening ear */
-#maya-arm{transform-box:fill-box;transform-origin:14% 14%;transition:transform .36s var(--spring)}
-.stage[data-beat="2"] #maya-arm,.stage[data-beat="3"] #maya-arm{transform:rotate(-26deg)}
-.stage[data-beat="5"] #maya-arm{transform:rotate(8deg)}
-#maya-ear{opacity:0;transform-box:fill-box;transform-origin:center;transform:scale(.3);transition:all .34s var(--spring)}
+#maya-arm{transform-box:fill-box;transform-origin:10% 90%;transition:transform .36s var(--spring)}
+.stage[data-beat="2"] #maya-arm,.stage[data-beat="3"] #maya-arm{transform:rotate(26deg)}
+.stage[data-beat="5"] #maya-arm{transform:rotate(64deg)}
+#maya-ear{opacity:0;transform-box:fill-box;transform-origin:right center;transform:scale(.3);transition:all .34s var(--spring)}
 .stage[data-beat="5"] #maya-ear{opacity:1;transform:none}
 
 /* idle: everyone breathes */
 @keyframes breathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
-#g-leo{animation:breathe 2.6s infinite var(--ease)}
-#g-you{animation:breathe 3.1s .4s infinite var(--ease)}
-@keyframes twinkle{0%,100%{transform:scale(1);opacity:.95}50%{transform:scale(.6);opacity:.35}}
+.i1{animation:breathe 2.6s infinite var(--ease)}
+.i2{animation:breathe 3.2s .5s infinite var(--ease)}
+.i3{animation:breathe 2.9s .2s infinite var(--ease)}
+@keyframes twinkle{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.55);opacity:.3}}
 .sticker{transform-box:fill-box;transform-origin:center;animation:twinkle 4s infinite var(--ease)}
-.sticker:nth-of-type(2n){animation-delay:1.3s}
-.sticker:nth-of-type(3n){animation-delay:2.4s}
+.s2{animation-delay:1.4s}
+.s3{animation-delay:2.6s}
 
 /* the star that pops when the learner says it */
 #g-star{opacity:0;transform-box:fill-box;transform-origin:center;transform:scale(.2) rotate(-40deg)}
@@ -162,16 +186,20 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
   background:var(--cream);
   border:3px solid var(--ink);border-radius:20px;
   display:flex;align-items:center;justify-content:center;
-  transition:transform .3s var(--spring);
+  transition:transform .34s var(--spring),opacity .26s var(--ease);
 }
+/* nothing to read in the first beat, so the picture gets the card to itself */
+.stage[data-beat="0"] .strip{opacity:0;transform:translateY(18px) scale(.94)}
 .stage[data-beat="4"] .strip{transform:scale(1.03)}
 .line{
   margin:0;color:var(--ink);
-  font-size:25px;font-weight:800;line-height:1.12;letter-spacing:-.01em;
+  font-size:0; /* kills the whitespace between the word spans */
+  line-height:1.12;letter-spacing:-.01em;
   text-align:center;text-wrap:balance;
 }
 .w{
-  display:inline-block;margin:0 .12em;
+  display:inline-block;margin:0 .15em;
+  font-size:25px;font-weight:800;
   opacity:0;transform:translateY(10px) scale(.86);
   transition:opacity .26s var(--ease),transform .3s var(--spring);
   transition-delay:0s;
@@ -192,9 +220,10 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 .stage[data-beat="4"] .line.show{animation:linePulse .5s var(--spring)}
 
 /* interim speech from the learner, over the coach */
+.heard-wrap{position:absolute;left:16px;right:16px;top:14px;display:flex;justify-content:center;pointer-events:none}
 .heard{
-  position:absolute;left:16px;right:16px;top:14px;
-  padding:10px 14px;border-radius:18px;
+  max-width:100%;
+  padding:10px 18px;border-radius:18px;
   background:var(--paper);border:3px solid var(--ink);color:var(--ink);
   font-size:15px;font-weight:700;text-align:center;
   opacity:0;transform:translateY(-8px) scale(.9);pointer-events:none;
@@ -217,10 +246,8 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
   background:var(--on-page);
 }
 .beat[data-state="done"] .fillbar{width:100%}
-.beat .num{
-  position:relative;font-size:14px;font-weight:800;
-  color:var(--on-page);mix-blend-mode:difference;filter:invert(1) grayscale(1) contrast(9);
-}
+/* white in difference mode reads on the page and on the filled bar, both themes */
+.beat .num{position:relative;font-size:14px;font-weight:800;color:#fff;mix-blend-mode:difference}
 .beat[data-state="now"]{box-shadow:0 0 0 2.5px var(--on-page)}
 
 /* ---------- action area ---------- */
@@ -256,7 +283,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 }
 /* short phones: the picture gives up height first */
 @media (max-height:720px){
-  .strip{min-height:78px}.line{font-size:21px}.actions{min-height:112px}
+  .strip{min-height:78px}.w{font-size:21px}.actions{min-height:112px}
 }
 </style>
 </head>
@@ -289,99 +316,101 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
         </defs>
 
         <g clip-path="url(#cardClip)" filter="url(#wob)">
+         <g id="cam">
 
-          <!-- back wall: lamp, shelf, menu -->
-          <g id="g-wall">
-            <path class="ink" d="M300 0v44"/>
-            <path class="sun" d="M278 46h44l-12 24h-20Z"/>
+          <!-- back wall: menu board, shelf of cups, hanging lamp -->
+          <g id="g-wall"><g class="ent e1">
+            <path class="ink" d="M300 0v40"/>
+            <path class="cream" d="M276 42h48l-13 26h-22Z"/>
             <circle class="ink" cx="300" cy="78" r="7"/>
-            <path class="ink" d="M24 112h312"/>
-            <path class="cream" d="M58 86h26l-3 24H61Z"/>
-            <path class="cream" d="M104 88h24l-3 22h-18Z"/>
-            <path class="cream" d="M300 86h26l-3 24h-20Z"/>
-            <rect class="paper" x="26" y="40" width="92" height="60" rx="12"/>
-            <path class="ink" d="M42 60h44M42 72h58M42 84h30"/>
-            <circle class="fill sticker" cx="166" cy="52" r="5"/>
-            <path class="fill sticker" d="M214 34l5 11 11 5-11 5-5 11-5-11-11-5 11-5Z"/>
-            <path class="ink sticker" d="M136 148c6-8 14-4 10 4"/>
-          </g>
+            <path class="ink" d="M18 104h324"/>
+            <rect class="paper" x="24" y="26" width="98" height="62" rx="12"/>
+            <path class="ink" d="M40 46h50M40 60h64M40 74h34"/>
+            <path class="cream" d="M152 76h30l-4 28h-22Z"/>
+            <path class="cream" d="M200 78h26l-4 26h-18Z"/>
+            <path class="cream" d="M248 76h30l-4 28h-22Z"/>
+            <path class="fill sticker" d="M152 22l6 13 13 6-13 6-6 13-6-13-13-6 13-6Z"/>
+            <circle class="fill sticker s2" cx="192" cy="46" r="5"/>
+            <path class="ink sticker s3" d="M36 150c8-10 18-4 12 5"/>
+          </g></g>
 
-          <!-- counter, machine -->
-          <g id="g-counter">
-            <rect class="cream" x="186" y="236" width="88" height="84" rx="12"/>
-            <circle class="ink" cx="208" cy="260" r="8"/>
-            <circle class="ink" cx="232" cy="260" r="8"/>
-            <path class="ink" d="M206 288h48M230 296v14"/>
-            <path class="cream" d="M4 318h352v26H4Z"/>
-            <path class="cream" d="M14 344h332v140H14Z"/>
-            <path class="ink" d="M14 382h332"/>
-          </g>
+          <!-- the counter: a cream top, the front in the card colour -->
+          <g id="g-counter"><g class="ent e2">
+            <path class="cream" d="M-4 300h368v26H-4Z"/>
+            <path class="cream" d="M62 386h78v14H62Z"/>
+            <path class="ink" d="M76 400l-10 50M126 400l10 50M74 426h56" stroke-width="5"/>
+          </g></g>
 
-          <!-- Leo the barista -->
-          <g id="g-leo">
-            <path class="cream" d="M62 318c0-34 16-52 40-52s40 18 40 52Z"/>
-            <path class="ink" d="M86 282v36M118 282v36"/>
-            <path class="cream" d="M80 232c0-20 10-30 22-30s22 10 22 30-10 30-22 30-22-10-22-30Z"/>
-            <path class="fill" d="M78 214c2-20 14-28 24-28s22 8 24 28c-8-8-16-10-24-10s-16 2-24 10Z"/>
-            <circle class="fill" cx="93" cy="230" r="3.6"/>
-            <circle class="fill" cx="113" cy="230" r="3.6"/>
-            <ellipse id="leo-mouth" class="fill mouth" cx="103" cy="246" rx="7" ry="4.6"/>
-            <path class="ink" d="M86 220l10-3M110 217l10 3"/>
-            <path class="ink" d="M140 278c14 2 20 10 20 22"/>
+          <!-- Leo the barista, behind the counter -->
+          <g id="g-leo"><g class="ent e3"><g class="idle i1">
+            <path class="cream" d="M74 300c0-36 20-58 46-58s46 22 46 58Z"/>
+            <path class="ink" d="M100 258v42M140 258v42"/>
+            <path class="ink" d="M156 264c22 4 34 16 36 36" stroke-width="6"/>
+            <ellipse class="cream" cx="120" cy="200" rx="28" ry="31"/>
+            <path class="fill" d="M91 194c0-29 13-43 29-43s29 14 29 43c-6-17-15-23-29-23s-23 6-29 23Z"/>
+            <circle class="fill" cx="109" cy="199" r="4"/>
+            <circle class="fill" cx="131" cy="199" r="4"/>
+            <path class="ink" d="M103 181h13M124 181h13"/>
+            <path id="leo-smile" class="ink smile" d="M110 215c6 8 14 8 20 0"/>
+            <ellipse id="leo-mouth" class="fill mouth" cx="120" cy="219" rx="8" ry="5"/>
             <g id="g-cup">
-              <path class="paper" d="M150 294h30l-4 26h-22Z"/>
-              <path class="ink" d="M152 300h26"/>
-              <path class="ink" d="M160 286c-3-6 2-8 0-14M172 286c-3-6 2-8 0-14"/>
+              <path class="paper" d="M176 266h36l-5 30h-26Z"/>
+              <path class="ink" d="M179 275h30"/>
+              <path class="ink" d="M187 258c-4-7 3-9 0-16M201 258c-4-7 3-9 0-16"/>
             </g>
-          </g>
+          </g></g></g>
 
-          <!-- you, seen from behind at the counter -->
-          <g id="g-you">
-            <path class="cream" d="M248 484c0-54 20-78 50-78s50 24 50 78Z"/>
-            <path class="cream" d="M270 352c0-24 12-36 28-36s28 12 28 36-12 36-28 36-28-12-28-36Z"/>
-            <path class="fill" d="M266 346c0-30 14-42 32-42s32 12 32 42c-6-16-16-22-32-22s-26 6-32 22Z"/>
-            <ellipse class="ink" cx="272" cy="356" rx="7" ry="9"/>
-            <ellipse id="you-mouth" class="fill mouth" cx="292" cy="372" rx="5" ry="3.4"/>
-            <circle class="fill" cx="284" cy="356" r="3.2"/>
-          </g>
+          <!-- you, in the foreground, turned away towards Leo -->
+          <g id="g-you"><g class="ent e4"><g class="idle i2">
+            <g transform="translate(296,250)">
+              <path class="cream" d="M-72 210C-72 124-40 30 0 30S72 124 72 210Z"/>
+              <path class="cream" d="M0-35C18-35 32-20 32 0 32 20 18 35 0 35-14 35-25 27-29 14L-40 6C-43 4-43 0-40-2L-31-7C-29-24-16-35 0-35Z"/>
+              <path class="fill" d="M-30-12C-28-38-12-50 6-50 28-50 40-32 40-6 40 14 36 30 28 38 34 14 30-10 20-20 8-32-12-28-30-12Z"/>
+              <path class="ink" d="M-27-17l12-3" stroke-width="2.8"/>
+              <circle class="fill" cx="-16" cy="-5" r="4"/>
+              <path id="you-smile" class="ink smile" d="M-29 14c6 8 13 6 16-2" stroke-width="2.8"/>
+              <ellipse id="you-mouth" class="fill mouth" cx="-22" cy="15" rx="6" ry="4"/>
+            </g>
+          </g></g></g>
 
           <!-- what you say first -->
           <g id="g-bubble">
-            <path class="paper" d="M196 132h118a14 14 0 0 1 14 14v42a14 14 0 0 1-14 14h-40l-8 18-10-18h-60a14 14 0 0 1-14-14v-42a14 14 0 0 1 14-14Z"/>
-            <circle class="fill" cx="226" cy="168" r="6"/>
-            <circle class="fill" cx="254" cy="168" r="6"/>
-            <circle class="fill" cx="282" cy="168" r="6"/>
+            <path class="paper" d="M184 118h140a16 16 0 0 1 16 16v38a16 16 0 0 1-16 16h-18l-8 20-14-20h-100a16 16 0 0 1-16-16v-38a16 16 0 0 1 16-16Z"/>
+            <circle class="fill" cx="222" cy="153" r="7"/>
+            <circle class="fill" cx="254" cy="153" r="7"/>
+            <circle class="fill" cx="286" cy="153" r="7"/>
           </g>
 
-          <!-- Maya the coach -->
-          <g id="g-maya">
-            <g transform="translate(-54,-108)">
-              <path class="sun" d="M8 230c0-46 20-68 46-68s46 22 46 68Z"/>
-              <path id="maya-arm" class="ink" d="M96 176c22 2 34-10 36-28" stroke-width="6"/>
-              <path class="sun" d="M22 96c0-26 14-40 32-40s32 14 32 40-14 40-32 40-32-14-32-40Z"/>
-              <path class="fill" d="M16 92C16 50 32 34 54 34s38 16 38 58c-6-22-18-30-38-30s-32 8-38 30Z"/>
-              <circle class="fill" cx="40" cy="26" r="13"/>
-              <circle class="fill" cx="42" cy="92" r="4.2"/>
-              <circle class="fill" cx="68" cy="92" r="4.2"/>
-              <path class="ink" d="M34 80l10-4M64 76l10 4"/>
-              <ellipse id="maya-mouth" class="fill mouth" cx="55" cy="112" rx="8" ry="5"/>
-              <circle class="ink" cx="18" cy="104" r="7"/>
-              <g id="maya-ear">
-                <path class="ink" d="M-6 96c-14 0-22 10-22 22s8 20 18 18" stroke-width="5"/>
-                <path class="fill" d="M-28 150l5 11 11 5-11 5-5 11-5-11-11-5 11-5Z"/>
-              </g>
+          <!-- Maya the coach; her own origin is the centre of her head -->
+          <g id="g-maya"><g class="idle i3">
+            <path class="cream" d="M-48 128c0-54 22-82 48-82s48 28 48 82Z"/>
+            <path id="maya-arm" class="ink" d="M38 64c24-2 36-18 38-40" stroke-width="6"/>
+            <circle class="fill" cx="-24" cy="-40" r="14"/>
+            <ellipse class="cream" cx="0" cy="0" rx="31" ry="35"/>
+            <path class="fill" d="M-32-6c0-34 12-50 32-50s32 16 32 50c-6-20-14-28-32-28s-26 8-32 28Z"/>
+            <circle class="fill" cx="-12" cy="2" r="4.4"/>
+            <circle class="fill" cx="12" cy="2" r="4.4"/>
+            <path class="ink" d="M-19-15h10M9-15h10"/>
+            <path id="maya-smile" class="ink smile" d="M-10 18c7 9 15 9 21 0"/>
+            <ellipse id="maya-mouth" class="fill mouth" cx="0" cy="22" rx="9" ry="5.5"/>
+            <circle class="ink" cx="-31" cy="18" r="7"/>
+            <g id="maya-ear">
+              <path class="ink" d="M-48-6c-11 9-11 27 0 36" stroke-width="5"/>
+              <path class="ink" d="M-64-18c-17 16-17 50 0 66" stroke-width="5"/>
+              <path class="fill" d="M-86 48l6 13 13 6-13 6-6 13-6-13-13-6 13-6Z"/>
             </g>
-          </g>
+          </g></g>
 
           <!-- the reward sticker -->
           <g id="g-star">
-            <path class="fill" d="M300 150l12 26 26 12-26 12-12 26-12-26-26-12 26-12Z"/>
+            <path class="fill" d="M286 128l13 28 28 13-28 13-13 28-13-28-28-13 28-13Z"/>
           </g>
 
+         </g>
         </g>
       </svg>
 
-      <div class="heard" id="heard" aria-live="polite"></div>
+      <div class="heard-wrap"><div class="heard" id="heard" aria-live="polite"></div></div>
 
       <div class="strip">
         <p class="line" id="line">
@@ -541,7 +570,8 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 
   function seek(i){
     t = BEATS[i].t;
-    if (mode === "listen" || mode === "done") clearListen();
+    if (mode === "listen" || mode === "done" || mode === "typing") clearListen();
+    stage.classList.remove("won");
     applyBeat(i);
     if (!playing) play(); else { last = performance.now(); }
   }

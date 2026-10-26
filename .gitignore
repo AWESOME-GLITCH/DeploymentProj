@@ -37,3 +37,4 @@ yarn-error.log*
 # Test Engineer run output (screenshots, logs, pids)
 scripts/lp/out/
 scripts/lp/.run/
+.lp-proto/

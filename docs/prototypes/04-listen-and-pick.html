@@ -153,37 +153,37 @@
     flex: 0 0 auto;
     margin-top: 14px;
     position: relative;
-    height: 222px;
+    height: 234px;
     border-radius: var(--r-card);
     border: 3px solid var(--ink);
     background: var(--sun);
     color: var(--ink);
-    padding: 14px 16px;
+    padding: 16px;
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     gap: 6px;
     overflow: hidden;
   }
 
   .coach-art {
     position: absolute;
-    left: 6px;
-    bottom: -6px;
-    width: 196px;
-    height: 206px;
+    left: 10px;
+    bottom: -4px;
+    width: 150px;
+    height: 194px;
     pointer-events: none;
   }
 
   .coach-art svg { width: 100%; height: 100%; display: block; }
 
   #maya { transform-origin: 50% 90%; transition: transform 340ms var(--spring); }
-  #maya.lean { transform: translate(14px, 4px) rotate(6deg) scale(1.05); }
+  #maya.lean { transform: translate(7px, 2px) rotate(4deg) scale(1.03); }
 
   .breathe { animation: breathe 2800ms ease-in-out infinite; transform-origin: 50% 95%; }
   @keyframes breathe { 0%, 100% { transform: scaleY(1) } 50% { transform: scaleY(1.022) } }
 
   .mouth-open { opacity: 0; }
-  .speaking .mouth-open { opacity: 1; animation: talk 260ms ease-in-out infinite alternate; transform-origin: 80px 71px; }
+  .speaking .mouth-open { opacity: 1; animation: talk 260ms ease-in-out infinite alternate; transform-origin: 79px 108px; }
   .speaking .mouth-rest { opacity: 0; }
   @keyframes talk { from { transform: scaleY(.35) } to { transform: scaleY(1) } }
 
@@ -202,7 +202,7 @@
   .coach-side {
     position: relative;
     margin-left: auto;
-    width: 178px;
+    width: 168px;
     display: flex;
     flex-direction: column;
     align-items: stretch;
@@ -215,15 +215,31 @@
     background: var(--cream);
     border-radius: 20px 20px 20px 6px;
     padding: 10px 12px;
-    font-size: 15px;
+    margin: 0;
+    min-height: 66px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    font-size: 14.5px;
     font-weight: 700;
     line-height: 1.25;
-    opacity: 0;
-    transform: translateY(8px) scale(.94);
-    transition: opacity 220ms ease, transform 300ms var(--spring);
+    animation: pop 320ms var(--spring) backwards;
   }
 
-  .bubble.show { opacity: 1; transform: none; }
+  /* the quiet state: she is saying something, the words are hidden */
+  .bubble .d {
+    width: 9px;
+    height: 9px;
+    border-radius: 99px;
+    background: var(--ink);
+    opacity: .3;
+    animation: dot 1400ms ease-in-out infinite;
+  }
+
+  .bubble .d:nth-child(2) { animation-delay: 180ms; }
+  .bubble .d:nth-child(3) { animation-delay: 360ms; }
+  @keyframes dot { 0%, 100% { opacity: .25; transform: none } 40% { opacity: 1; transform: translateY(-4px) } }
 
   .pill {
     appearance: none;
@@ -282,16 +298,17 @@
     border-radius: var(--r-tile);
     background: var(--card);
     color: var(--on-card);
-    padding: 8px 10px 10px;
+    padding: 10px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
+    gap: 4px;
     cursor: pointer;
     overflow: visible;
-    opacity: 0;
-    transform: translateY(14px) scale(.96);
-    animation: pop 360ms var(--spring) forwards;
+    /* backwards, not forwards: the entrance must not keep overriding the
+       win and dim states once it has played */
+    animation: pop 360ms var(--spring) backwards;
     transition: background 200ms ease, opacity 220ms ease, transform 300ms var(--spring);
   }
 
@@ -305,11 +322,11 @@
     100% { opacity: 1; transform: none }
   }
 
-  .tile svg { width: 100%; height: 100%; display: block; }
-  .tile .art { width: 112px; height: 92px; flex: 0 1 auto; margin-top: 4px; }
+  .tile svg { display: block; }
+  .tile .art { width: 128px; height: 96px; flex: 0 0 auto; }
 
   .tile .word {
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 700;
     letter-spacing: -.01em;
   }
@@ -317,6 +334,7 @@
   .tile:active { transform: scale(.96); }
 
   .tile.right {
+    z-index: 2;
     background: var(--mint);
     color: var(--ink);
     border-color: var(--ink);
@@ -370,7 +388,7 @@
   /* ---------- done screen ---------- */
   .done {
     position: absolute;
-    inset: 18px 20px 22px;
+    inset: 68px 20px 22px;
     border-radius: var(--r-card);
     border: 3px solid var(--ink);
     background: var(--mint);
@@ -395,8 +413,11 @@
   }
 
   .done .sub { opacity: .78; margin-top: 8px; }
-  .done-art { flex: 1 1 auto; min-height: 0; margin: 4px 0 12px; }
+  .done-art { flex: 1 1 auto; min-height: 0; margin: 10px -19px 14px; }
   .done-art svg { width: 100%; height: 100%; display: block; }
+
+  /* the finish card is its own screen: nothing shows through its corners */
+  .is-done .head, .is-done .coach-card, .is-done .grid { visibility: hidden; }
 
   .sr {
     position: absolute;
@@ -439,52 +460,50 @@
 
   <section class="coach-card" aria-label="Maya says a line">
     <div class="coach-art">
-      <svg viewBox="0 0 196 206" id="mayaSvg" aria-hidden="true">
+      <svg viewBox="0 0 160 206" id="mayaSvg" aria-hidden="true">
         <g id="maya" fill="none" stroke="#121212" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
-          <!-- sound waves -->
-          <path class="wave" d="M132 72 q10 13 0 26" />
-          <path class="wave" d="M144 62 q16 23 0 46" />
-          <path class="wave" d="M156 52 q22 33 0 66" />
+          <!-- sound waves leaving her mouth -->
+          <path class="wave" d="M126 96 q7 10 0 20" />
+          <path class="wave" d="M136 88 q12 18 0 36" />
+          <path class="wave" d="M146 80 q17 26 0 52" />
 
           <g class="breathe">
+            <!-- neck first, so the collar covers where it joins -->
+            <path d="M64 116 h18 v36 h-18 z" fill="#FFF7E8" stroke="none" />
+            <path d="M64 120 v32 M82 120 v32" />
             <!-- jumper -->
-            <path d="M58 182 q-2-40 14-54 q12-10 26-10 q14 0 26 10 q16 14 14 54 z" fill="#FFF7E8" />
-            <!-- left arm raised, holding a cup -->
-            <path d="M62 132 q-18-4-22-20 q-3-13 4-20" stroke-width="10" />
-            <path d="M36 92 q-6-9 1-14 q7-5 12 2 q4 7-2 12 q-6 4-11 0 z" fill="#FFF7E8" />
-            <path d="M30 76 q-1-14 2-18 l20 2 q2 5 0 18 q-1 6-8 6 h-6 q-7 0-8-8 z" fill="#FFD93D" />
-            <path d="M30 62 q11 4 22 0" />
-            <!-- right arm down -->
-            <path d="M134 134 q16 2 20 18" stroke-width="10" />
-            <!-- neck -->
-            <path d="M88 112 h18 v14 h-18 z" fill="#FFF7E8" stroke="none" />
-            <path d="M88 112 v12 M106 112 v12" />
+            <path d="M34 200 q-1-38 14-50 q11-9 24-9 q13 0 24 9 q15 12 14 50 z" fill="#FFF7E8" />
+            <!-- arm raised beside her face -->
+            <path d="M38 158 q-14-10-13-26" stroke-width="10" />
+            <path d="M18 132 q0-10 7-10 q8 0 8 10 q0 9-8 9 q-7 0-7-9 z" fill="#FFF7E8" />
+            <path d="M22 124 v-9 M28 123 v-11 M34 126 v-8" stroke-width="3" />
             <!-- head -->
-            <path d="M97 44 q22 0 25 25 q3 28-10 38 q-7 6-15 6 q-8 0-15-6 q-13-10-10-38 q3-25 25-25 z" fill="#FFF7E8" />
+            <path d="M73 52 q31-1 35 30 q2 17-4 28 q-7 13-21 13 q-14 0-21-13 q-6-11-4-28 q3-30 15-30 z" fill="#FFF7E8" />
             <!-- ear -->
-            <path d="M71 80 q-7-2-7 5 q0 7 7 6" />
-            <!-- hair -->
-            <path d="M70 70 q-4-30 12-38 q10-5 20-4 q24 2 26 26 q1 10-1 16 q-6-16-22-19 q-18-3-35 19 z" fill="#121212" stroke="#121212" />
-            <circle cx="138" cy="44" r="13" fill="#121212" stroke="#121212" />
-            <!-- eyes, brows, cheeks -->
-            <circle cx="86" cy="80" r="3.4" fill="#121212" stroke="none" />
-            <circle cx="108" cy="80" r="3.4" fill="#121212" stroke="none" />
-            <path d="M81 71 q5-3 10-1 M103 70 q5-2 10 1" stroke-width="3" />
+            <path d="M52 96 q-9-2-9 6 q0 8 9 7" />
+            <!-- hair: fringe plus bun -->
+            <path d="M47 86 q-5-34 13-42 q10-5 19-4 q25 3 28 29 q1 10-1 17 q-7-19-25-21 q-20-2-34 21 z" fill="#121212" stroke="#121212" />
+            <circle cx="104" cy="36" r="13" fill="#121212" stroke="#121212" />
+            <!-- eyes and brows -->
+            <circle cx="65" cy="92" r="3.6" fill="#121212" stroke="none" />
+            <circle cx="90" cy="92" r="3.6" fill="#121212" stroke="none" />
+            <path d="M59 81 q6-4 12-1 M84 80 q6-3 12 1" stroke-width="3" />
+            <!-- cheek -->
+            <path d="M54 102 q5 3 9 0" stroke-width="2.6" />
             <!-- mouth -->
-            <path class="mouth-rest" d="M89 92 q8 7 16-1" />
-            <ellipse class="mouth-open" cx="97" cy="93" rx="8" ry="6.4" fill="#121212" stroke="#121212" stroke-width="2" />
+            <path class="mouth-rest" d="M70 106 q9 9 18-1" />
+            <ellipse class="mouth-open" cx="79" cy="108" rx="7" ry="6" fill="#121212" stroke="#121212" stroke-width="2" />
           </g>
 
           <!-- stickers -->
-          <path class="twinkle" d="M168 34 l4 10 10 4 -10 4 -4 10 -4-10 -10-4 10-4 z" fill="#121212" stroke="none" />
-          <path class="twinkle b" d="M22 38 l3 7 7 3 -7 3 -3 7 -3-7 -7-3 7-3 z" fill="#121212" stroke="none" />
-          <path class="twinkle c" d="M176 120 q6-6 10 0 q4 6-5 12 q-9-6-5-12 z" fill="#121212" stroke="none" />
+          <path class="twinkle" d="M128 24 l4 10 10 4 -10 4 -4 10 -4-10 -10-4 10-4 z" fill="#121212" stroke="none" />
+          <path class="twinkle b" d="M18 56 l3 7 7 3 -7 3 -3 7 -3-7 -7-3 7-3 z" fill="#121212" stroke="none" />
         </g>
       </svg>
     </div>
 
     <div class="coach-side">
-      <p class="bubble" id="bubble">&ldquo;A coffee, please.&rdquo;</p>
+      <p class="bubble" id="bubble"><i class="d"></i><i class="d"></i><i class="d"></i></p>
       <button class="pill" id="playBtn" type="button">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M4 9.5h3.5L13 5v14L7.5 14.5H4z" />
@@ -502,31 +521,37 @@
     <h2>You can now order at a cafe</h2>
     <p class="sub">Three lines, three right. Your ears are working.</p>
     <div class="done-art">
-      <svg viewBox="0 0 300 220" fill="none" stroke="#121212" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <!-- Maya holding a cup, with a star -->
+      <svg viewBox="26 14 196 198" preserveAspectRatio="xMidYMid meet" fill="none" stroke="#121212"
+           stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <!-- Maya, both arms up, a coffee in one hand -->
         <g class="breathe">
-          <path d="M104 212 q-2-44 16-58 q13-11 29-11 q16 0 29 11 q18 14 16 58 z" fill="#FFF7E8" />
-          <path d="M112 152 q-20-6-24-24" stroke-width="10" />
-          <path d="M178 152 q20-6 24-24" stroke-width="10" />
-          <path d="M139 124 h20 v15 h-20 z" fill="#FFF7E8" stroke="none" />
-          <path d="M139 124 v13 M159 124 v13" />
-          <path d="M149 52 q24 0 27 27 q3 30-11 41 q-7 6-16 6 q-9 0-16-6 q-14-11-11-41 q3-27 27-27 z" fill="#FFF7E8" />
-          <path d="M121 90 q-8-2-8 5 q0 8 8 7" />
-          <path d="M121 79 q-4-32 13-41 q11-5 21-4 q26 2 28 28 q1 11-1 17 q-6-17-24-20 q-19-3-37 20 z" fill="#121212" stroke="#121212" />
-          <circle cx="186" cy="52" r="14" fill="#121212" stroke="#121212" />
-          <circle cx="137" cy="90" r="3.6" fill="#121212" stroke="none" />
-          <circle cx="161" cy="90" r="3.6" fill="#121212" stroke="none" />
-          <path d="M131 80 q6-3 11-1 M156 79 q6-2 11 1" stroke-width="3" />
-          <path d="M139 103 q10 9 20-1" />
-          <!-- cup in her hand -->
-          <path d="M74 62 h40 l-4 30 q-1 7-9 7 h-14 q-8 0-9-7 z" fill="#FFF7E8" />
-          <path d="M114 70 q12 1 11 11 q-1 9-13 9" />
-          <path d="M76 70 q19 5 36 0" stroke-width="4" />
-          <path d="M88 48 q7-7 0-14 M102 50 q7-7 0-14" />
+          <!-- neck first, so the collar covers where it joins -->
+          <path d="M94 124 h18 v38 h-18 z" fill="#FFF7E8" stroke="none" />
+          <path d="M94 128 v34 M112 128 v34" />
+          <path d="M64 212 q-1-38 14-50 q11-9 24-9 q13 0 24 9 q15 12 14 50 z" fill="#FFF7E8" />
+          <path d="M68 170 q-14-10-13-26" stroke-width="10" />
+          <path d="M48 144 q0-10 7-10 q8 0 8 10 q0 9-8 9 q-7 0-7-9 z" fill="#FFF7E8" />
+          <path d="M52 136 v-9 M58 135 v-11 M64 138 v-8" stroke-width="3" />
+          <path d="M136 170 q22-10 24-30" stroke-width="10" />
+          <path d="M152 142 q0-10 8-10 q8 0 8 10 q0 9-8 9 q-8 0-8-9 z" fill="#FFF7E8" />
+          <!-- the cup she is holding up -->
+          <path d="M142 86 h40 l-5 34 q-1 8-9 8 h-12 q-8 0-9-8 z" fill="#FFF7E8" />
+          <path d="M182 96 q12 1 11 11 q-1 10-13 9" />
+          <path d="M144 96 q19 5 37 0" stroke-width="4.6" />
+          <path d="M152 74 q8-8 0-15 M168 74 q8-8 0-15" />
+          <!-- head -->
+          <path d="M103 64 q31-1 35 30 q2 17-4 28 q-7 13-21 13 q-14 0-21-13 q-6-11-4-28 q3-30 15-30 z" fill="#FFF7E8" />
+          <path d="M82 108 q-9-2-9 6 q0 8 9 7" />
+          <path d="M77 98 q-5-34 13-42 q10-5 19-4 q25 3 28 29 q1 10-1 17 q-7-19-25-21 q-20-2-34 21 z" fill="#121212" stroke="#121212" />
+          <circle cx="134" cy="48" r="13" fill="#121212" stroke="#121212" />
+          <circle cx="95" cy="104" r="3.6" fill="#121212" stroke="none" />
+          <circle cx="120" cy="104" r="3.6" fill="#121212" stroke="none" />
+          <path d="M89 93 q6-4 12-1 M114 92 q6-3 12 1" stroke-width="3" />
+          <path d="M84 114 q5 3 9 0" stroke-width="2.6" />
+          <path d="M100 118 q9 9 18-1" />
         </g>
-        <path class="twinkle" d="M240 40 l6 14 14 6 -14 6 -6 14 -6-14 -14-6 14-6 z" fill="#121212" stroke="none" />
-        <path class="twinkle b" d="M244 128 l4 9 9 4 -9 4 -4 9 -4-9 -9-4 9-4 z" fill="#121212" stroke="none" />
-        <path class="twinkle c" d="M44 140 q7-7 12 0 q5 7-6 14 q-11-7-6-14 z" fill="#121212" stroke="none" />
+        <path class="twinkle" d="M198 30 l5 12 12 5 -12 5 -5 12 -5-12 -12-5 12-5 z" fill="#121212" stroke="none" />
+        <path class="twinkle b" d="M28 52 l3 7 7 3 -7 3 -3 7 -3-7 -7-3 7-3 z" fill="#121212" stroke="none" />
       </svg>
     </div>
     <button class="pill" id="againBtn" type="button">Again <span aria-hidden="true">&raquo;</span></button>
@@ -549,7 +574,7 @@
 
   <symbol id="art-two" viewBox="0 0 120 96">
     <g fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M26 24 q7-8 0-14 M78 22 q7-8 0-14" />
+      <path d="M32 26 q8-8 0-15 M78 26 q8-8 0-15" />
       <path d="M58 38 h40 l-4 30 q-1 8-9 8 h-18 q-8 0-9-8 z" fill="var(--art-fill)" />
       <path d="M98 46 q12 1 11 10 q-1 10-14 9" />
       <path d="M60 46 q19 5 37 0" stroke-width="5" />
@@ -585,9 +610,9 @@
   <symbol id="st-0" viewBox="0 0 48 48"><path d="M24 2 l6 14 14 6 -14 6 -6 14 -6-14 -14-6 14-6 z" fill="#121212" /></symbol>
   <symbol id="st-1" viewBox="0 0 48 48"><path d="M24 42 C8 30 4 22 8 15 q7-11 16 1 q9-12 16-1 q4 7-16 27 z" fill="#121212" /></symbol>
   <symbol id="st-2" viewBox="0 0 48 48"><g fill="#121212"><path d="M18 4 l4 9 9 4 -9 4 -4 9 -4-9 -9-4 9-4 z" /><path d="M36 24 l3 6 6 3 -6 3 -3 6 -3-6 -6-3 6-3 z" /></g></symbol>
-  <symbol id="st-3" viewBox="0 0 48 48"><path d="M8 34 q6-16 14-8 q7 7 12-4 q6-12 8 2" fill="none" stroke="#121212" stroke-width="5" stroke-linecap="round" /></symbol>
+  <symbol id="st-3" viewBox="0 0 48 48"><path d="M24 7 v34 M9 15.5 l30 17 M39 15.5 l-30 17" fill="none" stroke="#121212" stroke-width="6" stroke-linecap="round" /></symbol>
   <symbol id="st-4" viewBox="0 0 48 48"><path d="M24 3 l5 10 10-5 -4 11 11 5 -11 5 4 11 -10-5 -5 10 -5-10 -10 5 4-11 -11-5 11-5 -4-11 10 5 z" fill="#121212" /></symbol>
-  <symbol id="st-5" viewBox="0 0 48 48"><path d="M24 24 q-10 0-10-8 q0-8 9-8 q13 0 13 14 q0 16-16 16 q-14 0-14-13" fill="none" stroke="#121212" stroke-width="5" stroke-linecap="round" /></symbol>
+  <symbol id="st-5" viewBox="0 0 48 48"><g fill="none" stroke="#121212" stroke-width="5.5" stroke-linecap="round"><path d="M10 32 q8-16 16-9" /><path d="M22 38 q10-18 18-10" /></g></symbol>
 </svg>
 
 <script>
@@ -688,8 +713,12 @@
 
   function setWords(on) {
     wordsOn = on;
-    bubble.textContent = "“" + ROUNDS[round].line + "”";
-    bubble.classList.toggle("show", on);
+    if (on) {
+      bubble.textContent = "“" + ROUNDS[round].line + "”";
+    } else {
+      bubble.innerHTML = '<i class="d"></i><i class="d"></i><i class="d"></i>';
+      bubble.setAttribute("aria-label", "Maya is saying a line");
+    }
     wordsBtn.textContent = on ? "Hide the words" : "Show the words";
     wordsBtn.setAttribute("aria-pressed", on ? "true" : "false");
   }
@@ -716,7 +745,7 @@
       b.dataset.key = c.key;
       b.setAttribute("aria-label", c.alt);
       b.innerHTML =
-        '<svg class="sticker" aria-hidden="true"><use href=""></use></svg>' +
+        '<svg class="sticker" viewBox="0 0 48 48" aria-hidden="true"><use href=""></use></svg>' +
         '<svg class="art" viewBox="0 0 120 96" aria-hidden="true"><use href="#' + c.art + '"></use></svg>' +
         '<span class="word">' + c.word + "</span>";
       b.addEventListener("click", function () { choose(b, c.key); });
@@ -773,6 +802,7 @@
 
   function finish() {
     paintSteps();
+    phone.classList.add("is-done");
     done.classList.add("show");
     done.setAttribute("aria-hidden", "false");
     live.textContent = "You can now order at a cafe.";
@@ -780,6 +810,7 @@
   }
 
   function restart() {
+    phone.classList.remove("is-done");
     done.classList.remove("show");
     done.setAttribute("aria-hidden", "true");
     round = 0;

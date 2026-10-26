@@ -2,14 +2,136 @@
 
 Production storyboards for the 2D motion-graphics explainers that open every lesson atom in `lib/learning-path/content.ts`, except `ATM-A2-INT-0001` (At the cafe), which is already built in `components/learning-path/explainer/Cafe.tsx` and is the reference for everything below.
 
-Pedagogy comes from `docs/learning-path/PRD.md`:
+Pedagogy comes from `docs/learning-path/PRD.md` and, since 26 October 2026, from the board's
+behavioural rules, which are law here and are set out in full in **The attention law** below:
 
-- Input before use. The explainer is the input phase; nothing is asked of the learner until they have heard the target two or three times in context.
+- Input before use, but not input alone. The explainer is the input phase, and the learner now acts at
+  the end of every beat that teaches something. Nothing passive runs longer than 8 to 10 seconds.
 - One target per atom. Each storyboard teaches exactly one form or chunk, highlighted in the accent colour wherever it is heard. Nothing else is explained.
 - Noticing is explicit. The target is shown in context and highlighted; the explain beat uses a visual model (timeline, slider, seesaw, magnet), never a rule page or metalanguage.
 - Lessons are in English. All narration and all on-screen text is English. L1 (ar, es, hi, ru, tr, zh) appears only as the optional caption line under the English caption and is never burnt in.
-- 80% watched rule. The player credits the atom from frame progress, and progress only grows. The pause for the learner's turn sits at the end of the practise beat, between 77% and 88% of the duration (the cafe reference pauses at 77%); both "continue" and "skip" resume playback through the recap, so every learner who reaches the pause passes 80% whether or not they speak.
-- Recap wording matches the learning-check stem.
+- Watched credit. The player credits the atom from frame progress, and progress only grows. Every stop
+  resumes into the next beat whether the learner answers, retries or skips, so a learner who stays to
+  the recap reaches 100%. The only way to finish under 80% is to leave the lesson.
+- Recap wording matches the learning-check stem, and the recap narration is the self-efficacy close:
+  what the learner can now do, then when it comes back.
+
+## The attention law
+
+Board rule, 26 October 2026, from behavioural psychology. It applies to every explainer and to the
+lesson flow (`docs/lesson-flow.md` carries the lesson-side half). Six rules, and what each one means
+for a beat table:
+
+| # | Board rule | What it means here |
+| --- | --- | --- |
+| 1 | Attention: no passive stretch longer than 8 to 10 s. The learner acts at the end of every beat that teaches something. | Every beat that teaches carries a `target`, so the player stops on it. The gap from the start of the video to the first stop, and between any two stops, is never more than 10 s. |
+| 2 | Foot in the door: the first ask is tiny and inside the first 10 s, then the asks grow. Never start with the hardest thing. | The first stop is a tap, at or before frame 300. The asks then climb the ladder below. |
+| 3 | Generation effect: before the video gives the answer, ask the learner to predict it where the scene allows. | A `predict` beat, one tap, placed immediately before the beat that says the target line. |
+| 4 | Immediate specific feedback in words, never a mark. Max two tries, then move on kindly. No red, no loss. | The player owns the strings; a storyboard never writes a score, a tick count or a percentage into the composition. A miss is a lean-in and a replay at 0.75, never a cross. |
+| 5 | Self-efficacy close: the recap says what the learner can now do and names when it comes back. | The recap narration is "You can \<do the thing\>. \<When it returns\>." Spoken and captioned in the learner's own language, because it is addressed to the learner, not taught. |
+| 6 | Autonomy: tap any word to hear it, replay a beat, skip an ask. Cognitive load: one target per beat, one line on screen. | The player gives all three affordances. The storyboard's half is the second clause: one speaker turn per beat. A beat that carries two turns is two beats. |
+
+### The beat law
+
+| Thing | Value | Where it comes from |
+| --- | --- | --- |
+| Duration | 600 to 1200 frames (20 to 40 s). 1200 is a hard cap. | `docs/design/brief.md`, measured in `docs/design/motion.md` §9 |
+| Beats | 6 to 8 | The ask ladder needs five stops, plus a hook and a recap that carry none |
+| Teaching beat | 150 to 240 frames (5 to 8 s), and never over 210 where the motion spec's cap binds | Board rule 1; motion spec §10 |
+| Hook and recap | As short as the line takes, 60 to 150 frames | They teach nothing, so padding them to 5 s only adds passive time, which rule 1 forbids |
+| One turn per beat | A beat holds one speaker's one line | Board rule 6, cognitive load |
+| First stop | At or before frame 300 (10 s) | Board rule 2 |
+| Stops | One per teaching beat. `pauseAt` is a settled frame: nothing mid-move, the caption fully lit | Board rule 1; the pause cue springs in 24 frames early, per motion spec §9 |
+
+### The ask ladder
+
+Five stops, in this order, so the first ask is tiny and each one is a little more than the last. The
+player derives the stop and its kind from the beat (`asksFor` in `ExplainerPlayer.tsx`); the storyboard
+decides which rung each beat carries and writes it in the `ask` column.
+
+| Rung | Ask | What the learner does | Beat it sits on |
+| --- | --- | --- | --- |
+| 1 | **tap** | Finds the key words in the line and hears each one | The first notice or word beat |
+| 2 | **say the word** | Says the target word alone, not the sentence | The second notice or word beat |
+| 3 | **predict** | One tap: which of two or three things will they say next | The `predict` beat, before the answer |
+| 4 | **say the line** | Says the whole target line, with the scene still around it | The notice beat that carries the target line |
+| 5 | **say it changed** | Says the line with one new word in it | The practise beat |
+
+Rung 3 is not a step up in difficulty; it is a different thing, a guess before the answer, and it is a
+tap so that it stays tiny. Where a scene has nobody about to say anything (a word tutorial that
+introduces four nouns, for instance), rung 3 is dropped rather than invented: "where the scene allows"
+is the board's wording and it is meant.
+
+### The two spines
+
+Every storyboard is cut on one of these two grids. Deviate only with a reason written in the
+storyboard.
+
+**Video, 8 beats, 1200 frames, 40.0 s**
+
+| Beat | from | to | s | Ask | Stop | At |
+| --- | --- | --- | --- | --- | --- | --- |
+| hook | 0 | 120 | 4.0 | none | | |
+| n1 | 120 | 270 | 5.0 | tap | 258 | 8.6 s |
+| n2 | 270 | 450 | 6.0 | say the word | 438 | 14.6 s |
+| predict | 450 | 570 | 4.0 | predict | 558 | 18.6 s |
+| n3 | 570 | 720 | 5.0 | say the line | 708 | 23.6 s |
+| explain | 720 | 900 | 6.0 | tap | 888 | 29.6 s |
+| practise | 900 | 1080 | 6.0 | say it changed | 1068 | 35.6 s |
+| recap | 1080 | 1200 | 4.0 | none | | |
+
+**Word tutorial, 8 beats, 1050 frames, 35.0 s**
+
+| Beat | from | to | s | Ask | Stop | At |
+| --- | --- | --- | --- | --- | --- | --- |
+| hook | 0 | 90 | 3.0 | none | | |
+| w1 | 90 | 240 | 5.0 | tap | 228 | 7.6 s |
+| w2 | 240 | 390 | 5.0 | say the word | 378 | 12.6 s |
+| predict | 390 | 480 | 3.0 | predict | 468 | 15.6 s |
+| w3 | 480 | 630 | 5.0 | say the word | 618 | 20.6 s |
+| w4 | 630 | 780 | 5.0 | say the line | 768 | 25.6 s |
+| practise | 780 | 960 | 6.0 | say it changed | 948 | 31.6 s |
+| recap | 960 | 1050 | 3.0 | none | | |
+
+A word tutorial carries four cards because the content in `content.ts` has four, so it spends a beat
+more on vocabulary and drops one notice rung; where a tutorial's scene has nobody about to speak, the
+`predict` beat goes and the grid closes up to 960 frames.
+
+**Video with a three-way contrast, 9 beats, 1200 frames, 40.0 s**
+
+Two atoms have a criterion that is itself a contrast between three things: `ATM-A2-LST-0004` (4 / 14 /
+40) and `ATM-A2-GRM-0003` (worked / work / will work). Three things need three notice beats, and a rule
+stated as two sentences needs two explain beats, so these run to nine. They still fit 1200 frames, but
+only by spending 2 s on the hook:
+
+| Beat | from | to | s | Ask | Stop | At |
+| --- | --- | --- | --- | --- | --- | --- |
+| hook | 0 | 60 | 2.0 | none | | |
+| n1 | 60 | 210 | 5.0 | tap | 198 | 6.6 s |
+| n2 / predict | 210 | 300 or 360 | 3.0 or 5.0 | predict or say the word | 288 / 348 | 9.6 / 11.6 s |
+| n3 / predict | 300 or 360 | 450 | 3.0 or 5.0 | say the word or predict | 438 | 14.6 s |
+| n3 | 450 | 600 | 5.0 | say the word or the line | 588 | 19.6 s |
+| explain | 600 | 750 | 5.0 | tap | 738 | 24.6 s |
+| explain2 | 750 | 900 | 5.0 | tap | 888 | 29.6 s |
+| practise | 900 | 1080 | 6.0 | say it changed | 1068 | 35.6 s |
+| recap | 1080 | 1200 | 4.0 | none | | |
+
+The `predict` beat sits in whichever slot comes immediately before the answer, which is slot 3 in
+Platform 4, not 14 and slot 4 in Yesterday, today, tomorrow.
+
+**The one place the board's rules and the 40 s cap genuinely collide.** A nine-beat video fits 1200
+frames only because the hook drops to 2 s and the recap to 4 s. The recap at 4 s is the floor: the
+self-efficacy close is a spoken sentence in the learner's own language and it cannot be hurried. So a
+tenth beat does not fit, and an atom whose criterion needs ten is two atoms. If the board would rather
+not spend a 2 s hook, the honest alternative is a 42 s cap for the two contrast atoms, not a quieter
+breach of rule 1. Flagged for the board on LP-80 rather than decided here.
+
+**Two things the board's rules cost.** First, they need eight beats, where `docs/design/motion.md` §10
+says five to seven; the binding numbers are the 1200-frame total and the 210-frame beat, and eight
+beats of 150 to 180 satisfy both, so that line in the motion spec wants to read "6 to 8". Raised with
+the Motion Director on LP-107. Second, the videos as first storyboarded ran 45 to 55 s, so every one of
+them loses 5 to 15 s. Almost none of that is content: it comes from splitting beats that carried two
+speaker turns, which costs nothing, and from hooks and recaps that were padded to 5 s.
 
 ## Conventions (shared with Cafe.tsx)
 
@@ -21,10 +143,10 @@ Pedagogy comes from `docs/learning-path/PRD.md`:
 | Target highlighting | Target phrases are ACCENT and weight 800 in bubbles and captions; everything else INK |
 | Captions | English, word-synced karaoke, max 7 words per line, 2 lines. L1 line below, one short line per beat, keyed by beat id exactly as in `EXPLAINERS[atomId].l1[lang][beatId]` |
 | Narration | One line per beat, spoken by TTS when the beat starts (`say(beat.line)`), 100 to 125 wpm, no exclamation marks, no em dashes |
-| Beat kinds | `hook`, `notice`, `explain`, `practise`, `recap` for video atoms; `hook`, `word`, `practise` (the say-it beat), `recap` for word tutorials |
-| Lengths | Video atoms 45 to 60 s (1350 to 1800 frames). Word tutorials 30 to 40 s (900 to 1200 frames). |
-| Beat shares (video) | hook ~10%, notice ~20 to 30%, explain ~30%, practise ~25%, recap ~10 to 15% |
-| pauseAt | The frame at which the player pauses and shows the mic. Always after the karaoke line has played once in full (about narration length plus 1 s), near the end of the practise beat, with at least 60 frames of practise left for the "well done" state on resume |
+| Beat kinds | `hook`, `notice`, `predict`, `explain`, `practise`, `recap` for video atoms; `hook`, `word`, `predict`, `practise` (the say-it beat), `recap` for word tutorials. `predict` is new on 26 October and is not in the `Beat` union yet: see LP-46 |
+| Lengths | 600 to 1200 frames (20 to 40 s), 1200 a hard cap. Video atoms 1200, word tutorials 960 to 1050. See **The beat law** |
+| Beat shares | Superseded by **The two spines**. Beats are 150 to 210 frames each, not a share of the whole |
+| pauseAt | The frame at which the player stops and the learner acts. One per teaching beat, five per video, the first at or before frame 300. A settled frame: the karaoke line has played once in full, nothing is mid-move, the caption is fully lit, and the cue has sprung in 24 frames earlier |
 | Faces | A character is on screen for at least 60% of every explainer; explain beats keep a small presenter in a corner circle when the main area is a diagram |
 | Transitions | 10-frame fade on beat change (as in `CafeExplainer`), plus the specific move written in each scene note |
 | Progress bar | Top strip, one segment per beat, as in Cafe.tsx |
@@ -53,7 +175,7 @@ Named people who are NOT drawn: Amira (a contact name on a phone), Arjun and Yus
 | atom_id | ATM-A2-LST-0004 |
 | title | Platform 4, not 14 |
 | sublevel / strand | A2.1 / LST (Listening) |
-| type | video, 55 s, 1650 frames |
+| type | video, 40 s, 1200 frames (re-cut from 55 s on 26 October) |
 | single target | Word stress tells teens from tens: four**TEEN** (end) vs **FOR**ty (start) |
 | characters | you (on the platform), maya (explain and practise), a tannoy speaker as a "voice" prop |
 | setting | Dubai Metro, Friday evening: gold station roof, orange sky, platform signs 4, 14 and 40 |
@@ -61,15 +183,24 @@ Named people who are NOT drawn: Amira (a contact name on a phone), Arjun and Yus
 
 ### Beats
 
-| id | kind | from | to | narration (TTS) | targets | pauseAt | scene for the animator |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| hook | hook | 0 | 150 | Dubai Metro. Friday evening. | | | Orange evening sky, a flat-vector metro station with its gold curved roof slides up from the bottom; a train glides in from the right and stops with a small overshoot. Title words "Dubai Metro." then "Friday evening." drop in top-left in INK. Cut to the platform as the train doors open. |
-| n1 | notice | 150 | 330 | Platform fourteen. | fourteen | | Interior platform. A tannoy speaker on a pole top-right emits three sound rings; its bubble types "Platform fourteen." and the word grows on TEEN (the syllable scales to 1.3 and bumps up 12 px). you stands centre, nods, and starts walking left towards a hanging sign that reads "4". The sign we actually need, "14", hangs far right and glows ACCENT for a moment. |
-| n2 | notice | 330 | 480 | Platform four. | four | | you now stands under the "4" sign, bag down, looking hopeful. Tannoy bubble: "Platform four." (one bump on FOUR). Nothing arrives: a single leaf blows across the empty track, you tilt their head. Transition: a hard cut as a second sign swings into frame. |
-| n3 | notice | 480 | 630 | Platform forty. | forty | | Three signs now line up overhead: 4, 14, 40. Tannoy bubble: "Platform forty." with the bump on FOR. you looks left, right, left again (head turns on a 12-frame ease each). A small "?" bubble appears over you. The three signs stay and shrink into a row at the top as we fade to the explain beat. |
-| explain | explain | 630 | 1110 | FourTEEN. Stress at the end. FORty. Stress at the start. | fourTEEN, FORty | | PAPER background. maya in a corner circle bottom-left, hand conducting. Centre: a flat-vector seesaw. The word "fourteen" sits on it as two blocks, "four" and "TEEN"; the TEEN block is drawn bigger and heavier, so the seesaw tips to the right (end) with a soft thunk at frame 720. Then "forty" replaces it: the "FOR" block is heavy and the seesaw tips to the left (start) at frame 900. Under the seesaw two labels: "end" under the right side, "start" under the left. At frame 1000 both words appear side by side with the heavy syllable in ACCENT and a small weight icon under it. |
-| practise | practise | 1110 | 1500 | Say it with me. Fourteen. Forty. | Fourteen, Forty | 1320 | Pale blue background, maya large in a white circle (as the cafe practise beat). Karaoke: "Fourteen." then "Forty." in 96 px, with the stressed syllable rising 10 px as it is spoken; maya's hand comes down on each stressed syllable. At frame 1320 the player pauses: the mic pulses top-left with "Your turn". On resume, the two words glow leaf green for 60 frames. |
-| recap | recap | 1500 | 1650 | thirTEEN, THIRty. | thirTEEN, THIRty | | ACCENT background. A white card: "REMEMBER" eyebrow, then two lines: "teen ... stress at the END" with the END in SAFFRON, and "ty ... stress at the START". Below the card the three platform signs 4, 14, 40 spring in with 14 and 40 showing a little weight icon on the stressed side. Hold. |
+Re-cut 26 October 2026 to **The attention law**. Nine beats, not seven: the criterion is a three-way
+contrast (4 / 14 / 40), so it needs three announcement beats, and the stress rule is two sentences, so
+it needs two explain beats. The hook pays for the extra at 2 s, and the whole
+thing lands on 1200 frames with no beat over 180. The old sixteen-second explain and
+thirteen-second practise are gone. The target here is a word, not a line, so ladder rung 4 is "say the
+word" twice and rung 5 is the same job on a new pair, thirteen and thirty.
+
+| id | kind | from | to | narration (TTS) | targets | ask | pauseAt | scene for the animator |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| hook | hook | 0 | 60 | Dubai Metro. Friday evening. | | | | Orange evening sky, a flat-vector metro station with its gold curved roof slides up from the bottom; a train glides in from the right and stops with a small overshoot. Title words "Dubai Metro." then "Friday evening." drop in top-left in INK. Cut to the platform as the train doors open at frame 48, so the cut is made before the first beat that teaches. |
+| n1 | notice | 60 | 210 | Platform fourteen. | fourteen | tap | 198 | Interior platform. A tannoy speaker on a pole top-right emits three sound rings; its bubble types "Platform fourteen." and the word grows on TEEN (the syllable scales to 1.3 and bumps up 12 px). you stands centre and nods. The two hanging signs, "4" near and "14" far right, are both in frame and both lit the same, so the question the predict beat asks is visible here. Settled by 186. |
+| predict | predict | 210 | 300 | Which platform? | 4, 14 | predict | 288 | The prediction moment, and this atom is the best case for one: the whole criterion is hearing which number was said. Camera holds on you between the two signs; a thought cloud carries a big ACCENT "?" and the two signs in miniature, 4 on the left and 14 on the right. Nothing is spoken in English; the caption asks the question in the learner's own language. The ask is one tap on a sign. A tap on 14 lights it leaf; a tap on 4 dims it and replays the announcement at 0.75, which is the answer arriving as a consequence rather than as a correction. |
+| n2 | notice | 300 | 450 | Platform four. | four | say the word | 438 | you now stands under the "4" sign, bag down, looking hopeful. Tannoy bubble: "Platform four." (one bump on FOUR). Nothing arrives: a single leaf blows across the empty track, you tilt their head. The learner says "four" at 438, with the empty track behind it. |
+| n3 | notice | 450 | 600 | Platform forty. | forty | say the word | 588 | A second sign swings in on a hard cut and three signs now line up overhead: 4, 14, 40. Tannoy bubble: "Platform forty." with the bump on FOR. you looks left, right, left again (head turns on a 12-frame ease each). The learner says "forty" at 588. The three signs then shrink into a row at the top as we fade to the explain beat. |
+| explain | explain | 600 | 750 | FourTEEN. Stress at the end. | fourTEEN | tap | 738 | PAPER background. maya in a corner circle bottom-left, hand conducting. Centre: a flat-vector seesaw. The word "fourteen" sits on it as two blocks, "four" and "TEEN"; the TEEN block is drawn bigger and heavier, so the seesaw tips to the right with a soft thunk at frame 660. The label "end" fades in under the low side at 700. One idea on the page, nothing else. The tap is on the two syllable chips. |
+| explain2 | explain | 750 | 900 | FORty. Stress at the start. | FORty | tap | 888 | The same seesaw. "forty" replaces "fourteen" as two blocks (frame 762); the "FOR" block is heavy and the board tips the other way at 798, same thunk, mirrored. The label "start" fades in under the new low side. At 840 both words appear side by side with the heavy syllable in ACCENT and a small weight icon under it, which is the picture the recap reuses. |
+| practise | practise | 900 | 1080 | Say it with me. Thirteen. Thirty. | Thirteen, Thirty | say it changed | 1068 | Pale blue background, maya large in a white circle (as the cafe practise beat). A new pair, which is the point: the rule has to move off the two words the learner has just heard thirty times. Karaoke "Thirteen." then "Thirty." in 96 px, the stressed syllable rising 10 px as it is spoken, maya's hand coming down on each. The line is complete by 1032 and the mic cue has sprung in by 1044, so 1068 holds a settled frame. On resume both words glow leaf for 36 frames. |
+| recap | recap | 1080 | 1200 | You can hear four, fourteen and forty. Again tomorrow. | | | | ACCENT background. A white card: two lines, "teen ... stress at the END" with the END in SAFFRON, and "ty ... stress at the START". Below the card the three platform signs 4, 14, 40 spring in with 14 and 40 showing a little weight icon on the stressed side. The narration is the self-efficacy close and is spoken in the learner's own language; the card is the check stem. Hold with nothing moving. |
 
 ### L1 captions
 
@@ -77,17 +208,21 @@ Named people who are NOT drawn: Amira (a contact name on a phone), Arjun and Yus
 | --- | --- | --- | --- | --- | --- | --- |
 | hook | مترو دبي. مساء الجمعة. | Metro de Dubái. Viernes por la tarde. | दुबई मेट्रो। शुक्रवार की शाम। | Метро Дубая. Вечер пятницы. | Dubai Metrosu. Cuma akşamı. | 迪拜地铁。星期五傍晚。 |
 | n1 | الرصيف أربعة عشر. | Andén catorce. | प्लेटफ़ॉर्म चौदह। | Платформа четырнадцать. | Peron on dört. | 十四号站台。 |
+| predict | أي رصيف؟ | ¿Qué andén? | कौन सा प्लेटफ़ॉर्म? | Какая платформа? | Hangi peron? | 哪个站台？ |
 | n2 | الرصيف أربعة. | Andén cuatro. | प्लेटफ़ॉर्म चार। | Платформа четыре. | Peron dört. | 四号站台。 |
 | n3 | الرصيف أربعون. | Andén cuarenta. | प्लेटफ़ॉर्म चालीस। | Платформа сорок. | Peron kırk. | 四十号站台。 |
-| explain | fourTEEN: النبرة في النهاية. FORty: النبرة في البداية. | fourTEEN: acento al final. FORty: al principio. | fourTEEN: ज़ोर अंत में। FORty: ज़ोर शुरू में। | fourTEEN: ударение в конце. FORty: в начале. | fourTEEN: vurgu sonda. FORty: vurgu başta. | fourTEEN 重音在后。FORty 重音在前。 |
+| explain | fourTEEN: النبرة في النهاية. | fourTEEN: acento al final. | fourTEEN: ज़ोर अंत में। | fourTEEN: ударение в конце. | fourTEEN: vurgu sonda. | fourTEEN 重音在后。 |
+| explain2 | FORty: النبرة في البداية. | FORty: acento al principio. | FORty: ज़ोर शुरू में। | FORty: ударение в начале. | FORty: vurgu başta. | FORty 重音在前。 |
 | practise | قلها معي. | Dilo conmigo. | मेरे साथ बोलो। | Скажи со мной. | Benimle söyle. | 跟我一起说。 |
-| recap | teen في النهاية، ty في البداية. | teen al final, ty al principio. | teen अंत में, ty शुरू में। | teen в конце, ty в начале. | teen sonda, ty başta. | teen 在后，ty 在前。 |
+| recap | يمكنك الآن سماع four و fourteen و forty. غدًا مرة أخرى. | Ya distingues four, fourteen y forty. Mañana otra vez. | अब आप four, fourteen और forty पहचान सकते हैं। कल फिर। | Теперь вы различаете four, fourteen и forty. Завтра снова. | Artık four, fourteen ve forty'yi ayırt edebilirsin. Yarın tekrar. | 你现在能听出 four、fourteen 和 forty 了。明天再来。 |
 
 ### Interactive moments
 
-- Tappable words: every caption word (player default); the stressed syllables are rendered as separate tappable chips "four", "TEEN", "FOR", "ty" in the explain beat, each playing only that syllable.
-- At the pause (frame 1320) the learner says: "Fourteen. Forty." Model answer: "Fourteen. Forty." Scored as shadow (timing and stress, not words). A good pass lights the seesaw diagram tipping the right way for each word.
-- Extra tap: in n3, when the tannoy says "Platform forty." the three signs become tappable for 60 frames; tapping 40 makes the sign glow leaf and plays "FORty"; tapping 4 or 14 dims it grey and replays the announcement at 0.75x (no red, no lives).
+- Tappable words: every caption word (player default); the stressed syllables are rendered as separate tappable chips "four", "TEEN", "FOR", "ty" in the two explain beats, each playing only that syllable.
+- Six stops, growing: tap the key word at 198, predict the platform at 288, say "four" at 438 and "forty" at 588, tap the heavy syllable at 738 and 888, say the new pair at 1068. The first ask lands at 6.6 s and no passive stretch runs longer than 6.6 s.
+- At 1068 the learner says "Thirteen. Thirty." Scored as shadow (timing and stress, not words). A good pass lights the seesaw tipping the right way for each word. The pair is deliberately new: saying "fourteen" back after hearing it four times is recognition wearing a microphone.
+- Prediction (frame 288, `predict` beat): one tap on sign 4 or sign 14, before n2 shows what happens. A tap on 14 lights it leaf and plays "platform fourTEEN"; a tap on 4 dims it and replays the announcement at 0.75. Both are answers, neither is a mark. **Not wired yet**: needs the `predict` beat kind and ask kind, LP-46.
+- Extra tap: in n3 the three signs are tappable for 60 frames; tapping 40 makes the sign glow leaf and plays "FORty"; tapping 4 or 14 dims it grey and replays the announcement at 0.75x (no red, no lives).
 
 ---
 
@@ -98,7 +233,7 @@ Named people who are NOT drawn: Amira (a contact name on a phone), Arjun and Yus
 | atom_id | ATM-A1-SPK-0005 |
 | title | Meet Fatima |
 | sublevel / strand | A1.2 / SPK (Speaking) |
-| type | video, 45 s, 1350 frames |
+| type | video, 40 s, 1200 frames (re-cut from 45 s on 26 October) |
 | single target | Three connected "I" sentences: I'm ..., I live in ..., I work in ... |
 | characters | fatima (presenter), you (appears on the badge in the explain beat) |
 | setting | Fatima's small shop in Dubai: striped awning, shelves of tea tins and scarves, a counter, warm morning light |
@@ -106,33 +241,45 @@ Named people who are NOT drawn: Amira (a contact name on a phone), Arjun and Yus
 
 ### Beats
 
-| id | kind | from | to | narration (TTS) | targets | pauseAt | scene for the animator |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| hook | hook | 0 | 135 | Hello. I'm Fatima. | I'm | | Shop front, awning sways 2 degrees. fatima steps out from the door (spring in at frame 10), waves (arm "wave" for 40 frames). A name badge pins itself to her top: "Fatima". Bubble: "Hello. I'm Fatima." with I'm in ACCENT. Camera pushes in slowly over the beat. |
-| n1 | notice | 135 | 285 | I live in Dubai. | I live in | | Behind fatima the shop wall opens like a window onto a flat Dubai skyline (tall tower, sail-shaped hotel, all simple silhouettes in blue). A map pin drops from the top and bounces once on the skyline; a small house icon appears on the pin. fatima points at it. Bubble: "I live in Dubai." |
-| n2 | notice | 285 | 435 | I work in a shop. | I work in | | The skyline slides out; the shop interior slides in. fatima is behind the counter, a tea tin in hand. A hanging sign reading "SHOP" swings in above her. Bubble: "I work in a shop." A customer silhouette (grey, no face) buys a tin, leaves. |
-| n3 | notice | 435 | 585 | I like tea and I don't like coffee. | I like, I don't like | | Two cups slide onto the counter: a tea cup on the left gets a small saffron heart that pops above it; a coffee cup on the right gets a gentle head-shake from fatima and slides back off screen. Bubble: "I like tea and I don't like coffee." Keep it kind: no cross, no frown. |
-| explain | explain | 585 | 930 | I'm, I live, I work. Three sentences. That is you. | I'm, I live, I work | | PAPER background. A large ID-style badge builds in the centre, line by line: "I'm Fatima" (frame 600), "I live in Dubai" (660), "I work in a shop" (720); each "I" word is ACCENT and the three I's line up vertically to show the same shape. At frame 810 the badge flips on its vertical axis: the photo circle now shows you, and the three lines become "I'm ...", "I live in ...", "I work in ..." with dotted blanks. fatima small in the corner circle, nodding. |
-| practise | practise | 930 | 1230 | Say it with me. I live in Dubai and I work in a shop. | I live in, I work in | 1140 | Pale blue background, fatima large in a white circle. Karaoke of "I live in Dubai and I work in a shop." in 88 px over two lines; "in" is underlined in ACCENT both times. At 1140 the mic pulses and the player pauses. On resume the badge from the explain beat reappears small at the bottom with a leaf tick. |
-| recap | recap | 1230 | 1350 | I'm ... I live in ... I work in ... | I'm, I live in, I work in | | ACCENT background, white card: "REMEMBER", then three lines with blanks, each I-phrase in ACCENT and the blank as a saffron dotted line. Under the card three small icons spring in: name badge, map pin, shop sign. |
+Re-cut 26 October 2026 to **The attention law**. On the video spine exactly: eight beats, 1200 frames.
+Two changes beyond re-timing. The old hook carried the first target line, "Hello. I'm Fatima.", which
+made the beat that teaches the one beat with no ask; the hook is now the shop and nothing else, and the
+line moved to n1 where it gets the tap. And the fourth notice beat, "I like tea and I don't like
+coffee.", is cut: the criterion is `CRI-A1.2-SPK-03-01`, three connected sentences with I am, I live, I
+work, and liking tea is a fourth sentence doing none of that work. It was also most of the 5 s this
+video had to lose.
+
+| id | kind | from | to | narration (TTS) | targets | ask | pauseAt | scene for the animator |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| hook | hook | 0 | 120 | A small shop in Dubai. | | | | Shop front, awning sways 2 degrees. fatima steps out from the door (spring in at frame 10), waves (arm "wave" for 40 frames), and a name badge pins itself to her top: "Fatima". No English line yet: the beat says where we are, and the badge says who she is without a sentence. Camera pushes in slowly and settles by 108. |
+| n1 | notice | 120 | 270 | Hello. I'm Fatima. | I'm | tap | 258 | fatima at the door, now close. Bubble: "Hello. I'm Fatima." with "I'm" in ACCENT, typed on the narration, and the badge gives a small answering bounce as "Fatima" is said. The tap is the two chips "I'm" and "Fatima". |
+| n2 | notice | 270 | 420 | I live in Dubai. | I live in | say the word | 408 | Behind fatima the shop wall opens like a window onto a flat Dubai skyline (tall tower, sail-shaped hotel, simple silhouettes in blue). A map pin drops from the top and bounces once on the skyline; a small house icon appears on the pin. fatima points at it. Bubble: "I live in Dubai." The learner says the chunk "I live in", not the whole sentence: rung 2 is deliberately small. |
+| predict | predict | 420 | 540 | What does she do? | a shop, a school, a taxi | predict | 528 | The prediction moment. The skyline slides out and the shop interior slides halfway in, cropped so the counter is visible but the hanging sign is not. A thought cloud over fatima holds three small icons: a shop front, a school, a taxi. Nothing is spoken in English; the caption asks in the learner's own language. The ask is one tap. A tap on the shop lights it leaf; a tap on either other icon slides it gently off and leaves the other two, which is a nudge, not a mark. The answer arrives in n3 either way. |
+| n3 | notice | 540 | 690 | I work in a shop. | I work in | say the line | 678 | The shop interior completes its slide. fatima is behind the counter, a tea tin in hand; the hanging sign reading "SHOP" swings in above her and settles by 600. Bubble: "I work in a shop." A customer silhouette (grey, no face) buys a tin and leaves by 660. The learner says the whole line at 678, with the shop still around it. |
+| explain | explain | 690 | 870 | I'm, I live, I work. The same three sentences are yours. | I'm, I live, I work | tap | 858 | PAPER background. A large ID-style badge builds in the centre, line by line: "I'm Fatima" (frame 700), "I live in Dubai" (740), "I work in a shop" (780); each "I" word is ACCENT and the three I's line up vertically to show the same shape. At frame 812 the badge flips on its vertical axis: the photo circle now shows you, and the three lines become "I'm ...", "I live in ...", "I work in ..." with dotted blanks. fatima small in the corner circle, nodding. Settled by 846; the tap is the three "I" chips. |
+| practise | practise | 870 | 1080 | Say it with me. I live in London and I work in a cafe. | I live in, I work in | say it changed | 1068 | Pale blue background, fatima large in a white circle. A new city and a new job, so the rung is a change of situation and not a repeat: the learner has said Fatima's sentences and now says the same shapes with different words in them. Karaoke in 88 px over two lines; "in" underlined in ACCENT both times, "London" and "a cafe" in SAFFRON. Line complete by 1032, mic cue in by 1044. On resume the flipped badge reappears small at the bottom with a leaf tick. |
+| recap | recap | 1080 | 1200 | You can say where you live and what you do. Again tomorrow. | | | | ACCENT background, white card: three lines with blanks, each I-phrase in ACCENT and the blank a saffron dotted line, which is the check stem. Under the card three small icons spring in: name badge, map pin, shop sign. The narration is the self-efficacy close, in the learner's own language. Hold with nothing moving. |
 
 ### L1 captions
 
 | beat | ar | es | hi | ru | tr | zh |
 | --- | --- | --- | --- | --- | --- | --- |
-| hook | مرحبًا. أنا فاطمة. | Hola. Soy Fatima. | नमस्ते। मैं फ़ातिमा हूँ। | Здравствуйте. Я Фатима. | Merhaba. Ben Fatima. | 你好。我是 Fatima。 |
-| n1 | أعيش في دبي. | Vivo en Dubái. | मैं दुबई में रहती हूँ। | Я живу в Дубае. | Dubai'de yaşıyorum. | 我住在迪拜。 |
-| n2 | أعمل في متجر. | Trabajo en una tienda. | मैं एक दुकान में काम करती हूँ। | Я работаю в магазине. | Bir dükkanda çalışıyorum. | 我在一家商店工作。 |
-| n3 | أحب الشاي ولا أحب القهوة. | Me gusta el té y no el café. | मुझे चाय पसंद है, कॉफ़ी नहीं। | Я люблю чай и не люблю кофе. | Çayı severim, kahveyi sevmem. | 我喜欢茶，不喜欢咖啡。 |
-| explain | ثلاث جمل: I'm، I live، I work. هذا أنت. | Tres frases: I'm, I live, I work. Eso eres tú. | तीन वाक्य: I'm, I live, I work। यही आप हैं। | Три фразы: I'm, I live, I work. Это ты. | Üç cümle: I'm, I live, I work. Bu sensin. | 三句话：I'm、I live、I work。这就是你。 |
+| hook | متجر صغير في دبي. | Una tienda pequeña en Dubái. | दुबई में एक छोटी दुकान। | Небольшой магазин в Дубае. | Dubai'de küçük bir dükkan. | 迪拜的一家小店。 |
+| n1 | مرحبًا. أنا فاطمة. | Hola. Soy Fatima. | नमस्ते। मैं फ़ातिमा हूँ। | Здравствуйте. Я Фатима. | Merhaba. Ben Fatima. | 你好。我是 Fatima。 |
+| n2 | أعيش في دبي. | Vivo en Dubái. | मैं दुबई में रहती हूँ। | Я живу в Дубае. | Dubai'de yaşıyorum. | 我住在迪拜。 |
+| predict | ماذا تعمل؟ | ¿A qué se dedica? | वह क्या काम करती है? | Чем она занимается? | Ne iş yapıyor? | 她做什么工作？ |
+| n3 | أعمل في متجر. | Trabajo en una tienda. | मैं एक दुकान में काम करती हूँ। | Я работаю в магазине. | Bir dükkanda çalışıyorum. | 我在一家商店工作。 |
+| explain | I'm، I live، I work. الجمل الثلاث نفسها لك. | I'm, I live, I work. Esas tres frases son tuyas. | I'm, I live, I work। वही तीन वाक्य आपके हैं। | I'm, I live, I work. Эти три фразы и твои. | I'm, I live, I work. Aynı üç cümle senin de. | I'm、I live、I work。同样三句话也是你的。 |
 | practise | قلها معي. | Dilo conmigo. | मेरे साथ बोलो। | Скажи со мной. | Benimle söyle. | 跟我一起说。 |
-| recap | أنا ... أعيش في ... أعمل في ... | Soy ... Vivo en ... Trabajo en ... | मैं ... हूँ। ... में रहता हूँ। ... में काम करता हूँ। | Я ... Живу в ... Работаю в ... | Ben ... ...'de yaşıyorum. ...'de çalışıyorum. | 我是…… 我住在…… 我在……工作。 |
+| recap | يمكنك أن تقول أين تعيش وماذا تعمل. غدًا مرة أخرى. | Ya puedes decir dónde vives y qué haces. Mañana otra vez. | अब आप बता सकते हैं कि आप कहाँ रहते हैं और क्या करते हैं। कल फिर। | Теперь вы можете сказать, где живёте и чем занимаетесь. Завтра снова. | Artık nerede yaşadığını ve ne iş yaptığını söyleyebilirsin. Yarın tekrar. | 你现在能说出你住在哪里、做什么工作了。明天再来。 |
 
 ### Interactive moments
 
 - Tappable words: all caption words. In the explain beat each of the three badge lines is a tappable chip that replays that line in Fatima's voice.
-- At the pause (frame 1140) the learner says: "I live in Dubai and I work in a shop." Model answer: the same line (shadow item ITM-SPK-0501 scoring: timing and stress). The free-use item that follows asks for the learner's own three sentences, so the recap deliberately shows blanks, not Fatima's answers.
-- Extra tap: in n1 and n2 the map pin and the shop sign are hotspots; tapping plays "I live in Dubai" / "I work in a shop" and highlights "in".
+- Five stops, growing: tap the key words at 258, say "I live in" at 408, predict her job at 528, say the whole line at 678, tap the three I-chips at 858, say it with new words at 1068. The first ask lands at 8.6 s and no passive stretch runs longer than 8.6 s.
+- At 1068 the learner says "I live in London and I work in a cafe." Scored as shadow (ITM-SPK-0501: timing and stress). The free-use item that follows asks for the learner's own three sentences, so both the practise beat and the recap deliberately avoid Fatima's answers.
+- Prediction (frame 528, `predict` beat): one tap on the shop, the school or the taxi, before n3 answers it. A tap on the shop lights it; a tap on either other icon slides it away and leaves the other two. **Not wired yet**: needs the `predict` beat kind and ask kind, LP-46.
+- Extra tap: in n2 and n3 the map pin and the shop sign are hotspots; tapping plays "I live in Dubai" / "I work in a shop" and highlights "in".
 
 ---
 
@@ -143,7 +290,7 @@ Named people who are NOT drawn: Amira (a contact name on a phone), Arjun and Yus
 | atom_id | ATM-A2-MED-0008 |
 | title | The gas bill |
 | sublevel / strand | A2.1 / MED (Mediation) |
-| type | video, 49 s, 1470 frames |
+| type | video, 40 s, 1200 frames (re-cut from 49 s on 26 October) |
 | single target | "Pay by [date]" (on or before), carried into a three-point relay: when, how, the number |
 | characters | sami (has the letter), you (reads it and tells him) |
 | setting | London flat-share kitchen: small table, kettle, fridge with magnets, grey window light, a brown envelope |
@@ -151,35 +298,45 @@ Named people who are NOT drawn: Amira (a contact name on a phone), Arjun and Yus
 
 ### Beats
 
-| id | kind | from | to | narration (TTS) | targets | pauseAt | scene for the animator |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| hook | hook | 0 | 150 | Sami has a letter. He cannot read it. | | | Kitchen. sami at the table holding an unfolded letter whose text is grey squiggles. A "?" bubble grows over his head and wobbles. you walks in from the right with two mugs, puts them down, looks at the letter. Camera pushes in on the letter for the cut. |
-| n1 | notice | 150 | 300 | This is your gas bill. | gas bill | | Close on the letter, now in you's hands. The top squiggle resolves into a header: a small flame icon and "GAS BILL" in INK; the rest stays squiggly. Bubble from you (tail right): "This is your gas bill." sami's "?" shrinks a little. |
-| n2 | notice | 300 | 450 | Please pay by thirty May. | pay by | | The letter's second line resolves: "Pay by 30 May". A wall calendar beside the fridge flips to May; the 30 gets a saffron circle; then all the days from today up to the 30 fill leaf green from left to right (the "on or before" metaphor) and the 31 stays grey. Bubble: "Please pay by thirty May." with "pay by" in ACCENT. |
-| n3 | notice | 450 | 600 | You can pay online or at the shop. | online, at the shop | | Third line resolves. Two icons pop above the table: a phone with a tick on screen (online) and a small corner-shop front (at the shop). A coin hops from the letter into the phone, then a second coin hops into the shop door. Bubble: "You can pay online or at the shop." |
-| n4 | notice | 600 | 750 | Use reference number four four seven one. | reference number | | Fourth line resolves: a tag with four boxes; the digits 4, 4, 7, 1 stamp in one per 12 frames with a soft thump each. The tag is drawn like a luggage label. Bubble: "Use reference number four four seven one." sami leans in, his "?" now half a "!" shape. |
-| explain | explain | 750 | 1080 | Three things: when, how, and the number. | when, how, the number | | PAPER background. The letter shrinks to the left; three stickers peel off it one at a time and fly to the right into sami's open hand: a calendar sticker labelled "when: by 30 May" (frame 800), a phone-and-shop sticker "how: online or at the shop" (880), a tag sticker "the number: 4471" (960). As the third lands, sami's "?" flips into a leaf tick. Below, a one-line strip: "pay by = on or before" with a tiny calendar bar. you small in the corner circle. |
-| practise | practise | 1080 | 1350 | Say it with me. Pay by thirty May, online or at the shop. | Pay by, online, at the shop | 1300 | Pale blue background, you large in a white circle facing sami (small, listening, right). Karaoke of "Pay by thirty May, online or at the shop." in 80 px over two lines. At 1300 the mic pulses and the player pauses. On resume sami gives a thumbs up and the three stickers line up at the bottom with ticks. |
-| recap | recap | 1350 | 1470 | Pay by ... Pay online or ... Use the reference number. | Pay by, Pay online, reference number | | ACCENT background, white card: "REMEMBER" and three lines with blanks, each starting word in ACCENT. The three stickers spring in under the card in a row: calendar, phone and shop, tag. |
+Re-cut 26 October 2026 to **The attention law**. On the video spine: eight beats, 1200 frames. The old
+"This is your gas bill." beat is folded into the hook, where the letter's header resolves to GAS BILL;
+naming the object is not one of the three things the criterion asks the learner to pass on, so it does
+not need a beat or an ask of its own. That pays for the `predict` beat. Rung 5, "say it changed", is
+deliberately missing from this video: the changed situation for a mediation atom is telling somebody
+else, which is the relay item `ITM-MED-0804` immediately after, and the video should not spend the
+learner's first go at it.
+
+| id | kind | from | to | narration (TTS) | targets | ask | pauseAt | scene for the animator |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| hook | hook | 0 | 120 | Sami has a letter. He cannot read it. | | | | Kitchen. sami at the table holding an unfolded letter whose text is grey squiggles. A "?" bubble grows over his head and wobbles. you walks in from the right with two mugs, puts them down, takes the letter. Camera pushes in; at frame 90 the top squiggle resolves into a header, a small flame icon and "GAS BILL" in INK, and the rest stays squiggly. Settled by 108. |
+| n1 | notice | 120 | 270 | Please pay by thirty May. | pay by | tap | 258 | The letter's second line resolves: "Pay by 30 May". A wall calendar beside the fridge flips to May; the 30 gets a saffron circle; then all the days from today up to the 30 fill leaf green from left to right (the "on or before" metaphor) and the 31 stays grey. Bubble: "Please pay by thirty May." with "pay by" in ACCENT. The fill finishes by 240 so the tap sits on a still frame. |
+| predict | predict | 270 | 390 | How can he pay? | online, at the shop | predict | 378 | The prediction moment. The letter's third line is still squiggles. A thought cloud over you holds three icons: a phone, a corner shop and an envelope with a stamp. Nothing is spoken in English; the caption asks in the learner's own language. The ask is one tap, and two of the three are right, which is the honest shape of this scene. A tap on the phone or the shop lights it leaf; a tap on the envelope slides it away gently. n2 answers it either way. |
+| n2 | notice | 390 | 540 | You can pay online or at the shop. | online, at the shop | say the word | 528 | The third line resolves. The two icons the learner just tapped lift out of the thought cloud and settle above the table: a phone with a tick on screen and a small corner-shop front. A coin hops from the letter into the phone, then a second coin hops into the shop door. Bubble: "You can pay online or at the shop." The learner says "online" at 528. |
+| n3 | notice | 540 | 690 | Use reference number four four seven one. | reference number | say the word | 678 | The fourth line resolves: a tag with four boxes; the digits 4, 4, 7, 1 stamp in one per 12 frames with a soft thump each, finishing at 636. The tag is drawn like a luggage label. Bubble: "Use reference number four four seven one." sami leans in, his "?" now half a "!" shape. The learner says "reference number" at 678. |
+| explain | explain | 690 | 870 | Three things: when, how, and the number. | when, how, the number | tap | 858 | PAPER background. The letter shrinks to the left; three stickers peel off it one at a time and fly to the right into sami's open hand: a calendar sticker "when: by 30 May" (frame 710), a phone-and-shop sticker "how: online or at the shop" (760), a tag sticker "the number: 4471" (810). As the third lands, sami's "?" flips into a leaf tick. Below, a one-line strip: "pay by = on or before" with a tiny calendar bar. you small in the corner circle. The tap is the three stickers. |
+| practise | practise | 870 | 1080 | Say it with me. Pay by thirty May, online or at the shop. | Pay by, online, at the shop | say the line | 1068 | Pale blue background, you large in a white circle facing sami (small, listening, right). Karaoke of "Pay by thirty May, online or at the shop." in 80 px over two lines. Line complete by 1032, mic cue in by 1044. On resume sami gives a thumbs up and the three stickers line up at the bottom with ticks. |
+| recap | recap | 1080 | 1200 | You can pass on the three things. Again tomorrow. | | | | ACCENT background, white card: three lines with blanks, each starting word in ACCENT, which is the check stem. The three stickers spring in under the card in a row: calendar, phone and shop, tag. The narration is the self-efficacy close, in the learner's own language. Hold with nothing moving. |
 
 ### L1 captions
 
 | beat | ar | es | hi | ru | tr | zh |
 | --- | --- | --- | --- | --- | --- | --- |
 | hook | لدى سامي رسالة. لا يستطيع قراءتها. | Sami tiene una carta. No puede leerla. | सामी के पास एक चिट्ठी है। वह पढ़ नहीं पाता। | У Сами письмо. Он не может его прочитать. | Sami'nin bir mektubu var. Okuyamıyor. | Sami 有一封信。他看不懂。 |
-| n1 | هذه فاتورة الغاز الخاصة بك. | Esta es tu factura del gas. | यह आपका गैस बिल है। | Это ваш счёт за газ. | Bu sizin gaz faturanız. | 这是你的燃气账单。 |
-| n2 | يرجى الدفع بحلول 30 مايو. | Pague antes del 30 de mayo. | कृपया 30 मई तक भुगतान करें। | Оплатите до 30 мая. | Lütfen 30 Mayıs'a kadar ödeyin. | 请在 5 月 30 日前付款。 |
-| n3 | يمكنك الدفع عبر الإنترنت أو في المتجر. | Puedes pagar en línea o en la tienda. | आप ऑनलाइन या दुकान पर भुगतान कर सकते हैं। | Можно оплатить онлайн или в магазине. | İnternetten veya dükkandan ödeyebilirsiniz. | 可以在线支付或在店里支付。 |
-| n4 | استخدم الرقم المرجعي 4471. | Usa el número de referencia 4471. | रेफ़रेंस नंबर 4471 इस्तेमाल करें। | Укажите номер ссылки 4471. | 4471 referans numarasını kullanın. | 使用参考号 4471。 |
+| n1 | يرجى الدفع بحلول 30 مايو. | Pague antes del 30 de mayo. | कृपया 30 मई तक भुगतान करें। | Оплатите до 30 мая. | Lütfen 30 Mayıs'a kadar ödeyin. | 请在 5 月 30 日前付款。 |
+| predict | كيف يمكنه الدفع؟ | ¿Cómo puede pagar? | वह कैसे भुगतान कर सकता है? | Как он может заплатить? | Nasıl ödeyebilir? | 他可以怎么付款？ |
+| n2 | يمكنك الدفع عبر الإنترنت أو في المتجر. | Puedes pagar en línea o en la tienda. | आप ऑनलाइन या दुकान पर भुगतान कर सकते हैं। | Можно оплатить онлайн или в магазине. | İnternetten veya dükkandan ödeyebilirsiniz. | 可以在线支付或在店里支付。 |
+| n3 | استخدم الرقم المرجعي 4471. | Usa el número de referencia 4471. | रेफ़रेंस नंबर 4471 इस्तेमाल करें। | Укажите номер ссылки 4471. | 4471 referans numarasını kullanın. | 使用参考号 4471。 |
 | explain | ثلاثة أشياء: متى، كيف، والرقم. | Tres cosas: cuándo, cómo y el número. | तीन बातें: कब, कैसे, और नंबर। | Три вещи: когда, как и номер. | Üç şey: ne zaman, nasıl ve numara. | 三件事：什么时候、怎么付、号码。 |
 | practise | قلها معي. | Dilo conmigo. | मेरे साथ बोलो। | Скажи со мной. | Benimle söyle. | 跟我一起说。 |
-| recap | ادفع بحلول ... عبر الإنترنت أو ... استخدم الرقم المرجعي. | Paga antes del ... En línea o ... Usa el número de referencia. | ... तक भुगतान करें। ऑनलाइन या ... रेफ़रेंस नंबर इस्तेमाल करें। | Оплати до ... Онлайн или ... Укажи номер ссылки. | ...'a kadar öde. İnternetten veya ... Referans numarasını kullan. | 在……前付款。在线或……。使用参考号。 |
+| recap | يمكنك نقل الأشياء الثلاثة. غدًا مرة أخرى. | Ya puedes pasar los tres datos. Mañana otra vez. | अब आप तीनों बातें बता सकते हैं। कल फिर। | Теперь вы можете передать все три вещи. Завтра снова. | Artık üç şeyi aktarabilirsin. Yarın tekrar. | 你现在能把这三件事转告别人了。明天再来。 |
 
 ### Interactive moments
 
 - Tappable words: all caption words; in the explain beat the three stickers are tappable chips that replay "by thirty May", "online or at the shop", "reference number four four seven one".
-- At the pause (frame 1300) the learner says: "Pay by thirty May, online or at the shop." Model answer: the same line. Scored as read-aloud; the relay item ITM-MED-0804 that follows asks for all three points in the learner's own words.
-- Extra tap: in n2, the calendar is a hotspot for 90 frames. Tapping any day up to the 30th fills it leaf and plays "pay by thirty May"; tapping the 31st dims it grey and the strip "pay by = on or before" flashes once (consequence first, then the correct form).
+- Five stops, growing: tap the key words at 258, predict how he can pay at 378, say "online" at 528 and "reference number" at 678, tap the three stickers at 858, say the whole line at 1068. The first ask lands at 8.6 s and no passive stretch runs longer than 8.6 s.
+- At 1068 the learner says: "Pay by thirty May, online or at the shop." Model answer: the same line. Scored as read-aloud; the relay item ITM-MED-0804 that follows asks for all three points in the learner's own words, which is where rung 5 lives for this atom.
+- Prediction (frame 378, `predict` beat): one tap on the phone, the shop or the stamped envelope, before n2 answers it. Two of the three are right. **Not wired yet**: needs the `predict` beat kind and ask kind, LP-46.
+- Extra tap: in n1, the calendar is a hotspot for 90 frames. Tapping any day up to the 30th fills it leaf and plays "pay by thirty May"; tapping the 31st dims it grey and the strip "pay by = on or before" flashes once (consequence first, then the correct form).
 
 ---
 

@@ -63,7 +63,7 @@ export function practiseLine(beat: Beat): string {
   return beat.line.replace(/^say it with me[.,!:]?\s*/i, "").trim() || beat.line;
 }
 import { Recorder } from "../items";
-import { Character } from "./lib";
+import { Character, karaoke, wordIsTarget } from "./lib";
 import { scoreReadAloud, type SpeechScore } from "@/lib/learning-path/scoring";
 import { useLp } from "../ui";
 
@@ -92,7 +92,7 @@ export function hasExplainer(atomId: string): boolean {
 }
 
 export function ExplainerPlayer({ atomId, onProgress, onSpoken }: { atomId: string; onProgress: (pct: number) => void; onSpoken?: () => void }) {
-  const { t, lang, l1, say, speed, reduceMotion } = useLp();
+  const { t, lang, l1, say, speed } = useLp();
   const def = EXPLAINERS[atomId];
   const ref = useRef<PlayerRef>(null);
   const [playing, setPlaying] = useState(false);
@@ -161,7 +161,6 @@ export function ExplainerPlayer({ atomId, onProgress, onSpoken }: { atomId: stri
   const start = useCallback(() => { setStarted(true); ref.current?.play(); }, []);
   const replay = useCallback(() => { spokenBeat.current = ""; pausedFor.current = ""; setEnded(false); ref.current?.seekTo(0); ref.current?.play(); }, []);
   const toggle = useCallback(() => { if (playing) ref.current?.pause(); else if (ended) replay(); else ref.current?.play(); }, [playing, ended, replay]);
-  const seekBeat = useCallback((b: Beat) => { spokenBeat.current = ""; pausedFor.current = ""; setPaused(null); ref.current?.seekTo(b.from); ref.current?.play(); }, []);
   const resume = useCallback(() => { setPaused(null); setScore(null); ref.current?.play(); }, []);
   const onTap = useCallback((w: string) => {
     if (!paused) return;
@@ -184,7 +183,12 @@ export function ExplainerPlayer({ atomId, onProgress, onSpoken }: { atomId: stri
   const saidWell = !!score && score.overall >= 0.6;
   const feedback = !score ? "" : saidWell ? (score.overall >= 0.85 ? "Clear." : "Good. That works.") : tries >= 2 ? "That will do for now. It comes back tomorrow." : score.missed.length ? `Nearly. Once more, slower: ${score.missed[0]}.` : "Nearly. Once more, slower.";
 
+  // The caption is drawn over the one inside the composition, in the same place,
+  // so the learner has a single caption and it is tappable. The karaoke count is
+  // the composition's own, so the words still fill in with the narration.
   const words = beat.line.split(" ");
+  const said = karaoke(beat.line, Math.min(1, (frame - beat.from) / Math.max(1, Math.min(120, beat.to - beat.from))));
+  const l1Line = l1Map?.[beat.id];
 
   return (
     <div className="flex h-full flex-col">
@@ -192,6 +196,21 @@ export function ExplainerPlayer({ atomId, onProgress, onSpoken }: { atomId: stri
           takes the width of the phone and the space that was dead below it. */}
       <div className="lp-video relative -mx-5 w-auto" style={{ aspectRatio: "3 / 4", borderRadius: 0, borderInline: "none" }}>
         <Player ref={ref} component={def.component} inputProps={inputProps} durationInFrames={def.duration} fps={def.fps ?? CAFE_FPS} compositionWidth={def.width ?? CAFE_W} compositionHeight={def.height ?? CAFE_H} style={{ width: "100%", height: "100%" }} controls={false} playbackRate={rate} clickToPlay={false} loop={false} moveToBeginningWhenEnded={false} />
+        {started && !paused ? (
+          <div className="lp-vcaption" data-l1={l1Line ? "true" : "false"} aria-label="Tap a word in the caption to hear it">
+            <div className="lp-wordline">
+              {words.map((w, i) => {
+                const target = wordIsTarget(w, beat.target);
+                return (
+                  <button key={`${beat.id}-${i}`} type="button" onClick={() => say(w.replace(/[.,?!]/g, ""))}
+                    className={`lp-word ${target && i < said ? "lp-word-target" : ""}`}
+                    style={i < said ? undefined : { color: "var(--lp-paper-faint)", fontWeight: 400 }}>{w}</button>
+                );
+              })}
+            </div>
+            {l1Line ? <div className="lp-vcaption-l1">{l1Line}</div> : null}
+          </div>
+        ) : null}
         {!started ? (
           <button type="button" aria-label={t("listen")} onClick={start} className="absolute inset-0 z-10 flex items-center justify-center" style={{ background: "var(--lp-dim)" }}>
             <span className="lp-mic" style={{ width: 76, height: 76 }}><Play size={34} /></span>
@@ -246,19 +265,9 @@ export function ExplainerPlayer({ atomId, onProgress, onSpoken }: { atomId: stri
         ) : null}
       </div>
 
-      {/* The line being spoken, tappable word by word. It reads as a sentence,
-          not a row of chips, so the only coloured words are the target form. */}
-      <div className="lp-wordline mt-3" aria-label="Tap a word to hear it">
-        {words.map((w, i) => {
-          const bare = w.replace(/[.,?]/g, "");
-          const target = beat.target?.some((tg) => tg.split(" ").includes(bare));
-          return <button key={`${beat.id}-${i}`} type="button" onClick={() => say(bare)} className={`lp-word ${target ? "lp-word-target" : ""}`}>{w}</button>;
-        })}
-      </div>
-
-      {/* One lead control and one quiet "more". Speed, captions in my language and
-          the parts of the video live behind it, so the screen at rest is the
-          scene, the sentence and Continue. */}
+      {/* One lead control and one quiet "more". Speed and captions in my own
+          language live behind it, so the screen at rest is the scene with its
+          caption, one play control and Continue. */}
       <div className="mt-auto flex items-center justify-between pt-2">
         <button type="button" className="lp-icon-btn lp-icon-btn-lead" aria-label={playing ? "Pause" : "Play"} onClick={started ? toggle : start}>{playing ? <Pause size={20} /> : <Play size={20} />}</button>
         <button type="button" className="lp-icon-btn lp-icon-btn-quiet" aria-label="More options" aria-expanded={more} onClick={() => setMore((v) => !v)}><MoreHorizontal size={18} /></button>
@@ -267,13 +276,7 @@ export function ExplainerPlayer({ atomId, onProgress, onSpoken }: { atomId: stri
         <div className="mt-2 flex items-center gap-2">
           <button type="button" className="lp-icon-btn lp-icon-btn-quiet" aria-label="Captions in my language" aria-pressed={showL1} data-on={showL1} onClick={() => setShowL1((v) => !v)}><Captions size={18} /></button>
           <button type="button" className="lp-icon-btn lp-icon-btn-quiet lp-small" aria-label="Playback speed" style={{ width: 56 }} onClick={() => setRate((r) => (r === 1 ? 0.75 : 1))}>{rate === 1 ? "1.0×" : "0.75×"}</button>
-          <div className="ms-auto flex items-center" aria-label="Parts of this video">
-            {beats.map((b, i) => (
-              <button key={b.id} type="button" aria-label={`Part ${i + 1} of ${beats.length}`} onClick={() => seekBeat(b)}
-                className="lp-beat" data-done={frame >= b.to} data-now={b.id === beat.id}
-                style={reduceMotion ? { transition: "none" } : undefined}><i /></button>
-            ))}
-          </div>
+          <button type="button" className="lp-icon-btn lp-icon-btn-quiet ms-auto" aria-label="Watch from the start" onClick={replay}><RotateCcw size={18} /></button>
         </div>
       ) : null}
     </div>

@@ -100,10 +100,60 @@ function blame(file) {
   }
 }
 
+/** Every source file under the app, walked once and cached, for class lookups. */
+let sourceCache = null;
+function sources() {
+  if (sourceCache) return sourceCache;
+  const out = [];
+  const walk = (dir) => {
+    let entries = [];
+    try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
+    for (const e of entries) {
+      if (e.name === "node_modules" || e.name === ".next" || e.name.startsWith(".")) continue;
+      const p = path.join(dir, e.name);
+      if (e.isDirectory()) walk(p);
+      else if (/\.(tsx?|css)$/.test(e.name)) out.push(p);
+    }
+  };
+  walk(path.join(REPO, "app"));
+  walk(path.join(REPO, "components"));
+  walk(path.join(REPO, "lib"));
+  sourceCache = out.map((p) => {
+    let body = "";
+    try { body = fs.readFileSync(p, "utf8"); } catch { /* raced with another agent's write */ }
+    return { rel: path.relative(REPO, p), body };
+  });
+  return sourceCache;
+}
+
+/**
+ * Where a CSS class comes from: the stylesheet that declares it, then the
+ * components that put it on an element. A style failure names a class, not a
+ * file, so without this the owner has to go looking.
+ */
+function classHomes(cls) {
+  const decl = new RegExp(`\\.${cls.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\w-])`);
+  const used = new RegExp(`["'\\s\`]${cls.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\w-])`);
+  const defs = [];
+  const uses = [];
+  for (const f of sources()) {
+    if (f.rel.endsWith(".css")) { if (decl.test(f.body)) defs.push(f.rel); }
+    else if (used.test(f.body)) uses.push(f.rel);
+  }
+  return [...defs, ...uses.slice(0, 3)];
+}
+
 /** Repo files named in a stack trace or error text, so a failure points at an owner. */
 function suspects(text) {
   const found = new Set();
-  for (const m of String(text).matchAll(/((?:app|components|lib|scripts)\/[\w./-]+\.(?:tsx?|mjs|css))/g)) found.add(m[1]);
+  const s = String(text);
+  for (const m of s.matchAll(/((?:app|components|lib|scripts)\/[\w./-]+\.(?:tsx?|mjs|css))/g)) found.add(m[1]);
+  // Style failures quote the offending selector (`.lp-glass.lp-ask`) instead.
+  for (const m of s.matchAll(/`((?:\.[\w-]+)+)`/g)) {
+    for (const cls of m[1].split(".").filter(Boolean)) {
+      for (const f of classHomes(cls)) found.add(f);
+    }
+  }
   return [...found];
 }
 
@@ -158,7 +208,7 @@ const inspect = (page) =>
     };
     const seeThrough = [...document.querySelectorAll(".lp-video .lp-glass, .lp-video .lp-surface")]
       .filter((el) => vis(el) && (el.innerText || "").trim().length > 0 && alphaOf(window.getComputedStyle(el).backgroundColor) < 0.85)
-      .map((el) => ({ alpha: alphaOf(window.getComputedStyle(el).backgroundColor), text: (el.innerText || "").replace(/\s+/g, " ").trim().slice(0, 40) }));
+      .map((el) => ({ alpha: alphaOf(window.getComputedStyle(el).backgroundColor), cls: String(el.className || ""), text: (el.innerText || "").replace(/\s+/g, " ").trim().slice(0, 40) }));
 
     // A nav laid out for more tabs than it has leaves the tabs bunched up.
     const navEl = document.querySelector(".lp-nav");
@@ -260,7 +310,8 @@ class Run {
       const offscreen = info.primary.filter((b) => b.bottom > info.vh + 1);
       if (offscreen.length) fail(`the main button is off the bottom of the screen (${offscreen[0].text || "primary"} at ${offscreen[0].bottom}px)`);
       for (const g of info.seeThrough) {
-        fail(`a see-through panel (background alpha ${g.alpha}) sits over the lesson scene, so "${g.text}" is read against the picture behind it`);
+        const where = g.cls ? ` on \`.${g.cls.trim().split(/\s+/).join(".")}\`` : "";
+        fail(`a see-through panel (background alpha ${g.alpha})${where} sits over the lesson scene, so "${g.text}" is read against the picture behind it`);
       }
       if (info.nav && info.nav.cols > info.nav.items) {
         warn(`the bottom nav is laid out in ${info.nav.cols} columns for ${info.nav.items} tabs, so the tabs sit in the left ${info.nav.items}/${info.nav.cols} of the bar`);
