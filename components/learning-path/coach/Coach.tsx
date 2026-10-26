@@ -1,11 +1,15 @@
 "use client";
 
-// The coach: a talk-like pronunciation turn with an animated 2D tutor.
-// She says the line, shows it as tappable words, listens, scores the attempt
-// and answers in one short English sentence. While she talks only the figure,
-// the one line and the mic are on screen; the sounds, rhythm and words detail
-// arrives after the attempt. A weak attempt gets the hardest word said slowly
-// and shown big, then one more ask. Two retries at most, then she moves on.
+// The coach: a talk-like speaking turn with an animated 2D tutor. She is the
+// heart of every spoken item, so every item whose modality is spoken comes
+// through here when it is used in a free-use phase: a model line to repeat, an
+// open answer, a three-turn conversation, or retelling a notice to a friend.
+//
+// She opens by speaking, then listens, then answers what was actually said. A
+// weak attempt is never a mark: the word she did not hear comes back slowly and
+// big, then she asks once more. After the third try she still says "good try"
+// and there is always a way to try again. No red, no crosses, no score on a
+// turn that did not land.
 //
 // The figure is the explainer kit character, so the tutor in a lesson and the
 // tutor in practice are the same person. Every pose is a pure function of the
@@ -16,68 +20,121 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Character, type Gesture, type Mood } from "../explainer/lib";
 import { Instruction, Recorder, ResultBars, type ItemProps } from "../items";
 import { loc } from "@/lib/learning-path/i18n";
-import { scoreOpenResponse, scoreReadAloud, type SpeechScore } from "@/lib/learning-path/scoring";
+import { classifyTurn, scoreOpenResponse, scoreReadAloud, scoreRelay, type SceneIntent, type SpeechScore } from "@/lib/learning-path/scoring";
 import { say as sayAtRate, stopSpeaking } from "@/lib/learning-path/speech";
 import type { Item } from "@/lib/learning-path/types";
 import { GlowButton, useLp } from "../ui";
 
-/** The use items the coach takes over from the recorder-only layout. */
+/** Every spoken item is a turn with the coach, not a mic under a prompt. */
 export function isCoachItem(item: Item): boolean {
-  return item.item_type === "say_it_see_it" || item.item_type === "open_response";
+  return item.modality === "spoken";
 }
 
 const FPS = 30;
 const SEED = 23;
 /** The coach never finishes a line before this, so her mouth is seen moving. */
 const MIN_TALK_MS = 900;
-/** One try and two retries. */
+/** One try and two retries before she offers the choice to carry on. */
 const MAX_TRIES = 3;
 
-/** What she says when two retries are spent: no blame, the item comes back. */
-const ENCOURAGE = "Good try. We will practise this again.";
+/** What she says when the third try is spent: no blame, no fail state. */
+const GOOD_TRY = "Good try.";
+/** A target word shorter than this teaches nothing on its own (a suffix). */
+const MIN_TEACH_LEN = 3;
 
 /** A typed stand-in rich enough to pass any open task, for the tester hook. */
 const OPEN_AUTO = "I'm Fatima. I live in Dubai and I work in a shop. Yesterday I worked and tomorrow I will visit a friend. I'd like a coffee please, could I have the bill instead.";
+/** The same typed stand-in the recorder-only relay item used. */
+const RELAY_AUTO = "You must pay by thirty May. You can pay online or at the shop. Use the reference number 4471. You can't eat on the train but water is OK, and stand on the right.";
+/** Typed stand-ins for a three-turn cafe conversation, by turn. */
+const CONVO_AUTO = ["I'd like a latte with oat milk please", "Do you have soy milk instead?", "No, that's fine, thank you"];
 
 type OpenCfg = { targets?: string[]; min_sentences?: number; need?: number; seconds?: number; variants?: string[]; teach_back?: boolean };
+type ConvoCfg = { character?: string; turns?: { say: string; keywords: string[] }[]; need?: number };
+type RelayCfg = { source?: string; questions?: { q: string; keywords: string[] }[]; need?: number; character?: string };
 
-type Stage = "say" | "listen" | "word" | "reply" | "end";
+/** How the attempt is judged, and so how she answers it. */
+type Kind = "model" | "open" | "convo" | "relay";
 
 type Turn = {
-  /** The small line above the stage: what this turn is for. */
-  instruction: string;
-  /** What the coach says, and the one line of text on screen. */
+  /** What she says, and the one line of text on screen. */
   line: string;
-  /** The words the learner says back, when the turn is a model line. */
+  /** The words the learner says back, when the turn has a model line. */
   model?: string;
-  /** One short sentence when the attempt is strong. */
-  reply: string;
+  /** On-task words for one turn of a conversation. */
+  keywords?: string[];
   auto: string;
   seconds: number;
 };
 
-function buildTurn(item: Item, dayParity: number, t: (k: string) => string): Turn {
-  if (item.item_type === "say_it_see_it") {
-    const cfg = (item.config ?? {}) as { intent?: { action?: string }; model?: string };
-    const model = cfg.model ?? String(item.key ?? "");
-    return {
-      instruction: loc(item.stem, "en"),
-      line: model,
-      model,
-      reply: cfg.intent?.action === "bill" ? "Of course. Here you are." : "Coming right up.",
-      auto: model,
-      seconds: 12,
-    };
+type Plan = {
+  kind: Kind;
+  /** The small line above the stage: what this turn is for. */
+  instruction: string;
+  turns: Turn[];
+  /** Conversation: turns that must land. Relay: questions that must be answered. */
+  need: number;
+  /** Relay: what the friend still needs to know. */
+  questions: { q: string; keywords: string[] }[];
+  /** Relay: the notice she reads out first. */
+  source?: string;
+  /** Open answer: the scoring config. */
+  open?: OpenCfg;
+  /** Say it, see it: the one short English sentence the scene answers with. */
+  sceneReply?: string;
+  /** What she says once the whole task has landed. */
+  endReply: string;
+};
+
+function buildPlan(item: Item, dayParity: number, t: (k: string) => string): Plan {
+  const base = { need: 1, questions: [] as { q: string; keywords: string[] }[], endReply: "Thank you. That was clear." };
+  switch (item.item_type) {
+    case "say_it_see_it": {
+      const cfg = (item.config ?? {}) as { intent?: SceneIntent; model?: string };
+      const model = cfg.model ?? String(item.key ?? "");
+      const reply = cfg.intent?.action === "bill" ? "Of course. Here you are." : "Coming right up.";
+      return { ...base, kind: "model", instruction: loc(item.stem, "en"), turns: [{ line: model, model, auto: model, seconds: 12 }], sceneReply: reply, endReply: reply };
+    }
+    case "open_response": {
+      const cfg = (item.config ?? {}) as OpenCfg;
+      const prompt = cfg.variants?.[dayParity % (cfg.variants?.length || 1)] ?? loc(item.stem, "en");
+      return { ...base, kind: "open", instruction: cfg.teach_back ? t("teach_back_title") : t("your_turn"), turns: [{ line: prompt, auto: OPEN_AUTO, seconds: cfg.seconds ?? 30 }], open: cfg };
+    }
+    case "roleplay":
+    case "dialogue_turn": {
+      const cfg = (item.config ?? {}) as ConvoCfg;
+      const turns = (cfg.turns ?? []).map((x, i) => ({ line: x.say, keywords: x.keywords, auto: CONVO_AUTO[i] ?? x.keywords.slice(0, 3).join(" "), seconds: 20 }));
+      if (turns.length) {
+        return { ...base, kind: "convo", instruction: loc(item.stem, "en"), turns, need: cfg.need ?? turns.length, endReply: "Thank you. See you soon." };
+      }
+      break;
+    }
+    case "relay":
+    case "explain_chart":
+    case "translate_gist": {
+      const cfg = (item.config ?? {}) as RelayCfg;
+      if (cfg.source && cfg.questions?.length) {
+        return {
+          ...base,
+          kind: "relay",
+          instruction: loc(item.stem, "en"),
+          turns: [{ line: cfg.source, auto: RELAY_AUTO, seconds: 30 }],
+          need: cfg.need ?? 1,
+          questions: cfg.questions,
+          source: cfg.source,
+          endReply: "Thank you. Now I know what to do.",
+        };
+      }
+      break;
+    }
+    default:
+      break;
   }
+  // Shadow, read aloud, describe the picture, and any other spoken item: one
+  // model line she says first and the learner says back.
   const cfg = (item.config ?? {}) as OpenCfg;
-  const prompt = cfg.variants?.[dayParity % (cfg.variants?.length || 1)] ?? loc(item.stem, "en");
-  return {
-    instruction: cfg.teach_back ? t("teach_back_title") : t("your_turn"),
-    line: prompt,
-    reply: "Thank you. That was clear.",
-    auto: OPEN_AUTO,
-    seconds: cfg.seconds ?? 30,
-  };
+  const model = String(item.key ?? "") || loc(item.stem, "en");
+  return { ...base, kind: "model", instruction: loc(item.stem, "en"), turns: [{ line: model, model, auto: model, seconds: cfg.seconds ?? 12 }] };
 }
 
 const clean = (w: string) => w.toLowerCase().replace(/[^a-z']/g, "");
@@ -89,14 +146,36 @@ function tidy(w: string): string {
 }
 
 /** The word to practise: the longest one the coach did not hear. */
-function hardestWord(score: SpeechScore, line: string): string {
-  const missed = [...score.missed].sort((a, b) => b.length - a.length)[0];
+function hardestWord(missed: string[], line: string): string {
+  const pick = [...missed].sort((a, b) => b.length - a.length)[0];
   const words = line.split(/\s+/);
-  if (missed) {
-    const shown = words.find((w) => clean(w) === missed || clean(w).startsWith(missed.slice(0, 4)));
-    return shown ? shown.replace(/[.,?!]/g, "") : tidy(missed);
+  if (pick) {
+    const shown = words.find((w) => clean(w) === pick || clean(w).startsWith(pick.slice(0, 4)));
+    return shown ? shown.replace(/[.,?!]/g, "") : tidy(pick);
   }
   return (words.sort((a, b) => clean(b).length - clean(a).length)[0] ?? line).replace(/[.,?!]/g, "");
+}
+
+/** What she does about this attempt: a word she did not hear, said slowly and
+ *  shown big, or the whole line again slowly when every word was there and it
+ *  was the shape of it that slipped. Never a generic retry line. */
+function reactTo(score: SpeechScore, turn: Turn): { say: string; show: string; big: boolean } {
+  const line = turn.model ?? turn.line;
+  const teachable = score.missed.filter((m) => m.length >= MIN_TEACH_LEN);
+  if (teachable.length) {
+    const word = hardestWord(teachable, line);
+    return { say: word, show: word, big: true };
+  }
+  return { say: line, show: line, big: false };
+}
+
+/** The one short sentence she answers a landed attempt with: the scene's own
+ *  reply where there is one, otherwise a line about what she actually heard. */
+function replyTo(score: SpeechScore, plan: Plan): string {
+  if (plan.sceneReply) return plan.sceneReply;
+  if (plan.kind === "model") return score.missed.length ? "Good. Almost every word." : "Every word. Well done.";
+  const heard = score.matched.find((m) => m.length >= MIN_TEACH_LEN);
+  return heard ? `Thank you. I heard “${heard}”.` : plan.endReply;
 }
 
 /** A 30 fps clock. Still at a settled frame when the learner reduces motion. */
@@ -116,9 +195,11 @@ function useFrame(still: boolean): number {
   return frame;
 }
 
+type Stage = "say" | "listen" | "word" | "reply" | "end";
+
 export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
   const { t, say, speed, reduceMotion } = useLp();
-  const turn = useMemo(() => buildTurn(item, dayParity, t), [item, dayParity, t]);
+  const plan = useMemo(() => buildPlan(item, dayParity, t), [item, dayParity, t]);
   const frame = useFrame(reduceMotion);
   const frameRef = useRef(frame);
   frameRef.current = frame;
@@ -126,15 +207,28 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
   const [stage, setStage] = useState<Stage>("say");
   const [talking, setTalking] = useState(true);
   const [tries, setTries] = useState(1);
+  const [turnIdx, setTurnIdx] = useState(0);
   const [score, setScore] = useState<SpeechScore | null>(null);
   // The one line on screen is always the last thing the coach said.
-  const [lineText, setLineText] = useState(turn.line);
+  const [lineText, setLineText] = useState(plan.turns[0]?.line ?? "");
   const [note, setNote] = useState("");
   const [heard, setHeard] = useState("");
   const [bigWord, setBigWord] = useState("");
+  const [answered, setAnswered] = useState<boolean[]>([]);
   const [bowFrom, setBowFrom] = useState<number | null>(null);
   const timers = useRef<number[]>([]);
   const opened = useRef(false);
+  const turnRef = useRef(0);
+  const triesRef = useRef(1);
+  // Extra goes after the task has been judged: practice, never fresh evidence.
+  const practice = useRef(false);
+  const said = useRef<string[]>([]);
+  const onTask = useRef(0);
+  const repaired = useRef(false);
+  const asked = useRef(0);
+  const spentMs = useRef(0);
+
+  const turn = plan.turns[Math.min(turnIdx, plan.turns.length - 1)];
 
   const clearTimers = useCallback(() => {
     timers.current.forEach((id) => window.clearTimeout(id));
@@ -169,12 +263,18 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
     else say(text, atEnd);
   }, [later, say, speed]);
 
-  const ask = useCallback(() => {
+  /** She takes the turn: says this line, then listens. */
+  const open = useCallback((i: number) => {
+    const next = plan.turns[Math.min(i, plan.turns.length - 1)];
+    turnRef.current = i;
+    setTurnIdx(i);
     setBigWord("");
-    setLineText(turn.line);
-    speak(turn.line, () => setStage("listen"));
+    setLineText(next.line);
     setStage("say");
-  }, [speak, turn.line]);
+    speak(next.line, () => setStage("listen"));
+  }, [plan, speak]);
+
+  const ask = useCallback(() => open(turnRef.current), [open]);
 
   // The coach opens the turn herself: she speaks first, like a person would.
   useEffect(() => {
@@ -184,6 +284,140 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
   }, [ask]);
 
   useEffect(() => () => { clearTimers(); stopSpeaking(); }, [clearTimers]);
+
+  /** The attempt landed: she answers it and the turn rests. */
+  const land = (line: string) => {
+    setStage("reply");
+    setBowFrom(frameRef.current);
+    setLineText(line);
+    speak(line, () => undefined);
+  };
+
+  /** The tries are spent. She says good try; the word stays on screen and
+   *  there is still a way to have another go. Never a mark, never a fail. */
+  const rest = () => {
+    setStage("end");
+    speak(GOOD_TRY, () => undefined);
+  };
+
+  /** One word or the line again, slowly, then she asks once more. */
+  const teach = (r: { say: string; show: string; big: boolean }) => {
+    setBigWord(r.big ? r.show : "");
+    setLineText(r.show);
+    setStage("word");
+    const last = triesRef.current >= MAX_TRIES || practice.current;
+    triesRef.current = last ? triesRef.current : triesRef.current + 1;
+    if (!last) setTries(triesRef.current);
+    speak(r.say, () => later(() => (last ? rest() : ask()), 300), true);
+  };
+
+  const judgeSaid = (transcript: string, ms: number) => {
+    const s = turn.model
+      ? scoreReadAloud(turn.model, transcript, ms)
+      : scoreOpenResponse(transcript, plan.open ?? {}, ms);
+    // Below the confidence gate nothing is written as evidence and nothing is
+    // scored on screen: she says the line again, slowly, and asks once more.
+    if (s.confidence < 0.6) {
+      setScore(null);
+      setNote(t("practise_again"));
+      teach({ say: turn.model ?? turn.line, show: turn.model ?? turn.line, big: false });
+      return;
+    }
+    setNote("");
+    setScore(s);
+    if (!practice.current) {
+      onAnswer({
+        correct: s.pass,
+        modality: "spoken",
+        response_ms: ms,
+        attempt_n: triesRef.current,
+        score: s.overall,
+        sub_scores: { sounds: s.sounds, rhythm: s.rhythm, words: s.words },
+        ai_confidence: s.confidence,
+        transcript,
+        ai: true,
+        task_id: turn.model ? item.item_id : `${item.item_id}:${dayParity % 2}`,
+      });
+    }
+    if (s.pass) { land(replyTo(s, plan)); return; }
+    teach(reactTo(s, turn));
+  };
+
+  const judgeConvo = (transcript: string, ms: number) => {
+    const i = turnRef.current;
+    const ok = classifyTurn(transcript, turn.keywords ?? []);
+    said.current.push(transcript);
+    spentMs.current += ms;
+    // Off task once: she asks again in her own words, then takes what comes.
+    if (!ok && !repaired.current) {
+      repaired.current = true;
+      setLineText(t("not_caught"));
+      setStage("say");
+      speak(t("not_caught"), () => setStage("listen"));
+      return;
+    }
+    onTask.current += ok ? 1 : 0;
+    const next = i + 1;
+    if (next < plan.turns.length) {
+      repaired.current = false;
+      open(next);
+      return;
+    }
+    const correct = onTask.current >= plan.need;
+    if (!practice.current) {
+      onAnswer({
+        correct,
+        modality: "spoken",
+        response_ms: spentMs.current,
+        attempt_n: triesRef.current,
+        score: onTask.current / plan.turns.length,
+        sub_scores: { on_task: onTask.current, turns: plan.turns.length },
+        ai_confidence: 0.85,
+        transcript: said.current.join(" / "),
+        ai: true,
+        task_id: item.item_id,
+      });
+    }
+    if (correct) land(plan.endReply);
+    else { setLineText(turn.line); rest(); }
+  };
+
+  const judgeRelay = (transcript: string, ms: number) => {
+    said.current.push(transcript);
+    spentMs.current += ms;
+    const all = said.current.join(" ").trim();
+    const r = scoreRelay(all, plan.questions, plan.source ?? "");
+    setAnswered(r.answered);
+    const landed = r.answered.filter(Boolean).length;
+    const ok = landed >= plan.need;
+    // She is still missing something: she asks for that one thing, not for
+    // the whole notice again.
+    if (!ok && asked.current < 2) {
+      asked.current += 1;
+      const missing = plan.questions.find((_, i) => !r.answered[i]);
+      const q = missing?.q ?? turn.line;
+      setLineText(q);
+      setStage("say");
+      speak(q, () => setStage("listen"));
+      return;
+    }
+    if (!practice.current) {
+      onAnswer({
+        correct: ok,
+        modality: "spoken",
+        response_ms: spentMs.current,
+        attempt_n: triesRef.current,
+        score: landed / Math.max(1, plan.questions.length),
+        sub_scores: { answered: landed, paraphrase: r.paraphrase },
+        ai_confidence: all.split(" ").length >= 3 ? 0.85 : 0.5,
+        transcript: all,
+        ai: true,
+        task_id: item.item_id,
+      });
+    }
+    if (ok) land(plan.endReply);
+    else rest();
+  };
 
   const judge = (transcript: string, ms: number) => {
     if (stage === "reply" || stage === "end") return;
@@ -197,49 +431,29 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
       speak(t("not_caught"), () => ask());
       return;
     }
-    const s = turn.model
-      ? scoreReadAloud(turn.model, transcript, ms)
-      : scoreOpenResponse(transcript, (item.config ?? {}) as OpenCfg, ms);
-    setScore(s);
     setHeard(transcript);
-    // Below the confidence gate nothing is written as evidence: just ask again.
-    if (s.confidence < 0.6) {
-      setNote(t("practise_again"));
-      setStage("listen");
-      return;
-    }
+    if (plan.kind === "convo") { judgeConvo(transcript, ms); return; }
+    if (plan.kind === "relay") { judgeRelay(transcript, ms); return; }
+    judgeSaid(transcript, ms);
+  };
+
+  /** Another go, whenever the learner wants one. The task has already been
+   *  judged, so these goes are practice and write nothing. */
+  const again = () => {
+    clearTimers();
+    stopSpeaking();
+    practice.current = true;
+    said.current = [];
+    onTask.current = 0;
+    repaired.current = false;
+    asked.current = 0;
+    spentMs.current = 0;
+    setScore(null);
+    setHeard("");
     setNote("");
-    onAnswer({
-      correct: s.pass,
-      modality: "spoken",
-      response_ms: ms,
-      attempt_n: tries,
-      score: s.overall,
-      sub_scores: { sounds: s.sounds, rhythm: s.rhythm, words: s.words },
-      ai_confidence: s.confidence,
-      transcript,
-      ai: true,
-      task_id: turn.model ? item.item_id : `${item.item_id}:${dayParity % 2}`,
-    });
-    if (s.pass) {
-      setStage("reply");
-      setBowFrom(frameRef.current);
-      setLineText(turn.reply);
-      speak(turn.reply, () => undefined);
-      return;
-    }
-    if (tries >= MAX_TRIES) {
-      setStage("end");
-      setLineText(ENCOURAGE);
-      speak(ENCOURAGE, () => undefined);
-      return;
-    }
-    setTries((n) => n + 1);
-    const word = hardestWord(s, turn.model ?? turn.line);
-    setBigWord(word);
-    setLineText(word);
-    setStage("word");
-    speak(word, () => later(() => ask(), 250), true);
+    setAnswered([]);
+    setBowFrom(null);
+    open(0);
   };
 
   const ended = stage === "reply" || stage === "end";
@@ -256,10 +470,15 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
   const compact = !bigWord && words.length > 8;
   // Only the model line itself has words to mark as missed.
   const missedNow = turn.model && lineText === turn.model ? score?.missed ?? [] : [];
+  // A turn that did not land carries no score: the word she teaches is the
+  // only thing she gives back.
+  const showScore = !!score?.pass && !!heard && stage !== "word";
+  const dots = plan.kind === "relay" ? plan.questions.map((_, i) => !!answered[i])
+    : plan.kind === "convo" ? plan.turns.map((_, i) => i < turnIdx || ended) : [];
 
   return (
     <div className="flex h-full flex-col">
-      <Instruction>{turn.instruction}</Instruction>
+      <Instruction>{plan.instruction}</Instruction>
       <CoachStage
         frame={frame}
         talking={talking}
@@ -267,7 +486,7 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
         mood={mood}
         bow={bow}
         label="Your coach"
-        onTap={() => { clearTimers(); stopSpeaking(); ask(); }}
+        onTap={() => { clearTimers(); stopSpeaking(); speak(lineText, () => (ended ? undefined : setStage("listen"))); }}
         tapLabel={t("listen")}
       />
       <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5" dir="ltr">
@@ -294,10 +513,15 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
           );
         })}
       </div>
-      {/* While she says the hard word that word is the only thing on screen.
-          Once there is a score it stays put, so nothing flickers. */}
+      {/* One dot per thing still to do: the only progress signal on screen. */}
+      {dots.length && stage !== "word" ? (
+        <div className="mt-3 flex items-center justify-center gap-2">
+          {dots.map((on, i) => <span key={i} className={`lp-dot ${on ? "lp-dot-on" : ""}`} />)}
+        </div>
+      ) : null}
+      {/* While she says the hard word that word is the only thing on screen. */}
       {note && stage !== "word" ? <div className="lp-small mt-2 text-center" style={{ color: "var(--lp-sand)" }}>{note}</div> : null}
-      {score && heard && stage !== "word" ? (
+      {showScore && score ? (
         <div className="lp-fade-in mt-3">
           <ResultBars score={score} />
           <div className="lp-small text-center" style={{ color: "var(--lp-paper-faint)" }}>{t("scene_said")}: “{heard}”</div>
@@ -305,7 +529,10 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
       ) : null}
       <div className="mt-auto pt-3">
         {ended ? (
-          <GlowButton onClick={() => { clearTimers(); stopSpeaking(); onNext(); }}>{stage === "reply" ? t("continue") : t("keep_going")}</GlowButton>
+          <div className="flex gap-2">
+            <GlowButton secondary size="normal" className="!w-32" onClick={again}>{t("retry")}</GlowButton>
+            <GlowButton size="normal" onClick={() => { clearTimers(); stopSpeaking(); onNext(); }}>{stage === "reply" ? t("continue") : t("keep_going")}</GlowButton>
+          </div>
         ) : (
           <Recorder
             maxSeconds={turn.seconds}

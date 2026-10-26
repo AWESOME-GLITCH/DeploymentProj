@@ -496,11 +496,6 @@ function OfficeScene({ frame }: { frame: number }) {
         <WallClock cx={780} cy={330} r={130} frame={frame} hourDeg={hourDeg} minuteDeg={minuteDeg} pulseAt={16} />
         <Chair x={300} baseY={1070} scale={1.1} />
         <DustPuff frame={frame} from={30} x={248} y={944} />
-        {/* the desk you sit at; it hides the legs so you read as seated */}
-        <rect x="-40" y="1150" width="1160" height="40" rx="14" fill={WOOD_LIGHT} />
-        <rect x="-40" y="1190" width="1160" height="18" fill={WOOD_DARK} />
-        <rect x="60" y="1208" width="34" height="232" fill={WOOD} />
-        <rect x="960" y="1208" width="34" height="232" fill={WOOD} />
       </Stage>
 
       {/* the focus ground the word beats play on */}
@@ -531,13 +526,22 @@ function OfficeScene({ frame }: { frame: number }) {
         </g>
       </Stage>
 
+      {/* the desk, drawn over you so the legs are hidden and you read as seated */}
+      <Stage style={{ opacity: 1 - focus }}>
+        <rect x="-40" y="1150" width="1160" height="40" rx="14" fill={WOOD_LIGHT} />
+        <rect x="-40" y="1190" width="1160" height="18" fill={WOOD_DARK} />
+        <rect x="-40" y="1208" width="1160" height="232" fill={WOOD} />
+        <rect x="150" y="1246" width="300" height="130" rx="10" fill="none" stroke={WOOD_DARK} strokeWidth="5" opacity="0.45" />
+        <rect x="630" y="1246" width="300" height="130" rx="10" fill="none" stroke={WOOD_DARK} strokeWidth="5" opacity="0.45" />
+      </Stage>
+
       {/* the phone: picked up in the hook, then the stage for every word beat */}
       {frame >= 88 ? (
         <Stage>
           <g transform={`translate(${phoneCx - 640} ${phoneCy - 701}) translate(640 701) scale(${phoneS * springIn(frame, 88, { damping: 11, stiffness: 180 })}) translate(-640 -701)`}>
             <Phone frame={frame}>
               {/* w1: the greeting types itself in */}
-              <ChatBubble frame={frame} from={186} lines={["Hi Amira."]} side="me" baseY={420} w={262} cps={0.55} />
+              <ChatBubble frame={frame} from={178} lines={["Hi Amira."]} side="me" baseY={420} w={262} cps={0.55} />
               <WaveHand frame={frame} from={232} x={508} y={498} size={0.72} />
               {frame >= 252 ? (
                 <g opacity={tween(frame, 252, 268, 0, 1, EASE.out)}>
@@ -557,8 +561,8 @@ function OfficeScene({ frame }: { frame: number }) {
                 </g>
               ) : null}
               {/* the compose area: tiles in the wrong order, put right */}
-              {frame >= 170 && frame < 300 ? (
-                <g opacity={tween(frame, 170, 186, 0, 1, EASE.out) * (1 - tween(frame, 288, 300, 0, 1, EASE.in))}>
+              {frame >= 148 && frame < 300 ? (
+                <g opacity={tween(frame, 148, 164, 0, 1, EASE.out) * (1 - tween(frame, 288, 300, 0, 1, EASE.in))}>
                   <rect x={SCR_L} y={TILE_Y} width={SCR.w - 48} height={TILE_H} rx="22" fill="#fff" stroke={FOG} strokeWidth="4" />
                   <rect
                     x={SCR_L + 26} y={TILE_Y + 18} width="4" height="40"
@@ -577,7 +581,7 @@ function OfficeScene({ frame }: { frame: number }) {
                 <TileRow
                   frame={frame} appear={566} tiles={W3_WRONG} order={["are", "you", "ok"]}
                   hopAt={612} standAt={650} labelAt={662} sendAt={664} liftTo={266}
-                  labels={{ are: ["are"], you: ["you"] }}
+                  labels={{}}
                 />
               ) : null}
             </Phone>
@@ -609,7 +613,6 @@ function PractiseScene({ frame }: { frame: number }) {
   const yourTurn = frame >= 1040;
   const turn = springIn(frame, 1040, { damping: 9, stiffness: 160 });
   const resumed = frame >= 1046;
-  const youGesture = frame < 1044 ? { g: "raise" as const, at: 886, from: "idle" as const } : { g: "thumbs" as const, at: 1046, from: "raise" as const };
 
   return (
     <AbsoluteFill style={{ background: "#eaf1fb" }}>
@@ -622,7 +625,7 @@ function PractiseScene({ frame }: { frame: number }) {
           <g clipPath="url(#wrt7-you)">
             <Character
               who="you" x={540} y={1170} scale={2} facing={1} frame={frame} enter={876}
-              mood={resumed ? "happy" : "neutral"} gesture={youGesture.g} gestureAt={youGesture.at} from={youGesture.from} seed={4}
+              mood={resumed ? "happy" : "neutral"} gesture="raise" gestureAt={886} seed={4}
             />
             {/* the phone held up, the one the thread was typed on */}
             <g transform={`rotate(-7 750 365)`}>
@@ -655,7 +658,7 @@ function PractiseScene({ frame }: { frame: number }) {
             key={l.text}
             style={{
               position: "absolute", left: 60, right: 60, top: 790 + li * 118, display: "flex", flexWrap: "wrap",
-              justifyContent: "center", columnGap: 22, fontSize: 88, fontWeight: 800, lineHeight: 1.12, zIndex: 0,
+              justifyContent: "center", columnGap: 30, fontSize: 88, fontWeight: 800, lineHeight: 1.12, zIndex: 0,
             }}
           >
             {ws.map((w, i) => {
@@ -674,12 +677,19 @@ function PractiseScene({ frame }: { frame: number }) {
                     zIndex: 0,
                   }}
                 >
-                  {/* on resume the question marks ping leaf green */}
+                  {/* on resume only the question mark pings leaf green */}
                   {last && resumed ? (
-                    <span style={{ color: SEA }}>
+                    <>
                       {w.slice(0, -1)}
-                      <span style={{ display: "inline-block", transform: `scale(${1 + 0.3 * (1 - springIn(frame, 1046 + li * 8, { damping: 7, stiffness: 240 }))})` }}>?</span>
-                    </span>
+                      <span
+                        style={{
+                          display: "inline-block", color: SEA,
+                          transform: `scale(${1 + 0.35 * (1 - springIn(frame, 1046 + li * 8, { damping: 7, stiffness: 240 }))})`,
+                        }}
+                      >
+                        ?
+                      </span>
+                    </>
                   ) : (
                     w
                   )}
@@ -704,7 +714,7 @@ const SLOTS: { label: string; w: number }[] = [
 
 function RecapScene({ frame }: { frame: number }) {
   const a = springIn(frame, 1086, { damping: 11, stiffness: 110 });
-  let sx = (1080 - (376 + 200 + 200 + 40)) / 2;
+  let sx = (1080 - (376 + 200 + 200 + 56)) / 2;
   return (
     <AbsoluteFill style={{ background: ACCENT }}>
       <Stage>
@@ -718,12 +728,12 @@ function RecapScene({ frame }: { frame: number }) {
         {/* the three-slot shape: question word, are, you */}
         {SLOTS.map((s, i) => {
           const x = sx;
-          sx += s.w + 20;
-          const sp = springIn(frame, 1118 + i * 10, { damping: 9, stiffness: 190 });
+          sx += s.w + 28;
+          const sp = springIn(frame, 1100 + i * 8, { damping: 9, stiffness: 190 });
           return (
-            <g key={s.label} transform={`translate(${x + s.w / 2} 836) scale(${sp}) translate(${-(x + s.w / 2)} -836)`}>
-              <rect x={x} y="772" width={s.w} height="128" rx="34" fill="none" stroke={SAFFRON} strokeWidth="7" strokeDasharray="18 14" />
-              <text x={x + s.w / 2} y="854" textAnchor="middle" fontFamily={FONT} fontWeight="800" fontSize={i ? 50 : 38} fill={PAPER}>
+            <g key={s.label} transform={`translate(${x + s.w / 2} 736) scale(${sp}) translate(${-(x + s.w / 2)} -736)`}>
+              <rect x={x} y="672" width={s.w} height="128" rx="34" fill="none" stroke={SAFFRON} strokeWidth="7" strokeDasharray="18 14" />
+              <text x={x + s.w / 2} y="754" textAnchor="middle" fontFamily={FONT} fontWeight="800" fontSize={i ? 50 : 38} fill={PAPER}>
                 {s.label}
               </text>
             </g>
@@ -731,13 +741,13 @@ function RecapScene({ frame }: { frame: number }) {
         })}
 
         {/* the thread shrinks into the corner */}
-        <g transform={`translate(888 1046) scale(${springIn(frame, 1140, { damping: 9, stiffness: 180 })}) translate(-888 -1046)`}>
-          <rect x="828" y="952" width="120" height="196" rx="24" fill={PHONE_BODY} stroke={PAPER} strokeWidth="5" />
-          <rect x="838" y="968" width="100" height="164" rx="14" fill={PHONE_SCREEN} />
-          <rect x="844" y="974" width="88" height="22" rx="8" fill={ACCENT} />
-          <rect x="876" y="1006" width="56" height="26" rx="11" fill={SAFFRON} />
-          <rect x="844" y="1042" width="52" height="26" rx="11" fill={GREY_BUBBLE} />
-          <rect x="876" y="1078" width="56" height="26" rx="11" fill={SAFFRON} />
+        <g transform={`translate(540 976) scale(${springIn(frame, 1124, { damping: 9, stiffness: 180 })}) translate(-540 -976)`}>
+          <rect x="480" y="882" width="120" height="196" rx="24" fill={PHONE_BODY} stroke={PAPER} strokeWidth="5" />
+          <rect x="490" y="898" width="100" height="164" rx="14" fill={PHONE_SCREEN} />
+          <rect x="496" y="904" width="88" height="22" rx="8" fill={ACCENT} />
+          <rect x="528" y="936" width="56" height="26" rx="11" fill={SAFFRON} />
+          <rect x="496" y="972" width="52" height="26" rx="11" fill={GREY_BUBBLE} />
+          <rect x="528" y="1008" width="56" height="26" rx="11" fill={SAFFRON} />
         </g>
       </Stage>
 
@@ -754,14 +764,14 @@ function RecapScene({ frame }: { frame: number }) {
             Where{" "}
             <span style={{ position: "relative", display: "inline-block", color: ACCENT, zIndex: 0 }}>
               are
-              <Highlight frame={frame} from={1114} color={SAFFRON} />
+              <Highlight frame={frame} from={1098} color={SAFFRON} />
             </span>{" "}
             you?
           </div>
           <div style={{ fontSize: 78, fontWeight: 800, color: INK, lineHeight: 1.14, marginTop: 6 }}>
             <span style={{ position: "relative", display: "inline-block", color: ACCENT, zIndex: 0 }}>
               Are
-              <Highlight frame={frame} from={1126} color={SAFFRON} />
+              <Highlight frame={frame} from={1108} color={SAFFRON} />
             </span>{" "}
             you OK?
           </div>
