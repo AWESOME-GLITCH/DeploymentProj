@@ -213,8 +213,8 @@ function CafeScene({ frame }: { frame: number }) {
 
   // the oat carton leaves the slot into leo's hand, is tipped, then goes away
   const lifted = tween(frame, 196, 224, 0, 1, EASE.inOut);
-  const liftX = SLOT_X[0] + (372 - SLOT_X[0]) * lifted;
-  const liftY = SLOT_Y + (742 - SLOT_Y) * lifted;
+  const liftX = SLOT_X[0] + (458 - SLOT_X[0]) * lifted;
+  const liftY = SLOT_Y + (568 - SLOT_Y) * lifted;
   const tip = tween(frame, 228, 254, 0, 180, EASE.inOut);
   const oatGone = tween(frame, 288, 306, 1, 0, EASE.in);
   const slotEmpty = frame >= 206;
@@ -230,9 +230,9 @@ function CafeScene({ frame }: { frame: number }) {
   const leoGesture = hook
     ? { g: "wave" as const, at: 8, from: "idle" as const }
     : n1
-      ? { g: "point" as const, at: 190, from: "wave" as const }
+      ? { g: "raise" as const, at: 188, from: "wave" as const }
       : n2
-        ? { g: "idle" as const, at: 306, from: "point" as const }
+        ? { g: "idle" as const, at: 306, from: "raise" as const }
         : n3
           ? { g: "raise" as const, at: 462, from: "idle" as const }
           : { g: "serve" as const, at: 560, from: "raise" as const };
@@ -281,15 +281,23 @@ function CafeScene({ frame }: { frame: number }) {
           {frame >= 196 && frame < 306 ? (
             <g opacity={oatGone}>
               <Carton x={liftX} baseY={liftY} w={64} color={OAT} sprig tilt={tip} />
-              <Drop frame={frame} from={258} x={liftX + 32} y={liftY - 96} to={880} />
+              <Drop frame={frame} from={258} x={liftX + 36} y={liftY + 6} to={872} />
             </g>
           ) : null}
           <CafeCounter frame={frame}>
+            {/* the oat carton the order is about, bouncing on the counter */}
+            {hook ? (
+              <g transform={`translate(0 ${Math.sin(frame / 7) * 8 - 8})`}>
+                <g transform={`translate(175 876) scale(${springIn(frame, 46, { damping: 8, stiffness: 190 })}) translate(-175 -876)`}>
+                  <Carton x={132} baseY={876} w={86} color={OAT} sprig />
+                </g>
+              </g>
+            ) : null}
             {/* leo holds up the soy carton in n3, then pours and serves in n4 */}
-            {frame >= 452 && frame < 560 ? (
+            {frame >= 452 && frame < 566 ? (
               <g>
-                <Carton x={392} baseY={790} w={72} color={SOY} label="SOY" />
-                <Tick frame={frame} from={486} x={428} y={704} size={0.85} />
+                <Carton x={458} baseY={568} w={84} color={SOY} label="SOY" />
+                <Tick frame={frame} from={486} x={500} y={452} size={0.8} />
               </g>
             ) : null}
             {n4 ? (
@@ -310,36 +318,13 @@ function CafeScene({ frame }: { frame: number }) {
         </Stage>
       </Layer>
 
-      {/* the oat carton icon that bounces beside the hook bubble */}
-      {hook ? (
-        <Stage>
-          <g transform={`translate(0 ${Math.sin(frame / 7) * 9 - 9}) scale(${springIn(frame, 52, { damping: 8, stiffness: 190 })})`} style={{ transformOrigin: "900px 560px" }}>
-            <Carton x={866} baseY={596} w={72} color={OAT} sprig />
-          </g>
-        </Stage>
-      ) : null}
-
       {hook ? <SpeechBubble text="A latte with oat milk, please." x={150} y={168} w={660} from={30} frame={frame} tail="right" tailX={530} /> : null}
       {n1 ? <SpeechBubble text="Sorry, we're out of oat milk." targets={["out of"]} x={96} y={176} w={620} from={162} frame={frame} tail="left" tailX={236} /> : null}
       {n2 ? <SpeechBubble text="Do you have soy milk instead?" targets={["instead"]} x={150} y={168} w={660} from={314} frame={frame} tail="right" tailX={530} /> : null}
       {n3 ? <SpeechBubble text="Yes, we do." x={96} y={214} w={400} from={464} frame={frame} tail="left" tailX={210} /> : null}
       {n4 ? <SpeechBubble text="That's fine, thank you." targets={["That's fine"]} x={150} y={196} w={620} from={554} frame={frame} tail="right" tailX={500} /> : null}
 
-      {/* "instead" lands last, with the saffron underline the storyboard asks for */}
-      {n2 && frame >= 392 ? (
-        <div style={{ position: "absolute", left: 0, right: 0, top: 452, display: "flex", justifyContent: "center" }}>
-          <div
-            style={{
-              position: "relative", display: "inline-block", fontFamily: FONT, fontSize: 96, fontWeight: 800, color: ACCENT, lineHeight: 1,
-              transform: `scale(${springIn(frame, 392, { damping: 7, stiffness: 230 })})`, zIndex: 0,
-            }}
-          >
-            instead
-            <Highlight frame={frame} from={406} color={SAFFRON} />
-          </div>
-        </div>
-      ) : null}
-      {n3 ? <Badge frame={frame} from={496} text="soy" x={640} y={660} size={96} color={SEA} /> : null}
+      {n3 ? <Badge frame={frame} from={500} text="soy" x={768} y={672} size={92} color={SEA} /> : null}
     </AbsoluteFill>
   );
 }
@@ -369,7 +354,7 @@ function ExplainScene({ frame }: { frame: number }) {
           <pattern id="int9-dots" width="44" height="44" patternUnits="userSpaceOnUse">
             <circle cx="22" cy="22" r="3" fill={INK} opacity="0.08" />
           </pattern>
-          <clipPath id="int9-maya"><circle cx="936" cy="1052" r="96" /></clipPath>
+          <clipPath id="int9-maya"><circle cx="940" cy="1084" r="86" /></clipPath>
         </defs>
         <rect width="1080" height="1440" fill="url(#int9-dots)" />
 
@@ -391,27 +376,27 @@ function ExplainScene({ frame }: { frame: number }) {
 
         {/* the question as a three-carriage train */}
         <g opacity={tween(frame, 926, 952, 0, 1, EASE.out)} transform={`translate(${trainX} 0)`}>
-          <rect x="78" y="1004" width="924" height="10" rx="5" fill={INK} opacity="0.25" />
+          <rect x="78" y="948" width="924" height="10" rx="5" fill={INK} opacity="0.25" />
           {TRAIN.map((car, i) => {
             const x = 96 + carX;
             carX += car.w + 18;
             return (
               <g key={car.text}>
-                <rect x={x + 8} y="844" width={car.w} height="150" rx="22" fill={INK} opacity="0.18" />
-                <rect x={x} y="836" width={car.w} height="150" rx="22" fill="#fff" stroke={INK} strokeWidth="6" />
+                <rect x={x + 8} y="788" width={car.w} height="150" rx="22" fill={INK} opacity="0.18" />
+                <rect x={x} y="780" width={car.w} height="150" rx="22" fill="#fff" stroke={INK} strokeWidth="6" />
                 <text
-                  x={x + car.w / 2} y="928" textAnchor="middle" fontFamily={FONT} fontWeight="800"
+                  x={x + car.w / 2} y="872" textAnchor="middle" fontFamily={FONT} fontWeight="800"
                   fontSize={car.accent ? 58 : 52} fill={car.accent ? ACCENT : INK}
                 >
                   {car.text}
                 </text>
-                <circle cx={x + 42} cy="1002" r="22" fill={INK} />
-                <circle cx={x + car.w - 42} cy="1002" r="22" fill={INK} />
-                {i < TRAIN.length - 1 ? <rect x={x + car.w} y="968" width="18" height="12" rx="6" fill={INK} /> : null}
+                <circle cx={x + 42} cy="946" r="22" fill={INK} />
+                <circle cx={x + car.w - 42} cy="946" r="22" fill={INK} />
+                {i < TRAIN.length - 1 ? <rect x={x + car.w} y="912" width="18" height="12" rx="6" fill={INK} /> : null}
                 {car.accent ? (
                   <g>
-                    <line x1={x + car.w - 30} y1="836" x2={x + car.w - 30} y2="770" stroke={INK} strokeWidth="6" />
-                    <path d={`M${x + car.w - 30} 770 L${x + car.w + 44} 788 L${x + car.w - 30} 806 Z`} fill={SAFFRON} />
+                    <line x1={x + car.w - 30} y1="780" x2={x + car.w - 30} y2="716" stroke={INK} strokeWidth="6" />
+                    <path d={`M${x + car.w - 30} 716 L${x + car.w + 42} 734 L${x + car.w - 30} 752 Z`} fill={SAFFRON} />
                   </g>
                 ) : null}
               </g>
@@ -420,12 +405,12 @@ function ExplainScene({ frame }: { frame: number }) {
         </g>
 
         {/* maya presents from the corner circle */}
-        <g transform={`translate(936 1052) scale(${maya}) translate(-936 -1052)`}>
-          <circle cx="944" cy="1062" r="96" fill={INK} />
-          <circle cx="936" cy="1052" r="96" fill="#fff" />
-          <circle cx="936" cy="1052" r="96" fill="none" stroke={SAFFRON} strokeWidth="9" />
+        <g transform={`translate(940 1084) scale(${maya}) translate(-940 -1084)`}>
+          <circle cx="948" cy="1094" r="86" fill={INK} />
+          <circle cx="940" cy="1084" r="86" fill="#fff" />
+          <circle cx="940" cy="1084" r="86" fill="none" stroke={SAFFRON} strokeWidth="9" />
           <g clipPath="url(#int9-maya)">
-            <Character who="maya" x={936} y={1292} scale={0.72} facing={-1} frame={frame} enter={708} talking={frame > 720 && frame < 900} mood="happy" gesture="point" gestureAt={742} />
+            <Character who="maya" x={940} y={1300} scale={0.64} facing={-1} frame={frame} enter={708} talking={frame > 720 && frame < 900} mood="happy" gesture="point" gestureAt={742} />
           </g>
         </g>
       </Stage>
@@ -433,7 +418,7 @@ function ExplainScene({ frame }: { frame: number }) {
       <Eyebrow text="WHAT THEY MEAN" x={80} y={150} frame={frame} from={700} />
       <KineticText frame={frame} from={756} text="out of = none left" x={80} y={562} size={56} color={INK} targets={["out", "of"]} targetColor={ACCENT} stagger={4} />
       <KineticText frame={frame} from={876} text="instead = in its place" x={80} y={650} size={56} color={INK} targets={["instead"]} targetColor={ACCENT} marker={SAFFRON} markerDelay={14} stagger={4} />
-      <Eyebrow text="INSTEAD GOES LAST" x={80} y={760} frame={frame} from={1006} size={32} />
+      <Eyebrow text="INSTEAD GOES LAST" x={80} y={716} frame={frame} from={1006} size={32} />
     </AbsoluteFill>
   );
 }
@@ -454,7 +439,7 @@ function PractiseScene({ frame }: { frame: number }) {
   const circle = springIn(frame, 1050, { damping: 11, stiffness: 120 });
   const yourTurn = frame >= 1260;
   const turn = springIn(frame, 1260, { damping: 9, stiffness: 160 });
-  const leoGesture = frame < 1258 ? { g: "listen" as const, at: 1068, from: "idle" as const } : { g: "thumbs" as const, at: 1264, from: "listen" as const };
+  const leoGesture = frame < 1292 ? { g: "listen" as const, at: 1068, from: "idle" as const } : { g: "thumbs" as const, at: 1292, from: "listen" as const };
 
   return (
     <AbsoluteFill style={{ background: "#eaf1fb" }}>
@@ -466,7 +451,7 @@ function PractiseScene({ frame }: { frame: number }) {
           <circle cx="540" cy="440" r="300" fill="none" stroke={SAFFRON} strokeWidth="14" />
           <g clipPath="url(#int9-leo)">
             <Character
-              who="leo" x={540} y={1170} scale={2} facing={1} frame={frame} enter={1054}
+              who="leo" x={540} y={1186} scale={1.88} facing={1} frame={frame} enter={1054}
               talking={frame > 1070 && frame < 1240} mood="happy"
               gesture={leoGesture.g} gestureAt={leoGesture.at} from={leoGesture.from}
             />
@@ -537,11 +522,15 @@ function RecapScene({ frame }: { frame: number }) {
           </pattern>
         </defs>
         <rect width="1080" height="1440" fill="url(#int9-stripes)" />
-        <g transform={`translate(392 1120) scale(${springIn(frame, 1430, { damping: 9, stiffness: 180 })}) translate(-392 -1120)`}>
-          <Carton x={340} baseY={1120} w={104} color={OAT} dotted />
+        <g transform={`translate(418 1004) scale(${springIn(frame, 1428, { damping: 9, stiffness: 180 })}) translate(-418 -1004)`}>
+          <Carton x={356} baseY={1004} w={124} color={OAT} dotted dash={PAPER} />
         </g>
-        <g transform={`translate(688 1120) scale(${springIn(frame, 1442, { damping: 9, stiffness: 180 })}) translate(-688 -1120)`}>
-          <Carton x={636} baseY={1120} w={104} color={SOY} label="SOY" />
+        <g opacity={tween(frame, 1440, 1458, 0, 1, EASE.out)}>
+          <path d="M496 918 L584 918" stroke={SAFFRON} strokeWidth="11" strokeLinecap="round" />
+          <path d="M566 900 L592 918 L566 936" fill="none" stroke={SAFFRON} strokeWidth="11" strokeLinecap="round" strokeLinejoin="round" />
+        </g>
+        <g transform={`translate(662 1004) scale(${springIn(frame, 1446, { damping: 9, stiffness: 180 })}) translate(-662 -1004)`}>
+          <Carton x={600} baseY={1004} w={124} color={SOY} label="SOY" />
         </g>
         <Confetti frame={frame} from={1384} count={80} seed={9} />
       </Stage>

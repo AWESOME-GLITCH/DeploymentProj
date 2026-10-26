@@ -24,61 +24,151 @@ Hierarchy, unchanged from the PRD: Level > Sub-level > Strand > Cluster > Can-do
 
 ---
 
-## 1. The chunk template
+## 1. The lesson spine
 
-### 1.1 The one rule above the others
+### 1.1 The spine, and what "one thing at a time" binds
 
-One chunk teaches one criterion, has one "I can" outcome, one input and 3 to 5 checks. If a chunk needs two outcomes, it is two chunks.
+Board direction of 26 October sets the lesson order. Section 1 is that order, not a free-form template: **scene, notice, say it with a response, use it, come back later.** The five rules below are the test every chunk passes.
 
-The outcome is written as a learner-facing "I can" sentence of at most 10 words, in the same wording as the closing line of the chunk and as the stem of its delayed check. A learner who finishes the chunk should be able to read that line and say yes or not yet.
+| Rule | What it means here |
+| --- | --- |
+| Comprehensible input first | The scene teaches. The learner hears and sees the phrase in a situation where the meaning is obvious before being asked to produce it. No rule on screen, no Explain beat, no caption that explains instead of showing |
+| Say it early and often | The mic is live by 0:50, in every lesson, in every variant, video or word tutorial, with a response that reacts to what was said |
+| One thing at a time | One phrase, one pattern or one sound per session |
+| Spaced return inside new situations | Due items come back inside the "use it" step. No recall phase before the scene, no review tab to find |
+| Exercises produce, not recognise | Every item ends with the learner saying the sentence. A tap or drag earns its place only as a scaffold that hands straight to the mic |
 
-### 1.2 Shape and time budget
+**On "one thing at a time": I agree with the Product Lead's reading, and it needs the atom-level rule underneath it to be enforceable.** Binding the rule to the session is right, because the learner meets the session, not the atom. But the session rule can only be held if no atom smuggles in a second new target, so both grains are specified and the narrower one is the mechanism for the wider one.
 
-| # | Phase | What it is | Time | Required |
-| --- | --- | --- | --- | --- |
-| 1 | Input | One short video (45 to 90 s) or one word tutorial (6 to 8 cards). 95% known language plus the one new element | 60 to 90 s | Yes |
-| 2 | Noticing | The target form or phrase highlighted in the input, with a one-line why (in L1 below B1) | 15 s | Yes |
-| 3 | Controlled practice | 2 to 4 retrieval checks on the target, in the order recognise, complete, produce | 60 to 75 s | Yes |
-| 4 | Free use | One open task: say it, type it, or take a turn. The learner produces before being told | 45 to 60 s | Yes |
-| 5 | Delayed check | 1 check that decides mastery credit, held back to the end of the session | 20 to 30 s | Standard and dense only |
+| Grain | Rule | Enforced by |
+| --- | --- | --- |
+| Session | At most one new thing per ten minutes. Everything else in the session is old material returning inside a new scene | At most one phase with `role: "new"`. `composeSession` already has `alreadyNewToday` (`engine.ts:405`) |
+| Atom | One target form or phrase, highlighted once in the notice step | §1.10 item 3, Gate A |
+| What counts as new | A **target item**. Incidental words inside a scene or a story are not new things, which is why a story at 98% known-word coverage is still allowed | Every item in a phase whose role is not `new` must have `ItemMastery.state != "new"` |
 
-Total 3 min 20 s to 4 min 35 s at median, inside the 3 to 5 minute band. The chunk player bills 4 minutes for a new chunk (`phaseMinutes` in `lib/learning-path/engine.ts`), which is the planning figure for the 10-minute session.
+### 1.2 The phase list to build
 
-Why this order: input before output at i+1 (Krashen, Nation's meaning-focused input); retrieval not re-reading (Roediger and Karpicke 2006, testing beats restudy by 30 to 50% at one week); produce before being told in the free-use phase (Bjork's generation effect); one idea per chunk and narration plus visual, never text duplicating audio (Mayer's segmenting and redundancy principles).
+One chunk, 3 to 5 minutes, one criterion, one "I can" outcome. If a chunk needs two outcomes it is two chunks. The "I can" line is 10 words or fewer and uses the same wording as the closing line and the delayed check stem, so a learner can read it and say yes or not yet. Clock times are the first pass at A1 to B1.
 
-### 1.3 How many checks, by variant
-
-Each chunk is authored in three script densities so the engine can change how a lesson is told, not only which lesson comes next. The check count moves with the density.
-
-| Variant | Served when | Controlled | Free use | Delayed | Total checks |
+| # | Spine step | On screen | `AtomPhase` kind | Clock | Required |
 | --- | --- | --- | --- | --- | --- |
-| Light | Rolling check accuracy below 0.70 | 2 | 1 | 0 | 3 |
-| Standard | Accuracy 0.70 to 0.90, or fewer than 5 recent attempts | 3 | 1 | 1 | 5 |
-| Dense | Accuracy above 0.90 | 4 | 1 | 1 | 6 |
+| 1 | Scene | The phrase happening in a situation where the meaning is obvious. 95% known language plus the one new element | `input` | 0:00 to 0:35 | Yes |
+| 2 | Notice | The target highlighted once, in the scene it just appeared in, with a 12-word why in L1 below B1 | `noticing` | 0:35 to 0:47 | Yes |
+| 3 | Say it with a response | The learner's first spoken turn, with the coach. She answers what was said; she does not mark it | `free_use` | 0:47 to 1:30 | Yes |
+| 4 | Say it again | 1 to 3 scaffolds. Each one ends with the whole sentence said aloud | `controlled` | 1:30 to 2:50 | Yes |
+| 5 | Use it | The whole exchange, with one problem to repair, carrying up to 3 due items | `free_use` | 2:50 to 4:10 | Yes |
+| 6 | Come back later | One delayed say-it of the whole sentence, served in the session close | `check`, `delayed: true` | +0:25 | Yes, every variant |
 
-Rule for authors: write the dense set of 6, then mark which 1 and which 3 to drop. One item bank, three cut lists, so the three variants cannot drift apart.
+Four-ten in the chunk plus 0:25 in the close, so 4 min 35 s, inside the 3 to 5 minute band and inside the 4 minutes `phaseMinutes` bills for a new atom.
+
+Three things follow that are not negotiable:
+
+- **The mic is live by 0:50.** The scene's first pass is hard-capped at 35 s to A2 and 45 s from B2 to protect that. If a scene cannot carry its phrase in 35 s, it is the wrong scene.
+- **Word tutorials get the same spine.** At most 3 cards before step 3, the rest return in step 5. The template this replaces gave word-tutorial chunks no spoken turn at all.
+- **The first spoken turn comes before the scaffolds, not after.** The learner tries, then the scaffolds repair what the attempt showed. This is the generation effect and productive failure (Bjork; Kapur), so the old order recognise, complete, produce is reversed and §5.3 is rewritten to match.
+
+`AtomPhase[]` is authored in exactly that order, so `free_use` appears twice. `AtomRun` walks `atom.phases` in authored order with `check` filtered out (`Capsule.tsx:160-162`), so the repeat needs no type change.
+
+### 1.3 The session, in `SessionPhase`
+
+| # | `SessionPhase` | Role | Minutes |
+| --- | --- | --- | --- |
+| 1 | `atom` | `new`, the scene-led chunk of §1.2 | 4 |
+| 2 | `atom` | `use`, a second scene built from old material only, carrying due items as `tryItems` | 3 |
+| 3 | `story` | One story at 98% or higher known-word coverage, no checks attached | 1.5 |
+| 4 | `close` | The delayed say-it, a one-tap "I can / not yet", then the can-do line in plain words | 0.5 |
+
+Nine minutes, inside the ten-minute target with a minute of headroom. There is no `plan` phase, no `recall` phase and no `vote` phase. Where their work goes:
+
+| Removed | Why | Where its job goes |
+| --- | --- | --- |
+| `plan` | A list of what is about to happen is not a scene, and it spends the opening on text a beginner cannot read | A 3-second title card on the scene's first frame, not a phase. The can-do line stays in `close` |
+| `recall` | A front-loaded recall drill is the thing the board ruled out, and it put up to 2 minutes of items in front of a learner who had not seen anything yet | Due items ride into step 5 as `tryItems` (`tryToUse`, `engine.ts:457`), and they supply the sentences the step 4 scaffolds are built from |
+| `vote` | `vote_see_revote` was cut on LP-20: the peer percentages are invented numbers in `config.peers`, the model answer is revealed before the second vote, and the learner produces nothing | Nothing. Day 4 interleaves across strands, which was always the pedagogical point of day 4 |
+
+**Ruling on QA's open question.** A dedicated recall phase does **not** count as "inside the scene", wherever it sits in the order. Inside the scene means the due item is retrieved because the situation needs it. That is only true of step 5, which is why the phase goes rather than moving.
+
+### 1.4 Divergences from the code as it stands
+
+Against `composeSession` (`engine.ts:356`), `phaseMinutes` (`engine.ts:468`) and the `AtomRun` order (`Capsule.tsx:139`). Document only. The code change is LP-30's, not this ticket's.
+
+| # | The code today | This spec | Change needed |
+| --- | --- | --- | --- |
+| 1 | `composeSession` pushes `plan` first (`engine.ts:381`) | No plan phase | Remove the push, drop `{ kind: "plan" }` from `SessionPhase`, delete `PlanPhase` (`Capsule.tsx:75`) |
+| 2 | `composeSession` pushes `recall` second, 8 items, 10 on a warm restart (`engine.ts:382-384`) | No recall phase | Remove the push and the `recall` branch of `PhaseView` (`Capsule.tsx:66`), drop `{ kind: "recall" }`. Keep `pickRecall`: it becomes the source of step 5's `tryItems` |
+| 3 | `phaseMinutes`: `plan` 0.33, `recall` up to 2 | Neither phase exists | Delete both cases |
+| 4 | `phaseMinutes`: `atom` with role `new` bills 4 | 4, unchanged, now spent scene-first | None |
+| 5 | A week-day-4 session bills 0.33 + 2 + 4 + 3 + 1 + 1.5 + 0.5 = **12.33 min**, over the 12-minute ceiling in §4.4 | 9 min | Fixed by rows 1 to 3 and 7 |
+| 6 | `AtomRun` runs input, noticing, controlled, free_use, so the first spoken turn lands at roughly minute 4 to 6 of the session | Scene, notice, say it, scaffolds, use it, with the mic live by 0:50 | **No change to `AtomRun`.** Reorder the authored `phases` array in `content.ts` so the two `free_use` phases sit either side of `controlled` |
+| 7 | `composeSession` pushes `vote` on week day 4 (`engine.ts:420`) | No vote phase | Remove the push, drop `{ kind: "vote" }`, delete the `vote` branch of `PhaseView` (`Capsule.tsx:68`) and the `vote_q` i18n key |
+| 8 | `composeSession` can stack a new atom, a use atom, a fluency atom, a vote and a story in one ten minutes | One `role: "new"`, one `use`, one story | The `new` limit already holds via `alreadyNewToday` (`engine.ts:405`). What actually overfills the session is the vote, so row 7. The fluency atom is only composed in a second session, so row 9 |
+| 9 | A second session the same day pushes a use atom and `ATM-A2-FLU-0001` (`engine.ts:396-398`) | Unchanged, and correct: both are old material returning | None |
+| 10 | `Atom.variant` is one scalar and `AtomPhase.items` is a flat `string[]`, so there is nowhere to record a cut list | One atom carrying the dense bank plus two drop lists | Add `Atom.cuts`, §1.6 |
+| 11 | `pickVariant` sets the density from rolling accuracy and `AtomRun` passes it down (`Capsule.tsx:163`) | Unchanged | None, once `cuts` exists for it to filter with |
+| 12 | Delayed `check` items are served in `close`, not inside the atom (`Capsule.tsx:160-161`) | Unchanged, and the right place | None |
+| 13 | `ringSlice` (`engine.ts:480`) maps `plan`, `recall` and the new atom to ring slice 0, and `vote` to slice 1 | Three phases, so three slices: new atom, use atom, then story plus close | Rewrite: `new` atom to 0, `use` atom to 1, `story` and `close` to 2 |
+
+### 1.5 Variants: what changes, and what never changes
+
+Each chunk is authored at one density so the engine can change how a lesson is told, not only which lesson comes next.
+
+| Variant | Served when | Scaffolds, step 4 | Say it, step 3 | Use it, step 5 | Come back later, step 6 | Items |
+| --- | --- | --- | --- | --- | --- | --- |
+| Light | Rolling check accuracy below 0.70 | 1 | 1 | 1 | 1 | 4 |
+| Standard | Accuracy 0.70 to 0.90, or fewer than 5 recent attempts | 2 | 1 | 1 | 1 | 5 |
+| Dense | Accuracy above 0.90 | 3 | 1 | 1 | 1 | 6 |
+
+The variant changes the number of scaffolds and nothing else. **The first spoken turn, the use turn and the delayed say-it are in every variant, light included.** The table this replaces dropped the delayed check from light, which took the one production moment that decides mastery away from the learner who most needed it.
 
 Why about 80% success: Wilson et al. 2019, the "85% rule". The variant switch exists to hold first-attempt accuracy between 0.75 and 0.85.
 
-### 1.4 Check types per strand
+### 1.6 Cut lists: one atom, three densities
 
-Every strand is checked in its own modality. No strand earns mastery through multiple choice alone (transfer-appropriate processing, Morris et al. 1977).
+Ruling on QA's F3: **one `Atom` row carrying the dense bank plus two drop lists**, not three `Atom` rows.
 
-| Strand | Learner word | Allowed check types | Modality recorded | Mastery rule | Must appear per chunk |
+Why one row. `pickVariant(state)` chooses the density per learner per session, after `composeSession` has already resolved an `atom_id`, and `SessionPhase` carries only that ID. Three rows would force the composer to resolve an ID to a variant row. `AtomRun` already receives `variant` (`Capsule.tsx:163`), so filtering one bank there is the smaller change and leaves one source of truth.
+
+```json
+"variant": "standard",
+"cuts": { "standard": ["ITM-INT-0005"], "light": ["ITM-INT-0005", "ITM-INT-0004"] }
+```
+
+| Rule | Detail |
+| --- | --- |
+| Where the bank lives | `phases` always carries the **dense** set. Dense has no `cuts` entry and drops nothing |
+| What a cut list is | The item IDs **removed** at that density. `cuts.light` is a superset of `cuts.standard`, so the three densities cannot drift apart |
+| How the player applies it | `phase.items.filter(id => !(atom.cuts?.[variant] ?? []).includes(id))` |
+| What may be cut | Items in the `controlled` phase only. A cut that touches a `free_use` or `check` item fails Gate A |
+| Type change | `cuts?: { standard: string[]; light: string[] }` on `Atom`. `variant` stays as the fallback density that `AtomRun` reads when `role !== "new"` |
+
+An author writes six items once and marks two drops. The schema this replaces asked authors for three cut lists and gave them nowhere to put them.
+
+### 1.7 Item types per strand
+
+Allowed types are the survivors of the LP-20 cut list (`docs/exercises.md`). A scaffold earns its place only by handing straight to the mic; the production column is the step that counts.
+
+| Strand | Learner word | Scaffolds, step 4 | Production, steps 3, 5 and 6 | Modality recorded | Mastery rule |
 | --- | --- | --- | --- | --- | --- |
-| GRM Grammar | Grammar | `tap_order`, `gap_fill`, `error_spot`, `transform`, `time_slider`, `magnet_tiles` | recognition, cued | keyed | 1 production check (`transform` or `magnet_tiles`) |
-| RDG Reading | Reading | `picture_match`, `tfng`, `heading_match`, `inference_mcq` | recognition, cued | keyed | 1 check that needs the text, not the picture |
-| WRT Writing | Writing | `sentence_build`, `short_production`, `correct_message` | typed | ai | 1 free typed production of 20 to 60 words |
-| LST Listening | Listening | `pick_picture`, `dictation` (A1+), `gist_mcq`, `detail_gap` | recognition, cued | keyed | 1 check at natural speed, no replay before the first attempt |
-| SPK Speaking | Speaking | `shadow`, `read_aloud`, `picture_describe`, `open_response` | spoken | ai | 1 open spoken response of 20 to 45 s |
-| MED Mediation | Explaining | `relay`, `explain_chart`, `translate_gist` | spoken or typed | ai | 1 relay to a named listener who cannot see the source |
-| INT Interaction | Talking with someone | `dialogue_turn`, `roleplay`, `say_it_see_it`, `vote_see_revote` | spoken | ai | 1 turn where the partner creates a problem to repair |
+| GRM Grammar | Grammar | `tap_order`, `error_spot`, `magnet_tiles` (at most 1 per lesson) | `transform`, spoken, keyboard as fallback | spoken, typed | keyed |
+| RDG Reading | Reading | `tfng`, at most 2, on one notice | `read_aloud` of the line of the notice that answers it | spoken | keyed |
+| WRT Writing | Writing | `dictation` | `correct_message` or `short_production`, 20 to 60 words typed | typed | ai |
+| LST Listening | Listening | `listen_and_do`, natural speed, no replay before the first attempt | Say the number or line just heard | spoken | keyed |
+| SPK Speaking | Speaking | None. Speaking is produced from the first turn | `read_aloud`, `say_it_see_it`, `open_response`, all through the coach | spoken | ai |
+| MED Mediation | Explaining | `tfng` on the source | `relay` to a named listener who cannot see the source | spoken | ai |
+| INT Interaction | Talking with someone | None | `roleplay` / `dialogue_turn`, `say_it_see_it`. The partner creates one problem to repair | spoken | ai |
 
-Enabler chunks (grammar, vocabulary, pronunciation) carry the GRM or SPK check set but are never credited as communicative mastery. Their mastery is inferred from correct use in three communicative checks (PRD: grammar and vocabulary are enablers, not modes).
+Cut on LP-20 and not to be authored: `gap_fill`, `gist_mcq`, `inference_mcq`, `heading_match`, `time_slider`, `vote_see_revote`, `pick_picture` with emoji, `sentence_build` (merged into `tap_order`), `explain_chart`, `translate_gist`, `picture_describe`.
 
-Cross-strand rule: a chunk may use at most one check from outside its own strand, and that check never counts as mastery evidence for its own strand.
+Two consequences worth stating:
 
-### 1.5 Instructions inside a chunk
+- Every strand now ends in a spoken item, so the two-modality rule in §3.2 (Known needs two modalities, one of them productive) is satisfied by the spine itself rather than by hoping a production item turns up.
+- Every delayed check is a say-it of the whole sentence. On LP-20 all six delayed checks in `content.ts` were `gap_fill`, so the one moment that decided mastery was a three-way tap.
+
+Enabler chunks (grammar, vocabulary, pronunciation) carry the GRM or SPK item set but are never credited as communicative mastery. Their mastery is inferred from correct use in three communicative productions (PRD: grammar and vocabulary are enablers, not modes).
+
+Cross-strand rule: a chunk may use at most one scaffold from outside its own strand, and no scaffold is ever mastery evidence. Mastery evidence is always the production step, in the strand's own modality (transfer-appropriate processing, Morris et al. 1977).
+
+### 1.8 Instructions inside a chunk
 
 Learners may have almost no English. The chunk is only usable if it works with the text muted.
 
@@ -90,13 +180,13 @@ Learners may have almost no English. The chunk is only usable if it works with t
 | Audio | Every word, sentence and instruction has tap-to-hear; audio auto-plays on first exposure; 0.75 and 1.0 speed |
 | The "why" line after a wrong answer | 12 words maximum, shows the correct form in context, in L1 below B1 |
 | Lesson text | English only. L1 is the interface and the caption, never the lesson |
-| Forbidden | Grammar metalanguage below B1, a rule page before an example, red, any "wrong" wording, counters, timers below B1 |
+| Forbidden | A rule on screen anywhere, grammar metalanguage below B1, red, any "wrong" wording, counters, timers below B1, a score row shown before the learner has spoken |
 
-Why: errors are information and corrected errors beat errorless learning (Metcalfe 2017), so feedback shows the right form rather than a penalty.
+Why: errors are information and corrected errors beat errorless learning (Metcalfe 2017), so feedback shows the right form rather than a penalty. Feedback is a patient person, not a mark: say it again slowly, show it big, one more try.
 
-### 1.6 The chunk schema an author or a model fills in
+### 1.9 The chunk schema an author or a model fills in
 
-One chunk is one JSON object. Field names match `Atom` in `lib/learning-path/types.ts`, so an author's output is loadable without translation.
+One chunk is one JSON object. Field names match `Atom` in `lib/learning-path/types.ts`, so an author's output is loadable without translation. `cuts` is the one field this spec adds, per §1.6.
 
 ```json
 {
@@ -112,15 +202,19 @@ One chunk is one JSON object. Field names match `Atom` in `lib/learning-path/typ
   "target_items": ["ITM-INT-0001", "ITM-INT-0002"],
   "prerequisites": ["CRI-A2.1-GRM-02-01"],
   "phases": [
-    { "kind": "input", "media": { "kind": "video", "title": "...", "presenter": "...", "lines": [{ "text": "I'd like two coffees, please.", "at": 12, "target": true }], "duration_sec": 60, "l1_card": { "en": "..." } } },
-    { "kind": "noticing", "highlight": "I'd like", "why": { "en": "Use I'd like to ask politely.", "ar": "..." } },
-    { "kind": "controlled", "items": ["ITM-INT-0003", "ITM-INT-0004", "ITM-INT-0005"] },
+    { "kind": "input", "media": { "kind": "video", "title": "...", "presenter": "...", "lines": [{ "text": "I'd like two coffees, please.", "at": 12, "target": true }], "duration_sec": 34, "l1_card": { "en": "..." } } },
+    { "kind": "noticing", "highlight": "I'd like", "why": { "en": "Ask for it this way.", "ar": "..." } },
     { "kind": "free_use", "items": ["ITM-INT-0006"] },
+    { "kind": "controlled", "items": ["ITM-INT-0003", "ITM-INT-0004", "ITM-INT-0005"] },
+    { "kind": "free_use", "items": ["ITM-INT-0008"] },
     { "kind": "check", "items": ["ITM-INT-0007"], "delayed": true }
   ],
+  "cuts": { "standard": ["ITM-INT-0005"], "light": ["ITM-INT-0005", "ITM-INT-0004"] },
   "status": "published"
 }
 ```
+
+Read the `phases` array against §1.2: `input` is the scene, `noticing` is the notice, the first `free_use` is say it with a response, `controlled` is the scaffolds, the second `free_use` is use it, and `check` is come back later. The order of this array is the lesson order, so it is the one thing in the file an author may not rearrange.
 
 ID conventions, all stable and never reused:
 
@@ -132,22 +226,23 @@ ID conventions, all stable and never reused:
 | Story chunk | `STO-{level}-{nnnn}` | `STO-A2-0001` |
 | Item | `ITM-{STRAND or type}-{nnnn}` | `ITM-INT-0003` |
 
-### 1.7 Author's completeness checklist
+### 1.10 Author's completeness checklist
 
-A chunk is not finished until all twelve are true. This is the list QA runs.
+A chunk is not finished until all thirteen are true. This is the list QA runs, and items 4, 5 and 7 are the lesson order made checkable.
 
 1. One criterion, one "I can" line of 10 words or fewer.
-2. Input is 45 to 90 s of video or 6 to 8 word cards, and 95% of its language is already known to a learner at this sub-level.
-3. Exactly one new target form or phrase, highlighted once in the noticing phase.
-4. Checks: 6 authored, cut lists marked for standard (5) and light (3).
-5. Check order is recognise, then complete, then produce.
-6. At least one check is production in the strand's own modality.
-7. The free-use task comes before any model answer is shown.
-8. Every instruction is 6 words or fewer and has an icon or example.
-9. Every wrong answer has a 12-word "why" that shows the correct form in context.
-10. The closing line, the delayed check stem and the "I can" line use the same wording.
-11. All media has alt text; all video has captions; all text has tap-to-hear.
-12. Prerequisites are listed as criterion IDs, and each one really is needed.
+2. The scene carries the phrase in a situation where the meaning is obvious, its first pass is 35 s or less to A2, and 95% of its language is already known at this sub-level.
+3. Exactly one new target form or phrase, highlighted once in the notice step.
+4. **The mic is live by 0:50.** Timed on a stopwatch against the built lesson, not read off the script.
+5. `phases` is authored in the order `input`, `noticing`, `free_use`, `controlled`, `free_use`, `check`.
+6. Six items in the dense bank, with `cuts.standard` and `cuts.light` marked, and no cut touching a `free_use` or `check` item.
+7. **Every item ends with the learner saying the whole sentence.** Any tap or drag hands straight to the mic.
+8. The production step for the strand is present, in the strand's own modality, per §1.7.
+9. No rule on screen anywhere, and no caption that explains instead of showing.
+10. Every instruction is 6 words or fewer and carries an icon or a worked example.
+11. Every miss shows the right form said slowly and shown big, then one more try, with a 12-word why in context. No red, no mark, no counter.
+12. The closing line, the delayed say-it stem and the "I can" line use the same wording. All media has alt text, all video has captions, all text has tap-to-hear.
+13. Prerequisites are listed as criterion IDs, and each one really is needed.
 
 ---
 
@@ -387,7 +482,7 @@ Written as numbered rules against the implemented types. A developer should be a
 1. Placement returns a score per strand. Map each score to a sub-level and store it in `learner.strand_levels`. The lowest of the seven becomes `provisional_sublevel`; `confirmed_sublevel` stays null until a checkpoint.
 2. Mark every item belonging to a criterion **below** that strand's starting sub-level as provisionally Known with a half-life of 3 days (`provisionalMastery`). The first fortnight then verifies rather than teaches.
 3. Provisional items that are answered wrongly follow the normal Known miss rule: drop to Consolidating at 3 days. The `provisional` flag clears on the first attempt either way.
-4. Never show a number or a level name on day one. The CEFR label appears on "How I'm doing" only after a week of data.
+4. Never show a **score** on day one: no placement number, no percentage, no strand bar. The sub-level **name** may appear from the path reveal onwards, because a label like `A2.1` read as a position on the road is the visible journey the board asked for, not a mark. Anything derived from in-app performance, which is the strand strength bars on "How I'm doing", waits for a week of data. This settles the conflict QA raised between the earlier wording of this rule and the running app, in the app's favour; §7 row 7 records it.
 5. A learner who misses every placement item starts at PreA1.1 with a welcome chunk. There is no fail state and no retake prompt.
 
 ### 4.3 Choosing the week's can-do
@@ -398,7 +493,7 @@ Run on the first session of each week.
 2. Keep only outcomes at or below the **strand's own** sub-level from `strand_levels`. Outcomes one sub-level above are admitted only once that strand is provisional at its current sub-level, and then at a 30% share.
 3. Apply the academic quota from 2.3.
 4. Sort: outcomes at the strand's current sub-level first, then by lowest outcome progress. Take the first.
-5. Week shape: days 1 to 3 serve its criteria, day 4 interleaves them with other strands and adds the vote, see, revote item, day 5 is the free-use performance (teach it back) scored against the can-do.
+5. Week shape: days 1 to 3 serve its criteria, day 4 interleaves them with other strands, day 5 is the free-use performance (teach it back) scored against the can-do.
 
 Why one can-do per week: mastery learning needs a stated criterion and a performance against it (Bloom 1984). Why day 4 interleaves rather than blocks: Rohrer and Taylor 2007, interleaving roughly doubles delayed test scores.
 
