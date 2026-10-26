@@ -71,26 +71,23 @@ function PhaseView({ phase, onDone }: { phase: SessionPhase; onDone: () => void 
   }
 }
 
+/** Today in one line, with a marker per step. A plan, not a list. */
 function PlanPhase({ canDo, onDone }: { canDo: Localised; onDone: () => void }) {
   const { t } = useLp();
   const { state } = useStore();
   const { session } = state.current!;
+  const steps = session.phases.filter((p) => p.kind !== "plan");
+  const total = steps.reduce((a, p) => a + phaseMinutes(p), 0);
   useEffect(() => { const id = window.setTimeout(onDone, 20_000); return () => window.clearTimeout(id); }, [onDone]);
   return (
     <div className="flex h-full flex-col">
-      <div className="lp-eyebrow mb-2">{t("this_week")}</div>
-      <div className="lp-head mb-4">{t("plan_phase")}</div>
+      <div className="lp-eyebrow mb-3">{t("plan_phase")}</div>
       <div className="lp-glass p-5"><LocText text={canDo} size="lesson" auto /></div>
-      <div className="mt-4 flex flex-col gap-2">
-        {session.phases.filter((p) => p.kind !== "plan").map((p, i) => (
-          <div key={i} className="flex items-center gap-3 lp-body" style={{ color: "var(--lp-paper-soft)" }}>
-            <span className="lp-dot" />
-            <span>{p.kind === "recall" ? t("recall_title") : p.kind === "atom" ? (p.role === "new" ? loc(ATOM_BY_ID[p.atom_id]?.title, "en") : p.role === "fluency" ? "Fluency" : t("your_turn")) : p.kind === "story" ? t("story_title") : p.kind === "vote" ? t("vote_q") : t("check_title")}</span>
-            <span className="ms-auto lp-small tabular-nums" style={{ color: "var(--lp-paper-faint)" }}>{Math.round(phaseMinutes(p) * 10) / 10} min</span>
-          </div>
-        ))}
+      <div className="mt-5 flex items-center gap-2">
+        {steps.map((p, i) => <span key={i} className={`lp-dot ${i === 0 ? "lp-dot-today" : ""}`} />)}
+        <span className="lp-small ms-auto tabular-nums" style={{ color: "var(--lp-paper-faint)" }}>{Math.round(total)} {t("minutes")}</span>
       </div>
-      {session.warm_restart ? <div className="lp-glass mt-4 p-3 lp-small" style={{ borderColor: "var(--lp-sea-line)" }}>{t("welcome_back")}. {t("story_unlocked")}</div> : null}
+      {session.warm_restart ? <div className="mt-4"><Pill tone="good">{t("welcome_back")}</Pill></div> : null}
       <div className="mt-auto"><GlowButton onClick={onDone}>{t("start")}</GlowButton></div>
     </div>
   );
@@ -123,16 +120,12 @@ function ItemRun({ items, mode, title, subtitle, onDone, atomId, tryItems, varia
   return (
     <div className="flex h-full flex-col">
       {title ? (
-        <div className="mb-3 flex items-center justify-between">
-          <div><div className="lp-eyebrow">{t(title)}</div>{subtitle ? <div className="lp-small" style={{ color: "var(--lp-paper-faint)" }}>{t(subtitle)}</div> : null}</div>
-          <div className="flex items-center gap-2">
-            {variant && variant !== "standard" ? <Pill>{variant}</Pill> : null}
-            <span className="lp-small tabular-nums" style={{ color: "var(--lp-paper-faint)" }}>{Math.min(idx + 1, queue.length)} / {queue.length}</span>
-          </div>
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <div className="lp-eyebrow">{t(title)}</div>
+          <span className="lp-small tabular-nums" style={{ color: "var(--lp-paper-faint)" }}>{Math.min(idx + 1, queue.length)} / {queue.length}</span>
         </div>
       ) : null}
-      {current.attempt === 2 ? <div className="lp-small mb-2" style={{ color: "var(--lp-sand)" }}>{t("wrong_again")}</div> : null}
-      {missedTwice.includes(current.id) ? <div className="lp-small mb-2" style={{ color: "var(--lp-paper-faint)" }}>{t("tomorrow_fb")}</div> : null}
+      {current.attempt === 2 ? <div className="mb-2"><Pill>{t("wrong_again")}</Pill></div> : null}
       <div className="min-h-0 flex-1">
         {/* Speaking practice in a use phase is a turn with the coach, not a mic under a prompt. */}
         {mode === "use" && isCoachItem(item) ? (

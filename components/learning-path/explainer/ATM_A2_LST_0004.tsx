@@ -89,7 +89,7 @@ function SignBoard({
           <rect x={-86 - glow * 16} y={22 - glow * 16} width={172 + glow * 32} height={132 + glow * 32} rx={17 + glow * 8} fill="none" stroke={ACCENT} strokeWidth={8 * (1 - glow)} opacity={1 - glow} />
         </g>
       ) : null}
-      {weightSide !== 0 ? <Weight x={weightSide * 50} y={212} scale={0.92} color={weightColor} /> : null}
+      {weightSide !== 0 ? <Weight x={weightSide * 66} y={208} scale={0.92} color={weightColor} /> : null}
     </g>
   );
 }

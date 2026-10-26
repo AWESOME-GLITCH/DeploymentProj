@@ -631,34 +631,30 @@ function escPoint(t: number, lift = 0) {
 const escBand = (a: number, b: number) =>
   `M${escPoint(0, a).x} ${escPoint(0, a).y} L${escPoint(1, a).x} ${escPoint(1, a).y} L${escPoint(1, b).x} ${escPoint(1, b).y} L${escPoint(0, b).x} ${escPoint(0, b).y} Z`;
 
-/** The steps and the truss, behind the riders. */
+// A step is a horizontal tread and a vertical riser, so the flight reads as stairs.
+const STEP_RUN = 62;
+const STEP_RISE = (STEP_RUN * -ESC_U.y) / ESC_U.x;
+const STEP_PITCH = Math.sqrt(STEP_RUN * STEP_RUN + STEP_RISE * STEP_RISE);
+
+/** The treads and the truss, behind the riders. */
 function EscalatorBack({ frame }: { frame: number }) {
-  const off = (frame * 2.1) % 76;
+  const off = (frame * 2.2) % STEP_PITCH;
   const steps = [];
-  for (let i = -1; i < Math.ceil(ESC_LEN / 76) + 1; i++) {
-    const d = off + i * 76;
-    if (d < -40 || d > ESC_LEN + 40) continue;
+  for (let i = -1; i < Math.ceil(ESC_LEN / STEP_PITCH) + 1; i++) {
+    const d = off + i * STEP_PITCH;
+    if (d < -STEP_PITCH || d > ESC_LEN + STEP_PITCH) continue;
     const p = escPoint(d / ESC_LEN, 0);
     steps.push(
-      <g key={i} transform={`translate(${p.x} ${p.y})`}>
-        <path
-          d={`M0 0 L${ESC_U.x * 54} ${ESC_U.y * 54} L${ESC_U.x * 54 + ESC_N.x * 40} ${ESC_U.y * 54 + ESC_N.y * 40} L${ESC_N.x * 40} ${ESC_N.y * 40} Z`}
-          fill={SEAT}
-          stroke={INK}
-          strokeWidth="4"
-        />
-        <path
-          d={`M${ESC_N.x * 40} ${ESC_N.y * 40} L${ESC_U.x * 54 + ESC_N.x * 40} ${ESC_U.y * 54 + ESC_N.y * 40}`}
-          stroke={SEAT_DARK}
-          strokeWidth="9"
-        />
+      <g key={i}>
+        <rect x={p.x - STEP_RUN / 2} y={p.y} width={STEP_RUN} height="13" fill={SEAT} stroke={INK} strokeWidth="3" />
+        <rect x={p.x + STEP_RUN / 2 - 13} y={p.y - STEP_RISE} width="13" height={STEP_RISE + 4} fill={SEAT_DARK} stroke={INK} strokeWidth="3" />
       </g>,
     );
   }
   return (
     <g>
-      <path d={escBand(0, 170)} fill={SEAT_DARK} />
-      <path d={escBand(96, 170)} fill={INK} opacity="0.18" />
+      <path d={escBand(10, 180)} fill={SEAT_DARK} />
+      <path d={escBand(90, 180)} fill={INK} opacity="0.2" />
       {steps}
     </g>
   );
@@ -668,8 +664,8 @@ function EscalatorBack({ frame }: { frame: number }) {
 function EscalatorFront() {
   return (
     <g>
-      <path d={escBand(0, -156)} fill="#dceaf2" opacity="0.42" />
-      <path d={escBand(-150, -156)} fill={FOG} opacity="0.5" />
+      <path d={escBand(0, -156)} fill="#dceaf2" opacity="0.16" />
+      <path d={escBand(-150, -156)} fill={FOG} opacity="0.45" />
       <path
         d={`M${escPoint(0, -168).x} ${escPoint(0, -168).y} L${escPoint(1, -168).x} ${escPoint(1, -168).y}`}
         stroke={INK}
