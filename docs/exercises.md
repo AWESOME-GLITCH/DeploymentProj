@@ -1,6 +1,6 @@
 # Exercises: what each item type is for, and what goes
 
-Owner: Learning Designer. Status: revision 2, QA defects F1 to F6 fixed, back with QA Reviewer. Part 2 (the change to `items.tsx` and `content.ts`) is held until the cut list is approved.
+Owner: Learning Designer. Status: revision 4, QA notes N1 to N4 fixed on top of F1 to F6, back with QA Reviewer. Part 2 (the change to `items.tsx` and `content.ts`) is held until the cut list is approved.
 
 ## The test
 
@@ -40,10 +40,10 @@ Counts are lesson items. "Scaffold" means the item runs up to a spoken item and 
 | Item type | Now | Verdict | What is wrong today for a learner with little English | Place in the lesson |
 | --- | --- | --- | --- | --- |
 | `gap_fill` | 14 | **Cut from lessons** | The learner picks one word from three and never says the sentence. The model sentence sits in `audio` and is never played **before** the learner answers; it is spoken only after a correct tap (`ChoiceItem`, the `say(correctText)` line), so it arrives when it is no longer input. Meanwhile no listen button renders at all, and the speaker on the stem reads the gapped line, so the learner hears "I'd blank a coffee". Fails tests 1, 2 and 4. | none. The meaning work moves to the notice step, the sentence to a say-it item |
-| `pick_picture` (emoji) | 2 | **Cut** | The "pictures" are emoji: ☕ / 🍵🍵 / 🍵 for "two teas", and 💳 / 💵 / 🧾 for "card". 🍵🍵 asks the learner to count glyphs, not to hear English. Fails tests 1 and 6. | none |
+| `pick_picture` (emoji) | 2 | **Cut** | The "pictures" are emoji: 🍵 / 🍵🍵 / 🍵🍵🍵 for "two large teas", and 💳 / 💵 / 🧾 for "card". The tea item is now one, two or three of the same glyph, so the learner counts glyphs instead of hearing English. Fails tests 1 and 6. | none |
 | `pick_picture` (numbers) | 3 | **Keep**, renamed `listen_and_do` | Here the digit *is* the stimulus and hearing 14 against 40 is the whole can-do, so recognition is honest. But it ends on a tap. | scaffold, before say it |
 | `detail_gap` | 2 | **Fix**, folded into `listen_and_do` | Same job as the above, different screen for no reason. Two screens for one skill. | scaffold |
-| `tfng` | 4 | **Fix**, 4 to 2 | Reading a notice is a real outcome, but "Not given" is an exam construct an A2 learner cannot parse, and three of the four ask about the same 11-word notice ("No eating or drinking on the train. Water is allowed."). | scaffold, before the relay. Ends on the mic: see the scaffold rule below |
+| `tfng` | 4 | **Fix**, 4 to 2 | Reading a notice is a real outcome, but "Not given" is an exam construct an A2 learner cannot parse, and three of the four ask about the same 10-word notice ("No eating or drinking on the train. Water is allowed."). | scaffold, before the relay. Ends on the mic: see the scaffold rule below |
 | `gist_mcq` | 2 | **Cut** | "What is the bill for? Gas / Water / Internet" after a recording that opens with "This is your gas bill". It tests nothing the relay item does not prove by production. | none |
 | `inference_mcq` | 1 | **Cut** | "We're out of oat milk means..." is a vocabulary gloss dressed as a test. The gloss belongs in the notice step. | none |
 | `heading_match` | 1 | **Cut** | One instance, and choosing a title is a reading-exam task, not something the learner will do. | none |
@@ -138,7 +138,7 @@ Named, with where they live. Anchored to symbol names, not line numbers: several
 | # | The visual | Where | Why it goes |
 | --- | --- | --- | --- |
 | 1 | Emoji faces 😊 🤔 🙂, the 🧑 figure labelled "You", the drink emoji repeated to show quantity, the placeholder word "counter" | `items.tsx` `CafeScene`, rendered by `SayItSeeIt` | Emoji stand-ins for a scene. The coach already draws the real character. |
-| 2 | Emoji as pictures in **lesson** items only: ☕ 🍵 🍵🍵 (ITM-INT-0103) and 💳 💵 🧾 (ITM-INT-1003) | `content.ts`, the `pictures` arrays of those two items | Not pictures. Counting glyphs is not comprehension. |
+| 2 | Emoji as pictures in **lesson** items only: 🍵 🍵🍵 🍵🍵🍵 (ITM-INT-0103) and 💳 💵 🧾 (ITM-INT-1003) | `content.ts`, the `pictures` arrays of those two items | Not pictures. Counting glyphs is not comprehension. |
 | 3 | The ⏮️ 📍 ⏭️ row under the track, and the cue-card emoji | `items.tsx` `TimeSlider` | Icon row. Goes with the slider. |
 | 4 | Score bars for sounds, rhythm and words, with a 70% pass line | `items.tsx` `ResultBars`, called from `SpeechItem` | Three bars and a tick mark are a mark, not feedback. Fails test 5. |
 | 5 | Dot rows that appear **before** the learner acts: the slider hit dots and the relay question dots | `items.tsx` `TimeSlider` and `RelayItem` | A score bar before the learner has done anything. |

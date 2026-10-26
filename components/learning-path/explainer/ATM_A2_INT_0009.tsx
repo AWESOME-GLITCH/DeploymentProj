@@ -156,7 +156,7 @@ function CafeWall({ frame }: { frame: number }) {
       ))}
       <rect x="-240" y="694" width="1560" height="12" fill={WOOD_LIGHT} />
       <Window x={28} y={250} w={270} h={340} />
-      <MenuBoard x={752} y={248} w={306} h={300} items={[["Latte", "3.20"], ["Coffee", "2.50"], ["Tea", "2.00"]]} />
+      <MenuBoard x={752} y={206} w={306} h={286} items={[["Latte", "3.20"], ["Coffee", "2.50"], ["Tea", "2.00"]]} />
       <Plant x={1028} y={694} scale={0.6} frame={frame} seed={2} />
       <PendantLamp x={150} length={70} frame={frame} seed={0} />
       <PendantLamp x={930} length={70} frame={frame} seed={2} />
@@ -237,9 +237,9 @@ function CafeScene({ frame }: { frame: number }) {
           ? { g: "raise" as const, at: 462, from: "idle" as const }
           : { g: "serve" as const, at: 560, from: "raise" as const };
   const youGesture = hook
-    ? { g: "raise" as const, at: 34, from: "idle" as const }
+    ? { g: "idle" as const, at: 34, from: "idle" as const }
     : n1
-      ? { g: "think" as const, at: 206, from: "raise" as const }
+      ? { g: "think" as const, at: 206, from: "idle" as const }
       : n2
         ? { g: "raise" as const, at: 316, from: "think" as const }
         : n3
@@ -479,7 +479,7 @@ function PractiseScene({ frame }: { frame: number }) {
       <div
         style={{
           position: "absolute", left: 60, right: 60, top: 852, display: "flex", flexWrap: "wrap",
-          justifyContent: "center", columnGap: 24, fontSize: 92, fontWeight: 800, lineHeight: 1.16, zIndex: 0,
+          justifyContent: "center", columnGap: 24, fontSize: 96, fontWeight: 800, lineHeight: 1.16, zIndex: 0,
         }}
       >
         {words.map((w, i) => {

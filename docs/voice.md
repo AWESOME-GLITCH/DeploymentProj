@@ -55,6 +55,45 @@ Two more worth keeping as they are, because they already sound like her: "Yes."
 after a right answer, and "Day 1. See you tomorrow." at the end of the first
 session. Short, flat, true.
 
+## The spoken turn (ruling for LP-80, LEA-48)
+
+These are the only words a learner hears after speaking, so they are settled
+here and nowhere else. Keys are in `i18n.ts`; the line or word she then says is
+teaching material and stays in English.
+
+| Name | Key | Ruled string |
+| --- | --- | --- |
+| Clear | `coach_clear` | Clear. That is how you say it. |
+| Nearly | `coach_nearly` | Nearly. Listen once more. |
+| Hard word | `coach_hard_word` | This word. |
+| Tries spent | `coach_tries_spent` | That one is hard. |
+| Close screen | `close_returns` | This comes back tomorrow, and again until you know it. |
+
+Why these and not the proposed four:
+
+- **"ask it" becomes "say it".** The Clear line fires whenever the scene has no
+  reply of its own, which includes turns that are not asks at all: describing
+  yourself, reporting a notice, explaining a bill. "That is how you ask it"
+  would be plainly wrong after "I'm Fatima. I live in Dubai." "Say" is true of
+  every spoken turn. On the length question: seven words is fine *here*, and
+  only here, because nothing follows the Clear. The short-lead-in rule protects
+  audio the learner must then attend to, and Clear introduces nothing.
+- **"Good try." goes.** It is praise for effort, which the same ticket rightly
+  forbids, and it is the single most reused phrase in learning apps. "That one
+  is hard." puts the difficulty in the item rather than in the learner, which is
+  what actually removes the fail state. Three words, and the sentence staying on
+  screen carries the choice to reopen, so the line does not have to.
+- **No fixed four days.** The engine schedules on a half-life, not a calendar
+  (`engine.ts`, `dueAt`). A freshly taught item is due in about a day, then
+  about a day again; the four-day gap only arrives once the item is Known. "and
+  again until you know it" is true at every state and still names the return.
+- Nearly and Hard word are accepted as proposed. Two words and two words, and
+  both name the thing that is about to happen.
+
+Also removed, not in the original list: `"Every word. Well done."` at
+`Coach.tsx:176`. It says "well done", and it is a second Clear path that
+contradicts the one above. Both branches fall to `coach_clear`.
+
 ## Where the words live
 
 - `lib/learning-path/i18n.ts` is the string table: British English source plus

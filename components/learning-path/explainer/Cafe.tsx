@@ -209,19 +209,19 @@ function NoticeScene({ frame }: { frame: number }) {
 // ---------------------------------------------------------------- explain: kinetic typography
 function ExplainScene({ frame }: { frame: number }) {
   const local = frame - 600;
-  const arc = tween(local, 220, 262, 0, 1, EASE.out);
-  const needle = -180 + 180 * springIn(local, 262, { damping: 10, stiffness: 60 });
+  const arc = tween(local, 40, 100, 0, 1, EASE.out);
+  const needle = -180 + 180 * springIn(local, 206, { damping: 10, stiffness: 60 });
   const r = 190, cx = 540, cy = 1120;
   const pt = (deg: number, rad: number) => ({ x: cx + rad * Math.cos((deg * Math.PI) / 180), y: cy + rad * Math.sin((deg * Math.PI) / 180) });
   const seg = (a: number, b: number) => { const p1 = pt(a, r), p2 = pt(b, r); return `M${p1.x} ${p1.y} A${r} ${r} 0 0 1 ${p2.x} ${p2.y}`; };
-  const spark = (i: number) => springIn(local, 206 + i * 5, { damping: 7, stiffness: 240 });
+  const spark = (i: number) => springIn(local, 162 + i * 5, { damping: 7, stiffness: 240 });
   return (
     <AbsoluteFill style={{ background: PAPER }}>
       <Stage>
         <defs><pattern id="dots" width="44" height="44" patternUnits="userSpaceOnUse"><circle cx="22" cy="22" r="3" fill={INK} opacity="0.08" /></pattern></defs>
         <rect width="1080" height="1440" fill="url(#dots)" />
         {/* politeness gauge */}
-        <g opacity={tween(local, 220, 240)}>
+        <g opacity={tween(local, 34, 58)}>
           {[[180, 240, PINK], [240, 300, SAFFRON], [300, 360, SEA]].map(([a, b, c]) => <path key={c as string} d={seg(a as number, b as number)} fill="none" stroke={c as string} strokeWidth="38" strokeLinecap="butt" pathLength={100} strokeDasharray="100" strokeDashoffset={100 * (1 - arc)} />)}
           <g transform={`rotate(${needle} ${cx} ${cy})`}>
             <path d={`M${cx} ${cy - 14} L${cx + r - 30} ${cy} L${cx} ${cy + 14} Z`} fill={INK} />
@@ -232,7 +232,7 @@ function ExplainScene({ frame }: { frame: number }) {
         </g>
         {/* two faces: the same wish, two tones */}
         <FaceChip x={760} y={292} r={62} mood="think" frame={frame} from={636} skin="#e7b998" />
-        <FaceChip x={820} y={556} r={70} mood="happy" frame={frame} from={742} skin="#f1c9a5" />
+        <FaceChip x={820} y={556} r={70} mood="happy" frame={frame} from={700} skin="#f1c9a5" />
         {/* sparkles by "please" */}
         {[[640, 800, 1], [700, 760, 0.7], [690, 870, 0.6]].map(([x, y, k], i) => (
           <g key={i} transform={`translate(${x} ${y}) scale(${spark(i) * (k as number)}) rotate(${local * 2})`} fill={SAFFRON}>
@@ -242,10 +242,10 @@ function ExplainScene({ frame }: { frame: number }) {
       </Stage>
       <Eyebrow text="THE SAME WISH" x={80} y={150} frame={frame} from={600} />
       <KineticText frame={frame} from={606} text="I want" x={80} y={200} width={520} size={150} color={FAINT} stagger={6} strike={{ from: 660, color: PINK }} />
-      <KineticText frame={frame} from={672} text="direct · a bit rude" x={80} y={380} size={46} color={FAINT} stagger={3} weight={700} />
-      <KineticText frame={frame} from={712} text="I'd like" x={80} y={470} size={170} color={ACCENT} targets={["I'd like"]} targetColor={ACCENT} marker={SAFFRON} markerDelay={16} stagger={7} />
-      <KineticText frame={frame} from={748} text="soft · polite · the cafe way" x={80} y={672} size={46} color={INK} stagger={3} weight={700} />
-      <KineticText frame={frame} from={800} text="+ please" x={80} y={760} size={120} color={SAFFRON} stagger={6} style={{ textShadow: "0 8px 0 rgba(27,29,58,0.14)" }} />
+      <KineticText frame={frame} from={656} text="direct · a bit rude" x={80} y={380} size={46} color={FAINT} stagger={3} weight={700} />
+      <KineticText frame={frame} from={676} text="I'd like" x={80} y={470} size={170} color={ACCENT} targets={["I'd like"]} targetColor={ACCENT} marker={SAFFRON} markerDelay={16} stagger={7} />
+      <KineticText frame={frame} from={708} text="soft · polite · the cafe way" x={80} y={672} size={46} color={INK} stagger={3} weight={700} />
+      <KineticText frame={frame} from={744} text="+ please" x={80} y={760} size={120} color={SAFFRON} stagger={6} style={{ textShadow: "0 5px 0 rgba(27,29,58,0.10)" }} />
     </AbsoluteFill>
   );
 }
@@ -312,10 +312,10 @@ function RecapScene({ frame }: { frame: number }) {
       <Stage>
         <defs><pattern id="stripes" width="60" height="60" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="30" height="60" fill={PAPER} opacity="0.06" /></pattern></defs>
         <rect width="1080" height="1440" fill="url(#stripes)" />
-        <rect x="60" y="1236" width="960" height="7" rx="4" fill={PAPER} opacity="0.3" />
-        {[0, 1, 2].map((i) => <Cup key={i} kind="takeaway" x={408 + i * 132} y={1238} frame={frame} appear={1396 + i * 9} scale={0.78} slideFrom={i === 2 ? 120 : -120} seed={i} />)}
-        <Character who="leo" x={150} y={1238} scale={0.85} facing={1} frame={frame} enter={1390} slideFrom={-160} mood="happy" gaze={0.6} gesture="wave" gestureAt={1400} />
-        <Character who="you" x={930} y={1238} scale={0.85} facing={-1} frame={frame} enter={1396} slideFrom={160} mood="happy" gaze={0.6} gesture="thumbs" gestureAt={1408} />
+        <rect x="60" y="1203" width="960" height="7" rx="4" fill={PAPER} opacity="0.3" />
+        {[0, 1, 2].map((i) => <Cup key={i} kind="takeaway" x={408 + i * 132} y={1205} frame={frame} appear={1396 + i * 9} scale={0.78} slideFrom={i === 2 ? 120 : -120} seed={i} />)}
+        <Character who="leo" x={150} y={1205} scale={0.85} facing={1} frame={frame} enter={1390} slideFrom={-160} mood="happy" gaze={0.6} gesture="wave" gestureAt={1400} />
+        <Character who="you" x={930} y={1205} scale={0.85} facing={-1} frame={frame} enter={1396} slideFrom={160} mood="happy" gaze={0.6} gesture="thumbs" gestureAt={1408} />
         <Confetti frame={frame} from={1354} count={90} seed={11} />
       </Stage>
       <div style={{ position: "absolute", left: 80, right: 80, top: 230, transform: `scale(${a}) rotate(${(1 - a) * -5}deg)`, transformOrigin: "50% 50%" }}>
@@ -324,7 +324,7 @@ function RecapScene({ frame }: { frame: number }) {
           <div style={{ fontSize: 38, fontWeight: 800, letterSpacing: 6, color: FAINT }}>REMEMBER</div>
           <div style={{ position: "relative", display: "inline-block", fontSize: 140, fontWeight: 800, color: ACCENT, lineHeight: 1.05, marginTop: 16, zIndex: 0 }}>I'd like<Highlight frame={frame} from={1384} color={SAFFRON} /></div>
           <div style={{ fontSize: 68, fontWeight: 700, color: FAINT, margin: "10px 0" }}>… a coffee …</div>
-          <div style={{ position: "relative", display: "inline-block", fontSize: 140, fontWeight: 800, color: SAFFRON, lineHeight: 1.05, textShadow: "0 8px 0 rgba(27,29,58,0.14)", zIndex: 0 }}>please.</div>
+          <div style={{ position: "relative", display: "inline-block", fontSize: 140, fontWeight: 800, color: SAFFRON, lineHeight: 1.05, textShadow: "0 5px 0 rgba(27,29,58,0.10)", zIndex: 0 }}>please.</div>
         </div>
       </div>
     </AbsoluteFill>

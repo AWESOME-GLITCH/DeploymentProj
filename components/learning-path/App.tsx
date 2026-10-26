@@ -5,7 +5,7 @@
 // wide screens. Provides language, audio and navigation to every screen.
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { FlaskConical, Home as HomeIcon, Route, TrendingUp, User, Users } from "lucide-react";
+import { FlaskConical, Home as HomeIcon, TrendingUp, User } from "lucide-react";
 import { composeSession, dayIndex, now as engineNow } from "@/lib/learning-path/engine";
 import { isRtl, makeT, tapToTranslate, uiLanguage } from "@/lib/learning-path/i18n";
 import { probeTts, say as tts } from "@/lib/learning-path/speech";
@@ -104,7 +104,7 @@ function Shell() {
 
   const onSessionComplete = () => { if (firstRun) { setScreen("reward"); } else setScreen("home"); setFirstRun(false); };
 
-  const nav = (["home", "road", "progress", "classmates", "me"] as Screen[]);
+  const nav = (["home", "progress", "me"] as Screen[]);
   const showNav = nav.includes(screen);
   const scale = state.learner.text_scale;
   const theme = state.learner.theme === "auto" ? (systemDark ? "dark" : "light") : state.learner.theme;
@@ -116,18 +116,18 @@ function Shell() {
           <div className="min-h-0 flex-1">
             {screen === "onboarding" ? <Onboarding onPlaced={onPlaced} /> : null}
             {screen === "reward" ? <Reward onDone={() => setScreen("home")} /> : null}
-            {screen === "home" ? <Home onStart={() => startSession(false)} onSecond={() => startSession(true)} /> : null}
+            {screen === "home" ? <Home onStart={() => startSession(false)} onSecond={() => startSession(true)} onCheckpoint={() => setScreen("checkpoint")} /> : null}
             {screen === "road" ? <Road onCheckpoint={() => setScreen("checkpoint")} /> : null}
             {screen === "progress" ? <Progress /> : null}
             {screen === "classmates" ? <Classmates /> : null}
             {screen === "me" ? <Me /> : null}
-            {screen === "checkpoint" ? <Checkpoint onDone={() => setScreen("road")} /> : null}
+            {screen === "checkpoint" ? <Checkpoint onDone={() => setScreen("home")} /> : null}
             {screen === "session" ? (state.current ? <Capsule onExit={() => setScreen("home")} onComplete={onSessionComplete} /> : <Home onStart={() => startSession(false)} onSecond={() => startSession(true)} />) : null}
           </div>
           {showNav ? (
             <nav className="lp-nav">
               {nav.map((s) => {
-                const Icon = s === "home" ? HomeIcon : s === "road" ? Route : s === "progress" ? TrendingUp : s === "classmates" ? Users : User;
+                const Icon = s === "home" ? HomeIcon : s === "progress" ? TrendingUp : User;
                 return (
                   <button key={s} type="button" data-active={screen === s} onClick={() => setScreen(s)} aria-label={t(s === "home" ? "today" : s)}>
                     <Icon size={20} /><span>{t(s === "home" ? "today" : s)}</span>

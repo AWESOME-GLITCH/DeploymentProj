@@ -106,6 +106,63 @@ atom. Keep one run-up per atom, cut the rest from week one. They stay in the
 bank for the practice deck and for recall echoes, where tapping is the right
 shape because the work is remembering, not producing.
 
+## Measured, not assumed
+
+A full first-run walkthrough at 375x812, auto-answering each item through the
+tester hook, clock started at the Continue on the road screen.
+
+| Measured | Time | Note |
+|---|---|---|
+| The scene is on screen | 0.6s | No plan screen. The session now opens on the lesson. |
+| A mic the learner can speak into | about 28s | The scene's own "Say it with me" line sits at 28s in `ATM-A2-INT-0001` and the video clock runs at 1:1. The walkthrough confirms the say-along mic is present by 51s; the 28s is read off the content, not off the clock. |
+| Notice | 54.1s | After the full 50 second scene and its say-along. |
+| Four tapping items | 54.7s to 62.1s | Auto-answered at about one second each. A learner needs 15 to 20 seconds each. |
+| **The coached production turn** | **62.1s** | "Order two large coffees", answered with the cafe's own reply "Coming right up." |
+| Delayed check, then close | 63.6s to 66.0s | |
+
+So the rule is **not yet met for a real learner**. The say-along mic inside the
+scene arrives in time. The turn where the learner produces the sentence
+themselves and gets a reply arrives at 62 seconds only because the four tapping
+items cost a second each under the tester hook. Priced at a learner's real pace
+those four items cost 60 to 80 seconds rather than 7, which puts the coached
+turn at roughly 115 to 135 seconds.
+
+The fix is the atom phase swap, not more engine work: moving `free_use` ahead of
+`controlled` puts the coached turn straight after the notice, at about 65
+seconds. That change is with the CEFR Content Lead, who owns `content.ts`.
+
+### Three things the walkthrough turned up
+
+1. **The scene does not play on its own.** Pressing Continue lands the learner on
+   a paused video with a play button over it. One more tap, and it makes the
+   first thing in the lesson a decision rather than a story. The scene should
+   start playing as the phase opens, with pause available.
+2. **The scene gate is 80% of 50 seconds.** Continue stays disabled for 40
+   seconds. That is right for a first watch and wrong for a return visit; on a
+   repeat the gate should already be open.
+3. **A landed turn is answered with three meters.** The cafe says "Coming right
+   up", and under it sit Sounds, Rhythm and Words as three filled bars plus the
+   transcript. That is the single thing that makes a spoken turn read as marked
+   rather than answered. On a Clear the reply is the whole response: no bars, no
+   transcript. Keep the sub-scores going to `onAnswer` as evidence, and keep
+   them out of the learner's sight.
+
+### Verified session shapes
+
+`composeSession` output, five cases, after the re-order:
+
+| Case | Phase order |
+|---|---|
+| First run | `atom:new` -> `close` |
+| Day 1, nothing due | `atom:new` -> `atom:use` -> `story` -> `close` |
+| Day 2, items due | `atom:new` -> `atom:use` -> `recall` -> `story` -> `close` |
+| Second session | `recall` -> `atom:use` -> `atom:fluency` -> `close` |
+| Warm restart | `recall` -> `story` -> `close` |
+
+No `plan` phase in any of them. The two review-only shapes open on the recall
+echo, which is correct: there is no new scene to open on, and the echo is
+familiar material.
+
 ## What this asks of the build
 
 | Owner | Change |

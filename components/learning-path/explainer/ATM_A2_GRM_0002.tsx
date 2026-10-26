@@ -10,6 +10,7 @@
 // plays in the Player and renders deterministically to MP4.
 
 import { AbsoluteFill, useCurrentFrame } from "remotion";
+import type { Gesture } from "./lib";
 import {
   ACCENT, Badge, BeatProgress, CaptionBar, Character, Cup, EASE, Eyebrow, FAINT, FOG, FONT, INK, karaoke,
   PAPER, Pulse, SAFFRON, SEA, SpeechBubble, Stage, Transition, springIn, tween, WOOD, WOOD_DARK, WOOD_LIGHT,
@@ -76,7 +77,7 @@ const JUG_HOME = 105;
 const JAR_HOME = 1000;
 const PLATE_X = 700;
 const PILE_X = 710;
-const BADGE_Y = 1110; // the counting numbers sit on the counter front
+const BADGE_Y = 1098; // the counting numbers sit on the counter front
 
 // The word card at the top.
 const CARD = { x: 70, y: 150, w: 940, h: 170 };
@@ -239,6 +240,7 @@ function Glass({ x, y, frame, appear, outline = false, level = 0, fade, scale = 
   const top = -8 - 118 * level;
   return (
     <g transform={`translate(${x} ${y}) scale(${scale * s})`} opacity={1 - out}>
+      <defs><clipPath id="grm2-glass"><path d={GLASS_PATH} /></clipPath></defs>
       {outline ? (
         <g fill="none" stroke={GREY} strokeWidth="6" strokeDasharray="15 11" strokeLinejoin="round">
           <path d={GLASS_PATH} />
@@ -364,11 +366,12 @@ function Pointer({ x, y, frame, from, until }: { x: number; y: number; frame: nu
   const s = springIn(frame, from, { damping: 11, stiffness: 150 }) * (1 - tween(frame, until - 14, until, 0, 1, EASE.in));
   return (
     <g transform={`translate(${x} ${y}) scale(${s})`}>
-      <rect x="-40" y="-168" width="80" height="54" rx="16" fill={PAPER} stroke={INK} strokeWidth="6" />
-      <path d="M-38 -124 Q-44 -46 -16 -16 Q0 0 16 -16 Q40 -44 38 -124 Z" fill="#f1c9a5" stroke={INK} strokeWidth="6" strokeLinejoin="round" />
-      <path d="M-6 -20 L-6 14" stroke="#f1c9a5" strokeWidth="26" strokeLinecap="round" />
-      <path d="M-6 -20 L-6 14" fill="none" stroke={INK} strokeWidth="6" strokeLinecap="round" opacity="0.18" />
-      <circle cx="-6" cy="16" r="13" fill="#f1c9a5" stroke={INK} strokeWidth="6" />
+      <rect x="-46" y="-186" width="92" height="56" rx="18" fill={PAPER} stroke={INK} strokeWidth="6" />
+      {/* the fist, then the index finger pointing down at the cup */}
+      <rect x="-44" y="-142" width="88" height="92" rx="38" fill="#f1c9a5" stroke={INK} strokeWidth="6" />
+      {[-112, -92, -72].map((ky) => <line key={ky} x1="22" y1={ky} x2="40" y2={ky} stroke={INK} strokeWidth="4" opacity="0.35" />)}
+      <rect x="-32" y="-78" width="34" height="86" rx="17" fill="#f1c9a5" stroke={INK} strokeWidth="6" />
+      <rect x="-28" y="-80" width="26" height="30" fill="#f1c9a5" />
     </g>
   );
 }
@@ -426,7 +429,9 @@ const W4 = { card: 726, plate: 726, s1: 740, s2: 762, split: 784, swipe: 792, fl
 const JUG_POUR = { x: 553, y: 858 };
 const JAR_POUR = { x: 600, y: 858 };
 const WATER_LEVEL = 0.78;
-const SURFACE_Y = PROP_Y - 8 - 118 * WATER_LEVEL; // the water line in the full glass
+const GLASS_S = 1.25;
+const SURFACE_Y = PROP_Y - (8 + 118 * WATER_LEVEL) * GLASS_S; // the water line in the full glass
+const JUG_LIP = { x: 685, y: 783 }; // the spout, after the tilt and the scale
 
 /** The white card at the top of every word beat. */
 function CardShell({ frame, from, until, children }: { frame: number; from: number; until: number; children: React.ReactNode }) {
@@ -443,7 +448,7 @@ function CardShell({ frame, from, until, children }: { frame: number; from: numb
 }
 
 // w1: "a coffee, two coffee" with the s clipping on at the end
-const W1_SEGS = layoutSegs([{ t: "a coffee, two coffee", size: 64 }, { t: "s", size: 64, w: tileW("s", 64), gap: 12 }], 64, 540);
+const W1_SEGS = layoutSegs([{ t: "a coffee, two coffee", size: 64 }, { t: "s", size: 64, w: tileW("s", 64), gap: 18 }], 64, 540);
 const W1_SLOT = { cx: W1_SEGS[1].x + W1_SEGS[1].w / 2, cy: CARD_BASE - 18, w: W1_SEGS[1].w, h: 102 };
 
 // w2 and w3: two plain cards, the uncountable word in the accent
@@ -452,7 +457,7 @@ const W3_SEGS = layoutSegs([{ t: "some", size: 78, color: ACCENT }, { t: "sugar"
 
 // w4: the word splits so "ch" shows, then "es" clips on after it
 const W4_SEGS = layoutSegs(
-  [{ t: "a sandwich, two sandwi", size: 54 }, { t: "ch", size: 54, gap: 15 }, { t: "es", size: 54, w: tileW("es", 54), gap: 12 }],
+  [{ t: "a sandwich, two sandwi", size: 54 }, { t: "ch", size: 54, gap: 15 }, { t: "es", size: 54, w: tileW("es", 54), gap: 18 }],
   54, 540,
 );
 const W4_SLOT = { cx: W4_SEGS[2].x + W4_SEGS[2].w / 2, cy: CARD_BASE - 14, w: W4_SEGS[2].w, h: 92 };
@@ -471,17 +476,31 @@ function CounterScene({ frame, beat }: { frame: number; beat: Beat }) {
   // w2: the jug lifts from its place, tips, pours, goes back
   const jugT = tween(frame, W2.lift, W2.lift + 36, 0, 1, EASE.inOut) - tween(frame, W2.back, W2.back + 36, 0, 1, EASE.inOut);
   const jugX = JUG_HOME + (JUG_POUR.x - JUG_HOME) * jugT;
-  const jugY = PROP_Y + (JUG_POUR.y - PROP_Y) * jugT;
+  const jugRise = tween(frame, W2.lift + 16, W2.lift + 38, 0, 1, EASE.out) - tween(frame, W2.back, W2.back + 20, 0, 1, EASE.in);
+  const jugY = PROP_Y + (JUG_POUR.y - PROP_Y) * jugRise;
   const jugRot = tween(frame, W2.tipped - 24, W2.tipped, 0, 30, EASE.inOut) - tween(frame, W2.pourOff + 2, W2.pourOff + 18, 0, 30, EASE.inOut);
   const level = tween(frame, W2.pourOn + 2, W2.pourOn + 66, 0, WATER_LEVEL, EASE.out);
 
   // w3: the sugar jar does the same move, mirrored in rhythm
   const jarT = tween(frame, W3.lift, W3.lift + 36, 0, 1, EASE.inOut) - tween(frame, W3.back, W3.back + 36, 0, 1, EASE.inOut);
   const jarX = JAR_HOME + (JAR_POUR.x - JAR_HOME) * jarT;
-  const jarY = PROP_Y + (JAR_POUR.y - PROP_Y) * jarT;
+  const jarRise = tween(frame, W3.lift + 16, W3.lift + 38, 0, 1, EASE.out) - tween(frame, W3.back, W3.back + 20, 0, 1, EASE.in);
+  const jarY = PROP_Y + (JAR_POUR.y - PROP_Y) * jarRise;
   const jarRot = tween(frame, W3.tipped - 22, W3.tipped, 0, 35, EASE.inOut) - tween(frame, W3.pourOff + 2, W3.pourOff + 18, 0, 35, EASE.inOut);
   const pileW = tween(frame, W3.pourOn + 4, W3.pourOn + 40, 0, 88, EASE.out);
   const pileH = tween(frame, W3.pourOn + 4, W3.pourOn + 40, 0, 48, EASE.out);
+
+  const jarAway = frame >= W3.lift + 6 && frame < W3.back + 30;
+
+  // leo keeps one arm busy: he reaches under the counter, lifts the jug, then
+  // shrugs at the water that will not be counted, and settles again.
+  const leo: { g: Gesture; at: number; from: Gesture } =
+    frame >= 600 ? { g: "idle", at: 600, from: "raise" }
+      : frame >= W2.boat ? { g: "raise", at: W2.boat, from: "cup" }
+        : frame >= W2.lift ? { g: "cup", at: W2.lift, from: "idle" }
+          : frame >= 124 ? { g: "idle", at: 124, from: "serve" }
+            : frame >= 70 ? { g: "serve", at: 70, from: "idle" }
+              : { g: "idle", at: 0, from: "idle" };
 
   // the pointer that taps each cup
   const tapT = frame < 190 ? CUP1_X : tween(frame, 180, 204, CUP1_X, CUP2_X, EASE.inOut);
@@ -496,18 +515,14 @@ function CounterScene({ frame, beat }: { frame: number; beat: Beat }) {
     <AbsoluteFill style={{ background: WALL, overflow: "hidden" }}>
       <AbsoluteFill style={{ transform: `scale(${z})`, transformOrigin: "540px 1000px" }}>
         <Stage>
-          <defs>
-            <clipPath id="grm2-glass"><path d={GLASS_PATH} /></clipPath>
-          </defs>
           <WallSet />
 
           {/* leo keeps the counter; you order from the other side of it */}
           <g transform={`translate(0 ${nod})`}>
             <Character
               who="leo" x={LEO_X} y={FEET_Y} scale={BODY} facing={1} frame={frame} enter={0} legs={false} seed={2}
-              gaze={0.8} mood={frame >= W2.boat ? "happy" : "neutral"}
-              gesture={frame >= W2.boat ? "raise" : frame >= 70 && frame < 120 ? "serve" : "idle"}
-              gestureAt={frame >= W2.boat ? W2.boat : 70}
+              gaze={0.8} mood={frame >= W2.boat && frame < 600 ? "happy" : "neutral"}
+              gesture={leo.g} gestureAt={leo.at} from={leo.from}
               talking={frame >= 96 && frame < 116}
             />
           </g>
@@ -523,14 +538,14 @@ function CounterScene({ frame, beat }: { frame: number; beat: Beat }) {
 
           {/* set dressing: the jug and the sugar jar live on the counter */}
           {id !== "w2" ? <Jug x={JUG_HOME} y={PROP_Y} scale={0.78} /> : null}
-          {id !== "w3" ? <SugarJar x={JAR_HOME} y={PROP_Y} scale={0.82} lid={id === "hook" || id === "w1" || id === "w2"} /> : null}
+          {id !== "w3" ? <SugarJar x={JAR_HOME} y={PROP_Y} scale={0.82} /> : null}
 
           {/* hook: two cups and a glass wait as grey outlines */}
           {hook ? (
             <g>
               <MugOutline x={CUP1_X} y={PROP_Y} frame={frame} appear={78} />
               <MugOutline x={CUP2_X} y={PROP_Y} frame={frame} appear={88} />
-              <Glass x={GLASS_X} y={PROP_Y} frame={frame} appear={98} outline />
+              <Glass x={GLASS_X} y={PROP_Y} frame={frame} appear={98} outline scale={GLASS_S} />
             </g>
           ) : null}
 
@@ -539,7 +554,7 @@ function CounterScene({ frame, beat }: { frame: number; beat: Beat }) {
             <g>
               <MugOutline x={CUP1_X} y={PROP_Y} frame={frame} appear={120} fade={W1.cup1 - 4} />
               <MugOutline x={CUP2_X} y={PROP_Y} frame={frame} appear={120} fade={W1.cup2 - 4} />
-              <Glass x={GLASS_X} y={PROP_Y} frame={frame} appear={120} outline />
+              <Glass x={GLASS_X} y={PROP_Y} frame={frame} appear={120} outline scale={GLASS_S} />
               <Cup kind="mug" x={CUP1_X} y={PROP_Y} frame={frame} appear={W1.cup1} scale={0.95} steam={frame >= W1.steam} seed={1} />
               <Cup kind="mug" x={CUP2_X} y={PROP_Y} frame={frame} appear={W1.cup2} scale={0.95} steam={frame >= W1.steam} seed={5} />
               <Pointer x={tapT} y={tapY} frame={frame} from={W1.tap1 - 14} until={W1.tap2 + 26} />
@@ -551,16 +566,16 @@ function CounterScene({ frame, beat }: { frame: number; beat: Beat }) {
           {/* w2: the glass fills, the 2 slides off the water, some floats */}
           {id === "w2" ? (
             <g>
-              <Glass x={GLASS_X} y={PROP_Y} frame={frame} appear={330} outline fade={330} />
-              <Glass x={GLASS_X} y={PROP_Y} frame={frame} appear={W2.glass} level={level} />
-              <Pour frame={frame} from={W2.pourOn} to={W2.pourOff} x1={720} y1={766} x2={GLASS_X} y2={880} />
+              <Glass x={GLASS_X} y={PROP_Y} frame={frame} appear={330} outline fade={330} scale={GLASS_S} />
+              <Glass x={GLASS_X} y={PROP_Y} frame={frame} appear={W2.glass} level={level} scale={GLASS_S} />
+              <Pour frame={frame} from={W2.pourOn} to={W2.pourOff} x1={JUG_LIP.x} y1={JUG_LIP.y} x2={GLASS_X} y2={904} width={15} />
               <Jug x={jugX} y={jugY} rot={jugRot} scale={0.78} level={0.62 - 0.18 * (level / WATER_LEVEL)} />
-              <Bubbles frame={frame} from={W2.sink} x={790} y={968} surface={SURFACE_Y} />
+              <Bubbles frame={frame} from={W2.sink} x={786} y={974} surface={SURFACE_Y} />
               {frame < W2.sink + 12 ? (
                 <MagnetTile
                   frame={frame} from={W2.drop} t="2" size={56}
                   cx={tween(frame, W2.drop, W2.hit, GLASS_X, GLASS_X, EASE.out) + tween(frame, W2.hit, W2.sink, 0, 46, EASE.in)}
-                  cy={tween(frame, W2.drop, W2.hit, 540, 880, EASE.bounce) + tween(frame, W2.hit, W2.sink, 0, 74, EASE.in)}
+                  cy={tween(frame, W2.drop, W2.hit, 520, SURFACE_Y - 47, EASE.bounce) + tween(frame, W2.hit, W2.sink, 0, 74, EASE.in)}
                   rot={tween(frame, W2.hit, W2.sink, 0, 74, EASE.inOut)}
                   opacity={1 - tween(frame, W2.sink - 10, W2.sink + 12, 0, 1, EASE.in)}
                 />
@@ -571,7 +586,7 @@ function CounterScene({ frame, beat }: { frame: number; beat: Beat }) {
                     d={`M${GLASS_X - 54} ${SURFACE_Y + 2} q 18 -8 27 0 q 9 8 27 0`}
                     fill="none" stroke={WATER_TOP} strokeWidth="5" strokeLinecap="round"
                   />
-                  <MagnetTile frame={frame} from={W2.boat} t="some" size={44} cx={GLASS_X} cy={SURFACE_Y - 34 + Math.sin((frame - W2.boat) / 9) * 6} />
+                  <MagnetTile frame={frame} from={W2.boat} t="some" size={34} cx={GLASS_X} cy={SURFACE_Y - 36 + Math.sin((frame - W2.boat) / 9) * 6} />
                 </g>
               ) : null}
             </g>
@@ -580,9 +595,9 @@ function CounterScene({ frame, beat }: { frame: number; beat: Beat }) {
           {/* w3: sugar pours in a pile, the 2 sinks, some comes up on a spoon */}
           {id === "w3" ? (
             <g>
-              <SugarJar x={jarX} y={jarY} rot={jarRot} scale={0.82} lid={false} />
-              {frame >= W3.lift + 6 ? (
-                <g transform={`translate(${JAR_HOME} ${PROP_Y})`} opacity={tween(frame, W3.lift + 6, W3.lift + 20, 0, 1, EASE.out)}>
+              <SugarJar x={jarX} y={jarY} rot={jarRot} scale={0.82} lid={!jarAway} />
+              {jarAway ? (
+                <g transform={`translate(${JAR_HOME - 150} ${PROP_Y})`} opacity={tween(frame, W3.lift + 6, W3.lift + 20, 0, 1, EASE.out)}>
                   <rect x="-38" y="-18" width="76" height="18" rx="8" fill={WOOD_LIGHT} stroke={INK} strokeWidth="5" />
                   <rect x="-11" y="-30" width="23" height="14" rx="6" fill={WOOD_LIGHT} stroke={INK} strokeWidth="5" />
                 </g>
@@ -601,7 +616,7 @@ function CounterScene({ frame, beat }: { frame: number; beat: Beat }) {
                 x={PILE_X} y={tween(frame, W3.spoon + 4, W3.spoon + 24, 966, 876, EASE.out)}
                 frame={frame} from={W3.spoon} scoop={frame >= W3.spoon + 8}
               />
-              <MagnetTile frame={frame} from={W3.boat} t="some" size={44} cx={PILE_X - 14} cy={800} />
+              <MagnetTile frame={frame} from={W3.boat} t="some" size={34} cx={PILE_X - 14} cy={806} />
             </g>
           ) : null}
 
@@ -749,11 +764,11 @@ function PractiseScene({ frame }: { frame: number }) {
         {/* the outlines from the hook, filled in at last */}
         {resumed ? (
           <g>
-            <line x1="300" y1="1134" x2="800" y2="1134" stroke={FOG} strokeWidth="6" strokeLinecap="round" />
-            <Cup kind="mug" x={430} y={1130} frame={frame} appear={1068} scale={0.78} steam={false} seed={1} />
-            <Cup kind="mug" x={540} y={1130} frame={frame} appear={1076} scale={0.78} steam={false} seed={5} />
-            <Glass x={660} y={1130} frame={frame} appear={1084} level={WATER_LEVEL} scale={0.72} />
-            <Tick x={772} y={1072} frame={frame} from={1092} r={42} />
+            <line x1="250" y1="1134" x2="780" y2="1134" stroke={FOG} strokeWidth="6" strokeLinecap="round" />
+            <Cup kind="mug" x={378} y={1130} frame={frame} appear={1068} scale={0.78} steam={false} seed={1} />
+            <Cup kind="mug" x={488} y={1130} frame={frame} appear={1076} scale={0.78} steam={false} seed={5} />
+            <Glass x={598} y={1130} frame={frame} appear={1084} level={WATER_LEVEL} scale={0.74} />
+            <Tick x={708} y={1066} frame={frame} from={1092} r={42} />
           </g>
         ) : null}
 

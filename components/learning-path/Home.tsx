@@ -1,45 +1,27 @@
 "use client";
 
-// Home. The journey fills the screen: a drawn road running from under the
-// learner's feet at the bottom up to the next CEFR level at the horizon, with
-// a landmark for every stop. Past stops are ticked and filled, today's stop is
-// the one lit thing on the road, the stops ahead sit in fog. Under the road,
-// three short lines say what today is, and one button starts it.
-// Tapping the road opens the whole road.
+// Home is the journey. One drawn road winds up the screen from where the
+// learner stands to the next level. Every stop is a landmark with its can-do
+// in plain words; past stops are ticked, today's stop is the one lit thing,
+// the stops ahead are quiet. Under the road: what today is, the level, one
+// line from the coach, one button. Nothing moves except the walked road
+// filling in once.
 
 import { useEffect, useRef, useState } from "react";
 import { OUTCOMES, OUTCOME_BY_ID } from "@/lib/learning-path/content";
-import { ATOM_LOOKUP, dayIndex, fogOpacity, outcomeAchieved, outcomeProgress, scoreNewAtoms } from "@/lib/learning-path/engine";
+import { ATOM_LOOKUP, checkpointAvailable, dayIndex, outcomeAchieved, outcomeProgress, scoreNewAtoms } from "@/lib/learning-path/engine";
 import { useNow, useStore } from "@/lib/learning-path/store";
-import { loc } from "@/lib/learning-path/i18n";
-import type { L1, Localised } from "@/lib/learning-path/types";
-import { GlowButton, IsoStop, StopTick, useLp } from "./ui";
+import { CEFR_LABEL, loc } from "@/lib/learning-path/i18n";
+import type { L1, Localised, Strand } from "@/lib/learning-path/types";
+import { GlowButton, useLp } from "./ui";
 
-// Five stops are visible at a time, placed at fixed points up the road so the
-// drawing keeps the same shape for every learner. t runs 0 at the road's near
-// end (below the frame) to 1 at the horizon.
-const SLOT_T = [0.17, 0.35, 0.53, 0.72, 0.9];
-const VISIBLE = SLOT_T.length;
-const LABEL_MAX = 20; // characters per label line
-const LABEL_LINES = 4;
+const LEVEL_WORD: Record<string, string> = { "Pre-A1": "Starter", A1: "Beginner", A2: "Elementary", B1: "Intermediate", B2: "Upper intermediate", C1: "Advanced", C2: "Proficient" };
 
-type Box = { w: number; h: number };
-
-/** The road's geometry, in real pixels, for a box of w x h. */
-function geo(box: Box) {
-  const top = box.h * 0.1;
-  const bottom = box.h + 60; // the road runs off the bottom of the frame
-  const span = bottom - top;
-  return {
-    top,
-    bottom,
-    y: (t: number) => bottom - t * span,
-    // A gentle double bend up the left of the frame, so the labels always have
-    // the same column on the right.
-    cx: (t: number) => box.w * 0.33 + Math.sin(t * 4.4) * box.w * 0.16 * (1 - t * 0.45),
-    // Perspective: wide and near at the bottom, a few pixels at the horizon.
-    half: (t: number) => box.w * 0.22 * Math.pow(1 - t, 1.15) + box.w * 0.014,
-  };
+/** "A2.1" becomes "A2 · Elementary". */
+export function levelInWords(sub: string | null | undefined): string {
+  const label = CEFR_LABEL[(sub ?? "A2.1") as keyof typeof CEFR_LABEL] ?? "A2.1";
+  const band = label.replace(/\.\d$/, "");
+  return LEVEL_WORD[band] ? `${band} · ${LEVEL_WORD[band]}` : label;
 }
 
 /** "Can order food and drink in a cafe" becomes "Order food and drink in a cafe". */
@@ -48,38 +30,44 @@ function canDoShort(text: Localised, lang: L1): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-/** Wrap a label to at most three short lines. */
-function wrapLabel(s: string): string[] {
-  const lines: string[] = [];
+function wrap(s: string, max: number, lines: number): string[] {
+  const out: string[] = [];
   let cur = "";
-  for (const word of s.split(/\s+/)) {
-    if (!cur) cur = word;
-    else if (`${cur} ${word}`.length <= LABEL_MAX) cur = `${cur} ${word}`;
-    else { lines.push(cur); cur = word; if (lines.length === LABEL_LINES) break; }
+  for (const w of s.split(/\s+/)) {
+    if (!cur) cur = w;
+    else if (`${cur} ${w}`.length <= max) cur = `${cur} ${w}`;
+    else { out.push(cur); cur = w; if (out.length === lines) break; }
   }
-  if (cur && lines.length < LABEL_LINES) lines.push(cur);
-  return lines.slice(0, LABEL_LINES);
+  if (cur && out.length < lines) out.push(cur);
+  return out.slice(0, lines);
 }
 
-/** The learner's own setting is honoured by lp.css; the OS setting is honoured
- *  here, because the marker's slide is an inline transition. */
-function useSystemReduceMotion(): boolean {
-  const [reduce, setReduce] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const apply = () => setReduce(mq.matches);
-    apply();
-    mq.addEventListener("change", apply);
-    return () => mq.removeEventListener("change", apply);
-  }, []);
-  return reduce;
+/** A small flat landmark for each strand, drawn in the same vector language as the lesson videos. */
+function Landmark({ strand, x, y, s, colour }: { strand: Strand; x: number; y: number; s: number; colour: string }) {
+  const g = `translate(${x} ${y}) scale(${s})`;
+  switch (strand) {
+    case "INT": // a cup
+      return <g transform={g} fill="none" stroke={colour} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M-6 -4 H6 L5 6 H-5 Z" /><path d="M6 -2 Q10 -2 10 1 Q10 4 6 4" /><path d="M-2 -8 q1 -2 0 -4 M2 -8 q1 -2 0 -4" opacity={0.6} /></g>;
+    case "GRM": // two blocks that fit
+      return <g transform={g} fill="none" stroke={colour} strokeWidth={1.8} strokeLinejoin="round"><rect x={-9} y={-2} width={8} height={8} rx={1.5} /><rect x={1} y={-8} width={8} height={8} rx={1.5} /></g>;
+    case "LST": // sound
+      return <g transform={g} fill="none" stroke={colour} strokeWidth={1.8} strokeLinecap="round"><path d="M-7 -3 V3 H-3 L2 7 V-7 L-3 -3 Z" strokeLinejoin="round" /><path d="M5 -3 Q8 0 5 3" /><path d="M8 -6 Q13 0 8 6" opacity={0.6} /></g>;
+    case "SPK": // a speech bubble
+      return <g transform={g} fill="none" stroke={colour} strokeWidth={1.8} strokeLinejoin="round"><path d="M-9 -7 H9 V3 H-2 L-6 7 V3 H-9 Z" /></g>;
+    case "RDG": // an open book
+      return <g transform={g} fill="none" stroke={colour} strokeWidth={1.8} strokeLinejoin="round"><path d="M0 -6 Q-5 -9 -10 -7 V6 Q-5 4 0 7 Q5 4 10 6 V-7 Q5 -9 0 -6 V7" /></g>;
+    case "WRT": // a pencil
+      return <g transform={g} fill="none" stroke={colour} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M-8 8 L-6 2 L5 -9 L9 -5 L-2 6 Z" /><path d="M3 -7 L7 -3" /></g>;
+    default: // MED: an envelope passed on
+      return <g transform={g} fill="none" stroke={colour} strokeWidth={1.8} strokeLinejoin="round"><rect x={-9} y={-6} width={18} height={12} rx={1.5} /><path d="M-9 -6 L0 1 L9 -6" /></g>;
+  }
 }
 
-export function Home({ onStart, onSecond }: { onStart: () => void; onSecond: () => void }) {
+type Box = { w: number; h: number };
+
+export function Home({ onStart, onSecond, onCheckpoint }: { onStart: () => void; onSecond: () => void; onCheckpoint?: () => void }) {
   const { state } = useStore();
-  const { t, rtl, lang, reduceMotion: settingReduce, go } = useLp();
-  const systemReduce = useSystemReduceMotion();
-  const reduceMotion = settingReduce || systemReduce;
+  const { t, rtl, lang } = useLp();
   const now = useNow();
   const day = dayIndex(state, now);
   const todays = state.sessions.filter((s) => s.day === day);
@@ -88,234 +76,118 @@ export function Home({ onStart, onSecond }: { onStart: () => void; onSecond: () 
   const cur = state.current && state.current.session.day === day ? state.current : null;
   const lastDay = state.sessions.filter((s) => s.completed).map((s) => s.day).sort((a, b) => b - a)[0];
   const missed = lastDay === undefined ? 0 : day - lastDay - 1;
+  const ckp = checkpointAvailable(state, now);
 
-  // The window of stops: today's stop with up to two behind it and the rest ahead.
   const curIdx = Math.max(0, OUTCOMES.findIndex((o) => o.outcome_id === state.week_can_do));
-  const start = Math.min(Math.max(0, curIdx - 2), Math.max(0, OUTCOMES.length - VISIBLE));
-  const stops = OUTCOMES.slice(start, start + VISIBLE);
-  const todaySlot = Math.min(VISIBLE - 1, Math.max(0, curIdx - start));
   const weekCanDo = state.week_can_do ? OUTCOME_BY_ID[state.week_can_do] : OUTCOMES[curIdx];
-
-  // Today's lesson: the new atom of the session in hand, or the one the engine
-  // would pick next.
   const planned = cur?.session.phases.find((p) => p.kind === "atom" && p.role === "new");
-  const lessonAtom = (planned && planned.kind === "atom" ? ATOM_LOOKUP[planned.atom_id] : null)
-    ?? scoreNewAtoms(state, now, day)[0]?.atom
-    ?? null;
+  const lessonAtom = (planned && planned.kind === "atom" ? ATOM_LOOKUP[planned.atom_id] : null) ?? scoreNewAtoms(state, now, day)[0]?.atom ?? null;
   const lessonName = lessonAtom ? loc(lessonAtom.title, lang) : null;
+  const coach = doneToday ? t("coach_done") : missed >= 2 ? t("coach_welcome_back") : cur ? t("coach_mid") : t("coach_fresh");
+  const minutes = state.learner.daily_minutes;
+  const canDo = weekCanDo ? canDoShort(weekCanDo.can_do, lang) : null;
+  const level = levelInWords(state.learner.confirmed_sublevel);
+  const nextLevel = (CEFR_LABEL[(state.learner.confirmed_sublevel ?? "A2.1") as keyof typeof CEFR_LABEL] ?? "A2.1").startsWith("A2") ? "B1" : "B2";
 
-  // The road is drawn in real pixels, so the labels keep their type size and
-  // the markers keep their shape whatever the screen height is.
-  const roadRef = useRef<HTMLButtonElement>(null);
+  // The road is drawn in real pixels so type and landmarks keep their size.
+  const roadRef = useRef<HTMLDivElement>(null);
   const [box, setBox] = useState<Box | null>(null);
   useEffect(() => {
     const el = roadRef.current;
     if (!el) return;
-    const measure = () => {
-      const r = el.getBoundingClientRect();
-      if (r.width > 0 && r.height > 0) setBox({ w: Math.round(r.width), h: Math.round(r.height) });
-    };
+    const measure = () => { const r = el.getBoundingClientRect(); if (r.width > 0 && r.height > 0) setBox({ w: Math.round(r.width), h: Math.round(r.height) }); };
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
 
-  // Motion: the marker walks onto the road and up to today's stop, once.
-  const [arrived, setArrived] = useState(false);
-  useEffect(() => {
-    if (!box || arrived) return;
-    if (reduceMotion) { setArrived(true); return; }
-    const id = window.setTimeout(() => setArrived(true), 90);
-    return () => window.clearTimeout(id);
-  }, [box, arrived, reduceMotion]);
+  // Which stops are on screen: today's with two behind and the rest ahead, five in all.
+  const VISIBLE = 5;
+  const start = Math.min(Math.max(0, curIdx - 2), Math.max(0, OUTCOMES.length - VISIBLE));
+  const stops = OUTCOMES.slice(start, start + VISIBLE);
+  const todaySlot = Math.min(VISIBLE - 1, Math.max(0, curIdx - start));
+  const hereProg = state.week_can_do ? Math.min(0.9, outcomeProgress(state, state.week_can_do)) : 0;
 
-  // The one line from the coach.
-  const coach = doneToday ? t("coach_done") : missed >= 2 ? t("coach_welcome_back") : cur ? t("coach_mid") : t("coach_fresh");
-  const minutes = state.learner.daily_minutes;
-  const canDo = weekCanDo ? canDoShort(weekCanDo.can_do, lang) : null;
-
-  const g = box ? geo(box) : null;
-  const mx = (x: number) => (box && rtl ? box.w - x : x);
-  const labelX = box && g ? (rtl ? box.w - (box.w * 0.64) : box.w * 0.64) : 0;
-
-  // How far the road is filled in: up to today's stop, plus the part of today's
-  // stop already done, so the learner can see they moved.
-  const hereProg = state.week_can_do ? Math.min(0.92, outcomeProgress(state, state.week_can_do)) : 0;
-  const tHere = SLOT_T[todaySlot] + ((SLOT_T[todaySlot + 1] ?? 1) - SLOT_T[todaySlot]) * hereProg;
-
-  let ribbon = "";
-  if (g) {
-    const left: string[] = [];
-    const right: string[] = [];
-    for (let i = 0; i <= 48; i += 1) {
-      const tt = i / 48;
-      const c = mx(g.cx(tt));
-      const yy = g.y(tt).toFixed(1);
-      const hw = g.half(tt);
-      left.push(`${(c - hw).toFixed(1)},${yy}`);
-      right.push(`${(c + hw).toFixed(1)},${yy}`);
-    }
-    ribbon = `${left.join(" ")} ${right.reverse().join(" ")}`;
-  }
-
-  const markerT = arrived ? SLOT_T[todaySlot] : 0;
-  const markerX = g ? mx(g.cx(markerT)) : 0;
-  const markerY = g ? g.y(markerT) : 0;
+  // Geometry: t runs 0 at the bottom of the frame to 1 at the top.
+  const w = box?.w ?? 375;
+  const h = box?.h ?? 480;
+  const topY = 52;
+  const botY = h + 40;
+  const yOf = (tt: number) => botY - tt * (botY - topY);
+  const amp = Math.min(84, w * 0.22);
+  const xOf = (tt: number) => (rtl ? w - 1 : 1) * 0 + w / 2 + Math.sin(tt * Math.PI * 1.6 + 0.4) * amp * (rtl ? -1 : 1);
+  const slotT = [0.14, 0.33, 0.52, 0.71, 0.9];
+  const tHere = slotT[todaySlot] + ((slotT[todaySlot + 1] ?? 1) - slotT[todaySlot]) * hereProg;
+  const samples = 60;
+  const pts = Array.from({ length: samples + 1 }, (_, i) => { const tt = i / samples; return `${xOf(tt).toFixed(1)},${yOf(tt).toFixed(1)}`; });
+  const walked = Array.from({ length: samples + 1 }, (_, i) => { const tt = (i / samples) * tHere; return `${xOf(tt).toFixed(1)},${yOf(tt).toFixed(1)}`; });
 
   return (
     <div className="relative flex h-full flex-col overflow-hidden">
-      {/* The journey. Tap it to see the whole road. */}
-      <button
-        ref={roadRef}
-        type="button"
-        onClick={() => go("road")}
-        aria-label={`${t("road")}. ${canDo ?? ""}`}
-        className="relative min-h-0 flex-1 bg-transparent"
-        style={{ border: "none", padding: 0, cursor: "pointer", display: "block", width: "100%" }}
-      >
-        {box && g ? (
-          <svg width={box.w} height={box.h} viewBox={`0 0 ${box.w} ${box.h}`} style={{ display: "block" }} aria-hidden="true">
+      <div ref={roadRef} className="relative min-h-0 flex-1" aria-label={`${t("road")}. ${canDo ?? ""}`}>
+        {box ? (
+          <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ display: "block" }}>
             <defs>
-              <radialGradient id="lp-home-horizon" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="var(--lp-glow)" stopOpacity="0.26" />
-                <stop offset="100%" stopColor="var(--lp-glow)" stopOpacity="0" />
-              </radialGradient>
-              {/* Light falling down the road from the horizon. */}
-              <linearGradient id="lp-home-light" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#ffffff" stopOpacity="0.5" />
-                <stop offset="45%" stopColor="#ffffff" stopOpacity="0.12" />
-                <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
-              </linearGradient>
-              {/* Fog over the far road, the page colour fading downwards. */}
-              <linearGradient id="lp-home-fog" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="var(--lp-bg-0)" stopOpacity="0.8" />
-                <stop offset="55%" stopColor="var(--lp-bg-0)" stopOpacity="0.4" />
-                <stop offset="100%" stopColor="var(--lp-bg-0)" stopOpacity="0" />
-              </linearGradient>
-              {/* The horizon line fades out at both ends. */}
-              <linearGradient id="lp-home-hz" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="var(--lp-line-strong)" stopOpacity="0" />
-                <stop offset="45%" stopColor="var(--lp-line-strong)" stopOpacity="1" />
-                <stop offset="100%" stopColor="var(--lp-line-strong)" stopOpacity="0" />
-              </linearGradient>
-              {/* The near end of the road dissolves into the page instead of
-                  stopping at a hard edge. */}
               <linearGradient id="lp-home-near" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="var(--lp-bg-0)" stopOpacity="0" />
-                <stop offset="100%" stopColor="var(--lp-bg-0)" stopOpacity="0.92" />
+                <stop offset="100%" stopColor="var(--lp-bg-0)" stopOpacity="1" />
               </linearGradient>
-              {/* The walked road fades in rather than starting on a hard edge. */}
-              <linearGradient id="lp-home-walked" gradientUnits="userSpaceOnUse" x1="0" y1={g.y(tHere)} x2="0" y2={g.y(tHere) + 110}>
-                <stop offset="0%" stopColor="var(--lp-sea)" stopOpacity="0" />
-                <stop offset="100%" stopColor="var(--lp-sea)" stopOpacity="0.55" />
-              </linearGradient>
-              <filter id="lp-home-shadow" x="-30%" y="-30%" width="160%" height="160%">
-                <feGaussianBlur stdDeviation="9" />
-              </filter>
-              <clipPath id="lp-home-clip">
-                <rect x="0" y={g.y(tHere)} width={box.w} height={Math.max(0, box.h - g.y(tHere))} />
-              </clipPath>
             </defs>
 
-            {/* Horizon light behind the destination */}
-            <ellipse cx={mx(g.cx(1))} cy={g.top} rx={box.w * 0.55} ry={box.h * 0.16} fill="url(#lp-home-horizon)" />
-            <line x1={0} y1={g.top} x2={box.w} y2={g.top} stroke="url(#lp-home-hz)" strokeWidth={1} />
-
-            {/* The road: a soft shadow under it, the surface, light from the
-                horizon, the walked part filled, then a kerb line. */}
-            <g transform="translate(0 10)" opacity={0.5}>
-              <polygon points={ribbon} fill="var(--lp-shade)" opacity={0.3} filter="url(#lp-home-shadow)" />
+            {/* The next level, at the top of the road */}
+            <g>
+              <circle cx={xOf(1)} cy={topY} r={13} fill="var(--lp-bg-0)" stroke="var(--lp-line-strong)" strokeWidth={1.5} strokeDasharray="3 3" />
+              <text x={xOf(1) + (xOf(1) < w / 2 ? 22 : -22)} y={topY + 4.5} textAnchor={xOf(1) < w / 2 ? "start" : "end"} fill="var(--lp-paper-faint)" fontSize="13" fontWeight="600">{nextLevel}</text>
             </g>
-            <polygon points={ribbon} fill="var(--lp-road)" />
-            <polygon points={ribbon} fill="var(--lp-shade)" opacity={0.05} />
-            <polygon points={ribbon} fill="url(#lp-home-light)" />
-            <g clipPath="url(#lp-home-clip)">
-              <polygon points={ribbon} fill="url(#lp-home-walked)" />
-            </g>
-            <polygon points={ribbon} fill="none" stroke="var(--lp-line-strong)" strokeWidth={1.25} strokeLinejoin="round" />
 
-            {/* Fog over the distance */}
-            <rect x="0" y={0} width={box.w} height={box.h * 0.5} fill="url(#lp-home-fog)" />
-
-            {/* The destination: the next level, with a flag */}
-            <g opacity={0.9}>
-              <IsoStop x={mx(g.cx(1))} y={g.top} w={11} h={7} colour="var(--lp-glow)" />
-              <line x1={mx(g.cx(1))} y1={g.top - 7} x2={mx(g.cx(1))} y2={g.top - 34} stroke="var(--lp-glow)" strokeWidth={2} strokeLinecap="round" />
-              <polygon points={`${mx(g.cx(1))},${g.top - 34} ${mx(g.cx(1)) + (rtl ? -22 : 22)},${g.top - 28} ${mx(g.cx(1))},${g.top - 22}`} fill="var(--lp-glow)" />
-              <text x={mx(g.cx(1)) + (rtl ? -30 : 30)} y={g.top - 20} textAnchor={rtl ? "end" : "start"} fill="var(--lp-paper-faint)" fontSize="12.5" fontWeight="700" letterSpacing="0.1em">B1</text>
-            </g>
+            {/* The road: a soft wide ribbon, the walked part filled in */}
+            <polyline points={pts.join(" ")} fill="none" stroke="var(--lp-road)" strokeWidth={30} strokeLinecap="round" strokeLinejoin="round" />
+            <polyline points={pts.join(" ")} fill="none" stroke="var(--lp-line-strong)" strokeWidth={1.5} strokeDasharray="2 9" strokeLinecap="round" opacity={0.7} />
+            {walked.length > 1 ? <polyline points={walked.join(" ")} fill="none" stroke="var(--lp-sea)" strokeWidth={30} strokeLinecap="round" strokeLinejoin="round" opacity={0.92} /> : null}
 
             {/* The stops */}
             {stops.map((o, i) => {
-              const tt = SLOT_T[i];
-              const px = mx(g.cx(tt));
-              const py = g.y(tt);
-              const depth = 1 - tt * 0.42;
+              const tt = slotT[i];
+              const px = xOf(tt);
+              const py = yOf(tt);
               const achieved = outcomeAchieved(state, o.outcome_id) || i < todaySlot;
               const isToday = i === todaySlot;
-              const fog = isToday ? 0 : fogOpacity(state, o.outcome_id, now);
-              const lines = isToday ? [] : wrapLabel(canDoShort(o.can_do, lang));
+              const ahead = !achieved && !isToday;
+              const left = px < w / 2; // label goes on the outer side
+              const lx = left ? px + 34 : px - 34;
+              const anchor = left ? "start" : "end";
+              const lines = wrap(canDoShort(o.can_do, lang), 22, 2);
+              const r = isToday ? 22 : 17;
+              const colour = achieved ? "var(--lp-on-glow)" : isToday ? "var(--lp-glow)" : "var(--lp-paper-faint)";
               return (
-                <g key={o.outcome_id}>
-                  <g opacity={achieved ? 1 : isToday ? 1 : 0.55 + (1 - fog) * 0.3}>
-                    <IsoStop
-                      x={px}
-                      y={py}
-                      w={(isToday ? 19 : 15) * depth}
-                      h={(isToday ? 13 : 10) * depth}
-                      colour={achieved ? "var(--lp-sea)" : isToday ? "var(--lp-marker)" : "var(--lp-paper-faint)"}
-                    />
-                    {achieved ? <StopTick x={px} y={py - 4 * depth} size={5.5 * depth} /> : null}
-                  </g>
-                  {lines.length ? (
-                    <text
-                      x={labelX}
-                      y={py - (lines.length - 1) * 7.5}
-                      textAnchor={rtl ? "end" : "start"}
-                      fill="var(--lp-paper-soft)"
-                      opacity={achieved ? 0.85 : 0.78 + (1 - fog) * 0.12}
-                      fontSize="12.5"
-                      fontWeight="600"
-                    >
-                      {lines.map((l, li) => (
-                        <tspan key={li} x={labelX} dy={li === 0 ? 0 : 15}>{l}</tspan>
-                      ))}
-                    </text>
-                  ) : null}
+                <g key={o.outcome_id} opacity={ahead ? 0.7 : 1}>
+                  {isToday ? <circle cx={px} cy={py} r={r + 9} fill="var(--lp-glow-tint)" /> : null}
+                  <circle cx={px} cy={py} r={r} fill={achieved ? "var(--lp-sea)" : "var(--lp-surface)"} stroke={isToday ? "var(--lp-glow)" : achieved ? "var(--lp-sea)" : "var(--lp-line-strong)"} strokeWidth={isToday ? 2.5 : 1.5} />
+                  {achieved ? (
+                    <path d={`M${px - 6} ${py} l4 4 l8 -8`} fill="none" stroke="var(--lp-on-glow)" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" />
+                  ) : (
+                    <Landmark strand={o.strand} x={px} y={py} s={isToday ? 1.15 : 0.95} colour={colour} />
+                  )}
+                  <text x={lx} y={py - (lines.length - 1) * 8 + 4.5} textAnchor={anchor} fill={isToday ? "var(--lp-paper)" : "var(--lp-paper-soft)"} fontSize={isToday ? "14.5" : "13"} fontWeight={isToday ? 600 : 500}>
+                    {lines.map((l, li) => <tspan key={li} x={lx} dy={li === 0 ? 0 : 17}>{l}</tspan>)}
+                  </text>
+                  {isToday ? <text x={lx} y={py + (lines.length - 1) * 8 + 22} textAnchor={anchor} fill="var(--lp-paper-faint)" fontSize="12" fontWeight="500">{t("today")}</text> : null}
                 </g>
               );
             })}
 
-            {/* The near end dissolves into the page */}
-            <rect x="0" y={box.h - 64} width={box.w} height={64} fill="url(#lp-home-near)" />
-
-            {/* You are here: the one lit thing on the road. It walks onto the
-                road and up to today's stop on load, then breathes. */}
-            <g
-              style={{
-                transform: `translate(${markerX}px, ${markerY}px)`,
-                transition: reduceMotion ? "none" : "transform var(--lp-t-move) var(--lp-ease-emph)",
-              }}
-            >
-              <circle cx={0} cy={0} r={26} fill="var(--lp-marker)" opacity={0.2} className={reduceMotion ? undefined : "lp-marker-breathe"} />
-              <g className="lp-marker-glow">
-                <circle cx={0} cy={-26} r={11} fill="var(--lp-marker)" />
-                <circle cx={0} cy={-26} r={4} fill="var(--lp-bg-0)" />
-                <line x1={0} y1={-15} x2={0} y2={-2} stroke="var(--lp-marker)" strokeWidth={2.5} strokeLinecap="round" />
-              </g>
-            </g>
+            {/* The near end of the road fades into the page */}
+            <rect x="0" y={h - 48} width={w} height={48} fill="url(#lp-home-near)" />
           </svg>
         ) : null}
-      </button>
+      </div>
 
-      {/* Today, in three short lines, then one action. */}
+      {/* Today, the level, one line, one button */}
       <div className="relative px-5 pb-3">
-        <div className="lp-small" style={{ color: "var(--lp-paper-faint)" }}>
-          {[t("today"), lessonName, `${minutes} min`].filter(Boolean).join(" · ")}
-        </div>
-        {canDo ? <div className="lp-lesson mt-1">{canDo}</div> : null}
-        <div className="lp-small mt-1" style={{ color: "var(--lp-paper-faint)" }}>{coach}</div>
+        <div className="lp-small" style={{ color: "var(--lp-paper-faint)" }}>{[level, `${minutes} min`].filter(Boolean).join(" · ")}</div>
+        {lessonName ? <div className="lp-lesson mt-1" style={{ fontWeight: 600 }}>{lessonName}</div> : null}
+        <div className="lp-small mt-1" style={{ color: "var(--lp-paper-soft)" }}>{coach}</div>
         <div className="mt-3">
           {!doneToday ? (
             <GlowButton onClick={onStart}>{cur ? t("continue") : t("start")}</GlowButton>
@@ -324,6 +196,7 @@ export function Home({ onStart, onSecond }: { onStart: () => void; onSecond: () 
           ) : (
             <div className="lp-small text-center" style={{ minHeight: 56, lineHeight: "56px", color: "var(--lp-paper-faint)" }}>{t("coach_second")}</div>
           )}
+          {ckp && onCheckpoint ? <button type="button" onClick={onCheckpoint} className="lp-small mt-2 w-full text-center" style={{ minHeight: 40, color: "var(--lp-glow)", fontWeight: 600, background: "none", border: "none" }}>{t("checkpoint_ready")}</button> : null}
         </div>
       </div>
     </div>

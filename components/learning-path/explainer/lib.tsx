@@ -768,7 +768,12 @@ export function CaptionBar({ line, k, targets = [], l1 }: { line: string; k: num
           {words.map((w, i) => <span key={i} style={{ color: i < k ? (wordIsTarget(w, targets) ? ACCENT : INK) : FOG, marginRight: 12, display: "inline-block", transform: i === k - 1 ? "translateY(-3px)" : "none" }}>{w}</span>)}
         </div>
       </div>
-      {l1 ? <div style={{ marginTop: 14, textAlign: "center", fontSize: 34, fontWeight: 600, color: INK, opacity: 0.75 }}>{l1}</div> : null}
+      {l1 ? (
+        <div style={{ marginTop: 14, textAlign: "center" }}>
+          {/* pill so the learner's own language stays legible over dark scenes too */}
+          <span style={{ display: "inline-block", background: "rgba(255,255,255,0.94)", borderRadius: 20, padding: "6px 22px", fontSize: 34, fontWeight: 600, color: INK }}>{l1}</span>
+        </div>
+      ) : null}
     </div>
   );
 }
