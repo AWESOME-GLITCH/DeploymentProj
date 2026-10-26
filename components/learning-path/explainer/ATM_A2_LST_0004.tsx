@@ -35,6 +35,25 @@ function beatAt(frame: number): Beat {
   return LST_BEATS.find((b) => frame >= b.from && frame < b.to) ?? LST_BEATS[LST_BEATS.length - 1];
 }
 
+// The kit matches caption targets case-sensitively (wordIsTarget in ./lib). The
+// storyboard writes the explain targets as "fourTEEN, FORty" but opens its line
+// with the sentence-cased "FourTEEN.", so a literal match highlights FORty and
+// silently drops fourTEEN. LST_BEATS stays exactly as the storyboard gives it,
+// because that is the exported contract; only the copy handed to the caption
+// bar is re-cased to the spelling the line actually uses.
+const stripPunctuation = (w: string) => w.replace(/[.,?!…]/g, "");
+
+function captionTargets(beat: Beat): string[] | undefined {
+  if (!beat.target) return undefined;
+  const lineWords = beat.line.split(" ").map(stripPunctuation);
+  return beat.target.map((t) =>
+    t
+      .split(" ")
+      .map((part) => lineWords.find((w) => w.toLowerCase() === part.toLowerCase()) ?? part)
+      .join(" "),
+  );
+}
+
 // Evening palette for the station, kept inside the kit's colour family.
 const SKY_HIGH = "#ef8f54";
 const SKY_MID = "#f7a65c";
@@ -285,7 +304,9 @@ function HookScene({ frame }: { frame: number }) {
 }
 
 // ---------------------------------------------------------------- notice: on the platform
-const SIGN_X = { four: 230, fourteen: 500, forty: 770 };
+// The "40" sign carries a pulsing glow ring out to x+102, and the tannoy pole
+// stands at 880, so the row sits left of 730 to keep the glow off the pole.
+const SIGN_X = { four: 190, fourteen: 460, forty: 730 };
 
 function PlatformScene({ frame }: { frame: number }) {
   const beat = frame < 330 ? 0 : frame < 480 ? 1 : 2;
@@ -605,7 +626,7 @@ export function PlatformExplainer({ l1 }: { l1?: Record<string, string> }) {
       <Transition frame={frame} at={630} kind="iris" color={PAPER} color2={ACCENT} cx={540} cy={620} />
       <Transition frame={frame} at={1110} kind="slide" color={ACCENT} color2={SAFFRON} />
       <Transition frame={frame} at={1500} kind="wipe" color={SAFFRON} color2={INK} />
-      <CaptionBar line={beat.line} k={k} targets={beat.target} l1={l1?.[beat.id]} />
+      <CaptionBar line={beat.line} k={k} targets={captionTargets(beat)} l1={l1?.[beat.id]} />
       {/* saffron in the recap: accent on an accent background would disappear */}
       <BeatProgress frame={frame} beats={LST_BEATS} color={beat.kind === "recap" ? SAFFRON : ACCENT} />
     </AbsoluteFill>

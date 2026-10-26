@@ -54,9 +54,9 @@ const SHELF = "#aab0c9";
  * uses for "out of", so the same shape carries both states.
  */
 function Carton({
-  x, baseY, w = 64, color, dotted = false, tilt = 0, opacity = 1, sprig = false, label,
+  x, baseY, w = 64, color, dotted = false, dash = FAINT, tilt = 0, opacity = 1, sprig = false, label,
 }: {
-  x: number; baseY: number; w?: number; color: string; dotted?: boolean; tilt?: number;
+  x: number; baseY: number; w?: number; color: string; dotted?: boolean; dash?: string; tilt?: number;
   opacity?: number; sprig?: boolean; label?: string;
 }) {
   const h = w * 1.62;
@@ -68,7 +68,7 @@ function Carton({
   return (
     <g opacity={opacity} transform={tilt ? `rotate(${tilt} ${cx} ${cy})` : undefined}>
       {dotted ? (
-        <path d={body} fill="none" stroke={FAINT} strokeWidth="5" strokeLinejoin="round" strokeDasharray="13 11" />
+        <path d={body} fill="none" stroke={dash} strokeWidth="5" strokeLinejoin="round" strokeDasharray="13 11" />
       ) : (
         <>
           <path d={body} fill={color} />
@@ -80,8 +80,8 @@ function Carton({
               <path d="M0 -4 L-9 -11 M0 -4 L9 -11 M0 3 L-9 -4 M0 3 L9 -4" />
             </g>
           ) : null}
-          {label ? (
-            <text x={cx} y={top + gable + h * 0.62} textAnchor="middle" fontFamily={FONT} fontWeight="800" fontSize={w * 0.2} fill={color}>
+          {label && w >= 84 ? (
+            <text x={cx} y={top + gable + h * 0.42} textAnchor="middle" fontFamily={FONT} fontWeight="800" fontSize={w * 0.24} fill={color}>
               {label}
             </text>
           ) : null}
@@ -149,20 +149,14 @@ const SLOT_X = [FR.x + 32, FR.x + 112, FR.x + 192];
 function CafeWall({ frame }: { frame: number }) {
   return (
     <Stage>
-      <rect width="1080" height="1440" fill={CREAM} />
-      <rect x="0" y="700" width="1080" height="180" fill="#e9d8bf" />
-      {[0, 1, 2, 3, 4, 5].map((i) => (
+      <rect x="-240" y="-40" width="1560" height="1520" fill={CREAM} />
+      <rect x="-240" y="700" width="1560" height="180" fill="#e9d8bf" />
+      {[-1, 0, 1, 2, 3, 4, 5, 6].map((i) => (
         <rect key={i} x={30 + i * 176} y="724" width="140" height="134" rx="8" fill="none" stroke="#d9c4a4" strokeWidth="6" />
       ))}
-      <rect x="0" y="694" width="1080" height="12" fill={WOOD_LIGHT} />
+      <rect x="-240" y="694" width="1560" height="12" fill={WOOD_LIGHT} />
       <Window x={28} y={250} w={270} h={340} />
-      {/* hanging sign */}
-      <g>
-        <line x1="190" y1="130" x2="190" y2="168" stroke={INK} strokeWidth="5" />
-        <rect x="76" y="168" width="228" height="76" rx="14" fill={INK} />
-        <text x="190" y="220" textAnchor="middle" fontFamily={FONT} fontWeight="800" fontSize="38" letterSpacing="4" fill={SAFFRON}>CAFE</text>
-      </g>
-      <MenuBoard x={762} y={252} w={290} h={300} items={[["Latte", "3.20"], ["Flat white", "2.80"], ["Tea", "2.00"]]} />
+      <MenuBoard x={752} y={248} w={306} h={300} items={[["Latte", "3.20"], ["Coffee", "2.50"], ["Tea", "2.00"]]} />
       <Plant x={1028} y={694} scale={0.6} frame={frame} seed={2} />
       <PendantLamp x={150} length={70} frame={frame} seed={0} />
       <PendantLamp x={930} length={70} frame={frame} seed={2} />
@@ -173,18 +167,18 @@ function CafeWall({ frame }: { frame: number }) {
 function CafeCounter({ frame, children }: { frame: number; children?: ReactNode }) {
   return (
     <>
-      <rect x="0" y="924" width="1080" height="330" fill={WOOD} />
-      {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+      <rect x="-240" y="924" width="1560" height="330" fill={WOOD} />
+      {[-2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
         <rect key={i} x={i * 124 - 10} y="950" width="100" height="250" rx="8" fill="none" stroke={WOOD_DARK} strokeWidth="5" opacity="0.6" />
       ))}
-      <rect x="0" y="1228" width="1080" height="26" fill={WOOD_DARK} />
-      <rect x="0" y="878" width="1080" height="50" rx="6" fill={WOOD_LIGHT} />
-      <rect x="0" y="878" width="1080" height="10" fill="#dcc096" />
+      <rect x="-240" y="1228" width="1560" height="26" fill={WOOD_DARK} />
+      <rect x="-240" y="878" width="1560" height="50" rx="6" fill={WOOD_LIGHT} />
+      <rect x="-240" y="878" width="1560" height="10" fill="#dcc096" />
       {children}
       <Plant x={1040} y={878} scale={0.8} frame={frame} seed={5} />
-      <rect x="0" y="1254" width="1080" height="200" fill="#e4d7c4" />
-      {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
-        <rect key={i} x={(i % 2) * 140 + Math.floor(i / 2) * 280 - 140} y={1254 + (i % 2) * 70} width="140" height="70" fill="#d8c9b2" />
+      <rect x="-240" y="1254" width="1560" height="200" fill="#e4d7c4" />
+      {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
+        <rect key={i} x={(i % 2) * 140 + Math.floor(i / 2) * 280 - 280} y={1254 + (i % 2) * 70} width="140" height="70" fill="#d8c9b2" />
       ))}
     </>
   );
