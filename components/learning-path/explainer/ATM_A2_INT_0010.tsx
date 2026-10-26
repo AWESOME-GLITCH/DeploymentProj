@@ -91,15 +91,15 @@ function Saucer({ x, y, scale = 1 }: { x: number; y: number; scale?: number }) {
   );
 }
 
-/** The last drop of coffee leaving a tipped cup. */
-function LastDrop({ frame, from, x, y }: { frame: number; from: number; x: number; y: number }) {
+/** The last drop of coffee leaving a tipped cup and landing on the saucer. */
+function LastDrop({ frame, from, x, y, fall }: { frame: number; from: number; x: number; y: number; fall: number }) {
   const p = tween(frame, from, from + 24, 0, 1, EASE.in);
   const land = tween(frame, from + 24, from + 42, 0, 1, EASE.out);
   return (
     <g>
-      {p > 0 && p < 1 ? <ellipse cx={x} cy={y + p * 86} rx={9} ry={11 + p * 5} fill={COFFEE} opacity="0.9" /> : null}
+      {p > 0 && p < 1 ? <ellipse cx={x} cy={y + p * fall} rx={9} ry={11 + p * 5} fill={COFFEE} opacity="0.9" /> : null}
       {land > 0 && land < 1 ? (
-        <ellipse cx={x} cy={y + 90} rx={10 + land * 26} ry={3 + land * 7} fill="none" stroke={COFFEE} strokeWidth={5 * (1 - land)} opacity={1 - land} />
+        <ellipse cx={x} cy={y + fall} rx={10 + land * 26} ry={3 + land * 7} fill="none" stroke={COFFEE} strokeWidth={5 * (1 - land)} opacity={1 - land} />
       ) : null}
     </g>
   );
@@ -442,7 +442,12 @@ function TableTop({ children }: { children?: ReactNode }) {
 // ---------------------------------------------------------------- hook
 
 function HookScene({ frame }: { frame: number }) {
-  const tip = tween(frame, 16, 36, 0, -20, EASE.out) + tween(frame, 58, 74, 0, 20, EASE.inOut);
+  // The cup tips on its own to show it is empty, and the last drop leaves the
+  // rim wherever the rotation has put it.
+  const tip = tween(frame, 14, 34, 0, -34, EASE.out) + tween(frame, 56, 74, 0, 34, EASE.inOut);
+  const rad = (tip * Math.PI) / 180;
+  const rimX = 650 + -34 * Math.cos(rad) + 93 * Math.sin(rad);
+  const rimY = PROP_Y + -34 * Math.sin(rad) - 93 * Math.cos(rad);
   const walkX = tween(frame, 52, 118, 60, LEO_X, EASE.inOut);
   const youGesture = frame < 46 ? { g: "cup" as const, at: 0, from: "idle" as const } : { g: "raise" as const, at: 46, from: "cup" as const };
   return (
@@ -467,7 +472,7 @@ function HookScene({ frame }: { frame: number }) {
                   <g transform={`rotate(${tip} 650 ${PROP_Y})`}>
                     <Cup kind="mug" x={650} y={PROP_Y - 14} frame={frame} appear={0} scale={0.78} steam={false} />
                   </g>
-                  <LastDrop frame={frame} from={26} x={610} y={PROP_Y - 86} />
+                  <LastDrop frame={frame} from={30} x={rimX} y={rimY} fall={PROP_Y - rimY - 10} />
                   <TipJar frame={frame} x={215} baseY={PROP_Y} scale={0.72} coins={2} />
                 </TableTop>
               </Stage>
@@ -489,7 +494,8 @@ function TableScene({ frame }: { frame: number }) {
   const billIn = springIn(frame, 192, { damping: 12, stiffness: 120 });
   // w2: the card taps the reader, then comes away so the tick shows.
   const tap = tween(frame, 402, 426, 0, 1, EASE.inOut);
-  const cardBack = tween(frame, 438, 464, 0, 1, EASE.out);
+  const cardBack = tween(frame, 438, 462, 0, 1, EASE.out);
+  const cardGone = tween(frame, 448, 466, 0, 1, EASE.in);
   // w3: the cup moves aside and the note and coins land on the saucer.
   const cupAside = tween(frame, 556, 584, 0, 1, EASE.inOut);
   const cashIn = springIn(frame, 574, { damping: 11, stiffness: 140 });
@@ -542,11 +548,11 @@ function TableScene({ frame }: { frame: number }) {
                   ) : null}
                   {frame >= 396 && frame < 490 ? (
                     <BankCard
-                      x={lerp(620, HAND.x + 6, tap) + cardBack * 120}
-                      y={lerp(856, 902, tap) - cardBack * 40}
+                      x={lerp(620, HAND.x + 6, tap) + cardBack * 150}
+                      y={lerp(856, 902, tap) - cardBack * 50}
                       rot={lerp(-16, -8, tap)}
                       scale={0.84}
-                      opacity={1 - cardBack}
+                      opacity={1 - cardGone}
                     />
                   ) : null}
 
@@ -633,12 +639,12 @@ function PractiseScene({ frame }: { frame: number }) {
           <circle cx="540" cy="430" r="300" fill="none" stroke={SAFFRON} strokeWidth="14" />
           <g clipPath="url(#int10-leo-clip)">
             <Character who="leo" x={540} y={1160} scale={1.95} facing={1} frame={frame} enter={874} talking={frame > 884 && frame < 1030} mood="happy" gesture="raise" gestureAt={880} />
-            <g transform={`translate(${lerp(0, -180, hand)} ${lerp(0, 300, hand)})`}>
+            <g transform={`translate(${lerp(0, -150, hand)} ${lerp(0, 218, hand)})`}>
               <Bill frame={frame} appear={884} x={716} baseY={462} scale={0.86} tilt={8} />
             </g>
           </g>
           {hand > 0.6 ? (
-            <g transform={`translate(700 630) scale(${tick})`}>
+            <g transform={`translate(686 596) scale(${tick})`}>
               <circle r="52" fill={SEA} />
               <path d="M-22 2 L-6 18 L24 -16" fill="none" stroke="#fff" strokeWidth="11" strokeLinecap="round" strokeLinejoin="round" />
             </g>
