@@ -5,6 +5,7 @@
 // test), then the first atom and the reward.
 
 import { useEffect, useState } from "react";
+import { CalendarClock, Compass, Languages, Timer } from "lucide-react";
 import { PLACEMENT } from "@/lib/learning-path/content";
 import { LANGUAGES } from "@/lib/learning-path/i18n";
 import { useStore } from "@/lib/learning-path/store";
@@ -30,6 +31,7 @@ export function Onboarding({ onPlaced }: { onPlaced: () => void }) {
       <div className="relative mb-4 flex gap-1.5">{order.slice(0, 5).map((s, i) => <span key={s} className="h-1.5 flex-1 rounded-full" style={{ background: i <= Math.min(idx, 4) ? "var(--lp-accent)" : "var(--lp-track)" }} />)}</div>
       {step === "language" ? (
         <>
+          <Hero icon={<Languages size={34} />} />
           <div className="lp-head mb-1">{t("choose_language")}</div>
           <div className="lp-small mb-5" style={{ color: "var(--lp-paper-faint)" }}>Learning Path · English</div>
           <div className="grid grid-cols-2 gap-3">
@@ -44,6 +46,7 @@ export function Onboarding({ onPlaced }: { onPlaced: () => void }) {
       ) : null}
       {step === "why" ? (
         <>
+          <Hero icon={<Compass size={34} />} />
           <div className="lp-head mb-5">{t("why_title")}</div>
           <div className="grid grid-cols-2 gap-3">
             {([["work", "💼"], ["study", "🎓"], ["travel", "✈️"], ["family", "👨‍👩‍👧"]] as const).map(([w, e]) => (
@@ -57,6 +60,7 @@ export function Onboarding({ onPlaced }: { onPlaced: () => void }) {
       ) : null}
       {step === "time" ? (
         <>
+          <Hero icon={<Timer size={34} />} />
           <div className="lp-head mb-2">{t("time_title")}</div>
           <div className="lp-small mb-4" style={{ color: "var(--lp-paper-faint)" }}>{t("time_hint")}</div>
           <div className="mb-5 flex justify-center"><Ring fills={[state.learner.daily_minutes / 15, state.learner.daily_minutes / 15, state.learner.daily_minutes / 15]} size={160} label={<><div className="lp-head">{state.learner.daily_minutes}</div><div className="lp-small" style={{ color: "var(--lp-paper-faint)" }}>{t("minutes")}</div></>} /></div>
@@ -70,6 +74,7 @@ export function Onboarding({ onPlaced }: { onPlaced: () => void }) {
       ) : null}
       {step === "plan" ? (
         <>
+          <Hero icon={<CalendarClock size={34} />} />
           <div className="lp-head mb-2">{t("plan_title")}</div>
           <div className="lp-small mb-4" style={{ color: "var(--lp-paper-faint)" }}>{t("plan_hint")}</div>
           <div className="lp-eyebrow mb-2">{t("plan_after")}</div>
@@ -85,6 +90,16 @@ export function Onboarding({ onPlaced }: { onPlaced: () => void }) {
       ) : null}
       {step === "placement" ? <Placement onDone={(lvl) => { dispatch({ type: "placement_done", sublevel: lvl }); setStep("landing"); }} /> : null}
       {step === "landing" ? <Landing level={state.learner.provisional_sublevel ?? "A2.1"} onDone={onPlaced} /> : null}
+    </div>
+  );
+}
+
+function Hero({ icon }: { icon: React.ReactNode }) {
+  return (
+    <div className="relative mb-4 flex h-24 items-center justify-center">
+      <div className="absolute h-24 w-24 rounded-full" style={{ background: "var(--lp-glow-tint)" }} />
+      <div className="absolute h-16 w-16 rounded-full" style={{ background: "var(--lp-glow)", boxShadow: "var(--lp-btn-shadow)" }} />
+      <div className="relative" style={{ color: "var(--lp-on-glow)" }}>{icon}</div>
     </div>
   );
 }

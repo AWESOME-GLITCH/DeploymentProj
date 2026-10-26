@@ -357,8 +357,10 @@ export function composeSession(state: LearnerState, at: number, opts: { second?:
   const day = dayIndex(state, at);
   const reasons: string[] = [];
   const due = dueItems(state, at);
-  const new_allowed = due.length <= 25;
-  if (!new_allowed) reasons.push(`${due.length} reviews overdue (over 25), so new content pauses`);
+  // Provisional items from placement are verification, not backlog: they do not count towards the 25-review cap.
+  const overdue = due.filter((m) => !m.provisional).length;
+  const new_allowed = overdue <= 25;
+  if (!new_allowed) reasons.push(`${overdue} reviews overdue (over 25), so new content pauses`);
   const weekOutcome = state.week_can_do ? OUTCOME_BY_ID[state.week_can_do] : OUTCOMES[0];
   const can_do = weekOutcome.can_do;
   const phases: SessionPhase[] = [];
@@ -426,20 +428,23 @@ export function composeSession(state: LearnerState, at: number, opts: { second?:
 }
 
 function pickUseItem(state: LearnerState, at: number, newAtom: Atom | null): string | null {
-  // Prefer a free-use speaking or interaction item from an atom already seen,
-  // that is not today's new atom, else today's own free use item is enough.
+  // A speaking or interaction task from an atom already seen (not today's new
+  // atom), the least-recalled first. If nothing has been seen yet, any eligible
+  // free-use task whose criterion prerequisites are met, so the session always
+  // has a production phase.
   const seenAtoms = new Set(state.attempts.map((a) => a.atom_id));
-  const candidates = ITEMS.filter((i) => USE_TYPES.has(i.item_type) && i.item_id !== "ITM-TEACH-0001")
-    .filter((i) => {
-      const atom = LEARNING_ATOMS.find((a) => a.target_items.includes(i.item_id));
-      return atom && atom.atom_id !== newAtom?.atom_id && seenAtoms.has(atom.atom_id);
-    })
-    .sort((a, b) => {
-      const pa = state.items[a.item_id] ? recallProbability(state.items[a.item_id], at) : 0.5;
-      const pb = state.items[b.item_id] ? recallProbability(state.items[b.item_id], at) : 0.5;
-      return pa - pb;
-    });
-  return candidates[0]?.item_id ?? null;
+  const eligible = ITEMS.filter((i) => USE_TYPES.has(i.item_type) && i.item_id !== "ITM-TEACH-0001")
+    .map((i) => ({ item: i, atom: LEARNING_ATOMS.find((a) => a.target_items.includes(i.item_id)) }))
+    .filter((x) => x.atom && x.atom.atom_id !== newAtom?.atom_id && prerequisitesMet(state, x.atom.prerequisites));
+  const byRecall = (a: { item: Item }, b: { item: Item }) => {
+    const pa = state.items[a.item.item_id] ? recallProbability(state.items[a.item.item_id], at) : 0.5;
+    const pb = state.items[b.item.item_id] ? recallProbability(state.items[b.item.item_id], at) : 0.5;
+    return pa - pb;
+  };
+  const seen = eligible.filter((x) => seenAtoms.has(x.atom!.atom_id)).sort(byRecall);
+  if (seen[0]) return seen[0].item.item_id;
+  const unseen = eligible.filter((x) => x.item.item_type === "say_it_see_it" || x.item.item_type === "open_response").sort(byRecall);
+  return unseen[0]?.item.item_id ?? null;
 }
 
 export function pickStory(state: LearnerState): Atom | null {

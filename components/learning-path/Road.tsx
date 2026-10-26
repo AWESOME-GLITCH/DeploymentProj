@@ -14,7 +14,8 @@ import type { SubLevel } from "@/lib/learning-path/types";
 import { ItemRenderer, type ItemResult } from "./items";
 import { GlowButton, LocText, Pill, STRAND_COLOR, Say, useLp } from "./ui";
 
-const STOP_GAP = 120;
+const STOP_GAP = 150;
+const H = 440;
 
 export function Road({ onCheckpoint }: { onCheckpoint: () => void }) {
   const { state, dispatch } = useStore();
@@ -27,7 +28,7 @@ export function Road({ onCheckpoint }: { onCheckpoint: () => void }) {
   const width = 80 + stops.length * STOP_GAP + 120;
   const ckp = checkpointAvailable(state, now);
   const x = (i: number) => (rtl ? width - (60 + i * STOP_GAP) : 60 + i * STOP_GAP);
-  const y = (i: number) => 150 + Math.sin(i * 1.1) * 48;
+  const y = (i: number) => 230 + Math.sin(i * 1.1) * 70;
 
   useEffect(() => {
     const el = scroller.current;
@@ -48,17 +49,17 @@ export function Road({ onCheckpoint }: { onCheckpoint: () => void }) {
           <Flag size={12} /> {ckp ? t("checkpoint_ready") : t("checkpoint")}
         </button>
       </div>
-      <div ref={scroller} className="mt-2 flex-1 overflow-x-auto overflow-y-hidden" style={{ direction: rtl ? "rtl" : "ltr" }}>
-        <svg width={width} height={300} viewBox={`0 0 ${width} 300`} style={{ display: "block" }}>
+      <div ref={scroller} className="mt-2 flex min-h-0 flex-1 items-center overflow-x-auto overflow-y-hidden" style={{ direction: rtl ? "rtl" : "ltr" }}>
+        <svg width={width} height={H} viewBox={`0 0 ${width} ${H}`} style={{ display: "block", flex: "none" }}>
           <defs>
             <filter id="lp-fog-blur"><feGaussianBlur stdDeviation="6" /></filter>
           </defs>
-          <path d={path} fill="none" stroke="var(--lp-track)" strokeWidth={22} strokeLinecap="round" strokeLinejoin="round" />
-          <path d={path} fill="none" stroke="var(--lp-line-strong)" strokeWidth={2} strokeDasharray="8 10" strokeLinejoin="round" />
+          <path d={path} fill="none" stroke="var(--lp-track)" strokeWidth={30} strokeLinecap="round" strokeLinejoin="round" />
+          <path d={path} fill="none" stroke="var(--lp-line-strong)" strokeWidth={2.5} strokeDasharray="10 12" strokeLinejoin="round" />
           {/* Level flags */}
           <g>
-            <text x={x(0)} y={30} fill="var(--lp-paper-soft)" fontSize="12" textAnchor="middle">A1 · A2</text>
-            <text x={x(stops.length - 1) + (rtl ? -70 : 70)} y={30} fill="var(--lp-paper-soft)" fontSize="12" textAnchor="middle">B1</text>
+            <text x={x(0)} y={40} fill="var(--lp-paper-faint)" fontSize="13" fontWeight="800" textAnchor="middle">A2</text>
+            <text x={x(stops.length - 1) + (rtl ? -70 : 70)} y={40} fill="var(--lp-paper-faint)" fontSize="13" fontWeight="800" textAnchor="middle">B1</text>
             <circle cx={x(stops.length - 1) + (rtl ? -70 : 70)} cy={y(stops.length - 1)} r={10} fill="none" stroke="var(--lp-line-strong)" strokeWidth={2} />
           </g>
           {stops.map((o, i) => {
@@ -68,14 +69,15 @@ export function Road({ onCheckpoint }: { onCheckpoint: () => void }) {
             const prog = outcomeProgress(state, o.outcome_id);
             return (
               <g key={o.outcome_id} className="lp-road-stop" onClick={() => setSelected(o.outcome_id)} style={{ cursor: "pointer" }}>
-                <circle cx={x(i)} cy={y(i)} r={24} fill={achieved ? "var(--lp-sea-tint)" : "var(--lp-surface)"} stroke={isNext ? "var(--lp-glow)" : achieved ? "var(--lp-sea)" : STRAND_COLOR[o.strand]} strokeWidth={isNext ? 4 : 2.5} style={isNext ? { filter: "drop-shadow(0 0 10px rgba(21,154,139,0.6))" } : undefined} />
+                <circle cx={x(i)} cy={y(i)} r={32} fill={achieved ? "var(--lp-sea-tint)" : "var(--lp-surface)"} stroke={isNext ? "var(--lp-glow)" : achieved ? "var(--lp-sea)" : STRAND_COLOR[o.strand]} strokeWidth={isNext ? 5 : 3} style={isNext ? { filter: "drop-shadow(0 0 10px rgba(21,154,139,0.6))" } : undefined} />
                 {/* progress arc */}
-                <circle cx={x(i)} cy={y(i)} r={24} fill="none" stroke="var(--lp-sea)" strokeWidth={3} strokeDasharray={`${2 * Math.PI * 24 * prog} ${2 * Math.PI * 24}`} transform={`rotate(-90 ${x(i)} ${y(i)})`} opacity={prog > 0 && !achieved ? 0.9 : 0} />
-                <text x={x(i)} y={y(i) + 7} fontSize="20" textAnchor="middle">{o.icon}</text>
+                <circle cx={x(i)} cy={y(i)} r={32} fill="none" stroke="var(--lp-sea)" strokeWidth={4} strokeDasharray={`${2 * Math.PI * 32 * prog} ${2 * Math.PI * 32}`} transform={`rotate(-90 ${x(i)} ${y(i)})`} opacity={prog > 0 && !achieved ? 0.9 : 0} />
+                <text x={x(i)} y={y(i) + 9} fontSize="26" textAnchor="middle">{o.icon}</text>
                 {/* fog layer: unmastered stretches sit in soft fog; forgetting re-fogs a stop */}
-                <circle cx={x(i)} cy={y(i)} r={34} fill="var(--lp-fog)" opacity={isNext ? fog * 0.25 : fog * 0.75} filter="url(#lp-fog-blur)" style={{ pointerEvents: "none", transition: "opacity 0.6s" }} />
-                <text x={x(i)} y={y(i) + 48} fill="var(--lp-paper-soft)" fontSize="11" textAnchor="middle">{o.sublevel} {t(`strand_${o.strand}`).slice(0, 10)}</text>
-                {isNext ? <g><circle cx={x(i)} cy={y(i) - 40} r={9} fill="var(--lp-glow-2)" style={{ filter: "drop-shadow(0 0 8px rgba(21,154,139,0.7))" }} /><circle cx={x(i)} cy={y(i) - 40} r={3.5} fill="var(--lp-on-glow)" /></g> : null}
+                <circle cx={x(i)} cy={y(i)} r={44} fill="var(--lp-fog)" opacity={isNext ? fog * 0.2 : fog * 0.7} filter="url(#lp-fog-blur)" style={{ pointerEvents: "none", transition: "opacity 0.6s" }} />
+                <text x={x(i)} y={y(i) + 58} fill="var(--lp-paper)" fontSize="12.5" fontWeight="800" textAnchor="middle">{t(`strand_${o.strand}`)}</text>
+                <text x={x(i)} y={y(i) + 74} fill="var(--lp-paper-faint)" fontSize="11" fontWeight="600" textAnchor="middle">{o.sublevel} · {achieved ? "✓" : `${Math.round(prog * 100)}%`}</text>
+                {isNext ? <g><circle cx={x(i)} cy={y(i) - 50} r={11} fill="var(--lp-glow)" style={{ filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.25))" }} /><circle cx={x(i)} cy={y(i) - 50} r={4} fill="var(--lp-on-glow)" /><text x={x(i)} y={y(i) - 68} fill="var(--lp-paper-faint)" fontSize="10" fontWeight="800" textAnchor="middle" letterSpacing="1">YOU</text></g> : null}
               </g>
             );
           })}
