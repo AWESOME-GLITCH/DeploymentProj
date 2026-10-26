@@ -1,6 +1,6 @@
 # Exercises: what each item type is for, and what goes
 
-Owner: Learning Designer. Status: for board approval. Part 2 (the change to `items.tsx` and `content.ts`) is held until this is approved.
+Owner: Learning Designer. Status: revision 2, QA defects F1 to F6 fixed, back with QA Reviewer. Part 2 (the change to `items.tsx` and `content.ts`) is held until the cut list is approved.
 
 ## The test
 
@@ -26,7 +26,12 @@ Lesson items only (59; placement and checkpoint counted separately below).
 | typed | 4 | 7% |
 | spoken | 14 | 24% |
 
-Over half the lesson is recognition. That is what the board is reacting to. Target after part 2: **spoken at least 50%, recognition at most 15%**, and recognition only where recognition *is* the outcome (hearing fourteen against forty) or where a mic is forbidden (placement is scores-only by product rule).
+Over half the lesson is recognition. That is what the board is reacting to. Target after part 2: **spoken at least 50%, recognition at most 15%**, and recognition only in the two places where it is honest:
+
+- recognition *is* the can-do, which is hearing fourteen against forty. Three `listen_and_do` items, and each is logged by its spoken step, not its tap.
+- a mic is forbidden, which is placement and the checkpoint: scores-only by product rule.
+
+Part 2 reports the measured split from `content.ts` against these two numbers; the figures above are the baseline, not a projection.
 
 ## Verdicts
 
@@ -105,8 +110,8 @@ One instruction line in plain words (six words at most, PRD principle 2, localis
 | `magnet_tiles` | "Build it" | the sentence heard | word tiles that only accept the next word, then the mic | the next word said slowly and shown big, no label |
 | `error_spot` | "One word is wrong" | the sentence as tiles | tap the word, then the mic | the corrected sentence said aloud, then "say it" |
 | `listen_and_do` | "Listen. Which one?" | one audio button, large | two or three numbers or prices as text, then the mic | the number said slowly, then "say it" |
-| `tfng` | "Is this true?" | the notice, as the notice looks | True / False | the line of the notice that answers it, read aloud |
-| `dictation` | "Type the price" | one audio button | number keypad input | the price written and said |
+| `tfng` | "Is this true?" | the notice, as the notice looks | True / False, then the mic | the line of the notice that answers it, read aloud, then "now tell me: what can't you do?" and the learner says it |
+| `dictation` | "Type the price" | one audio button | number keypad input. Keyboard-outcome exemption, no mic | the price shown written, and said aloud by the app, slowly |
 | `transform` | "Say it politely" | the blunt sentence | mic, keyboard as fallback | the polite version said, one line of why |
 | `correct_message` | "Fix the message" | the wrong message as a message | text input | the fixed message, one line of why |
 | `short_production` | "Write two lines" | the situation in one sentence | textarea | the model message, one line of why |
@@ -128,20 +133,22 @@ One retry on every non-spoken item is new; today a wrong tap goes straight to th
 
 ## Decorative visual aids, cut
 
-Named, with where they live.
+Named, with where they live. Anchored to symbol names, not line numbers: several agents share this checkout and `items.tsx` moves under us.
 
 | # | The visual | Where | Why it goes |
 | --- | --- | --- | --- |
-| 1 | Emoji faces 😊 🤔 🙂, the 🧑 figure labelled "You", the drink emoji repeated to show quantity, the placeholder word "counter" | `items.tsx` `CafeScene`, lines 564 to 578 | Emoji stand-ins for a scene. The coach already draws the real character. |
-| 2 | Emoji as pictures: ☕ 🍵 🍵🍵 💳 💵 🧾 🏥 🏫 🏪 🍎 🚌 | `content.ts`, `pictures` arrays | Not pictures. Counting glyphs is not comprehension. |
-| 3 | The ⏮️ 📍 ⏭️ row under the slider, and the cue-card emoji | `items.tsx` lines 317 and 325 | Icon row. Goes with the slider. |
-| 4 | Score bars for sounds, rhythm and words, with a 70% pass line | `items.tsx` `ResultBars`, lines 472 to 488 | Three bars and a tick mark are a mark, not feedback. Fails test 5. |
-| 5 | Dot rows that appear **before** the learner acts: the slider hit dots and the relay question dots | `items.tsx` lines 318 and 718 | A score bar before the learner has done anything. |
-| 6 | The target-word pill row, including "ed" and "?" as pills | `items.tsx` lines 391 and 542 | Grammar fragments as chips. Noise to a beginner. |
-| 7 | The live word counter on the writing item | `items.tsx` line 393 | Counts the learner while they are still thinking. |
-| 8 | Peer percentages 12% / 71% / 17% | `items.tsx` line 762, `content.ts` `config.peers` | Invented data. Goes with the vote item. |
+| 1 | Emoji faces 😊 🤔 🙂, the 🧑 figure labelled "You", the drink emoji repeated to show quantity, the placeholder word "counter" | `items.tsx` `CafeScene`, rendered by `SayItSeeIt` | Emoji stand-ins for a scene. The coach already draws the real character. |
+| 2 | Emoji as pictures in **lesson** items only: ☕ 🍵 🍵🍵 (ITM-INT-0103) and 💳 💵 🧾 (ITM-INT-1003) | `content.ts`, the `pictures` arrays of those two items | Not pictures. Counting glyphs is not comprehension. |
+| 3 | The ⏮️ 📍 ⏭️ row under the track, and the cue-card emoji | `items.tsx` `TimeSlider` | Icon row. Goes with the slider. |
+| 4 | Score bars for sounds, rhythm and words, with a 70% pass line | `items.tsx` `ResultBars`, called from `SpeechItem` | Three bars and a tick mark are a mark, not feedback. Fails test 5. |
+| 5 | Dot rows that appear **before** the learner acts: the slider hit dots and the relay question dots | `items.tsx` `TimeSlider` and `RelayItem` | A score bar before the learner has done anything. |
+| 6 | The target-word pill row, including "ed" and "?" as pills | `items.tsx` `WritingItem` and `SpeechItem`, both reading `cfg.targets` | Grammar fragments as chips. Noise to a beginner. |
+| 7 | The live word counter on the writing item | `items.tsx` `WritingItem` | Counts the learner while they are still thinking. |
+| 8 | Peer percentages 12% / 71% / 17% | `items.tsx` `VoteItem`, `content.ts` `config.peers` | Invented data. Goes with the vote item. |
 
-Kept, because each is the stimulus or the one progress signal: the audio button on a listening item, the notice text on a reading item, the word tiles, the coach figure, the capsule progress bar in the chrome (owned by LP-10).
+**Placement keeps its glyphs, and row 2 does not touch them.** PLC-01 (☕ 🍎 🚌), PLC-03 (🏥 🏫 🏪) and CKP-02 (7 / 17 / 70) are `pick_picture` items that this document keeps as recognition, and the glyph is the only thing there is to pick: placement runs with no mic, no feedback and no coach by product rule, so there is no spoken step to hand to and no replacement visual to design. They stay exactly as they are. An earlier draft of this table listed 🍎 🚌 🏥 🏫 🏪 as cuts, which would have left two placement items with nothing to choose from. Part 2 must scope the `pictures` edit to the two lesson items named in row 2.
+
+Kept, because each is the stimulus or the one progress signal: the audio button on a listening item, the notice text on a reading item, the word tiles, the coach figure, the placement glyphs above, the capsule progress bar in the chrome (owned by LP-10).
 
 Flagged, not mine to change: the emoji on word-tutorial cards where the word is abstract (✅ for "allowed", ⚠️ for "Mind the gap") and the outcome icons (☕ 🔢 🚇 🙋 🪧 💬 🧾 📅). The data is in `content.ts` but the renderers are Capsule chrome and Home, which belong to LP-10. Raising with the UX Designer rather than editing across the line.
 
@@ -149,15 +156,15 @@ Flagged, not mine to change: the emoji on word-tutorial cards where the word is 
 
 For part 2, with the fixes above.
 
-| # | Defect | Where |
+| # | Defect | Where (by symbol) |
 | --- | --- | --- |
-| 1 | The model sentence in `audio` is never played on a `gap_fill`, and the speaker button reads the gapped line aloud, underscores included | `items.tsx` 109, 137 |
-| 2 | `isListening` is a ternary whose first branch is the literal `true`, so the second half can never be reached | `items.tsx` 109 |
-| 3 | Fluency rounds end after the first passing attempt, though the screen promises three | `items.tsx` 513, 545 |
-| 4 | Hardcoded English instructions, not localised: "Shadow duet", "Say it, see it", "Explain it to ...", "Source", "Round 1 of 3", "Voice needs Chrome or Edge" | `items.tsx` 528, 607, 706, 709, 545, 446 |
-| 5 | The roleplay log grows without bound and pushes the mic off a 375×812 screen | `items.tsx` 660 |
-| 6 | `pick_picture` renders a 3-column grid of 34px glyphs with 12px labels, which truncate | `items.tsx` 146, 150 |
-| 7 | The instruction line uses `lp-eyebrow`, a small faint style, for the one thing a beginner must read first | `items.tsx` 65 |
+| 1 | On a `gap_fill` no listen button renders at all, so the model sentence in `audio` is never played **before** the learner answers; it is spoken only after a correct tap. The `Say` on the stem therefore receives the gapped line as its speak text, and nothing in `speech.ts` strips the underscores, so the learner hears "I'd blank a coffee" | `items.tsx` `ChoiceItem`: the `isListening` expression, the stem `Say` and its `speakText`, and the `say(correctText)` in `answer` |
+| 2 | `isListening` is written as `cond ? true : other`, where the `? true :` is redundant. **It is not dead code.** The second branch is the only thing that renders the listen button for `pick_picture` when `mode === "placement"`, which is PLC-01, PLC-03 and CKP-02, all three listening items in the placement set. The whole expression reduces to `audio && (pick_picture \|\| ((detail_gap \|\| gist_mcq \|\| inference_mcq) && mode !== "placement"))`. Part 2 simplifies it to exactly that and must not "remove the unreachable branch": doing so drops placement audio silently, with no type error and no test failure | `items.tsx` `ChoiceItem`, the `isListening` expression |
+| 3 | Fluency rounds end after the first passing attempt, though the screen promises "Round 1 of 3". `judge` sets done as soon as the attempt passes, so the round counter in the `Recorder` callback can never reach 3 | `items.tsx` `SpeechItem`, `judge` and the `Recorder` `onDone` |
+| 4 | Hardcoded English instructions, not localised: "Shadow duet", "Say it, see it", "Explain it to ...", "Source", "Round {n} of 3", "Voice needs Chrome or Edge. Type instead." | `items.tsx` `SpeechItem` (first, fifth, sixth), `SayItSeeIt` (second), `RelayItem` (third, fourth), `Recorder` (last) |
+| 5 | The roleplay log grows without bound and pushes the mic off a 375×812 screen | `items.tsx` `Roleplay`, the `setLog` accumulation |
+| 6 | `pick_picture` renders a 3-column grid of 34px glyphs with 12px labels, which truncate | `items.tsx` `ChoiceItem`, the `grid-cols-3` branch and the label span |
+| 7 | The instruction line uses `lp-eyebrow`, a small faint style, for the one thing a beginner must read first | `items.tsx` `Instruction` |
 
 The engine contract (`ItemRenderer`, `ItemResult`, `onAnswer`, `onNext`, the `lp:auto` tester hook) is unchanged by any of this. Cut types lose their `switch` case and their items; nothing in `engine.ts` or `scoring.ts` needs a new shape.
 
@@ -165,3 +172,4 @@ The engine contract (`ItemRenderer`, `ItemResult`, `onAnswer`, `onNext`, the `lp
 
 1. This document to the board. Nothing in `items.tsx` or `content.ts` changes until it is approved, because the cut list decides what content exists and the A2.1 content week is sequenced behind it.
 2. On approval: `items.tsx` and `content.ts`, then QA Reviewer, then the board.
+3. Not in this ticket, but it has to land with it: this document delivers "the learner speaks inside the first minute" at item level, while the capsule still opens on a roughly five-minute explainer, so in QA's LEA-4 baseline the first spoken turn arrived 77% of the way through the lesson. Fixing the item order without the capsule order leaves the board's point 2 unmet. The capsule re-order is the Front-end Builder's on LEA-22, found by QA against the LEA-4 baseline. Recorded here as a dependency for whoever sequences the two; I cannot write to LEA-22 from this issue, so it needs the Product Lead or the board to pair them.
