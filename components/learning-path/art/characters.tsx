@@ -274,9 +274,9 @@ const ARMS: Record<Pose, ArmPose> = {
   },
   listen: {
     l: ARM_DOWN_L,
-    r: "M130 120 Q161 118 149 84",
+    r: "M130 120 Q158 116 143 88",
     lh: [60, 177],
-    rh: [147, 79],
+    rh: [138, 78],
     legs: LEGS_STAND,
     shoes: SHOES_STAND,
     tilt: -7,
@@ -295,10 +295,10 @@ const ARMS: Record<Pose, ArmPose> = {
     lift: 0,
   },
   hold: {
-    l: "M70 120 Q72 147 87 151",
-    r: "M130 120 Q128 147 113 151",
-    lh: [86, 152],
-    rh: [114, 152],
+    l: "M70 120 Q66 146 74 155",
+    r: "M130 120 Q134 146 126 155",
+    lh: [73, 157],
+    rh: [127, 157],
     legs: LEGS_STAND,
     shoes: SHOES_STAND,
     tilt: 0,
@@ -372,28 +372,29 @@ function Item({ item, seed }: { item: HoldItem; seed: number }) {
     case "phone":
       return (
         <>
-          <Shape d={roundRect(86, 118, 28, 46, 6)} fill={ART.cream} seed={seed} amount={0.7} />
-          <Stroke d="M92 128 L108 128" seed={seed + 1} width={2.6} />
-          <Stroke d="M92 138 L104 138" seed={seed + 2} width={2.6} />
-          <Stroke d="M92 148 L108 148" seed={seed + 3} width={2.6} />
+          <Shape d={roundRect(83, 118, 34, 50, 7)} fill={ART.cream} seed={seed} amount={0.7} />
+          <Stroke d="M90 130 L110 130" seed={seed + 1} width={2.8} />
+          <Stroke d="M90 141 L104 141" seed={seed + 2} width={2.8} />
+          <Stroke d="M90 152 L110 152" seed={seed + 3} width={2.8} />
         </>
       );
     case "cup":
       return (
         <>
-          <Shape d="M86 126 L114 126 L110 166 L90 166 Z" fill={ART.cream} seed={seed} amount={0.7} />
-          <Shape d={roundRect(83, 117, 34, 11, 4)} fill={ART.cream} seed={seed + 1} amount={0.6} />
-          <Stroke d="M89 142 L111 142" seed={seed + 2} width={2.6} />
-          <Stroke d="M96 112 C92 106 100 104 97 98" seed={seed + 3} width={2.6} />
-          <Stroke d="M107 112 C103 107 110 105 107 100" seed={seed + 4} width={2.6} />
+          <Stroke d="M93 112 C88 105 97 102 93 95" seed={seed + 3} width={2.8} />
+          <Stroke d="M108 112 C103 106 111 103 108 97" seed={seed + 4} width={2.8} />
+          <Shape d="M84 128 L116 128 L112 170 L88 170 Z" fill={ART.cream} seed={seed} amount={0.7} />
+          <Shape d={roundRect(79, 116, 42, 13, 5)} fill={ART.cream} seed={seed + 1} amount={0.6} />
+          <Stroke d="M87 146 L113 146" seed={seed + 2} width={2.8} />
         </>
       );
     case "suitcase":
       return (
         <>
-          <Stroke d="M92 122 Q100 112 108 122" seed={seed + 1} width={3} />
-          <Shape d={roundRect(78, 122, 44, 40, 6)} fill={ART.cream} seed={seed} amount={0.7} />
-          <Stroke d="M78 136 L122 136" seed={seed + 2} width={2.6} />
+          <Stroke d="M90 126 Q100 112 110 126" seed={seed + 1} width={3.4} />
+          <Shape d={roundRect(74, 126, 52, 44, 7)} fill={ART.cream} seed={seed} amount={0.7} />
+          <Stroke d="M74 142 L126 142" seed={seed + 2} width={2.8} />
+          <Stroke d="M96 142 L96 126" seed={seed + 3} width={2.8} />
         </>
       );
     case "star":
@@ -411,22 +412,22 @@ function Item({ item, seed }: { item: HoldItem; seed: number }) {
     case "book":
       return (
         <>
-          <Shape d={roundRect(76, 124, 48, 36, 4)} fill={ART.cream} seed={seed} amount={0.7} />
-          <Stroke d="M100 124 L100 160" seed={seed + 1} width={3} />
-          <Stroke d="M82 134 L94 134" seed={seed + 2} width={2.4} />
-          <Stroke d="M106 134 L118 134" seed={seed + 3} width={2.4} />
-          <Stroke d="M82 144 L94 144" seed={seed + 4} width={2.4} />
-          <Stroke d="M106 144 L118 144" seed={seed + 5} width={2.4} />
+          <Shape d={roundRect(72, 122, 56, 46, 5)} fill={ART.cream} seed={seed} amount={0.7} />
+          <Stroke d="M100 122 L100 168" seed={seed + 1} width={3.2} />
+          <Stroke d="M79 134 L93 134" seed={seed + 2} width={2.6} />
+          <Stroke d="M107 134 L121 134" seed={seed + 3} width={2.6} />
+          <Stroke d="M79 145 L93 145" seed={seed + 4} width={2.6} />
+          <Stroke d="M107 145 L121 145" seed={seed + 5} width={2.6} />
         </>
       );
     case "mic":
       return (
         <>
-          <Stroke d="M100 142 L100 164" seed={seed + 1} width={4} />
-          <Shape d={roundRect(90, 112, 20, 32, 10)} fill={ART.cream} seed={seed} amount={0.6} />
-          <Stroke d="M94 120 L106 120" seed={seed + 2} width={2.4} />
-          <Stroke d="M94 128 L106 128" seed={seed + 3} width={2.4} />
-          <Stroke d="M88 158 L112 158" seed={seed + 4} width={3.2} />
+          <Stroke d="M100 146 L100 168" seed={seed + 1} width={4.4} />
+          <Shape d={roundRect(87, 110, 26, 40, 13)} fill={ART.cream} seed={seed} amount={0.6} />
+          <Stroke d="M92 120 L108 120" seed={seed + 2} width={2.6} />
+          <Stroke d="M92 129 L108 129" seed={seed + 3} width={2.6} />
+          <Stroke d="M86 170 L114 170" seed={seed + 4} width={3.4} />
         </>
       );
     default:
@@ -478,8 +479,8 @@ const SPECS: Record<CharacterName, Spec> = {
     ),
     clothes: (s) => (
       <>
-        <Shape d="M74 110 C84 102 116 102 126 110 C116 122 84 122 74 110 Z" fill={ART.sun} seed={s + 51} amount={0.7} />
-        <Shape d="M118 116 L128 148 L112 145 Z" fill={ART.sun} seed={s + 52} amount={0.7} />
+        <Shape d="M72 109 C84 99 116 99 128 109 C116 122 84 122 72 109 Z" fill={ART.sun} seed={s + 51} amount={0.7} />
+        <Shape d="M110 117 L125 147 L104 142 Z" fill={ART.sun} seed={s + 52} amount={0.7} />
       </>
     ),
   },
@@ -546,13 +547,20 @@ const SPECS: Record<CharacterName, Spec> = {
     ],
     behind: (s) => (
       <>
-        <Shape d={blob(74, 46, 13, 12, s + 41, 1.3)} fill={INK} seed={s + 42} amount={0.4} />
-        <Shape d={blob(90, 32, 14, 13, s + 43, 1.3)} fill={INK} seed={s + 44} amount={0.4} />
-        <Shape d={blob(110, 32, 14, 13, s + 45, 1.3)} fill={INK} seed={s + 46} amount={0.4} />
-        <Shape d={blob(126, 46, 13, 12, s + 47, 1.3)} fill={INK} seed={s + 48} amount={0.4} />
+        <Shape d={blob(70, 48, 13, 13, s + 41, 1.3)} fill={INK} seed={s + 42} amount={0.4} />
+        <Shape d={blob(84, 28, 15, 14, s + 43, 1.3)} fill={INK} seed={s + 44} amount={0.4} />
+        <Shape d={blob(104, 22, 16, 15, s + 45, 1.3)} fill={INK} seed={s + 46} amount={0.4} />
+        <Shape d={blob(126, 36, 15, 14, s + 47, 1.3)} fill={INK} seed={s + 48} amount={0.4} />
+        <Shape d={blob(130, 54, 12, 12, s + 49, 1.3)} fill={INK} seed={s + 50} amount={0.4} />
       </>
     ),
-    front: (s) => <Shape d="M68 54 C72 32 128 32 132 54 C120 44 108 46 98 46 C86 46 76 48 68 54 Z" fill={INK} seed={s + 49} amount={0.8} />,
+    front: (s) => (
+      <>
+        <Shape d={blob(78, 44, 12, 11, s + 53, 1.3)} fill={INK} seed={s + 54} amount={0.4} />
+        <Shape d={blob(99, 38, 13, 12, s + 55, 1.3)} fill={INK} seed={s + 56} amount={0.4} />
+        <Shape d={blob(119, 43, 12, 11, s + 57, 1.3)} fill={INK} seed={s + 58} amount={0.4} />
+      </>
+    ),
     clothes: (s) => <Shape d="M87 102 Q100 117 113 102 Z" fill={ART.cream} seed={s + 51} amount={0.6} />,
   },
   you: {
@@ -628,9 +636,6 @@ function Figure({
           {stickerShape(st.kind, s + i * 13, INK)}
         </g>
       ))}
-      {pose === "celebrate" ? (
-        <g transform="translate(90 6) scale(1)">{stickerShape("star", s + 99, INK)}</g>
-      ) : null}
     </g>
   ) : null;
 
@@ -679,9 +684,8 @@ function Figure({
             <Hand at={a.lh} fill={spec.skin} seed={s + 93} />
             <Hand at={a.rh} fill={spec.skin} seed={s + 94} />
             {pose === "point" ? (
-              <Limb d={`M${a.rh[0]} ${a.rh[1]} L${a.rh[0] + 14} ${a.rh[1] - 9}`} fill={spec.skin} seed={s + 95} width={6} />
+              <Limb d={`M${a.rh[0]} ${a.rh[1]} L${a.rh[0] + 17} ${a.rh[1] - 11}`} fill={spec.skin} seed={s + 95} width={5} />
             ) : null}
-            {pose === "listen" ? <Stroke d="M139 76 Q149 70 143 62" seed={s + 96} width={2.8} /> : null}
 
             {/* head */}
             <g transform={`rotate(${a.tilt} 100 94)`}>
