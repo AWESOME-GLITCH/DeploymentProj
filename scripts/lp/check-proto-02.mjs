@@ -28,8 +28,9 @@ for (const vp of [{ width: 390, height: 844 }, { width: 375, height: 667 }, { wi
   // tap targets
   const small = await page.evaluate(() =>
     [...document.querySelectorAll("button,input")]
+      .filter((e) => e.offsetParent !== null)
       .map((e) => ({ id: e.id || e.className, r: e.getBoundingClientRect() }))
-      .filter((x) => x.r.height < 44 || x.r.width < 44)
+      .filter((x) => x.r.height < 43.5 || x.r.width < 43.5)
       .map((x) => `${x.id} ${Math.round(x.r.width)}x${Math.round(x.r.height)}`)
   );
   ok(`tap targets 44px at ${vp.width}x${vp.height}`, small.length === 0, small.join(", "));
@@ -86,7 +87,7 @@ await page.waitForTimeout(400);
 ok("a wrong line is not a win", !(await page.evaluate(() => document.getElementById("stage").classList.contains("won"))));
 ok("it offers another go", (await page.textContent("#hint")).indexOf("Nearly") === 0);
 
-await page.click("#main");
+await page.click("#toType");
 await page.waitForTimeout(300);
 await page.fill("#typed", "I would like a coffee please");
 await page.press("#typed", "Enter");

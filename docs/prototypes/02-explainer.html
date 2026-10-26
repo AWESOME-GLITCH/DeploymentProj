@@ -233,7 +233,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 /* ---------- beat bar ---------- */
 .beats{display:flex;gap:6px;flex:0 0 auto;height:46px}
 .beat{
-  position:relative;flex:1 1 0;height:100%;
+  position:relative;flex:1 1 0;height:100%;min-width:44px;
   border:2.5px solid var(--on-page);border-radius:999px;
   overflow:hidden;background:transparent;
   transition:transform .28s var(--spring);
@@ -447,7 +447,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
   var BEATS = [
     {t:0,    d:4.2, say:null,                               label:"At the cafe"},
     {t:4.2,  d:4.6, say:"I want a coffee.",                 label:"You order"},
-    {t:8.8,  d:5.0, say:"Softer: I would like.",            label:"Say it softer"},
+    {t:8.8,  d:5.0, say:"Softer. I would like.",            label:"Say it softer"},
     {t:13.8, d:5.8, say:"I would like a coffee, please.",   label:"Word by word"},
     {t:19.6, d:3.0, say:"Of course. Here you are.",         label:"Leo answers"},
     {t:22.6, d:2.4, say:"Now you.",                         label:"Your turn"}
@@ -583,18 +583,21 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
   }
 
   /* ---------- the talk-like pause ---------- */
-  function finish(){
+  function finish(lead){
     playing = false; mode = "listen";
     stopSpeech();
+    typerow.hidden = true;
     setButton("mic", hasSpeech() ? "Speak now" : "Type it");
     mainBtn.classList.add("listening");
-    hint.innerHTML = hasSpeech()
-      ? 'Say the line. <button class="linkbtn" id="toType" type="button">or type it</button>'
-      : 'Type the line, then tap Check.';
-    var toType = document.getElementById("toType");
-    if (toType) toType.addEventListener("click", openType);
-    if (!hasSpeech()) openType();
-    show(heard, "Your turn");
+    if (hasSpeech()){
+      hint.innerHTML = (lead || "Say the line.") +
+        ' <button class="linkbtn" id="toType" type="button">or type it</button>';
+      document.getElementById("toType").addEventListener("click", openType);
+    } else {
+      hint.textContent = lead || "Type the line, then tap Check it.";
+      openType();
+    }
+    show(heard, lead ? "Once more" : "Your turn");
   }
 
   function clearListen(){
@@ -643,10 +646,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
       speak("You did it.", 1);
       setButton("again", "Play again");
     } else {
-      hint.innerHTML = 'Nearly. <button class="linkbtn" id="toType" type="button">Try again</button>';
-      document.getElementById("toType").addEventListener("click", function(){ finish(); });
-      setButton("mic", hasSpeech() ? "Speak now" : "Type it");
-      mode = "listen";
+      finish("Nearly. Say it again.");
       speak("Nearly. I would like a coffee, please.", 0.8);
     }
   }
