@@ -49,7 +49,7 @@ body{
 .pip.live{opacity:1; width:44px}
 .pip.done{opacity:1}
 .switch{
-  width:40px; height:40px; border:none; border-radius:99px; background:transparent;
+  width:44px; height:44px; border:none; border-radius:99px; background:transparent;
   color:var(--on-page); display:grid; place-items:center; cursor:pointer; padding:0;
 }
 .switch svg{width:22px; height:22px; display:block}
@@ -70,9 +70,9 @@ body{
 .sub{margin:8px 0 0; font-size:15px; font-weight:600; opacity:.78; max-width:21ch}
 
 /* Maya sits on the floor of the card */
-.stage{position:absolute; inset:0; padding:74px 32px 12px}
+.stage{position:absolute; inset:0; padding:66px 12px 10px}
 /* on the final card she steps back to make room for the bars */
-.card[data-tone="mint"] .stage{padding:120px 96px 132px}
+.card[data-tone="mint"] .stage{padding:116px 56px 128px}
 
 .card[data-tone="mint"] .s-squiggle,.card[data-tone="mint"] .s-heart{display:none}
 
@@ -116,7 +116,7 @@ body{
 .s-heart{top:150px; left:18px; animation-delay:1.4s}
 .s-win{display:none; top:40%; right:74px}
 .card.done .s-win{display:block}
-.burst{top:21%; left:50%; margin-left:-34px; opacity:0}
+.burst{top:16%; left:50%; margin-left:-36px; opacity:0}
 .burst.go{animation:burst 420ms var(--spring) both}
 @keyframes burst{0%{opacity:0; transform:scale(.3) rotate(-24deg)}60%{opacity:1; transform:scale(1.14) rotate(8deg)}100%{opacity:1; transform:scale(1) rotate(0)}}
 
@@ -151,7 +151,7 @@ body{
 [data-theme="dark"] .btn.live::before{border-color:var(--cream)}
 @keyframes ring{0%{transform:scale(.97); opacity:.35}100%{transform:scale(1.07); opacity:0}}
 .minor{
-  background:none; border:none; font:inherit; font-size:15px; font-weight:700;
+  background:none; border:none; font:inherit; font-size:15px; font-weight:700; min-height:44px;
   color:var(--on-page); text-decoration:underline; text-underline-offset:3px;
   padding:8px; cursor:pointer; justify-self:center; opacity:.8;
 }
@@ -174,9 +174,9 @@ body{
 .sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
 
 /* Maya comes from the character kit (components/learning-path/art/characters.tsx):
-   one SVG per pose, crossfaded, with the kit's own idle sway on the wrapper. */
+   one SVG per pose, cut between, with the kit's own idle sway on the wrapper. */
 .cast{position:relative; width:100%; height:100%; transition:transform 320ms var(--spring)}
-.cast .pose{position:absolute; inset:0; opacity:0; transition:opacity 160ms ease}
+.cast .pose{position:absolute; inset:0; opacity:0}  /* a cut, not a crossfade: two figures at once ghost */
 .cast .pose.on{opacity:1}
 .cast svg{width:100%; height:100%; display:block}
 .sway{animation:sway 3s ease-in-out infinite; transform-origin:50% 100%}
@@ -209,14 +209,14 @@ body{
     </button>
   </div>
 
-  <section class="card" id="card" aria-live="polite">
+  <section class="card" id="card">
     <div class="card-top" id="cardTop">
       <h1 class="headline" id="headline">Talk with Maya</h1>
       <p class="sub" id="sub">Three short turns at a cafe. Say your answer out loud.</p>
     </div>
 
-    <div class="bubble hidden" id="bubble"><span id="bubbleText"></span><span class="tail"></span></div>
-    <div class="bubble me hidden" id="meBubble"><span id="meText"></span><span class="tail"></span></div>
+    <div class="bubble hidden" id="bubble" aria-live="polite" aria-atomic="true"><span id="bubbleText"></span><span class="tail"></span></div>
+    <div class="bubble me hidden" id="meBubble" aria-live="polite" aria-atomic="true"><span id="meText"></span><span class="tail"></span></div>
 
     <div class="bars hidden" id="bars"></div>
 
@@ -245,7 +245,7 @@ body{
   </section>
 
   <div class="dock">
-    <p class="say" id="say">Tap the button and say your answer. A mic is not needed to try it.</p>
+    <p class="say" id="say" aria-live="polite">Tap the button and say your answer. A mic is not needed to try it.</p>
     <button class="btn" id="go">
       <span id="goLabel">Start</span><span class="go" aria-hidden="true">&#187;</span>
     </button>
@@ -459,21 +459,23 @@ body{
   }
 
   function reactGood(t){
-    setPose("reacting");
+    setPose("reacting");            // the star pops first, then she answers
     paintSticker();
     burst.classList.add("go");
     say.textContent = "";
     setButton("Maya is talking", true);
     minor.classList.add("hidden");
     closeTyped();
-    speak(t.good, 1, () => {
-      setPose("reacting");
-      setTimeout(() => {
-        turn++; tries = 0;
-        burst.classList.remove("go");
-        if (turn >= TURNS.length) finish(); else startTurn();
-      }, reduced ? 200 : 650);
-    });
+    setTimeout(() => {
+      speak(t.good, 1, () => {
+        setPose("reacting");
+        setTimeout(() => {
+          turn++; tries = 0;
+          burst.classList.remove("go");
+          if (turn >= TURNS.length) finish(); else startTurn();
+        }, reduced ? 200 : 650);
+      });
+    }, reduced ? 120 : 460);
   }
 
   function reactMiss(t){
