@@ -533,8 +533,6 @@ function Stop({ i, frame }: { i: 0 | 1 | 2; frame: number }) {
     // Riyadh is last week, so the whole stop carries a sepia wash.
     <g style={i === 0 ? { filter: SEPIA } : undefined}>
       {i === 0 ? <RiyadhCity cx={cx} /> : i === 1 ? <DubaiCity cx={cx} /> : <LondonCity cx={cx} />}
-      {/* the stop marker on the road */}
-      <rect x={cx - 150} y={BASE + 2} width="300" height="22" rx="11" fill={i === 2 ? FAINT : SAFFRON} opacity={i === 2 ? 0.5 : 1} />
       {i === 2 ? (
         <GhostYou x={youX} y={youY} frame={frame} appear={enter} scale={0.84} />
       ) : (
@@ -657,6 +655,8 @@ function ExplainScene({ frame }: { frame: number }) {
     + (X1 - MID) * tween(frame, 840, 870, 0, 1, EASE.inOut);
   const bigOut = tween(frame, 918, 948, 0, 1, EASE.in);
   const rows = springIn(frame, 940, { damping: 11, stiffness: 120 });
+  // Once the big verb goes, the slider rises to meet the summary card.
+  const lift = -140 * tween(frame, 940, 984, 0, 1, EASE.inOut);
   const mayaIn = springIn(frame, 584, { damping: 11, stiffness: 130 });
   const mayaG = frame < 660 ? { g: "raise" as const, at: 590, from: "idle" as const }
     : frame < 840 ? { g: "point" as const, at: 660, from: "raise" as const }
@@ -674,8 +674,10 @@ function ExplainScene({ frame }: { frame: number }) {
           <clipPath id="grm3-maya-clip"><circle cx="152" cy="1012" r="100" /></clipPath>
         </defs>
         <rect width="1080" height="1440" fill="url(#grm3-grid)" />
-        <Slider frame={frame} appear={584} x0={X0} x1={X1} y={KNOB_Y} knob={knob} labels={["Yesterday", "Today", "Tomorrow"]} />
-        <DragHand frame={frame} from={620} until={894} x={knob - 10} y={KNOB_Y + 20} />
+        <g transform={`translate(0 ${lift})`}>
+          <Slider frame={frame} appear={584} x0={X0} x1={X1} y={KNOB_Y} knob={knob} labels={["Yesterday", "Today", "Tomorrow"]} />
+          <DragHand frame={frame} from={620} until={894} x={knob + 30} y={KNOB_Y + 34} />
+        </g>
         {/* the magnet tiles and the clack at each snap */}
         <g opacity={1 - bigOut}>
           <Tile frame={frame} from={628} to={654} x0={1180} y0={360} x1={730} y1={360} text="ed" w={160} />
@@ -695,14 +697,14 @@ function ExplainScene({ frame }: { frame: number }) {
         </g>
         {/* the three forms line up under their time icons */}
         {frame >= 940 ? (
-          <g transform={`translate(640 920) scale(${rows}) translate(-640 -920)`}>
-            <rect x="268" y="708" width="770" height="440" rx="38" fill={INK} opacity="0.14" />
-            <rect x="260" y="700" width="770" height="440" rx="38" fill={CARD} stroke={INK} strokeWidth="5" />
+          <g transform={`translate(640 780) scale(${rows}) translate(-640 -780)`}>
+            <rect x="268" y="568" width="770" height="440" rx="38" fill={INK} opacity="0.14" />
+            <rect x="260" y="560" width="770" height="440" rx="38" fill={CARD} stroke={INK} strokeWidth="5" />
             {ROWS.map((r, i) => (
               <g key={r.label}>
-                <TimeIcon kind={r.kind} x={322} y={812 + i * 130} scale={0.62} color={ACCENT} />
-                <text x={382} y={826 + i * 130} fontFamily={FONT} fontWeight="700" fontSize="36" fill={FAINT}>{r.label}</text>
-                {i < 2 ? <line x1="300" y1={872 + i * 130} x2="990" y2={872 + i * 130} stroke={FOG} strokeWidth="3" /> : null}
+                <TimeIcon kind={r.kind} x={322} y={672 + i * 130} scale={0.62} color={ACCENT} />
+                <text x={382} y={686 + i * 130} fontFamily={FONT} fontWeight="700" fontSize="36" fill={FAINT}>{r.label}</text>
+                {i < 2 ? <line x1="300" y1={732 + i * 130} x2="990" y2={732 + i * 130} stroke={FOG} strokeWidth="3" /> : null}
               </g>
             ))}
           </g>
@@ -724,9 +726,9 @@ function ExplainScene({ frame }: { frame: number }) {
         </div>
       ) : null}
       {frame >= 940 ? (
-        <div style={{ position: "absolute", inset: 0, opacity: Math.min(1, rows * 2), transform: `scale(${rows})`, transformOrigin: "640px 920px" }}>
+        <div style={{ position: "absolute", inset: 0, opacity: Math.min(1, rows * 2), transform: `scale(${rows})`, transformOrigin: "640px 780px" }}>
           {ROWS.map((r, i) => (
-            <FormWord key={r.label} frame={frame} parts={r.parts} size={64} top={772 + i * 130} align="left" left={636} />
+            <FormWord key={r.label} frame={frame} parts={r.parts} size={64} top={632 + i * 130} align="left" left={636} />
           ))}
         </div>
       ) : null}
