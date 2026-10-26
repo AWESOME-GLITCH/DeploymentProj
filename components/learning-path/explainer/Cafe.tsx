@@ -113,17 +113,17 @@ function HookScene({ frame }: { frame: number }) {
             <rect x="0" y="1198" width="1080" height="260" fill="#2b2d4a" />
             {[0, 1, 2, 3, 4, 5].map((i) => <rect key={i} x={40 + i * 190} y="1290" width="100" height="10" rx="5" fill={PAPER} opacity="0.5" />)}
             <g transform={`translate(0 ${rise(2) * 0.6})`}>
-              <rect x="50" y="520" width="12" height="670" fill={INK} />
-              <rect x="26" y="470" width="60" height="70" rx="10" fill={INK} />
-              <rect x="36" y="482" width="40" height="46" rx="6" fill={SAFFRON} />
+              <rect x="96" y="520" width="12" height="670" fill={INK} />
+              <rect x="72" y="470" width="60" height="70" rx="10" fill={INK} />
+              <rect x="82" y="482" width="40" height="46" rx="6" fill={SAFFRON} />
             </g>
             {/* pavement A-board */}
-            <g transform={`translate(880 ${1176 + rise(4) * 0.4})`}>
-              <ellipse cx="0" cy="4" rx="78" ry="11" fill={INK} opacity="0.12" />
-              <path d="M-62 0 L-30 -150 L30 -150 L62 0 Z" fill={WOOD_LIGHT} />
-              <path d="M-46 -16 L-24 -132 L24 -132 L46 -16 Z" fill="#2f3b37" />
-              <text x="0" y="-92" textAnchor="middle" fontFamily={FONT} fontWeight="800" fontSize="30" fill={PAPER}>OPEN</text>
-              <text x="0" y="-52" textAnchor="middle" fontFamily={FONT} fontWeight="700" fontSize="24" fill={SAFFRON}>Coffee</text>
+            <g transform={`translate(880 ${1178 + rise(4) * 0.4})`}>
+              <ellipse cx="0" cy="4" rx="86" ry="11" fill={INK} opacity="0.12" />
+              <path d="M-76 0 L-40 -160 L40 -160 L76 0 Z" fill={WOOD_LIGHT} />
+              <path d="M-58 -16 L-32 -142 L32 -142 L58 -16 Z" fill="#2f3b37" />
+              <text x="0" y="-100" textAnchor="middle" fontFamily={FONT} fontWeight="800" fontSize="28" fill={PAPER}>OPEN</text>
+              <text x="0" y="-56" textAnchor="middle" fontFamily={FONT} fontWeight="700" fontSize="24" fill={SAFFRON}>Coffee</text>
             </g>
             <rect x="990" y="1120" width="34" height="70" rx="10" fill={INK} />
           </Stage>
@@ -164,11 +164,11 @@ function NoticeScene({ frame }: { frame: number }) {
             <rect x="0" y="700" width="1080" height="180" fill="#e9d8bf" />
             {[0, 1, 2, 3, 4, 5].map((i) => <rect key={i} x={30 + i * 176} y="724" width="140" height="134" rx="8" fill="none" stroke="#d9c4a4" strokeWidth="6" />)}
             <rect x="0" y="694" width="1080" height="12" fill={WOOD_LIGHT} />
-            <Shelf x={28} y={382} w={300} frame={frame} seed={2} />
-            <Window x={40} y={432} w={280} h={240} />
-            <MenuBoard x={690} y={126} w={350} h={300} />
-            <PendantLamp x={210} length={42} frame={frame} seed={0} />
-            <PendantLamp x={880} length={42} frame={frame} seed={2} />
+            <Shelf x={32} y={392} w={230} frame={frame} seed={2} plant={false} />
+            <Window x={40} y={444} w={280} h={228} />
+            <MenuBoard x={690} y={140} w={350} h={290} />
+            <PendantLamp x={214} length={60} frame={frame} seed={0} />
+            <PendantLamp x={880} length={60} frame={frame} seed={2} />
           </Stage>
         ) },
         { depth: 0.45, children: (

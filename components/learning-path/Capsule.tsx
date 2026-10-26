@@ -146,9 +146,11 @@ function AtomRun({ atomId, role, onDone }: { atomId: string; role: "new" | "use"
   if (atomId.startsWith("USE:")) {
     const itemId = atomId.slice(4);
     const extra = tryToUse(state, now, [itemId]);
+    // The coach owns her screen: no header above her while she is talking.
+    const coachOnly = !!ITEM_BY_ID[itemId] && isCoachItem(ITEM_BY_ID[itemId]);
     return (
       <div className="flex h-full flex-col">
-        <div className="mb-3 flex items-center justify-between"><div className="lp-eyebrow">{t("your_turn")}</div><Pill tone="glow">use</Pill></div>
+        {coachOnly ? null : <div className="mb-3 flex items-center justify-between"><div className="lp-eyebrow">{t("your_turn")}</div><Pill tone="glow">use</Pill></div>}
         {extra.length ? <div className="mb-2 flex flex-wrap gap-2">{extra.map((id) => <span key={id} className="lp-pill">{ITEM_BY_ID[id]?.key ? String(ITEM_BY_ID[id].key).split(" ").slice(0, 3).join(" ") : ITEM_BY_ID[id]?.stem.en.slice(0, 18)}</span>)}</div> : null}
         <div className="min-h-0 flex-1"><ItemRun items={[itemId]} mode="use" onDone={onDone} tryItems={extra} /></div>
       </div>

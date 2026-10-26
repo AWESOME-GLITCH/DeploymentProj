@@ -175,7 +175,7 @@ function replyTo(score: SpeechScore, plan: Plan): string {
   if (plan.sceneReply) return plan.sceneReply;
   if (plan.kind === "model") return score.missed.length ? "Good. Almost every word." : "Every word. Well done.";
   const heard = score.matched.find((m) => m.length >= MIN_TEACH_LEN);
-  return heard ? `Thank you. I heard “${heard}”.` : plan.endReply;
+  return heard ? `Thank you. I heard “${tidy(heard)}”.` : plan.endReply;
 }
 
 /** A 30 fps clock. Still at a settled frame when the learner reduces motion. */

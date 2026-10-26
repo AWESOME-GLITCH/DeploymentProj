@@ -204,17 +204,15 @@ function GhostYou({ x, y, frame, appear, scale = 1 }: { x: number; y: number; fr
   return (
     <g transform={`translate(${x} ${y + bob}) scale(${scale})`} opacity={o}>
       <g fill="none" stroke={FAINT} strokeWidth="5" strokeDasharray="15 13" strokeLinejoin="round" strokeLinecap="round">
-        <path d="M-62 -296 Q-62 -324 -34 -324 L34 -324 Q62 -324 62 -296 L54 -150 L-54 -150 Z" />
+        {/* one outline for the whole body, so no inner lines cross */}
+        <path d="M-62 -296 Q-62 -324 -34 -324 L34 -324 Q62 -324 62 -296 L54 -160 L40 -160 L40 -10 Q40 0 30 0 L10 0 Q0 0 0 -10 L0 -160 L-8 -160 L-8 -10 Q-8 0 -18 0 L-38 0 Q-48 0 -48 -10 L-48 -160 L-54 -160 Z" />
         <circle cx="0" cy="-400" r="52" />
-        <rect x="-38" y="-156" width="32" height="152" rx="14" />
-        <rect x="6" y="-156" width="32" height="152" rx="14" />
-        <path d="M62 -286 L96 -196 L84 -140" />
       </g>
       <HardHat x={0} y={-400} scale={0.86} mode="outline" />
-      {/* the tiny suitcase waiting by the right hand */}
+      {/* the tiny suitcase waiting on the ground */}
       <g fill="none" stroke={FAINT} strokeWidth="5" strokeDasharray="12 10" strokeLinejoin="round">
-        <rect x="66" y="-128" width="96" height="76" rx="12" />
-        <path d="M92 -128 Q114 -160 136 -128" />
+        <rect x="66" y="-80" width="96" height="76" rx="12" />
+        <path d="M92 -80 Q114 -112 136 -80" />
       </g>
     </g>
   );
@@ -358,15 +356,16 @@ function Slider({
       {[x0, mid, x1].map((nx, i) => (
         <g key={nx} opacity={draw}>
           <circle cx={nx} cy={y} r={13 * scale} fill={CARD} stroke={INK} strokeWidth={5 * scale} />
+          {/* labels sit above the track, clear of the knob and the dragging hand */}
           {labels ? (
-            <text x={nx} y={y + 62 * scale} textAnchor="middle" fontFamily={FONT} fontWeight="700" fontSize={30 * scale} fill={FAINT}>{labels[i]}</text>
+            <text x={nx} y={y - 44 * scale} textAnchor="middle" fontFamily={FONT} fontWeight="700" fontSize={32 * scale} fill={FAINT}>{labels[i]}</text>
           ) : null}
         </g>
       ))}
       <g transform={`translate(${knob} ${y}) scale(${s * scale})`}>
-        <rect x="-44" y="-36" width="88" height="80" rx="24" fill={INK} opacity="0.2" />
-        <rect x="-50" y="-44" width="88" height="80" rx="24" fill={ACCENT} stroke={INK} strokeWidth="5" />
-        {[-14, 0, 14].map((gx) => <line key={gx} x1={gx - 6} y1="-20" x2={gx - 6} y2="12" stroke={CARD} strokeWidth="6" strokeLinecap="round" opacity="0.8" />)}
+        <rect x="-38" y="-32" width="88" height="80" rx="24" fill={INK} opacity="0.2" />
+        <rect x="-44" y="-40" width="88" height="80" rx="24" fill={ACCENT} stroke={INK} strokeWidth="5" />
+        {[-14, 0, 14].map((gx) => <line key={gx} x1={gx} y1="-16" x2={gx} y2="16" stroke={CARD} strokeWidth="6" strokeLinecap="round" opacity="0.8" />)}
       </g>
     </g>
   );
@@ -377,9 +376,11 @@ function DragHand({ frame, from, until, x, y }: { frame: number; from: number; u
   if (frame < from || frame > until) return null;
   const o = tween(frame, from, from + 10, 0, 1, EASE.out) * (1 - tween(frame, until - 12, until, 0, 1, EASE.in));
   return (
-    <g transform={`translate(${x} ${y})`} opacity={o}>
-      <path d="M-26 86 L-26 26 Q-26 -6 2 -6 L2 -52 Q2 -74 22 -74 Q42 -74 42 -52 L42 -6 L58 -6 Q78 -6 78 14 L78 86 Z" fill="#e6b088" stroke={INK} strokeWidth="5" strokeLinejoin="round" />
-      <path d="M-26 44 Q-52 30 -46 58 L-26 86" fill="#e6b088" stroke={INK} strokeWidth="5" strokeLinejoin="round" />
+    // Smaller than the knob and set below and right of it, so the knob and its
+    // notch label stay readable while the hand drags.
+    <g transform={`translate(${x} ${y}) scale(0.68)`} opacity={o}>
+      <path d="M-26 86 L-26 26 Q-26 -6 2 -6 L2 -52 Q2 -74 22 -74 Q42 -74 42 -52 L42 -6 L58 -6 Q78 -6 78 14 L78 86 Z" fill="#e6b088" stroke={INK} strokeWidth="6" strokeLinejoin="round" />
+      <path d="M-26 44 Q-52 30 -46 58 L-26 86" fill="#e6b088" stroke={INK} strokeWidth="6" strokeLinejoin="round" />
     </g>
   );
 }
@@ -401,18 +402,20 @@ function CitySticker({
       <g transform="translate(0 44)">
         {city === 0 ? (
           <g fill={ACCENT}>
-            <path d="M-34 0 L-26 -86 L-10 -86 L-14 0 Z" />
-            <path d="M14 0 L10 -86 L26 -86 L34 0 Z" />
-            <path d="M-26 -86 Q0 -122 26 -86 L10 -86 Q0 -104 -10 -86 Z" />
+            <path d="M-40 0 L-30 -80 L-14 -80 L-20 0 Z" />
+            <path d="M20 0 L14 -80 L30 -80 L40 0 Z" />
+            <path d="M-30 -80 Q0 -124 30 -80 L14 -80 Q0 -104 -14 -80 Z" />
           </g>
         ) : city === 1 ? (
-          <path d="M-30 0 L-30 -96 Q22 -124 30 -22 L30 0 Z" fill={ACCENT} />
+          <g fill={ACCENT}>
+            <path d="M-32 0 L-32 -104 L-24 -104 Q24 -64 20 0 Z" />
+          </g>
         ) : (
           <g fill={ACCENT}>
-            <rect x="-22" y="-78" width="44" height="78" />
-            <path d="M-26 -78 L0 -116 L26 -78 Z" />
-            <circle cx="0" cy="-50" r="15" fill={CARD} />
-            <path d="M0 -58 L0 -50 L8 -46" stroke={ACCENT} strokeWidth="4" fill="none" strokeLinecap="round" />
+            <rect x="-26" y="-84" width="52" height="84" />
+            <path d="M-30 -84 L0 -116 L30 -84 Z" />
+            <circle cx="0" cy="-54" r="17" fill={CARD} />
+            <path d="M0 -64 L0 -54 L9 -49" stroke={ACCENT} strokeWidth="5" fill="none" strokeLinecap="round" />
           </g>
         )}
       </g>
@@ -425,7 +428,7 @@ function CitySticker({
 function HookScene({ frame }: { frame: number }) {
   // The suitcase is already in frame at 0, so the poster frame the player shows
   // before play is composed rather than empty.
-  const slide = (1 - springIn(frame, 0, { damping: 13, stiffness: 68, clamp: true })) * 260;
+  const slide = (1 - springIn(frame, 0, { damping: 13, stiffness: 68, clamp: true })) * 150;
   return (
     <AbsoluteFill style={{ background: PAPER }}>
       <Stage>
@@ -467,14 +470,15 @@ function RiyadhCity({ cx }: { cx: number }) {
   return (
     <Silhouette
       mode="solid"
+      // The landmarks stand left and right of centre, so the desk never hides them.
       parts={[
-        { d: `M${cx - 420} ${BASE} L${cx - 420} ${BASE - 190} L${cx - 300} ${BASE - 190} L${cx - 300} ${BASE} Z`, fill: CITY_LIGHT },
-        { d: `M${cx - 290} ${BASE} L${cx - 230} ${BASE - 330} L${cx - 170} ${BASE} Z`, fill: CITY_DARK },
-        { d: `M${cx - 78} ${BASE} L${cx - 58} ${BASE - 430} L${cx - 20} ${BASE - 430} L${cx - 30} ${BASE} Z`, fill: CITY_MID },
-        { d: `M${cx + 30} ${BASE} L${cx + 20} ${BASE - 430} L${cx + 58} ${BASE - 430} L${cx + 78} ${BASE} Z`, fill: CITY_MID },
-        { d: `M${cx - 58} ${BASE - 430} Q${cx} ${BASE - 536} ${cx + 58} ${BASE - 430} L${cx + 20} ${BASE - 430} Q${cx} ${BASE - 482} ${cx - 20} ${BASE - 430} Z`, fill: CITY_MID },
-        { d: `M${cx + 160} ${BASE} L${cx + 160} ${BASE - 250} L${cx + 268} ${BASE - 250} L${cx + 268} ${BASE} Z`, fill: CITY_DARK },
-        { d: `M${cx + 300} ${BASE} L${cx + 300} ${BASE - 150} L${cx + 420} ${BASE - 150} L${cx + 420} ${BASE} Z`, fill: CITY_LIGHT },
+        { d: `M${cx - 450} ${BASE} L${cx - 450} ${BASE - 190} L${cx - 340} ${BASE - 190} L${cx - 340} ${BASE} Z`, fill: CITY_LIGHT },
+        { d: `M${cx - 308} ${BASE} L${cx - 288} ${BASE - 430} L${cx - 250} ${BASE - 430} L${cx - 260} ${BASE} Z`, fill: CITY_MID },
+        { d: `M${cx - 200} ${BASE} L${cx - 210} ${BASE - 430} L${cx - 172} ${BASE - 430} L${cx - 152} ${BASE} Z`, fill: CITY_MID },
+        { d: `M${cx - 288} ${BASE - 430} Q${cx - 230} ${BASE - 540} ${cx - 172} ${BASE - 430} L${cx - 210} ${BASE - 430} Q${cx - 230} ${BASE - 486} ${cx - 250} ${BASE - 430} Z`, fill: CITY_MID },
+        { d: `M${cx + 120} ${BASE} L${cx + 120} ${BASE - 250} L${cx + 228} ${BASE - 250} L${cx + 228} ${BASE} Z`, fill: CITY_DARK },
+        { d: `M${cx + 262} ${BASE} L${cx + 332} ${BASE - 350} L${cx + 402} ${BASE} Z`, fill: CITY_MID },
+        { d: `M${cx + 420} ${BASE} L${cx + 420} ${BASE - 150} L${cx + 520} ${BASE - 150} L${cx + 520} ${BASE} Z`, fill: CITY_LIGHT },
       ]}
     />
   );
@@ -485,12 +489,13 @@ function DubaiCity({ cx }: { cx: number }) {
     <Silhouette
       mode="solid"
       parts={[
-        { d: `M${cx - 430} ${BASE} L${cx - 430} ${BASE - 170} L${cx - 330} ${BASE - 170} L${cx - 330} ${BASE} Z`, fill: CITY_LIGHT },
-        { d: `M${cx - 300} ${BASE} L${cx - 300} ${BASE - 300} Q${cx - 190} ${BASE - 420} ${cx - 176} ${BASE - 60} L${cx - 176} ${BASE} Z`, fill: CITY_MID },
-        { d: `M${cx - 300} ${BASE - 300} L${cx - 300} ${BASE - 360}`, fill: CITY_MID },
-        { d: `M${cx - 40} ${BASE} L${cx - 40} ${BASE - 300} L${cx - 26} ${BASE - 400} L${cx - 12} ${BASE - 470} L${cx - 4} ${BASE - 528} L${cx + 4} ${BASE - 528} L${cx + 12} ${BASE - 470} L${cx + 26} ${BASE - 400} L${cx + 40} ${BASE - 300} L${cx + 40} ${BASE} Z`, fill: CITY_DARK },
-        { d: `M${cx + 150} ${BASE} L${cx + 150} ${BASE - 236} L${cx + 210} ${BASE - 280} L${cx + 270} ${BASE - 236} L${cx + 270} ${BASE} Z`, fill: CITY_MID },
-        { d: `M${cx + 310} ${BASE} L${cx + 310} ${BASE - 160} L${cx + 430} ${BASE - 160} L${cx + 430} ${BASE} Z`, fill: CITY_LIGHT },
+        { d: `M${cx - 470} ${BASE} L${cx - 470} ${BASE - 170} L${cx - 370} ${BASE - 170} L${cx - 370} ${BASE} Z`, fill: CITY_LIGHT },
+        // the sail: a straight mast edge on the left, a curve falling to the right
+        { d: `M${cx - 310} ${BASE} L${cx - 310} ${BASE - 404} L${cx - 296} ${BASE - 404} Q${cx - 150} ${BASE - 280} ${cx - 160} ${BASE} Z`, fill: CITY_MID },
+        { d: `M${cx + 100} ${BASE} L${cx + 100} ${BASE - 236} L${cx + 160} ${BASE - 282} L${cx + 220} ${BASE - 236} L${cx + 220} ${BASE} Z`, fill: CITY_LIGHT },
+        // the spire
+        { d: `M${cx + 268} ${BASE} L${cx + 268} ${BASE - 300} L${cx + 282} ${BASE - 400} L${cx + 296} ${BASE - 470} L${cx + 304} ${BASE - 540} L${cx + 312} ${BASE - 470} L${cx + 326} ${BASE - 400} L${cx + 340} ${BASE - 300} L${cx + 340} ${BASE} Z`, fill: CITY_DARK },
+        { d: `M${cx + 400} ${BASE} L${cx + 400} ${BASE - 160} L${cx + 520} ${BASE - 160} L${cx + 520} ${BASE} Z`, fill: CITY_LIGHT },
       ]}
     />
   );
@@ -502,15 +507,15 @@ function LondonCity({ cx }: { cx: number }) {
       <Silhouette
         mode="outline"
         parts={[
-          { d: `M${cx - 420} ${BASE} L${cx - 420} ${BASE - 170} L${cx - 310} ${BASE - 170} L${cx - 310} ${BASE} Z`, fill: "none" },
-          { d: `M${cx - 250} ${BASE} L${cx - 250} ${BASE - 190} A110 110 0 0 1 ${cx - 30} ${BASE - 190} L${cx - 30} ${BASE} Z`, fill: "none" },
-          { d: `M${cx + 76} ${BASE} L${cx + 76} ${BASE - 376} L${cx + 112} ${BASE - 430} L${cx + 148} ${BASE - 376} L${cx + 148} ${BASE} Z`, fill: "none" },
-          { d: `M${cx + 250} ${BASE} L${cx + 250} ${BASE - 240} L${cx + 400} ${BASE - 240} L${cx + 400} ${BASE} Z`, fill: "none" },
+          { d: `M${cx - 470} ${BASE} L${cx - 470} ${BASE - 170} L${cx - 360} ${BASE - 170} L${cx - 360} ${BASE} Z`, fill: "none" },
+          { d: `M${cx - 330} ${BASE} L${cx - 330} ${BASE - 190} A90 90 0 0 1 ${cx - 150} ${BASE - 190} L${cx - 150} ${BASE} Z`, fill: "none" },
+          { d: `M${cx + 214} ${BASE} L${cx + 214} ${BASE - 376} L${cx + 250} ${BASE - 436} L${cx + 286} ${BASE - 376} L${cx + 286} ${BASE} Z`, fill: "none" },
+          { d: `M${cx + 370} ${BASE} L${cx + 370} ${BASE - 240} L${cx + 500} ${BASE - 240} L${cx + 500} ${BASE} Z`, fill: "none" },
         ]}
       />
       {/* the clock face on the tower */}
-      <circle cx={cx + 112} cy={BASE - 300} r="30" fill="none" stroke={FAINT} strokeWidth="5" strokeDasharray="10 9" />
-      <path d={`M${cx + 112} ${BASE - 320} L${cx + 112} ${BASE - 300} L${cx + 128} ${BASE - 292}`} fill="none" stroke={FAINT} strokeWidth="5" strokeLinecap="round" />
+      <circle cx={cx + 250} cy={BASE - 310} r="30" fill="none" stroke={FAINT} strokeWidth="5" strokeDasharray="10 9" />
+      <path d={`M${cx + 250} ${BASE - 330} L${cx + 250} ${BASE - 310} L${cx + 266} ${BASE - 302}`} fill="none" stroke={FAINT} strokeWidth="5" strokeLinecap="round" />
     </g>
   );
 }
@@ -571,9 +576,8 @@ function RoadScene({ frame }: { frame: number }) {
           </linearGradient>
         </defs>
         <rect width="1080" height={BASE} fill="url(#grm3-sky)" />
-        {/* far haze and sun, moving slower than the road */}
+        {/* far haze, moving slower than the road */}
         <g transform={`translate(${camX * 0.4} 0)`}>
-          <circle cx="880" cy="300" r="86" fill={SAFFRON} opacity="0.75" />
           {[0, 1, 2].map((k) => (
             <rect key={k} x={-200 + k * 1080} y={BASE - 110} width="1240" height="110" fill={CARD} opacity="0.22" />
           ))}
@@ -589,6 +593,13 @@ function RoadScene({ frame }: { frame: number }) {
           <rect x="-400" y={BASE + 110} width="4400" height="10" fill={ROAD_EDGE} />
           {Array.from({ length: 22 }, (_, k) => k).map((k) => (
             <rect key={k} x={-300 + k * 180} y={BASE + 66} width="96" height="12" rx="6" fill={SAFFRON} opacity="0.85" />
+          ))}
+          {/* a pale pad across the road marks each stop */}
+          {STOP_X.map((sx, i) => (
+            <g key={sx}>
+              <rect x={sx - 170} y={BASE + 24} width="340" height="96" fill={PAPER} opacity={i === 2 ? 0.45 : 0.9} />
+              <rect x={sx - 170} y={BASE + 24} width="340" height="10" fill={i === 2 ? FAINT : SAFFRON} />
+            </g>
           ))}
         </g>
       </Stage>

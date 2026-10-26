@@ -122,14 +122,14 @@ type Pose = { s: number; e: number };
 const IDLE: Pose = { s: 6, e: 10 };
 function poseFor(g: Gesture, frame: number): Pose {
   switch (g) {
-    case "wave": return { s: 150, e: 40 + Math.sin(frame / 2.6) * 28 };
+    case "wave": return { s: 150, e: 12 + Math.sin(frame / 2.6) * 26 };
     case "raise": return { s: 118, e: 62 };
     case "point": return { s: 78, e: 4 };
     case "cup": return { s: 52, e: 72 };
     case "serve": return { s: 48, e: 0 };
     case "two": return { s: 128, e: 72 };
     case "think": return { s: 25, e: 165 };
-    case "thumbs": return { s: 60, e: 85 };
+    case "thumbs": return { s: 100, e: 55 };
     case "listen": return { s: 40, e: 150 };
     default: return IDLE;
   }
@@ -193,7 +193,7 @@ export function Character(p: CharacterProps) {
         {hand === "point" ? <line x1="0" y1={FORE} x2="0" y2={FORE + 20} stroke={L.skin} strokeWidth="9" strokeLinecap="round" /> : null}
         {hand === "two" ? <><line x1="-5" y1={FORE} x2="-8" y2={FORE + 22} stroke={L.skin} strokeWidth="8" strokeLinecap="round" /><line x1="5" y1={FORE} x2="8" y2={FORE + 22} stroke={L.skin} strokeWidth="8" strokeLinecap="round" /></> : null}
         {hand === "wave" || hand === "raise" || hand === "listen" || hand === "serve" ? [-10, 0, 10].map((a) => <line key={a} x1={a * 0.6} y1={FORE} x2={a * 1.3} y2={FORE + 19} stroke={L.skin} strokeWidth="8" strokeLinecap="round" />) : null}
-        {hand === "thumbs" ? <line x1="0" y1={FORE} x2="18" y2={FORE - 10} stroke={L.skin} strokeWidth="9" strokeLinecap="round" /> : null}
+        {hand === "thumbs" ? <line x1="2" y1={FORE + 2} x2="24" y2={FORE - 18} stroke={L.skin} strokeWidth="11" strokeLinecap="round" /> : null}
       </g>
     </g>
   );
@@ -635,12 +635,12 @@ export function Transition({ frame, at, duration = 26, kind = "wipe", color = SA
 export function Highlight({ frame, from, color = SAFFRON, thickness = 0.55, opacity = 0.5, strike = false, duration = 14, y }: { frame: number; from: number; color?: string; thickness?: number; opacity?: number; strike?: boolean; duration?: number; y?: number }) {
   const p = tween(frame, from, from + duration, 0, 1, EASE.out);
   if (p <= 0) return null;
-  const mid = y ?? (strike ? 52 : 72);
+  const mid = y ?? (strike ? 52 : 68);
   const h = strike ? 7 : Math.max(10, thickness * 62);
   const a = mid - h / 2, b = mid + h / 2;
   const d = `M1 ${a + 2} C 22 ${a - 3}, 48 ${a + 3}, 74 ${a - 1} S 95 ${a + 2}, 99 ${a} L99 ${b - 1} C 74 ${b + 3}, 46 ${b - 3}, 22 ${b + 2} S 5 ${b - 1}, 1 ${b} Z`;
   return (
-    <span aria-hidden style={{ position: "absolute", left: -6, right: -6, top: 0, bottom: 0, zIndex: strike ? 1 : -1, clipPath: `inset(0 ${(1 - p) * 100}% 0 0)` }}>
+    <span aria-hidden style={{ position: "absolute", left: -4, right: -4, top: 0, bottom: 0, zIndex: strike ? 1 : -1, clipPath: `inset(0 ${(1 - p) * 100}% 0 0)` }}>
       <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ display: "block", width: "100%", height: "100%" }}>
         <path d={d} fill={color} opacity={opacity} />
       </svg>
