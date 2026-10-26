@@ -147,9 +147,30 @@ const inspect = (page) =>
       bottom: Math.round(b.getBoundingClientRect().bottom),
     }));
     const focusable = actionable.length;
+    // A card that carries words over a lesson scene has to be opaque. The
+    // dark glass token is 5% white, which disappears over a bright explainer
+    // and leaves the line sitting on the picture.
+    const alphaOf = (c) => {
+      const m = String(c).match(/rgba?\(([^)]+)\)/);
+      if (!m) return 1;
+      const parts = m[1].split(",").map((x) => parseFloat(x));
+      return parts.length > 3 && Number.isFinite(parts[3]) ? parts[3] : 1;
+    };
+    const seeThrough = [...document.querySelectorAll(".lp-video .lp-glass, .lp-video .lp-surface")]
+      .filter((el) => vis(el) && (el.innerText || "").trim().length > 0 && alphaOf(window.getComputedStyle(el).backgroundColor) < 0.85)
+      .map((el) => ({ alpha: alphaOf(window.getComputedStyle(el).backgroundColor), text: (el.innerText || "").replace(/\s+/g, " ").trim().slice(0, 40) }));
+
+    // A nav laid out for more tabs than it has leaves the tabs bunched up.
+    const navEl = document.querySelector(".lp-nav");
+    const nav = navEl
+      ? { cols: (window.getComputedStyle(navEl).gridTemplateColumns || "").split(/\s+/).filter(Boolean).length, items: navEl.querySelectorAll("button").length }
+      : null;
+
     return {
       hasRoot: !!root,
       theme: root ? root.getAttribute("data-theme") : null,
+      seeThrough,
+      nav,
       text,
       controls,
       primary,
@@ -238,6 +259,12 @@ class Run {
       if (!opts.mayHaveNoAction && info.focusable === 0) fail("nothing on this screen can be focused or tapped");
       const offscreen = info.primary.filter((b) => b.bottom > info.vh + 1);
       if (offscreen.length) fail(`the main button is off the bottom of the screen (${offscreen[0].text || "primary"} at ${offscreen[0].bottom}px)`);
+      for (const g of info.seeThrough) {
+        fail(`a see-through panel (background alpha ${g.alpha}) sits over the lesson scene, so "${g.text}" is read against the picture behind it`);
+      }
+      if (info.nav && info.nav.cols > info.nav.items) {
+        warn(`the bottom nav is laid out in ${info.nav.cols} columns for ${info.nav.items} tabs, so the tabs sit in the left ${info.nav.items}/${info.nav.cols} of the bar`);
+      }
       const small = info.controls.filter((c) => !c.disabled && (c.h < 44 || c.w < 44));
       if (small.length) warn(`${small.length} tap target(s) under 44px: ${small.slice(0, 3).map((c) => `${c.label || c.cls.split(" ")[0]} ${c.w}x${c.h}`).join(", ")}`);
       if (info.imagesNoAlt) warn(`${info.imagesNoAlt} image(s) with no alt text`);
@@ -550,7 +577,7 @@ async function main() {
   const browser = await chromium.launch({ executablePath: CHROME, args: ["--no-sandbox", "--mute-audio"] });
   for (const theme of THEMES) {
     console.log(`\n=== ${theme} =============================================`);
-    for (let attempt = 1; attempt <= 2; attempt++) {
+    for (let attempt = 1; attempt <= 3; attempt++) {
       if (!(await ensureServer())) {
         rows.push({ theme, n: 0, screen: "server", status: "FAIL", png: "", notes: [`no server answering on ${BASE}`] });
         break;
@@ -561,7 +588,7 @@ async function main() {
       } catch (e) {
         const msg = String(e && e.message ? e.message : e).split("\n").slice(0, 3).join(" ");
         const serverGone = /ERR_CONNECTION_REFUSED|ECONNREFUSED|ERR_EMPTY_RESPONSE|Target page.*closed/i.test(msg);
-        if (serverGone && attempt === 1) {
+        if (serverGone && attempt < 3) {
           // Someone else's restart, not the app's doing: drop the rows this
           // half-walk produced and take the theme again from the top.
           for (let i = rows.length - 1; i >= 0; i--) if (rows[i].theme === theme) rows.splice(i, 1);

@@ -117,7 +117,7 @@ type FatimaProps = {
 };
 
 const F_POSE: Record<Exclude<FatimaArm, "idle">, { s: number; e: number }> = {
-  wave: { s: 150, e: 40 },
+  wave: { s: 150, e: 14 },
   point: { s: 78, e: 6 },
   hold: { s: 52, e: 72 },
 };
@@ -838,7 +838,7 @@ function PractiseScene({ frame }: { frame: number }) {
       {frame >= 1180 ? (
         <div
           style={{
-            position: "absolute", left: 130, top: 1030, width: 820, height: 128,
+            position: "absolute", left: 130, top: 1014, width: 820, height: 128,
             transform: `scale(${back})`, transformOrigin: "50% 50%",
           }}
         >
@@ -873,28 +873,32 @@ function RecapScene({ frame }: { frame: number }) {
         </defs>
         <rect width="1080" height="1440" fill="url(#spk-stripes)" />
         {/* name badge, map pin, shop sign */}
-        <RecapIcon frame={frame} from={1282} cx={270} cy={962}>
-          <g transform="translate(-80 -26)">
-            <rect x="0" y="0" width="160" height="56" rx="12" fill={INK} />
-            <rect x="-4" y="-5" width="160" height="56" rx="12" fill={PAPER} />
-            <rect x="-4" y="-5" width="12" height="56" rx="6" fill={SEA} />
-            <rect x="24" y="12" width="104" height="12" rx="6" fill={INK} opacity="0.55" />
+        <RecapIcon frame={frame} from={1272} cx={270} cy={962}>
+          <g transform="translate(4 6) scale(0.94)">
+            <rect x="-74" y="-30" width="152" height="66" rx="14" fill={INK} />
+            <rect x="-80" y="-36" width="152" height="66" rx="14" fill={PAPER} />
+            <rect x="-80" y="-36" width="14" height="66" rx="7" fill={SEA} />
+            <circle cx="-80" cy="-36" r="9" fill={SAFFRON} />
+            <text x="2" y="10" textAnchor="middle" fontFamily={FONT} fontWeight="800" fontSize="34" fill={INK}>Fatima</text>
           </g>
         </RecapIcon>
-        <RecapIcon frame={frame} from={1294} cx={540} cy={962}>
-          <g transform="translate(0 44) scale(0.62)">
+        <RecapIcon frame={frame} from={1284} cx={540} cy={962}>
+          <g transform="translate(0 62) scale(0.78)">
             <path d="M0 0 C-44 -56 -56 -74 -56 -98 A56 56 0 0 1 56 -98 C56 -74 44 -56 0 0 Z" fill={ACCENT} />
-            <circle cx="0" cy="-100" r="30" fill={PAPER} />
-            <path d="M-18 -98 L0 -116 L18 -98 L18 -80 L-18 -80 Z" fill={ACCENT} />
+            <circle cx="0" cy="-100" r="34" fill={PAPER} />
+            <g transform="translate(0 -100)" fill={ACCENT}>
+              <path d="M-20 -2 L0 -20 L20 -2 L20 18 L-20 18 Z" />
+              <rect x="-5" y="3" width="10" height="15" fill={PAPER} />
+            </g>
           </g>
         </RecapIcon>
-        <RecapIcon frame={frame} from={1306} cx={810} cy={962}>
-          <g transform="translate(0 -30)">
-            <line x1="-56" y1="-26" x2="-44" y2="14" stroke={INK} strokeWidth="5" />
-            <line x1="56" y1="-26" x2="44" y2="14" stroke={INK} strokeWidth="5" />
-            <rect x="-82" y="12" width="164" height="78" rx="14" fill={INK} />
-            <rect x="-78" y="8" width="156" height="74" rx="12" fill={CREAM} />
-            <text x="0" y="60" textAnchor="middle" fontFamily={FONT} fontWeight="800" fontSize="46" letterSpacing="4" fill={INK}>SHOP</text>
+        <RecapIcon frame={frame} from={1296} cx={810} cy={962}>
+          <g transform="translate(2 -14) scale(0.86)">
+            <line x1="-56" y1="-30" x2="-44" y2="10" stroke={INK} strokeWidth="5" />
+            <line x1="56" y1="-30" x2="44" y2="10" stroke={INK} strokeWidth="5" />
+            <rect x="-78" y="12" width="160" height="76" rx="14" fill={INK} />
+            <rect x="-82" y="8" width="160" height="76" rx="14" fill={CREAM} />
+            <text x="-2" y="62" textAnchor="middle" fontFamily={FONT} fontWeight="800" fontSize="46" letterSpacing="4" fill={INK}>SHOP</text>
           </g>
         </RecapIcon>
       </Stage>
@@ -903,7 +907,7 @@ function RecapScene({ frame }: { frame: number }) {
         <div style={{ position: "relative", background: "#fff", borderRadius: 54, padding: "42px 54px 50px" }}>
           <div style={{ fontSize: 36, fontWeight: 800, letterSpacing: 6, color: FAINT, textAlign: "center" }}>REMEMBER</div>
           {BACK_LINES.map((head, i) => {
-            const s = springIn(frame, 1264 + i * 16, { damping: 10, stiffness: 160 });
+            const s = springIn(frame, 1256 + i * 14, { damping: 10, stiffness: 160 });
             return (
               <div key={head} style={{ display: "flex", alignItems: "center", gap: 28, marginTop: i === 0 ? 30 : 22, opacity: Math.min(1, s * 2), transform: `translateX(${(1 - s) * -26}px)` }}>
                 <span style={{ fontSize: 72, fontWeight: 800, color: ACCENT, minWidth: 330, whiteSpace: "nowrap" }}>{head}</span>

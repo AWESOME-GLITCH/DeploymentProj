@@ -29,16 +29,27 @@ export type Beat = {
   pauseAt?: number;
 };
 
+// Cut to the board's attention rule (26 Oct 2026): the player stops at every beat
+// with a target, so each teaching beat is 5 to 8 s, carries one sayable line, and
+// ends on a held stopping frame with its payoff kept back for the resume. The first
+// ask is the tiny one (tap the key words) and lands at frame 240, 8.0 s in. Longest
+// passive stretch between two stops is 7.8 s.
+//
+// stop frames: 240 tap, 420 say, 594 say, 774 say, 1008 say (the two rules together).
 export const METRO_BEATS: Beat[] = [
-  { id: "hook", kind: "hook", from: 0, to: 120, line: "On the metro. Signs everywhere." },
-  { id: "w1", kind: "word", from: 120, to: 320, line: "No eating or drinking. You cannot eat or drink here.", target: ["No eating or drinking"] },
-  { id: "w2", kind: "word", from: 320, to: 510, line: "Allowed. You can do it. Water is allowed.", target: ["allowed"] },
-  { id: "w3", kind: "word", from: 510, to: 690, line: "Stand on the right. Walk on the left.", target: ["Stand on the right"] },
-  { id: "w4", kind: "word", from: 690, to: 860, line: "Priority seat. A seat for people who need it more.", target: ["Priority seat"] },
-  { id: "practise", kind: "practise", from: 860, to: 1110, line: "Say it with me. No eating or drinking. Water is allowed.", target: ["No eating or drinking", "allowed"], pauseAt: 1050 },
-  { id: "recap", kind: "recap", from: 1110, to: 1200, line: "No plus ing means do not.", target: ["No", "ing"] },
+  { id: "hook", kind: "hook", from: 0, to: 96, line: "On the metro. Signs everywhere." },
+  { id: "w1", kind: "word", from: 96, to: 300, line: "No eating or drinking on the train.", target: ["No eating or drinking"], pauseAt: 240 },
+  { id: "w2", kind: "word", from: 300, to: 474, line: "Water is allowed.", target: ["allowed"], pauseAt: 420 },
+  { id: "w3", kind: "word", from: 474, to: 648, line: "Stand on the right.", target: ["Stand on the right"], pauseAt: 594 },
+  { id: "w4", kind: "word", from: 648, to: 828, line: "This is a priority seat.", target: ["priority seat"], pauseAt: 774 },
+  { id: "practise", kind: "practise", from: 828, to: 1062, line: "Say it with me. No eating or drinking. Water is allowed.", target: ["No eating or drinking", "allowed"], pauseAt: 1008 },
+  { id: "recap", kind: "recap", from: 1062, to: 1200, line: "No plus ing means do not. You can read the signs now.", target: ["No", "ing"] },
 ];
 export const METRO_DURATION = 1200;
+
+/** Composition pixels hidden by the player's ask panel at a stop. Nothing the
+ *  learner needs in order to answer may sit below STOP_SAFE_Y on a stop frame. */
+export const STOP_SAFE_Y = 860;
 
 export function metroBeatAt(frame: number): Beat {
   return METRO_BEATS.find((b) => frame >= b.from && frame < b.to) ?? METRO_BEATS[METRO_BEATS.length - 1];
@@ -48,57 +59,57 @@ export function metroBeatAt(frame: number): Beat {
 export const METRO_L1: Record<string, Record<string, string>> = {
   ar: {
     hook: "في المترو. لافتات في كل مكان.",
-    w1: "ممنوع الأكل أو الشرب هنا.",
-    w2: "Allowed: مسموح. الماء مسموح.",
-    w3: "قف على اليمين. امشِ على اليسار.",
-    w4: "مقعد الأولوية: لمن يحتاجه أكثر.",
+    w1: "ممنوع الأكل أو الشرب في القطار.",
+    w2: "الماء مسموح.",
+    w3: "قف على اليمين.",
+    w4: "هذا مقعد أولوية.",
     practise: "قلها معي.",
-    recap: "No مع ing تعني لا تفعل.",
+    recap: "No مع ing تعني لا تفعل. يمكنك الآن قراءة اللافتات.",
   },
   es: {
     hook: "En el metro. Carteles por todas partes.",
-    w1: "No se puede comer ni beber aquí.",
-    w2: "Allowed: está permitido. El agua sí.",
-    w3: "De pie a la derecha. Andar por la izquierda.",
-    w4: "Asiento prioritario: para quien lo necesita más.",
+    w1: "No se puede comer ni beber en el tren.",
+    w2: "El agua está permitida.",
+    w3: "De pie a la derecha.",
+    w4: "Este es un asiento prioritario.",
     practise: "Dilo conmigo.",
-    recap: "No más ing: no lo hagas.",
+    recap: "No más ing: no lo hagas. Ya puedes leer los carteles.",
   },
   hi: {
     hook: "मेट्रो में। हर जगह संकेत।",
-    w1: "यहाँ खाना-पीना मना है।",
-    w2: "Allowed: अनुमति है। पानी ठीक है।",
-    w3: "दाईं ओर खड़े हों। बाईं ओर चलें।",
-    w4: "प्राथमिकता सीट: ज़रूरतमंद के लिए।",
+    w1: "ट्रेन में खाना-पीना मना है।",
+    w2: "पानी की अनुमति है।",
+    w3: "दाईं ओर खड़े हों।",
+    w4: "यह प्राथमिकता सीट है।",
     practise: "मेरे साथ बोलो।",
-    recap: "No के साथ ing: मत करो।",
+    recap: "No के साथ ing: मत करो। अब आप संकेत पढ़ सकते हैं।",
   },
   ru: {
     hook: "В метро. Везде знаки.",
-    w1: "Здесь нельзя есть и пить.",
-    w2: "Allowed: можно. Вода разрешена.",
-    w3: "Стойте справа. Идите слева.",
-    w4: "Приоритетное место: тем, кому нужнее.",
+    w1: "В поезде нельзя есть и пить.",
+    w2: "Воду пить можно.",
+    w3: "Стойте справа.",
+    w4: "Это приоритетное место.",
     practise: "Скажи со мной.",
-    recap: "No плюс ing: нельзя.",
+    recap: "No плюс ing: нельзя. Теперь вы читаете знаки.",
   },
   tr: {
     hook: "Metroda. Her yerde tabela.",
-    w1: "Burada yiyip içmek yasak.",
-    w2: "Allowed: izin var. Su serbest.",
-    w3: "Sağda dur. Solda yürü.",
-    w4: "Öncelikli koltuk: daha çok ihtiyacı olana.",
+    w1: "Trende yiyip içmek yasak.",
+    w2: "Su içmek serbest.",
+    w3: "Sağda dur.",
+    w4: "Bu öncelikli bir koltuk.",
     practise: "Benimle söyle.",
-    recap: "No artı ing: yapma.",
+    recap: "No artı ing: yapma. Artık tabelaları okuyabilirsin.",
   },
   zh: {
     hook: "在地铁里。到处是标志。",
-    w1: "这里不能吃喝。",
-    w2: "Allowed：允许。可以喝水。",
-    w3: "右侧站立。左侧行走。",
-    w4: "优先座位：给更需要的人。",
+    w1: "列车内禁止饮食。",
+    w2: "可以喝水。",
+    w3: "右侧站立。",
+    w4: "这是优先座位。",
     practise: "跟我一起说。",
-    recap: "No 加 ing 表示禁止。",
+    recap: "No 加 ing 表示禁止。现在你能读懂标志了。",
   },
 };
 
@@ -739,6 +750,23 @@ function RuleStrip({ frame, from, y = 290 }: { frame: number; from: number; y?: 
   );
 }
 
+/** A question held on the stopping frame, in the slot the answer will take.
+ *  Generation effect: the learner commits before the scene resolves, so the
+ *  question must be fully opaque for a few frames either side of the stop. */
+function QuestionPill({ frame, from, out, text, y = 290 }: { frame: number; from: number; out: number; text: string; y?: number }) {
+  const s = Math.min(1, springIn(frame, from, { damping: 11, stiffness: 160 }));
+  const o = tween(frame, from, from + 10, 0, 1, EASE.out) * (1 - tween(frame, out, out + 8, 0, 1, EASE.inOut));
+  if (o <= 0.01) return null;
+  return (
+    <div style={{ position: "absolute", left: 0, right: 0, top: y, display: "flex", justifyContent: "center", opacity: o }}>
+      <div style={{ background: "rgba(255,255,255,0.95)", border: `4px solid ${INK}`, borderRadius: 26, padding: "10px 28px", fontSize: 44, fontWeight: 800, color: INK, transform: `scale(${s})` }}>
+        {text}
+        <span style={{ color: SEA, marginLeft: 4 }}>?</span>
+      </div>
+    </div>
+  );
+}
+
 /** Soft 10-frame fade over a beat change inside the same set. */
 function Fade({ frame, at, duration = 10, color = PAPER }: { frame: number; at: number; duration?: number; color?: string }) {
   const t = (frame - (at - duration / 2)) / duration;
@@ -748,12 +776,14 @@ function Fade({ frame, at, duration = 10, color = PAPER }: { frame: number; at: 
 
 // ---------------------------------------------------------------- hook: doors and signs
 function HookScene({ frame }: { frame: number }) {
-  const open = tween(frame, 8, 40, 0, 1, EASE.inOut);
-  const walkX = tween(frame, 26, 64, 560, 440, EASE.inOut);
-  const looking = frame >= 70;
+  // 3.2 s, and the push-in finishes on the cut: the hook teaches nothing, so it
+  // only has to get the learner to the first ask, which is 8 s in.
+  const open = tween(frame, 6, 32, 0, 1, EASE.inOut);
+  const walkX = tween(frame, 20, 52, 560, 440, EASE.inOut);
+  const looking = frame >= 54;
   return (
     <AbsoluteFill style={{ background: WALL }}>
-      <Parallax frame={frame} from={62} to={120} zoom={1.2} originX={250} originY={240} layers={[
+      <Parallax frame={frame} from={50} to={96} zoom={1.2} originX={250} originY={240} layers={[
         {
           depth: 0,
           children: (
@@ -767,10 +797,10 @@ function HookScene({ frame }: { frame: number }) {
           children: (
             <Stage>
               {/* the four notices, popping in order */}
-              <NoFoodSign x={250} y={210} frame={frame} from={54} k={0.78} />
-              <TickSign x={450} y={210} frame={frame} from={64} k={0.78} />
-              <EscalatorSign x={660} y={210} frame={frame} from={74} k={0.62} />
-              <SeatSign x={860} y={210} frame={frame} from={84} k={0.78} />
+              <NoFoodSign x={250} y={210} frame={frame} from={40} k={0.78} />
+              <TickSign x={450} y={210} frame={frame} from={48} k={0.78} />
+              <EscalatorSign x={660} y={210} frame={frame} from={56} k={0.62} />
+              <SeatSign x={860} y={210} frame={frame} from={64} k={0.78} />
             </Stage>
           ),
         },
@@ -785,11 +815,11 @@ function HookScene({ frame }: { frame: number }) {
                 scale={1.1}
                 facing={1}
                 frame={frame}
-                enter={22}
-                walking={frame < 64}
+                enter={16}
+                walking={frame < 52}
                 mood={looking ? "surprised" : "neutral"}
                 gesture={looking ? "think" : "idle"}
-                gestureAt={72}
+                gestureAt={56}
               />
               <Tote x={walkX + 120} y={880} k={0.78} />
             </Stage>
@@ -801,7 +831,9 @@ function HookScene({ frame }: { frame: number }) {
 }
 
 // ---------------------------------------------------------------- w1: no eating or drinking
-const W1 = 120;
+// The tiny first ask. Stop at 240 (8.0 s) with the sandwich still out and the
+// question held; the answer, the rule strip and putting it back, is the resume.
+const W1 = 96;
 
 function W1Scene({ frame }: { frame: number }) {
   const youX = 300;
@@ -809,18 +841,18 @@ function W1Scene({ frame }: { frame: number }) {
   const youK = 1.2;
   const hand = handAt(youX, youY, youK, 1, "cup");
   const bag = { x: 500, y: 876 };
-  const out = tween(frame, W1 + 40, W1 + 70, 0, 1, EASE.out);
-  const back = tween(frame, W1 + 134, W1 + 162, 0, 1, EASE.inOut);
+  const out = tween(frame, W1 + 34, W1 + 62, 0, 1, EASE.out);
+  const back = tween(frame, W1 + 156, W1 + 182, 0, 1, EASE.inOut);
   const held = out * (1 - back);
   const sx = bag.x + (hand.x - bag.x) * held;
   const sy = bag.y - 40 + (hand.y - (bag.y - 40)) * held;
-  const looksAtSign = frame >= W1 + 78 && frame < W1 + 112;
+  const looksAtSign = frame >= W1 + 74 && frame < W1 + 112;
   return (
     <AbsoluteFill style={{ background: WALL }}>
       <Stage>
         <Carriage frame={frame} keyId="w1" />
         <NoFoodSign x={830} y={716} frame={frame} from={W1 + 10} k={1.02} />
-        <Glow frame={frame} from={W1 + 76} x={830} y={716} r={84} />
+        <Glow frame={frame} from={W1 + 70} x={830} y={716} r={84} />
         <Character
           who="you"
           x={youX}
@@ -831,22 +863,27 @@ function W1Scene({ frame }: { frame: number }) {
           enter={W1 + 6}
           legs={false}
           mood={looksAtSign ? "surprised" : frame >= W1 + 112 ? "think" : "neutral"}
-          gesture={frame >= W1 + 40 && frame < W1 + 150 ? "cup" : "idle"}
-          gestureAt={W1 + 40}
+          gesture={frame >= W1 + 34 && frame < W1 + 180 ? "cup" : "idle"}
+          gestureAt={W1 + 34}
         />
         <CarriageFloor />
         <Tote x={bag.x} y={bag.y} k={0.72} />
         {held > 0.02 ? <Sandwich x={sx} y={sy} k={0.62 + 0.1 * held} rot={-8 + held * 8} dim={looksAtSign ? 0.4 : 0} /> : null}
-        <Sigh x={youX + 70} y={youY - 520} frame={frame} from={W1 + 166} />
+        <Sigh x={youX + 70} y={youY - 520} frame={frame} from={W1 + 164} />
       </Stage>
       <WordCard frame={frame} from={W1 + 4} parts={[{ t: "No", a: true }, { t: " eat" }, { t: "ing", a: true }, { t: " or " }, { t: "drink" }, { t: "ing", a: true }]} size={74} />
-      <RuleStrip frame={frame} from={W1 + 96} />
+      {/* question in, held across the stop at 240, out; then the rule takes the slot */}
+      <QuestionPill frame={frame} from={W1 + 112} out={W1 + 150} text="Can he eat it" />
+      <RuleStrip frame={frame} from={W1 + 160} />
     </AbsoluteFill>
   );
 }
 
 // ---------------------------------------------------------------- w2: allowed
-const W2 = 320;
+// First say-ask, and the shortest line in the atom: three words. The drink is
+// finished before the stop at 420, so the held frame is a calm "he just drank
+// and that was fine", not a frozen gulp.
+const W2 = 300;
 
 function W2Scene({ frame }: { frame: number }) {
   const youX = 248;
@@ -855,8 +892,8 @@ function W2Scene({ frame }: { frame: number }) {
   const low = handAt(youX, youY, youK, 1, "cup");
   const high = handAt(youX, youY, youK, 1, "raise");
   const bag = { x: 418, y: 876 };
-  const out = tween(frame, W2 + 22, W2 + 50, 0, 1, EASE.out);
-  const drink = tween(frame, W2 + 76, W2 + 104, 0, 1, EASE.inOut) * (1 - tween(frame, W2 + 132, W2 + 158, 0, 1, EASE.inOut));
+  const out = tween(frame, W2 + 18, W2 + 44, 0, 1, EASE.out);
+  const drink = tween(frame, W2 + 54, W2 + 78, 0, 1, EASE.inOut) * (1 - tween(frame, W2 + 86, W2 + 108, 0, 1, EASE.inOut));
   const bx = bag.x + (low.x - bag.x) * out + (high.x - low.x) * drink - 62 * drink;
   const by = bag.y - 40 + (low.y - (bag.y - 40)) * out + (high.y - low.y) * drink + 30 * drink;
   return (
@@ -864,8 +901,8 @@ function W2Scene({ frame }: { frame: number }) {
       <Stage>
         <Carriage frame={frame} keyId="w2" />
         {/* the pair: not allowed next to allowed */}
-        <NoFoodSign x={508} y={748} frame={frame} from={W2 + 56} k={0.72} />
-        <TickSign x={676} y={748} frame={frame} from={W2 + 68} k={0.72} label="water" />
+        <NoFoodSign x={508} y={748} frame={frame} from={W2 + 34} k={0.72} />
+        <TickSign x={676} y={748} frame={frame} from={W2 + 46} k={0.72} label="water" />
         <Character
           who="you"
           x={youX}
@@ -876,20 +913,20 @@ function W2Scene({ frame }: { frame: number }) {
           enter={W2 + 4}
           legs={false}
           mood={drink > 0.5 ? "neutral" : "happy"}
-          gesture={frame >= W2 + 76 && frame < W2 + 150 ? "raise" : frame >= W2 + 22 ? "cup" : "idle"}
-          from={frame >= W2 + 76 ? "cup" : "idle"}
-          gestureAt={frame >= W2 + 76 ? W2 + 76 : W2 + 22}
+          gesture={frame >= W2 + 54 && frame < W2 + 108 ? "raise" : frame >= W2 + 18 ? "cup" : "idle"}
+          from={frame >= W2 + 54 ? "cup" : "idle"}
+          gestureAt={frame >= W2 + 54 ? W2 + 54 : W2 + 18}
         />
-        <Fatima x={864} y={1040} frame={frame} scale={1.2} facing={-1} enter={W2 + 8} sit smile nodAt={W2 + 112} />
+        {/* her nod is the payoff, so it lands after the learner has spoken */}
+        <Fatima x={864} y={1040} frame={frame} scale={1.2} facing={-1} enter={W2 + 8} sit smile nodAt={W2 + 124} />
         <CarriageFloor />
         <Tote x={bag.x} y={bag.y} k={0.72} />
         <Bottle x={bx} y={by} k={0.68} rot={drink * 52} />
-        <Glow frame={frame} from={W2 + 86} x={676} y={748} r={62} color={SEA} />
+        <Glow frame={frame} from={W2 + 92} x={676} y={748} r={62} color={SEA} />
       </Stage>
+      {/* The caption already reads "Water is allowed.", so the card is the only
+          other text: one line on screen. */}
       <WordCard frame={frame} from={W2 + 4} parts={[{ t: "allowed", a: true }]} size={86} tick />
-      <div style={{ position: "absolute", left: 0, right: 0, top: 262, textAlign: "center", fontSize: 44, fontWeight: 800, color: INK, opacity: tween(frame, W2 + 74, W2 + 92, 0, 1, EASE.out) }}>
-        Water is <span style={{ color: SEA }}>allowed</span>.
-      </div>
     </AbsoluteFill>
   );
 }

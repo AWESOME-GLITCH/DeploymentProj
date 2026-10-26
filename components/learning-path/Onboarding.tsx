@@ -6,11 +6,10 @@
 
 import { useEffect, useState } from "react";
 import { CalendarClock, Compass, Languages, Timer } from "lucide-react";
-import { PLACEMENT } from "@/lib/learning-path/content";
+import { PLACEMENT, placementLevel } from "@/lib/learning-path/content";
 import { LANGUAGES } from "@/lib/learning-path/i18n";
 import { useStore } from "@/lib/learning-path/store";
 import type { L1, SubLevel } from "@/lib/learning-path/types";
-import { SUBLEVELS } from "@/lib/learning-path/types";
 import { Home } from "./Home";
 import { ItemRenderer, type ItemResult } from "./items";
 import { GlowButton, Ring, Say, useLp } from "./ui";
@@ -122,9 +121,9 @@ function Placement({ onDone }: { onDone: (level: SubLevel) => void }) {
   useEffect(() => { dispatch({ type: "event", name: "placement_started" }); }, [dispatch]);
 
   const finish = (list: { level: SubLevel; correct: boolean }[]) => {
-    const correct = list.filter((x) => x.correct).map((x) => SUBLEVELS.indexOf(x.level));
-    const level = correct.length ? SUBLEVELS[Math.max(...correct)] : "PreA1.1";
-    onDone(level);
+    // The staircase cut score, not the highest correct answer: with three
+    // options a single lucky tap must not set the whole path. See content.ts.
+    onDone(placementLevel(list));
   };
 
   const onAnswer = (r: ItemResult) => {

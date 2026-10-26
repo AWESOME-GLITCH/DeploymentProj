@@ -1,10 +1,33 @@
 # Learning model: the lesson spine, CEFR map, repetition and path rules
 
-LP-02 · Learning Designer · 26 October 2026 · v1.1, for QA then the board
+LP-02 · Learning Designer · 26 October 2026 · v1.2, for QA then the board
 
 This is the pedagogy contract for the Learning Path app. It says what a lesson is, how lessons add up to a CEFR level, when a lesson comes back, and how the system picks the next one. It is written so a developer can implement the path logic without asking a question, and a content author or a model can write three consistent chunks from the template alone.
 
-**What changed in v1.1.** Section 1 is no longer a free-form chunk template. It is the board's lesson order of 26 October, mapped onto `AtomPhase` and `SessionPhase`, with a divergences table against the code as it stands (§1.4). The consequences reach sections 4.2 to 4.7, 5.1 to 5.3, 5.6 and 7. Sections 2 and 3 are unchanged except where the lesson order touched them, which is §3.2's retrieval-type column. The six items QA returned on LEA-2 are answered: F1 and F2 in §3.5 and §7 row 6, F3 in §1.6, the two lesson-order fails in §1.2 and §1.7, the recall-phase question in §1.3, and the day-one label conflict in §4.2 rule 4 and §7 row 7.
+**What changed in v1.2.** The twelve findings QA returned on LEA-21 are fixed. Where they go:
+
+| Finding | Fixed in |
+| --- | --- |
+| R1 Deleting `recall` leaves items at New and Learning with no way back | §1.3, §1.4 rows 2 and 3, §3.2's return column, §4.4, §4.6 day 2, §4.7.1 |
+| R2 §2.2's "Checked by" column named item types §1.7 cuts | §2.2, all five level tables, column renamed and rebuilt from §1.7 |
+| R3 The 0:50 mic invariant cannot hold at B2 or C1 | §1.2, §1.10 item 4, §4.7, §4.7.1, §5.2, §5.6 |
+| R4 SPK and INT chunks have no scaffolds, so variants and cuts have nothing to act on | §1.5, §1.6, §1.7, §4.6 day 1 |
+| R5 The §5.6 three-chunk test is unpassable for the WRT brief | §1.1, §1.2, §1.7, §1.10 item 7, §4.4, §5.3, §5.6 |
+| R6 Four rows of §1.4 describe an engine that has moved | §1.4, re-derived against the file; every citation in §1 re-checked |
+| R7 `target_items` breaks the `content.ts` convention | §1.9 |
+| R8 §5.2's video-rules paragraph is duplicated and the copy drops a board rule | §5.2 |
+| R9 The light variant's clock does not reproduce | §1.2, §1.5 |
+| R10 The rung-advance gaps and `strand_minutes_this_week` are not in the document | §3.2, §4.5 |
+| R11 The worked-example totals omit the tie-break term | §4.6, §4.7 |
+| R12 Timers below B1, internal conflict | §1.8, §5.3 |
+
+Two rulings from the Product Lead are also in: R6 and R7 are fixed doc-side, describing the engine as it behaves today rather than asking for a rename; and the uncapped half-life compounding is now a rule with numbers (§3.2.1), traced in §3.5.1, with §7 row 6 rewritten as the engine ticket it needs.
+
+Settled in v1.1 and not reopened: F1 and F2 (§3.5 reproduces against `applyAttempt` cell for cell), the F3 cut-list ruling (§1.6), the recall-phase ruling (§1.3) and the day-one label call (§4.2 rule 4, §7 row 7).
+
+**What changed in v1.1.** Section 1 stopped being a free-form chunk template. It is the board's lesson order of 26 October, mapped onto `AtomPhase` and `SessionPhase`, with a divergences table against the code as it stands (§1.4). The consequences reach sections 4.2 to 4.7, 5.1 to 5.3, 5.6 and 7.
+
+**Code citations.** Every line number in this document was re-checked against the working tree while writing v1.2: HEAD `ac708cf`, with uncommitted changes in `Capsule.tsx` and `content.ts` from other runs in this shared checkout. Several agents edit these files daily, so the function name is the contract and the line number is only where it sat: read "`composeSession` (`engine.ts:356`)" as the former first.
 
 Source documents: the board note of 26 October (lesson order and its seven points), `docs/learning-path/PRD.md` (sections "The learning atom and the 10-minute session", "Repetition and memory engine", "Competency framework and adaptive path"), `docs/exercises.md` (the LP-20 item cut list) and `docs/design-rules.md`. Where a rule here differs from the PRD or from the code, it is listed in section 7 or §1.4 with the reason. Board direction outranks both.
 
@@ -37,16 +60,16 @@ Board direction of 26 October sets the lesson order. Section 1 is that order, no
 | Rule | What it means here |
 | --- | --- |
 | Comprehensible input first | The scene teaches. The learner hears and sees the phrase in a situation where the meaning is obvious before being asked to produce it. No rule on screen, no Explain beat, no caption that explains instead of showing |
-| Say it early and often | The mic is live by 0:50, in every lesson, in every variant, video or word tutorial, with a response that reacts to what was said |
+| Say it early and often | The mic is live inside the first minute, in every lesson, in every variant, video or word tutorial, with a response that reacts to what was said. The number is 0:50 to B1 and 0:55 from B2 (§1.2) |
 | One thing at a time | One phrase, one pattern or one sound per session |
-| Spaced return inside new situations | Due items come back inside the "use it" step. No recall phase before the scene, no review tab to find |
-| Exercises produce, not recognise | Every item ends with the learner saying the sentence. A tap or drag earns its place only as a scaffold that hands straight to the mic |
+| Spaced return inside new situations | Due items come back inside the lesson: at Consolidating or better into the "use it" step, at New or Learning as the sentences the "say it again" scaffolds are built from (§1.3). No recall phase before the scene, no review tab to find |
+| Exercises produce, not recognise | Every item ends with the learner producing the whole sentence, in the strand's own modality: said aloud in six strands, typed in WRT at steps 5 and 6 (§1.7). A tap or drag earns its place only as a scaffold that hands straight to production |
 
 **On "one thing at a time": I agree with the Product Lead's reading, and it needs the atom-level rule underneath it to be enforceable.** Binding the rule to the session is right, because the learner meets the session, not the atom. But the session rule can only be held if no atom smuggles in a second new target, so both grains are specified and the narrower one is the mechanism for the wider one.
 
 | Grain | Rule | Enforced by |
 | --- | --- | --- |
-| Session | At most one new thing per ten minutes. Everything else in the session is old material returning inside a new scene | At most one phase with `role: "new"`. `composeSession` already has `alreadyNewToday` (`engine.ts:405`) |
+| Session | At most one new thing per ten minutes. Everything else in the session is old material returning inside a new scene | At most one phase with `role: "new"`. `composeSession` already has `alreadyNewToday` (`engine.ts:409`) |
 | Atom | One target form or phrase, highlighted once in the notice step | §1.10 item 3, Gate A |
 | What counts as new | A **target item**. Incidental words inside a scene or a story are not new things, which is why a story at 98% known-word coverage is still allowed | Every item in a phase whose role is not `new` must have `ItemMastery.state != "new"` |
 
@@ -54,31 +77,34 @@ Board direction of 26 October sets the lesson order. Section 1 is that order, no
 
 One chunk, 3 to 5 minutes, one criterion, one "I can" outcome. If a chunk needs two outcomes it is two chunks. The "I can" line is 10 words or fewer and uses the same wording as the closing line and the delayed check stem, so a learner can read it and say yes or not yet. Clock times are the first pass at A1 to B1.
 
-| # | Spine step | On screen | `AtomPhase` kind | Clock | Required |
-| --- | --- | --- | --- | --- | --- |
-| 1 | Scene | The phrase happening in a situation where the meaning is obvious. 95% known language plus the one new element | `input` | 0:00 to 0:35 | Yes |
-| 2 | Notice | The target highlighted once, in the scene it just appeared in, with a 12-word why in L1 below B1 | `noticing` | 0:35 to 0:47 | Yes |
-| 3 | Say it with a response | The learner's first spoken turn, with the coach. She answers what was said; she does not mark it | `free_use` | 0:47 to 1:30 | Yes |
-| 4 | Say it again | 1 to 3 scaffolds. Each one ends with the whole sentence said aloud | `controlled` | 1:30 to 2:50 | Yes |
-| 5 | Use it | The whole exchange, with one problem to repair, carrying up to 3 due items | `free_use` | 2:50 to 4:00 | Yes |
-| 6 | Come back later | One delayed say-it of the whole sentence, served in the session close | `check`, `delayed: true` | +0:25 | Yes, every variant |
+| # | Spine step | On screen | `AtomPhase` kind | Clock to B1 | Clock from B2 | Required |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | Scene | The phrase happening in a situation where the meaning is obvious. 95% known language plus the one new element | `input` | 0:00 to 0:35 | 0:00 to 0:45 | Yes |
+| 2 | Notice | The target highlighted once, in the scene it just appeared in, with a 12-word why in L1 below B1. From B2 the highlight alone, no why | `noticing` | 0:35 to 0:47, 12 s | 0:45 to 0:53, 8 s | Yes |
+| 3 | Say it with a response | The learner's first spoken turn, with the coach. She answers what was said; she does not mark it | `free_use` | 0:47 to 1:30 | 0:53 to 1:36 | Yes |
+| 4 | Say it again | A fixed 80 s window, 1 to 3 scaffolds or support turns inside it. Each one ends with the whole sentence produced | `controlled` | 1:30 to 2:50 | 1:36 to 2:56 | Yes |
+| 5 | Use it | The whole exchange, with one problem to repair, carrying up to 3 due items at Consolidating or better | `free_use` | 2:50 to 4:00 | 2:56 to 4:06 | Yes |
+| 6 | Come back later | One delayed production of the whole sentence, served in the session close | `check`, `delayed: true` | +0:25 | +0:25 | Yes, every variant |
 
-Four minutes in the chunk plus 0:25 in the close, so 4 min 25 s, inside the 3 to 5 minute band and inside the 4 minutes `phaseMinutes` bills for a new atom. A light variant drops one scaffold and runs 3 min 25 s.
+About 4 minutes in the chunk plus 0:25 in the close, so 4 min 25 s to B1 and 4 min 31 s from B2. Both are inside the 3 to 5 minute band and inside the 4 minutes `phaseMinutes` bills for a new atom.
 
-Three things follow that are not negotiable:
+Four things follow that are not negotiable:
 
-- **The mic is live by 0:50.** The scene's first pass is hard-capped at 35 s to A2 and 45 s from B2 to protect that. If a scene cannot carry its phrase in 35 s, it is the wrong scene.
+- **The mic is live inside the first minute: by 0:50 to B1, by 0:55 from B2, never later than 1:00.** The arithmetic is the table above, and it is the reason the notice shortens from B2 rather than the scene: 45 s first pass plus an 8 s notice is 0:53. The scene's first pass is hard-capped at 35 s to B1 and 45 s from B2 (§5.2). If a scene cannot carry its phrase in 35 s at A1, it is the wrong scene. QA's R3 was right that 45 plus 12 is 0:57; the fix is the 8 s notice plus an invariant stated per band, not a number that only holds at A1.
+- **Step 4 is a fixed window, not a per-scaffold budget.** 80 s whatever the density, so one scaffold gets up to 80 s, two get 40 s each, three get 27 s each. The clock above is therefore the same in every variant, which answers R9: a light lesson is not a shorter lesson, it is the same lesson with more time per attempt for the learner who needs it.
 - **Word tutorials get the same spine.** At most 3 cards before step 3, the rest return in step 5. The template this replaces gave word-tutorial chunks no spoken turn at all.
-- **The first spoken turn comes before the scaffolds, not after.** The learner tries, then the scaffolds repair what the attempt showed. This is the generation effect and productive failure (Bjork; Kapur), so the old order recognise, complete, produce is reversed and §5.3 is rewritten to match.
+- **The first production turn comes before the scaffolds, not after.** The learner tries, then the scaffolds repair what the attempt showed. This is the generation effect and productive failure (Bjork; Kapur), so the old order recognise, complete, produce is reversed and §5.3 is rewritten to match.
 
-`AtomPhase[]` is authored in exactly that order, so `free_use` appears twice. `AtomRun` walks `atom.phases` in authored order with `check` filtered out (`Capsule.tsx:160-162`), so the repeat needs no type change.
+**Ruling for typed strands, which answers R5's first half.** Step 3 is spoken in **every** strand, WRT included: the learner says the message's key sentence to the coach before typing anything. The mastery evidence then stays in the strand's own modality, because WRT's step 5 is the typed 20 to 60 word message and its step 6 is one typed key sentence of 8 to 15 words (§1.7). So "ends with the learner producing the whole sentence" means aloud at step 3 in all seven strands, and at steps 5 and 6 in the strand's own modality. Reasons: oral rehearsal before writing is the cheapest route to a live mic at 0:50, and transfer-appropriate processing (Morris et al. 1977) only binds the step that decides mastery.
+
+`AtomPhase[]` is authored in exactly that order, so `free_use` appears twice. `AtomRun` walks `atom.phases` in authored order with `check` filtered out (`Capsule.tsx:165`), so the repeat needs no type change.
 
 ### 1.3 The session, in `SessionPhase`
 
 | # | `SessionPhase` | Role | Minutes |
 | --- | --- | --- | --- |
 | 1 | `atom` | `new`, the scene-led chunk of §1.2 | 4 |
-| 2 | `atom` | `use`, a second scene built from old material only, carrying due items as `tryItems` | 3 |
+| 2 | `atom` | `use`, a second scene built from old material only, carrying due items at Consolidating or better as `tryItems` | 3 |
 | 3 | `story` | One story at 98% or higher known-word coverage, no checks attached | 1.5 |
 | 4 | `close` | The delayed say-it, a one-tap "I can / not yet", then the can-do line in plain words | 0.5 |
 
@@ -87,7 +113,7 @@ Nine minutes, inside the ten-minute target with a minute of headroom. There is n
 | Removed | Why | Where its job goes |
 | --- | --- | --- |
 | `plan` | A list of what is about to happen is not a scene, and it spends the opening on text a beginner cannot read | A 3-second title card on the scene's first frame, not a phase. The can-do line stays in `close` |
-| `recall` | A front-loaded recall drill is the thing the board ruled out, and it put up to 2 minutes of items in front of a learner who had not seen anything yet | Due items ride into step 5 as `tryItems` (`tryToUse`, `engine.ts:457`), and they supply the sentences the step 4 scaffolds are built from |
+| `recall` | A front-loaded recall drill is the thing the board ruled out, and it put up to 2 minutes of items in front of a learner who had not seen anything yet. Today it is pushed after the two atoms (`engine.ts:426`), which is better than the PRD's order and still a drill | Split in two by state, below |
 | `vote` | `vote_see_revote` was cut on LP-20: the peer percentages are invented numbers in `config.peers`, the model answer is revealed before the second vote, and the learner produces nothing | Nothing. Day 4 interleaves across strands, which was always the pedagogical point of day 4 |
 
 **Ruling on QA's open question.** A dedicated recall phase does **not** count as "inside the scene", wherever it sits in the order. Inside the scene means the due item is retrieved because the situation needs it. That is only true of step 5, which is why the phase goes rather than moving.

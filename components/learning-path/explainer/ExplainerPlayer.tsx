@@ -49,8 +49,8 @@ function CoachFace({ talking, mood, gesture }: { talking: boolean; mood: "neutra
     return () => cancelAnimationFrame(raf);
   }, []);
   return (
-    <svg viewBox="-150 -330 300 300" width={84} height={84} aria-hidden="true" style={{ flex: "none", overflow: "hidden", borderRadius: 999, background: "var(--lp-glow-tint)" }}>
-      <Character who="maya" x={0} y={0} frame={f} scale={1.9} talking={talking} mood={mood} gesture={gesture} gestureAt={0} />
+    <svg viewBox="-115 -505 230 230" width={84} height={84} aria-hidden="true" style={{ flex: "none", overflow: "hidden", borderRadius: 999, background: "var(--lp-glow-tint)" }}>
+      <Character who="maya" x={0} y={0} frame={f} scale={1} talking={talking} mood={mood} gesture={gesture} gestureAt={0} />
     </svg>
   );
 }

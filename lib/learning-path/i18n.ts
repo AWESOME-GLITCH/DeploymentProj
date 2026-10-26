@@ -2,6 +2,7 @@
 // L1 rule from the PRD: full L1 interface up to A2, English with tap-to-translate
 // from B1, English with L1 on demand from B2, always overridable by the learner.
 
+import { SUBLEVEL_PLAIN } from "./content";
 import type { L1, Localised, SubLevel, Strand } from "./types";
 
 export const LANGUAGES: { code: L1; native: string; flag: string; rtl?: boolean }[] = [
@@ -1038,7 +1039,12 @@ export function isRtl(lang: L1): boolean {
   return lang === "ar";
 }
 
-export const CEFR_LABEL: Record<SubLevel, string> = {
-  "PreA1.1": "Pre-A1", "PreA1.2": "Pre-A1", "A1.1": "A1.1", "A1.2": "A1.2", "A2.1": "A2.1", "A2.2": "A2.2",
-  "B1.1": "B1.1", "B1.2": "B1.2", "B2.1": "B2.1", "B2.2": "B2.2", "C1.1": "C1.1", "C1.2": "C1.2", C2: "C2",
-};
+/**
+ * The only level string a learner sees anywhere in the app, so it is in plain
+ * words, not the raw code "A2.1". Band only; the half ("First half") is on
+ * SUBLEVEL_PLAIN[level].step and belongs on the progress page, where there is
+ * room for a second line, not in a badge.
+ */
+export const CEFR_LABEL: Record<SubLevel, string> = Object.fromEntries(
+  (Object.keys(SUBLEVEL_PLAIN) as SubLevel[]).map((l) => [l, SUBLEVEL_PLAIN[l].band]),
+) as Record<SubLevel, string>;
