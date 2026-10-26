@@ -121,7 +121,9 @@ export function ExplainerPlayer({ atomId, onProgress, onSpoken }: { atomId: stri
 
   return (
     <div className="flex h-full flex-col">
-      <div className="lp-video relative w-full" style={{ aspectRatio: "3 / 4" }}>
+      {/* Full bleed: the scene is the thing the learner must understand, so it
+          takes the width of the phone and the space that was dead below it. */}
+      <div className="lp-video relative -mx-5 w-auto" style={{ aspectRatio: "3 / 4", borderRadius: 0, borderInline: "none" }}>
         <Player ref={ref} component={def.component} inputProps={inputProps} durationInFrames={def.duration} fps={def.fps ?? CAFE_FPS} compositionWidth={def.width ?? CAFE_W} compositionHeight={def.height ?? CAFE_H} style={{ width: "100%", height: "100%" }} controls={false} playbackRate={rate} clickToPlay={false} loop={false} moveToBeginningWhenEnded={false} />
         {!started ? (
           <button type="button" aria-label={t("listen")} onClick={start} className="absolute inset-0 z-10 flex items-center justify-center" style={{ background: "var(--lp-dim)" }}>
@@ -150,23 +152,28 @@ export function ExplainerPlayer({ atomId, onProgress, onSpoken }: { atomId: stri
         ) : null}
       </div>
 
-      {/* Tap any word to hear it */}
-      <div className="mt-2 flex flex-wrap gap-1.5" aria-label="caption words">
-        {words.map((w, i) => (
-          <button key={`${beat.id}-${i}`} type="button" onClick={() => say(w.replace(/[.,?]/g, ""))} className="lp-pill" style={{ minHeight: 34, fontSize: 14, ...(beat.target?.some((tg) => tg.split(" ").includes(w.replace(/[.,?]/g, ""))) ? { color: "var(--lp-accent)", borderColor: "var(--lp-accent-line)" } : {}) }}>{w}</button>
-        ))}
+      {/* The line being spoken, tappable word by word. It reads as a sentence,
+          not a row of chips, so the only coloured words are the target form. */}
+      <div className="lp-wordline mt-3" aria-label="Tap a word to hear it">
+        {words.map((w, i) => {
+          const bare = w.replace(/[.,?]/g, "");
+          const target = beat.target?.some((tg) => tg.split(" ").includes(bare));
+          return <button key={`${beat.id}-${i}`} type="button" onClick={() => say(bare)} className={`lp-word ${target ? "lp-word-target" : ""}`}>{w}</button>;
+        })}
       </div>
 
-      <div className="mt-2 flex items-center gap-2">
-        <button type="button" className="lp-icon-btn" aria-label={playing ? "Pause" : "Play"} onClick={started ? toggle : start}>{playing ? <Pause size={18} /> : <Play size={18} />}</button>
-        <button type="button" className="lp-icon-btn" aria-label="Captions" style={{ color: showL1 ? "var(--lp-accent)" : undefined }} onClick={() => setShowL1((v) => !v)}><Captions size={18} /></button>
-        <button type="button" className="lp-icon-btn lp-small" style={{ width: 56 }} onClick={() => setRate((r) => (r === 1 ? 0.75 : 1))}>{rate === 1 ? "1.0×" : "0.75×"}</button>
-        <div className="ms-auto flex items-center gap-1.5">
-          {beats.map((b) => (
-            <button key={b.id} type="button" aria-label={b.id} onClick={() => seekBeat(b)} className="lp-dot" style={{ width: b.id === beat.id ? 18 : 10, height: 10, borderRadius: 6, background: frame >= b.to ? "var(--lp-sea)" : b.id === beat.id ? "var(--lp-marker)" : undefined, transition: reduceMotion ? "none" : "width 0.2s" }} />
+      <div className="mt-auto flex items-center gap-2 pt-2">
+        <button type="button" className="lp-icon-btn lp-icon-btn-lead" aria-label={playing ? "Pause" : "Play"} onClick={started ? toggle : start}>{playing ? <Pause size={20} /> : <Play size={20} />}</button>
+        <button type="button" className="lp-icon-btn lp-icon-btn-quiet" aria-label="Captions in my language" aria-pressed={showL1} data-on={showL1} onClick={() => setShowL1((v) => !v)}><Captions size={18} /></button>
+        <button type="button" className="lp-icon-btn lp-icon-btn-quiet lp-small" aria-label="Playback speed" style={{ width: 56 }} onClick={() => setRate((r) => (r === 1 ? 0.75 : 1))}>{rate === 1 ? "1.0×" : "0.75×"}</button>
+        <div className="ms-auto flex items-center" aria-label="Parts of this video">
+          {beats.map((b, i) => (
+            <button key={b.id} type="button" aria-label={`Part ${i + 1} of ${beats.length}`} onClick={() => seekBeat(b)}
+              className="lp-beat" data-done={frame >= b.to} data-now={b.id === beat.id}
+              style={reduceMotion ? { transition: "none" } : undefined}><i /></button>
           ))}
         </div>
-        {beat.kind === "practise" && !paused ? <span className="lp-small" style={{ color: "var(--lp-paper-faint)" }}><Mic size={14} /></span> : null}
+        {beat.kind === "practise" && !paused ? <Mic size={16} style={{ color: "var(--lp-paper-faint)" }} /> : null}
       </div>
     </div>
   );

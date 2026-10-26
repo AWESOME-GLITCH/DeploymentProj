@@ -42,7 +42,9 @@ export function Capsule({ onExit, onComplete }: { onExit: () => void; onComplete
       <div className="flex items-center gap-3 px-4 pt-3">
         <button type="button" className="lp-icon-btn" style={{ width: 40, height: 40 }} aria-label={t("exit")} onClick={() => setPaused(true)}><X size={18} /></button>
         <div className="flex-1"><ProgressLine value={progress} /></div>
-        <span className="lp-small tabular-nums" style={{ color: "var(--lp-paper-faint)", minWidth: 36, textAlign: "end" }}>{Math.round(total)} min</span>
+        {/* Minutes left, not the total: a number that moves with the bar beside
+            it, so "short and safe" is something the learner can watch happen. */}
+        <span className="lp-small tabular-nums" style={{ color: "var(--lp-paper-faint)", minWidth: 36, textAlign: "end" }}>{Math.max(1, Math.ceil(total * (1 - progress)))} min</span>
       </div>
       <div className="flex-1 overflow-hidden px-5 pb-5 pt-3">
         {paused ? (
@@ -224,7 +226,13 @@ function ExplainerPhase({ atom, variant, onDone }: { atom: Atom; variant: Atom["
       <div className="min-h-0 flex-1">
         <ExplainerPlayer atomId={atom.atom_id} onProgress={setPct} onSpoken={() => dispatch({ type: "event", name: "explainer_spoken", data: { atom_id: atom.atom_id } })} />
       </div>
-      <div className="mt-3"><GlowButton size="normal" disabled={pct < 0.8} onClick={onDone}>{pct < 0.8 ? `${t("continue")} · ${Math.round(pct * 100)}%` : t("continue")}</GlowButton></div>
+      {/* Locked until the video has been watched. The wait is shown by the
+          button filling up, never by a percentage the learner has to read. */}
+      <div className="mt-3">
+        <GlowButton size="normal" disabled={pct < 0.8} onClick={onDone}
+          className={pct < 0.8 ? "lp-btn-gated" : ""}
+          style={pct < 0.8 ? { ["--lp-fill" as string]: Math.min(1, pct / 0.8) } : undefined}>{t("continue")}</GlowButton>
+      </div>
     </div>
   );
 }
@@ -269,7 +277,7 @@ function VideoPhase({ atom, media, variant, onDone }: { atom: Atom; media: Extra
           <div className="lp-scene-wrap lp-scene-center"><div style={{ fontSize: 64 }}>🎬</div><div className="lp-small mt-2" style={{ color: "var(--lp-paper-soft)" }}>{media.presenter}</div></div>
         )}
         {!playing ? (
-          <div className="absolute inset-0 z-10 flex items-center justify-center" style={{ background: sec === 0 ? "transparent" : "rgba(255,255,255,0.25)" }}>
+          <div className="absolute inset-0 z-10 flex items-center justify-center" style={{ background: sec === 0 ? "transparent" : "var(--lp-dim)" }}>
             <button type="button" aria-label={t("listen")} onClick={() => setPlaying(true)} className="lp-mic" style={{ width: 64, height: 64 }}><Play size={28} /></button>
           </div>
         ) : null}
@@ -277,14 +285,18 @@ function VideoPhase({ atom, media, variant, onDone }: { atom: Atom; media: Extra
           {line ? <span className={line.target ? "lp-target" : ""}>{line.text}</span> : <span style={{ opacity: 0.5 }}>{media.title}</span>}
           {l1Sub && media.l1_card && lang !== "en" ? <div className="lp-small mt-1" style={{ opacity: 0.7 }}>{loc(media.l1_card, l1)}</div> : null}
         </div>
-        <div className="absolute inset-x-0 top-0 h-[3px] bg-white/10"><div className="h-full" style={{ width: `${pct * 100}%`, background: "var(--lp-glow-2)", transition: "width 0.5s linear" }} /></div>
+        <div className="absolute inset-x-0 top-0 h-[3px]" style={{ background: "var(--lp-track)" }}><div className="h-full" style={{ width: `${pct * 100}%`, background: "var(--lp-glow)", transition: "width 0.5s linear" }} /></div>
       </div>
       <div className="mt-3 flex items-center gap-2">
-        <button type="button" className="lp-icon-btn" aria-label={playing ? "Pause" : "Play"} onClick={() => setPlaying((p) => !p)}>{playing ? <Pause size={18} /> : <Play size={18} />}</button>
-        <button type="button" className="lp-icon-btn" aria-label="Captions" style={{ color: l1Sub ? "var(--lp-glow-2)" : undefined }} onClick={() => setL1Sub((v) => !v)}><Captions size={18} /></button>
-        <button type="button" className="lp-icon-btn lp-small" style={{ width: 56 }} onClick={() => setRate((r) => (r === 1 ? 0.75 : 1))}>{rate === 1 ? "1.0×" : "0.75×"}</button>
-        <div className="flex-1" />
-        <div style={{ width: 150 }}><GlowButton size="normal" disabled={pct < 0.8} onClick={onDone}>{t("continue")}</GlowButton></div>
+        <button type="button" className="lp-icon-btn lp-icon-btn-lead" aria-label={playing ? "Pause" : "Play"} onClick={() => setPlaying((p) => !p)}>{playing ? <Pause size={20} /> : <Play size={20} />}</button>
+        <button type="button" className="lp-icon-btn lp-icon-btn-quiet" aria-label="Captions in my language" aria-pressed={l1Sub} data-on={l1Sub} onClick={() => setL1Sub((v) => !v)}><Captions size={18} /></button>
+        <button type="button" className="lp-icon-btn lp-icon-btn-quiet lp-small" aria-label="Playback speed" style={{ width: 56 }} onClick={() => setRate((r) => (r === 1 ? 0.75 : 1))}>{rate === 1 ? "1.0×" : "0.75×"}</button>
+      </div>
+      {/* Same gate as the explainer: the button fills as the video is watched. */}
+      <div className="mt-3">
+        <GlowButton size="normal" disabled={pct < 0.8} onClick={onDone}
+          className={pct < 0.8 ? "lp-btn-gated" : ""}
+          style={pct < 0.8 ? { ["--lp-fill" as string]: Math.min(1, pct / 0.8) } : undefined}>{t("continue")}</GlowButton>
       </div>
     </div>
   );

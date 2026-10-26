@@ -693,14 +693,14 @@ function ExplainScene({ frame }: { frame: number }) {
         </g>
         {/* the three forms line up under their time icons */}
         {frame >= 940 ? (
-          <g transform={`translate(640 780) scale(${rows}) translate(-640 -780)`}>
-            <rect x="268" y="568" width="770" height="440" rx="38" fill={INK} opacity="0.14" />
-            <rect x="260" y="560" width="770" height="440" rx="38" fill={CARD} stroke={INK} strokeWidth="5" />
+          <g transform={`translate(640 740) scale(${rows}) translate(-640 -740)`}>
+            <rect x="268" y="528" width="770" height="440" rx="38" fill={INK} opacity="0.14" />
+            <rect x="260" y="520" width="770" height="440" rx="38" fill={CARD} stroke={INK} strokeWidth="5" />
             {ROWS.map((r, i) => (
               <g key={r.label}>
-                <TimeIcon kind={r.kind} x={322} y={672 + i * 130} scale={0.62} color={ACCENT} />
-                <text x={382} y={686 + i * 130} fontFamily={FONT} fontWeight="700" fontSize="36" fill={FAINT}>{r.label}</text>
-                {i < 2 ? <line x1="300" y1={732 + i * 130} x2="990" y2={732 + i * 130} stroke={FOG} strokeWidth="3" /> : null}
+                <TimeIcon kind={r.kind} x={322} y={632 + i * 130} scale={0.62} color={ACCENT} />
+                <text x={382} y={646 + i * 130} fontFamily={FONT} fontWeight="700" fontSize="36" fill={FAINT}>{r.label}</text>
+                {i < 2 ? <line x1="300" y1={692 + i * 130} x2="990" y2={692 + i * 130} stroke={FOG} strokeWidth="3" /> : null}
               </g>
             ))}
           </g>
@@ -722,9 +722,9 @@ function ExplainScene({ frame }: { frame: number }) {
         </div>
       ) : null}
       {frame >= 940 ? (
-        <div style={{ position: "absolute", inset: 0, opacity: Math.min(1, rows * 2), transform: `scale(${rows})`, transformOrigin: "640px 780px" }}>
+        <div style={{ position: "absolute", inset: 0, opacity: Math.min(1, rows * 2), transform: `scale(${rows})`, transformOrigin: "640px 740px" }}>
           {ROWS.map((r, i) => (
-            <FormWord key={r.label} frame={frame} parts={r.parts} size={64} top={632 + i * 130} align="left" left={636} />
+            <FormWord key={r.label} frame={frame} parts={r.parts} size={64} top={592 + i * 130} align="left" left={636} />
           ))}
         </div>
       ) : null}

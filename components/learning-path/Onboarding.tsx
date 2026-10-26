@@ -94,7 +94,6 @@ export function Onboarding({ onPlaced }: { onPlaced: () => void }) {
         </>
       ) : null}
       {step === "placement" ? <Placement onDone={(lvl) => { dispatch({ type: "placement_done", sublevel: lvl }); setStep("landing"); }} /> : null}
-      {step === "landing" ? <Landing level={state.learner.provisional_sublevel ?? "A2.1"} onDone={onPlaced} /> : null}
     </div>
   );
 }
@@ -152,34 +151,6 @@ function Placement({ onDone }: { onDone: (level: SubLevel) => void }) {
       <div className="min-h-0 flex-1">
         <ItemRenderer key={item.id} item={item.item} onAnswer={onAnswer} onNext={onNext} mode="placement" />
       </div>
-    </div>
-  );
-}
-
-/** The marker lands on the road. No numeric result on day one. */
-function Landing({ level, onDone }: { level: SubLevel; onDone: () => void }) {
-  const { t, rtl } = useLp();
-  const [x, setX] = useState(rtl ? 320 : 20);
-  const flags = ["Pre-A1", "A1", "A2", "B1", "B2"];
-  const band = Math.max(0, Math.min(4, Math.floor(SUBLEVELS.indexOf(level) / 2) - (level.startsWith("Pre") ? 0 : 0)));
-  const target = 30 + (band + 0.5) * 60;
-  useEffect(() => { const id = window.setTimeout(() => setX(rtl ? 340 - target : target), 300); return () => window.clearTimeout(id); }, [target, rtl]);
-  return (
-    <div className="flex h-full flex-col">
-      <div className="lp-head mb-2">{t("placement_landing")}</div>
-      <div className="lp-glass my-6 p-4">
-        <svg viewBox="0 0 340 120" width="100%" height="140">
-          <path d="M10 90 C 80 20, 140 140, 200 60 S 300 20, 330 70" fill="none" stroke="var(--lp-track)" strokeWidth="14" strokeLinecap="round" />
-          <path d="M10 90 C 80 20, 140 140, 200 60 S 300 20, 330 70" fill="none" stroke="var(--lp-line-strong)" strokeWidth="2" strokeDasharray="6 8" />
-          {flags.map((f, i) => <text key={f} x={30 + i * 60 + 30} y={112} fill="var(--lp-paper-faint)" fontSize="11" textAnchor="middle">{f}</text>)}
-          <g style={{ transition: "transform 1.6s cubic-bezier(0.22,1,0.36,1)", transform: `translateX(${x}px)` }}>
-            <circle cx={0} cy={58} r={12} fill="var(--lp-glow-2)" style={{ filter: "drop-shadow(0 0 10px rgba(21,154,139,0.7))" }} />
-            <circle cx={0} cy={58} r={5} fill="var(--lp-on-glow)" />
-          </g>
-        </svg>
-      </div>
-      <div className="lp-body text-center" style={{ color: "var(--lp-paper-soft)" }}><Say text={t("first_atom_title")} /></div>
-      <div className="mt-auto"><GlowButton onClick={onDone}>{t("start")}</GlowButton></div>
     </div>
   );
 }

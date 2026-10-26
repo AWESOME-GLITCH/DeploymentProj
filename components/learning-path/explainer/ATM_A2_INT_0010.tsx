@@ -73,8 +73,10 @@ const SLOT = { x: 420, y: 334, w: 270, h: 84 };
 const SLOT_MID = SLOT.x + SLOT.w / 2;
 
 const PRACTISE_LINE = "Could I have the bill, please?";
-// Could / I / have in ACCENT, the / bill in SAFFRON, please in ACCENT.
+// Could / I / have in ACCENT, the / bill in SAFFRON, please in ACCENT. The line
+// is set in two fixed rows so "the bill" never breaks across them.
 const PRACTISE_COLOURS = [ACCENT, ACCENT, ACCENT, SAFFRON, SAFFRON, ACCENT];
+const PRACTISE_ROWS = [3, 3];
 
 // ---------------------------------------------------------------- small props
 
@@ -272,7 +274,7 @@ function CoinToss({
   if (frame < from || frame >= to) return null;
   const p = tween(frame, from, to, 0, 1, EASE.inOut);
   const x = lerp(x0, x1, p);
-  const y = lerp(y0, y1, p) - Math.sin(p * Math.PI) * 150;
+  const y = lerp(y0, y1, p) - Math.sin(p * Math.PI) * 110;
   return <Coin x={x} y={y} r={26} rot={p * 320} />;
 }
 
@@ -383,14 +385,14 @@ function SentenceFrame({ frame, appear, label }: { frame: number; appear: number
             border: `5px dashed ${FOG}`, borderRadius: 24,
           }}
         />
-        <div style={{ ...text, left: SLOT.x - FRAME.x + SLOT.w + 16 }}>, please?</div>
+        <div style={{ ...text, left: SLOT.x - FRAME.x + SLOT.w + 8 }}>, please?</div>
         <svg width="80" height="62" viewBox="0 0 80 62" style={{ position: "absolute", top: "100%", marginTop: -8, left: 700 }}>
           <path d="M6 0 L74 0 L56 50 Z" fill={INK} />
           <path d="M18 0 L62 0 L50 32 Z" fill="#fff" />
         </svg>
       </div>
       {label ? (
-        <div style={{ position: "absolute", left: FRAME.x, top: FRAME.y + FRAME.h + 30, width: FRAME.w, textAlign: "center", fontSize: 34, fontWeight: 700, color: FAINT, opacity: lab }}>
+        <div style={{ position: "absolute", left: FRAME.x, top: FRAME.y + FRAME.h + 68, width: FRAME.w - 240, textAlign: "center", fontSize: 34, fontWeight: 700, color: INK, opacity: lab }}>
           {label}
         </div>
       ) : null}
@@ -401,7 +403,7 @@ function SentenceFrame({ frame, appear, label }: { frame: number; appear: number
 // ---------------------------------------------------------------- the cafe set
 
 /** Wall, window, lamps and plant: everything behind the table. */
-function BackWall({ frame }: { frame: number }) {
+function BackWall({ frame, clock = false }: { frame: number; clock?: boolean }) {
   return (
     <Stage>
       <rect width="1080" height="1440" fill={WALL} />
@@ -411,7 +413,7 @@ function BackWall({ frame }: { frame: number }) {
       ))}
       <rect x="0" y="694" width="1080" height="12" fill={WOOD_LIGHT} />
       <Window x={620} y={230} w={360} h={360} />
-      <ClockIcon x={700} baseY={582} frame={frame} />
+      {clock ? <ClockIcon x={700} baseY={582} frame={frame} /> : null}
       <Plant x={120} y={694} scale={0.62} frame={frame} seed={4} />
       <PendantLamp x={400} length={70} frame={frame} seed={1} />
       <rect x="0" y="1100" width="1080" height="340" fill={FLOOR} />
@@ -453,7 +455,7 @@ function HookScene({ frame }: { frame: number }) {
         originX={620}
         originY={1000}
         layers={[
-          { depth: 0, children: <BackWall frame={frame} /> },
+          { depth: 0, children: <BackWall frame={frame} clock /> },
           {
             depth: 0.6,
             children: (
@@ -473,8 +475,8 @@ function HookScene({ frame }: { frame: number }) {
           },
         ]}
       />
-      <KineticText frame={frame} from={8} text="Coffee finished." x={70} y={140} width={500} size={82} color={FAINT} stagger={6} />
-      <KineticText frame={frame} from={44} text="Time to pay." x={70} y={282} width={520} size={104} color={ACCENT} targets={["Time to pay."]} targetColor={ACCENT} marker={SAFFRON} markerDelay={14} stagger={6} />
+      <KineticText frame={frame} from={8} text="Coffee finished." x={70} y={126} width={820} size={76} color={FAINT} stagger={6} />
+      <KineticText frame={frame} from={44} text="Time to pay." x={70} y={266} width={620} size={104} color={ACCENT} targets={["Time to pay."]} targetColor={ACCENT} marker={SAFFRON} markerDelay={14} stagger={6} />
     </AbsoluteFill>
   );
 }
@@ -485,10 +487,11 @@ function TableScene({ frame }: { frame: number }) {
   // w1: the ordering frame loses "a tea" and gains "the bill".
   const teaOut = tween(frame, 160, 190, 0, 1, EASE.in);
   const billIn = springIn(frame, 192, { damping: 12, stiffness: 120 });
-  // w2: the card taps the reader.
-  const tap = tween(frame, 404, 430, 0, 1, EASE.inOut);
-  const cardBack = tween(frame, 450, 476, 0, 1, EASE.out);
-  // w3: the note and coins land on the saucer.
+  // w2: the card taps the reader, then comes away so the tick shows.
+  const tap = tween(frame, 402, 426, 0, 1, EASE.inOut);
+  const cardBack = tween(frame, 438, 464, 0, 1, EASE.out);
+  // w3: the cup moves aside and the note and coins land on the saucer.
+  const cupAside = tween(frame, 556, 584, 0, 1, EASE.inOut);
   const cashIn = springIn(frame, 574, { damping: 11, stiffness: 140 });
   // w4: the change goes into the jar.
   const changeHeld = frame >= 744 && frame < 790;
@@ -523,21 +526,21 @@ function TableScene({ frame }: { frame: number }) {
                 <Character who="you" x={YOU_X} y={FEET} scale={CH} facing={-1} frame={frame} enter={120} legs={false} talking={youTalking} mood="neutral" gesture={youGesture.g} gestureAt={youGesture.at} from={youGesture.from} />
                 <TableTop>
                   <Saucer x={650} y={PROP_Y} scale={0.88} />
-                  <Cup kind="mug" x={700} y={PROP_Y - 10} frame={frame} appear={120} scale={0.7} steam={false} />
+                  <Cup kind="mug" x={lerp(650, 826, cupAside)} y={PROP_Y - 10} frame={frame} appear={120} scale={0.7} steam={false} />
                   <TipJar frame={frame} x={215} baseY={PROP_Y} scale={0.72} coins={2} clinkAt={frame >= 790 ? 812 : undefined} />
 
                   {/* w1: leo brings the folded bill and it opens on £3.50 */}
                   {frame < 340 ? (
                     <Bill frame={frame} appear={248} unfoldAt={272} x={HAND.x} baseY={HAND.y + 10} scale={0.92} tilt={-4} />
                   ) : (
-                    <Bill frame={frame} appear={248} x={430} baseY={PROP_Y} scale={0.8} tilt={-8} />
+                    <Bill frame={frame} appear={248} x={350} baseY={PROP_Y} scale={0.8} tilt={-8} />
                   )}
 
                   {/* w2: the reader in leo's hand, the card taps it */}
                   {frame >= 346 && frame < 556 ? (
-                    <CardReader frame={frame} appear={346} x={HAND.x} baseY={HAND.y + 14} scale={0.92} tickAt={430} />
+                    <CardReader frame={frame} appear={346} x={HAND.x} baseY={HAND.y + 14} scale={0.92} tickAt={428} />
                   ) : null}
-                  {frame >= 396 && frame < 500 ? (
+                  {frame >= 396 && frame < 490 ? (
                     <BankCard
                       x={lerp(620, HAND.x + 6, tap) + cardBack * 120}
                       y={lerp(856, 902, tap) - cardBack * 40}
@@ -550,9 +553,9 @@ function TableScene({ frame }: { frame: number }) {
                   {/* w3: a note and two coins on the saucer */}
                   {frame >= 560 ? (
                     <g opacity={Math.min(1, cashIn * 1.6)} transform={`translate(${(1 - cashIn) * 240} 0)`}>
-                      <Note x={640} y={PROP_Y - 18} rot={-5} scale={0.8} />
-                      <Coin x={716} y={PROP_Y - 44} r={26} rot={12} />
-                      <Coin x={760} y={PROP_Y - 26} r={26} rot={-24} />
+                      <Note x={624} y={PROP_Y - 18} rot={-5} scale={0.8} />
+                      <Coin x={700} y={PROP_Y - 48} r={26} rot={12} />
+                      <Coin x={742} y={PROP_Y - 28} r={26} rot={-24} />
                     </g>
                   ) : null}
 
@@ -630,8 +633,8 @@ function PractiseScene({ frame }: { frame: number }) {
           <circle cx="540" cy="430" r="300" fill="none" stroke={SAFFRON} strokeWidth="14" />
           <g clipPath="url(#int10-leo-clip)">
             <Character who="leo" x={540} y={1160} scale={1.95} facing={1} frame={frame} enter={874} talking={frame > 884 && frame < 1030} mood="happy" gesture="raise" gestureAt={880} />
-            <g transform={`translate(${lerp(0, -230, hand)} ${lerp(0, 340, hand)})`}>
-              <Bill frame={frame} appear={884} x={770} baseY={430} scale={0.95} tilt={8} />
+            <g transform={`translate(${lerp(0, -180, hand)} ${lerp(0, 300, hand)})`}>
+              <Bill frame={frame} appear={884} x={716} baseY={462} scale={0.86} tilt={8} />
             </g>
           </g>
           {hand > 0.6 ? (
@@ -654,26 +657,39 @@ function PractiseScene({ frame }: { frame: number }) {
         ) : null}
       </Stage>
       <Eyebrow text="SAY IT WITH ME" x={0} y={788} align="center" frame={frame} from={880} />
-      <div style={{ position: "absolute", left: 60, right: 60, top: 852, display: "flex", flexWrap: "wrap", justifyContent: "center", columnGap: 24, fontSize: 96, fontWeight: 800, lineHeight: 1.15, zIndex: 0 }}>
-        {words.map((w, i) => {
-          const s = springIn(frame, reach[i], { damping: 8, stiffness: 220 });
-          const on = frame >= reach[i];
-          const colour = PRACTISE_COLOURS[i] ?? INK;
-          return (
-            <span
-              key={i}
-              style={{
-                position: "relative", display: "inline-block", color: on ? colour : FOG,
-                transform: `translateY(${on ? (1 - s) * -14 : 0}px) scale(${on ? 1 + (1 - s) * 0.18 : 1})`, zIndex: 0,
-              }}
-            >
-              {w}
-              {colour === SAFFRON ? <Highlight frame={frame} from={reach[i]} color={ACCENT} opacity={0.2} /> : null}
-              {colour === ACCENT ? <Highlight frame={frame} from={reach[i]} color={SAFFRON} /> : null}
-            </span>
-          );
-        })}
-      </div>
+      {PRACTISE_ROWS.map((count, row) => {
+        const start = PRACTISE_ROWS.slice(0, row).reduce((a, b) => a + b, 0);
+        return (
+          <div
+            key={row}
+            style={{
+              position: "absolute", left: 60, right: 60, top: 852 + row * 112,
+              display: "flex", justifyContent: "center", columnGap: 24,
+              fontSize: 96, fontWeight: 800, lineHeight: 1.15, zIndex: 0,
+            }}
+          >
+            {words.slice(start, start + count).map((w, k) => {
+              const i = start + k;
+              const s = springIn(frame, reach[i], { damping: 8, stiffness: 220 });
+              const on = frame >= reach[i];
+              const colour = PRACTISE_COLOURS[i] ?? INK;
+              return (
+                <span
+                  key={i}
+                  style={{
+                    position: "relative", display: "inline-block", color: on ? colour : FOG,
+                    transform: `translateY(${on ? (1 - s) * -14 : 0}px) scale(${on ? 1 + (1 - s) * 0.18 : 1})`, zIndex: 0,
+                  }}
+                >
+                  {w}
+                  {colour === SAFFRON ? <Highlight frame={frame} from={reach[i]} color={ACCENT} opacity={0.2} /> : null}
+                  {colour === ACCENT ? <Highlight frame={frame} from={reach[i]} color={SAFFRON} /> : null}
+                </span>
+              );
+            })}
+          </div>
+        );
+      })}
     </AbsoluteFill>
   );
 }
@@ -693,20 +709,25 @@ function RecapScene({ frame }: { frame: number }) {
           </pattern>
         </defs>
         <rect width="1080" height="1440" fill="url(#int10-stripes)" />
-        <BankCard x={290} y={1086} rot={-9} scale={0.92 * springIn(frame, 1104, { damping: 10, stiffness: 180 })} />
-        <Coin x={520} y={1120} r={32} rot={10} scale={springIn(frame, 1112, { damping: 9, stiffness: 200 })} />
-        <Coin x={600} y={1142} r={32} rot={-18} scale={springIn(frame, 1118, { damping: 9, stiffness: 200 })} />
-        <TipJar frame={frame} appear={1110} x={820} baseY={1160} scale={0.82} coins={3} />
+        <BankCard x={300} y={900} rot={-9} scale={0.92 * springIn(frame, 1104, { damping: 10, stiffness: 180 })} />
+        <Coin x={520} y={924} r={32} rot={10} scale={springIn(frame, 1112, { damping: 9, stiffness: 200 })} />
+        <Coin x={596} y={948} r={32} rot={-18} scale={springIn(frame, 1118, { damping: 9, stiffness: 200 })} />
+        <TipJar frame={frame} appear={1110} x={820} baseY={1000} scale={0.82} coins={3} />
       </Stage>
       <div style={{ position: "absolute", left: 80, top: 170, width: 920, transform: `scale(${card}) rotate(${(1 - card) * -4}deg)`, transformOrigin: "50% 50%" }}>
         <div style={{ position: "absolute", inset: 0, transform: "translate(10px, 14px)", background: INK, borderRadius: 56 }} />
         <div style={{ position: "relative", background: "#fff", borderRadius: 56, padding: "42px 48px 48px", textAlign: "center" }}>
           <div style={{ fontSize: 38, fontWeight: 800, letterSpacing: 6, color: FAINT }}>REMEMBER</div>
-          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", columnGap: 22, fontSize: 88, fontWeight: 800, lineHeight: 1.12, marginTop: 12 }}>
-            {words.map((w, i) => (
-              <span key={i} style={{ color: PRACTISE_COLOURS[i] ?? INK }}>{w}</span>
-            ))}
-          </div>
+          {PRACTISE_ROWS.map((count, row) => {
+            const start = PRACTISE_ROWS.slice(0, row).reduce((a, b) => a + b, 0);
+            return (
+              <div key={row} style={{ display: "flex", justifyContent: "center", columnGap: 20, fontSize: 84, fontWeight: 800, lineHeight: 1.14, marginTop: row === 0 ? 12 : 0 }}>
+                {words.slice(start, start + count).map((w, k) => (
+                  <span key={k} style={{ color: PRACTISE_COLOURS[start + k] ?? INK }}>{w}</span>
+                ))}
+              </div>
+            );
+          })}
           {/* the same blank takes either tile */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14, marginTop: 30 }}>
             <span style={miniText}>Could I have</span>

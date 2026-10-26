@@ -36,13 +36,14 @@ export function Glass({ children, className = "", style, onClick, glow }: { chil
   );
 }
 
-export function GlowButton({ children, onClick, disabled, secondary, className = "", size = "primary", ariaLabel }: { children: ReactNode; onClick?: () => void; disabled?: boolean; secondary?: boolean; className?: string; size?: "primary" | "normal"; ariaLabel?: string }) {
+export function GlowButton({ children, onClick, disabled, secondary, className = "", size = "primary", ariaLabel, style }: { children: ReactNode; onClick?: () => void; disabled?: boolean; secondary?: boolean; className?: string; size?: "primary" | "normal"; ariaLabel?: string; style?: CSSProperties }) {
   return (
     <button
       type="button"
       aria-label={ariaLabel}
       disabled={disabled}
       onClick={onClick}
+      style={style}
       className={`${secondary ? "lp-btn-secondary" : "lp-btn-primary"} ${size === "primary" ? "lp-btn-56" : "lp-btn-48"} ${className}`}
     >
       {children}
