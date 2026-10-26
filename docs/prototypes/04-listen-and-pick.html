@@ -333,6 +333,11 @@
 
   .tile:active { transform: scale(.96); }
 
+  @media (hover: hover) {
+    .tile:hover { transform: translateY(-3px); }
+    .tile.dim:hover { transform: none; }
+  }
+
   .tile.right {
     z-index: 2;
     background: var(--mint);
@@ -378,12 +383,15 @@
 
   /* focus */
   :focus { outline: none; }
+
+  /* two rings, cream inside and ink outside, so the ring reads on ink,
+     on the sun card and on the page in both themes */
   :focus-visible {
-    outline: 4px solid var(--tangerine);
-    outline-offset: 3px;
-    border-radius: 18px;
+    outline: none;
+    box-shadow: 0 0 0 3px var(--cream), 0 0 0 7px var(--ink);
   }
-  .pill:focus-visible, .toggle:focus-visible { outline-offset: 4px; border-radius: 99px; }
+
+  .ghost:focus-visible { border-radius: 10px; }
 
   /* ---------- done screen ---------- */
   .done {
@@ -521,7 +529,7 @@
     <h2>You can now order at a cafe</h2>
     <p class="sub">Three lines, three right. Your ears are working.</p>
     <div class="done-art">
-      <svg viewBox="26 14 196 198" preserveAspectRatio="xMidYMid meet" fill="none" stroke="#121212"
+      <svg viewBox="36 24 180 188" preserveAspectRatio="xMidYMid meet" fill="none" stroke="#121212"
            stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <!-- Maya, both arms up, a coffee in one hand -->
         <g class="breathe">
@@ -551,7 +559,7 @@
           <path d="M100 118 q9 9 18-1" />
         </g>
         <path class="twinkle" d="M198 30 l5 12 12 5 -12 5 -5 12 -5-12 -12-5 12-5 z" fill="#121212" stroke="none" />
-        <path class="twinkle b" d="M28 52 l3 7 7 3 -7 3 -3 7 -3-7 -7-3 7-3 z" fill="#121212" stroke="none" />
+        <path class="twinkle b" d="M48 56 l3 7 7 3 -7 3 -3 7 -3-7 -7-3 7-3 z" fill="#121212" stroke="none" />
       </svg>
     </div>
     <button class="pill" id="againBtn" type="button">Again <span aria-hidden="true">&raquo;</span></button>
