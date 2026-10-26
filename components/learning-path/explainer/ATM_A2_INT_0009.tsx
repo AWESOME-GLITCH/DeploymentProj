@@ -11,7 +11,7 @@
 import { AbsoluteFill, useCurrentFrame } from "remotion";
 import type { CSSProperties, ReactNode } from "react";
 import {
-  ACCENT, Badge, BeatProgress, CaptionBar, Character, Confetti, CREAM, Cup, EASE, Eyebrow, FAINT, FOG, FONT,
+  ACCENT, BeatProgress, CaptionBar, Character, Confetti, CREAM, Cup, EASE, Eyebrow, FAINT, FOG, FONT,
   Highlight, INK, karaoke, KineticText, MenuBoard, PAPER, PendantLamp, Plant, Pulse, SAFFRON, SEA, SpeechBubble,
   springIn, Stage, Steam, Transition, tween, Window, WOOD, WOOD_DARK, WOOD_LIGHT,
 } from "./lib";
@@ -98,7 +98,7 @@ function Drop({ frame, from, x, y, to }: { frame: number; from: number; x: numbe
   const ring = tween(frame, from + 22, from + 40, 0, 1, EASE.out);
   return (
     <g>
-      {p < 1 ? <ellipse cx={x} cy={y + (to - y) * p} rx="7" ry="10" fill={OAT} /> : null}
+      {p < 1 ? <ellipse cx={x} cy={y + (to - y) * p} rx="10" ry="14" fill={OAT} /> : null}
       {ring > 0 ? (
         <ellipse cx={x} cy={to} rx={10 + ring * 26} ry={3 + ring * 7} fill="none" stroke={OAT} strokeWidth="4" opacity={1 - ring} />
       ) : null}
@@ -215,7 +215,7 @@ function CafeScene({ frame }: { frame: number }) {
   const lifted = tween(frame, 196, 224, 0, 1, EASE.inOut);
   const liftX = SLOT_X[0] + (458 - SLOT_X[0]) * lifted;
   const liftY = SLOT_Y + (568 - SLOT_Y) * lifted;
-  const tip = tween(frame, 228, 254, 0, 180, EASE.inOut);
+  const tip = tween(frame, 228, 254, 0, 152, EASE.inOut);
   const oatGone = tween(frame, 288, 306, 1, 0, EASE.in);
   const slotEmpty = frame >= 206;
 
@@ -281,7 +281,7 @@ function CafeScene({ frame }: { frame: number }) {
           {frame >= 196 && frame < 306 ? (
             <g opacity={oatGone}>
               <Carton x={liftX} baseY={liftY} w={64} color={OAT} sprig tilt={tip} />
-              <Drop frame={frame} from={258} x={liftX + 36} y={liftY + 6} to={872} />
+              <Drop frame={frame} from={258} x={liftX + 66} y={liftY - 4} to={872} />
             </g>
           ) : null}
           <CafeCounter frame={frame}>
@@ -324,7 +324,6 @@ function CafeScene({ frame }: { frame: number }) {
       {n3 ? <SpeechBubble text="Yes, we do." x={96} y={214} w={400} from={464} frame={frame} tail="left" tailX={210} /> : null}
       {n4 ? <SpeechBubble text="That's fine, thank you." targets={["That's fine"]} x={150} y={196} w={620} from={554} frame={frame} tail="right" tailX={500} /> : null}
 
-      {n3 ? <Badge frame={frame} from={500} text="soy" x={768} y={672} size={92} color={SEA} /> : null}
     </AbsoluteFill>
   );
 }
@@ -364,7 +363,7 @@ function ExplainScene({ frame }: { frame: number }) {
           <rect x="206" y="490" width="26" height="54" rx="8" fill={SHELF} opacity="0.55" />
           <rect x="848" y="490" width="26" height="54" rx="8" fill={SHELF} opacity="0.55" />
           {/* left slot: oat goes from solid to a dotted outline */}
-          <Carton x={300} baseY={478} w={104} color={OAT} dotted />
+          <g opacity={tween(frame, 884, 912, 1, 0.3, EASE.out)}><Carton x={300} baseY={478} w={104} color={OAT} dotted /></g>
           {oatSolid > 0.01 ? (
             <g opacity={oatSolid}><Carton x={300} baseY={478} w={104} color={OAT} sprig /></g>
           ) : null}
@@ -418,7 +417,6 @@ function ExplainScene({ frame }: { frame: number }) {
       <Eyebrow text="WHAT THEY MEAN" x={80} y={150} frame={frame} from={700} />
       <KineticText frame={frame} from={756} text="out of = none left" x={80} y={562} size={56} color={INK} targets={["out", "of"]} targetColor={ACCENT} stagger={4} />
       <KineticText frame={frame} from={876} text="instead = in its place" x={80} y={650} size={56} color={INK} targets={["instead"]} targetColor={ACCENT} marker={SAFFRON} markerDelay={14} stagger={4} />
-      <Eyebrow text="INSTEAD GOES LAST" x={80} y={716} frame={frame} from={1006} size={32} />
     </AbsoluteFill>
   );
 }
@@ -471,8 +469,8 @@ function PractiseScene({ frame }: { frame: number }) {
         {/* on resume the soy carton pops a tick */}
         {frame >= 1286 ? (
           <g>
-            <Carton x={856} baseY={318} w={84} color={SOY} label="SOY" />
-            <Tick frame={frame} from={1300} x={940} y={206} size={0.8} />
+            <Carton x={856} baseY={372} w={84} color={SOY} label="SOY" />
+            <Tick frame={frame} from={1300} x={936} y={262} size={0.8} />
           </g>
         ) : null}
       </Stage>

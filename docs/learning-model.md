@@ -56,10 +56,10 @@ One chunk, 3 to 5 minutes, one criterion, one "I can" outcome. If a chunk needs 
 | 2 | Notice | The target highlighted once, in the scene it just appeared in, with a 12-word why in L1 below B1 | `noticing` | 0:35 to 0:47 | Yes |
 | 3 | Say it with a response | The learner's first spoken turn, with the coach. She answers what was said; she does not mark it | `free_use` | 0:47 to 1:30 | Yes |
 | 4 | Say it again | 1 to 3 scaffolds. Each one ends with the whole sentence said aloud | `controlled` | 1:30 to 2:50 | Yes |
-| 5 | Use it | The whole exchange, with one problem to repair, carrying up to 3 due items | `free_use` | 2:50 to 4:10 | Yes |
+| 5 | Use it | The whole exchange, with one problem to repair, carrying up to 3 due items | `free_use` | 2:50 to 4:00 | Yes |
 | 6 | Come back later | One delayed say-it of the whole sentence, served in the session close | `check`, `delayed: true` | +0:25 | Yes, every variant |
 
-Four-ten in the chunk plus 0:25 in the close, so 4 min 35 s, inside the 3 to 5 minute band and inside the 4 minutes `phaseMinutes` bills for a new atom.
+Four minutes in the chunk plus 0:25 in the close, so 4 min 25 s, inside the 3 to 5 minute band and inside the 4 minutes `phaseMinutes` bills for a new atom. A light variant drops one scaffold and runs 3 min 25 s.
 
 Three things follow that are not negotiable:
 
@@ -499,23 +499,23 @@ Why one can-do per week: mastery learning needs a stated criterion and a perform
 
 ### 4.4 Composing a session
 
-Fixed order, so the learner always knows what comes next. Target 10 minutes, hard ceiling 12.
+Fixed order, so the learner always knows what comes next. The session opens on the scene. Target 10 minutes, hard ceiling 12. This is §1.3 restated as composer rules; where the two differ, §1.3 wins.
 
 | # | Phase | Rule | Minutes |
 | --- | --- | --- | --- |
-| 1 | Plan | "Today I will..." prefilled from the week's can-do | 0.33 |
-| 2 | Recall echo | 6 to 8 due items (10 on a warm restart), preferring those last seen 1 to 6 days ago, spread over at least 3 strands, no two consecutive from one strand or pattern | up to 2 |
-| 3 | New chunk | Rule 4.5. Skipped if the review cap is hit, if a non-second session already completed today, or below B1 if a new chunk has already been served today | 4 |
-| 4 | Use chunk | A speaking or interaction task from a chunk already seen, lowest predicted recall first, carrying today's targets plus up to 3 due items eligible for free use. On week day 5 this is the teach-it-back performance instead | 3 |
-| 5 | Vote (week day 4 only) | Answer, see anonymised peer answers at the same sub-level plus a model, answer again | 1 |
-| 6 | Story | One story chunk at 98% or higher known-word coverage for this learner, no checks attached | 1.5 |
-| 7 | Close | The delayed check from phase 3, a one-tap "I can / not yet", then the can-do line in plain words | 0.5 |
+| 1 | New chunk | Rule 4.5, run as the spine in §1.2. The learner is speaking by 0:50 of the session. Skipped if the review cap is hit or a non-second session already completed today | 4 |
+| 2 | Use chunk | A second scene: a speaking or interaction task from a chunk already seen, lowest predicted recall first, carrying today's targets plus up to 3 due items eligible for free use. On week day 5 this is the teach-it-back performance instead | 3 |
+| 3 | Story | One story chunk at 98% or higher known-word coverage for this learner, no checks attached | 1.5 |
+| 4 | Close | The delayed say-it from phase 1, a one-tap "I can / not yet", then the can-do line in plain words | 0.5 |
+
+Due items have no phase of their own. They are carried into phase 2 as `tryItems` and they supply the sentences the phase 1 scaffolds are built from, which is what "spaced return inside new situations" means (§1.3).
 
 Variations:
 
-- **Warm restart** (2 or more days missed): phases 1, 2, 6, 7 only, 3 to 5 minutes, plus a welcome-back story unlock. Never a penalty, and any four sessions in a week count as on track.
-- **Second session the same day**: recall, one use task, one fluency chunk built only from mastered items. No new chunk below B1, ever.
-- **First run**: one light chunk plus its close, so install to first completed chunk stays under 4 minutes.
+- **Review cap hit** (over 25 overdue): phase 1 is skipped, and phase 2 becomes two use chunks built from the most overdue items. Still two scenes, still no drill.
+- **Warm restart** (2 or more days missed): one use chunk and the story, 3 to 5 minutes, plus a welcome-back story unlock. Never a penalty, and any four sessions in a week count as on track.
+- **Second session the same day**: one use chunk, one fluency chunk built only from mastered items. No new chunk below B1, ever.
+- **First run**: one light chunk plus its close, so install to first completed chunk stays under 4 minutes. Scene-first, so the first spoken turn is inside the first minute of the app.
 - **Interleaving guard**, applied to the whole composed list: no two consecutive items from the same strand or the same target pattern, and at least three strands per session.
 - **Fluency** uses mastered items only, with a visible timer, opt-in below B1 (Nation's fluency strand, 4/3/2 technique).
 
@@ -540,7 +540,7 @@ score = 0.40 x readiness
 | `predicted_success` | Mean recall probability of the chunk's target items. 0.80 when none has been seen |
 | `strand_strength` | Item-state weighted mean for that strand, 0 to 1 (`new` 0.1, `learning` 0.3, `consolidating` 0.55, `known` 0.8, `mastered` 1.0, each scaled by `0.5 + 0.5p`) |
 
-Take the highest score. Then set the variant from rolling check accuracy: below 0.70 light, above 0.90 dense, otherwise standard.
+Take the highest score. Then set the variant from rolling check accuracy: below 0.70 light, above 0.90 dense, otherwise standard. The variant selects the cut list in §1.6, which only ever removes scaffolds.
 
 Why these three terms and not more: prerequisite readiness implements the prerequisite graph, strand deficit implements Nation's four strands in balance (2007, roughly 25% each), and the distance from 0.80 implements the desired difficulty band. Nothing in the formula rewards activity for its own sake.
 
@@ -560,15 +560,30 @@ Fatima, 52, Arabic L1, placement day 0. Scores put her at A1.2 for SPK and GRM, 
 | `ATM-A2-GRM-0002` "Two coffees, some water" | 1.00 | 1.00 | 0.80 | 1.000 | 0 | 1.000 |
 | `ATM-A2-LST-0004` "Platform 4, not 14" | 1.00 | 1.00 | 0.80 | 1.000 | 0 | 1.000 |
 
-The cold-start tie is broken entirely by the week's can-do, which is the behaviour we want: day one is never arbitrary. Variant is standard, because fewer than 5 attempts exist. Session: plan, no recall (nothing due), `ATM-A1-SPK-0005`, a `say_it_see_it` use task, a story at 98% coverage, close with the delayed check.
+The cold-start tie is broken entirely by the week's can-do, which is the behaviour we want: day one is never arbitrary. Variant is standard, because fewer than 5 attempts exist, so `cuts.standard` drops one scaffold and she gets 2.
+
+Her session, phase by phase, with the clock:
+
+| Clock | Phase | What Fatima does |
+| --- | --- | --- |
+| 0:00 | `ATM-A1-SPK-0005` scene | Fatima (the character) says who she is outside a shop in Hackney. 33 s, no rule on screen |
+| 0:33 | Notice | "I work in" highlighted once, in the frame it was said in, with an Arabic why of 9 words |
+| 0:47 | Say it with a response | The coach asks where she works. Fatima speaks. The coach answers what was said. This is her first spoken turn, at 0:47 of her first ever session |
+| 1:30 | Say it again | 2 scaffolds: a `tap_order` of "I work in a shop", then an `error_spot`. Each ends with her saying the whole sentence |
+| 2:50 | Use it | The whole exchange. Nothing due yet, so no `tryItems` ride along |
+| 4:00 | Use chunk | A `say_it_see_it` turn on an already-seen item. Nothing is seen yet, so `pickUseItem`'s unseen fallback serves an eligible `say_it_see_it` (`engine.ts:446`) |
+| 7:00 | Story | A story at 98% known-word coverage, no checks |
+| 8:30 | Close | The delayed say-it of the whole sentence, one tap "I can / not yet", the can-do line |
+
+Nine minutes. No plan screen, no recall drill, and she has spoken four times.
 
 **Days 2 to 5.**
 
 | Day | What the engine does | Why |
 | --- | --- | --- |
-| 2 | Recall echo of 6 items from day 1 (SPK, GRM, LST interleaved), then the next criterion of the same can-do, then a use task | Items at Learning are due at 1 day; week days 1 to 3 serve the can-do |
-| 3 | Fatima misses "I work in a shop" twice. `reteach = true`, so the day 3 new chunk is replaced by the input chunk for that item (+0.30) | Two consecutive errors trigger re-teach before further retrieval |
-| 4 | Interleaved session: 8 due items across 4 strands, a GRM enabler chunk (strand deficit 1.00 for GRM), the vote item, a story | Day 4 interleaves; no two consecutive items from one strand |
+| 2 | The new chunk is the next criterion of the same can-do. 6 items from day 1 are due, so 3 ride into the use chunk as `tryItems` and the other 3 become the sentences of the new chunk's scaffolds | Items at Learning are due at 1 day. Week days 1 to 3 serve the can-do. Due items return inside a scene, never as a drill |
+| 3 | Fatima misses "I work in a shop" twice. `reteach = true`, so the day 3 new chunk is replaced by the scene for that item (+0.30), and she meets it as a situation again rather than as a correction | Two consecutive errors trigger re-teach before further retrieval |
+| 4 | Interleaved session: a GRM enabler chunk (strand deficit 1.00 for GRM), a use chunk carrying 3 due items from a different strand, a story. 4 strands across the session | Day 4 interleaves. No two consecutive items from one strand |
 | 5 | Teach it back: 30 seconds explaining who she is to a beginner character. AI-scored, pass needs 3 of 5 target items used. First pass recorded; mastery needs a second pass on another day with an unseen task | Mastery gates on a can-do demonstrated in free use |
 
 **Day 8.** Three criteria have one pass each. Due count is 14, under the cap, so new chunks continue. The SPK marker on the Road has not moved yet and that is correct: one pass is not mastery.
@@ -597,7 +612,9 @@ Lowest progress wins, so the week is mediation. This is the point of the rule: Y
 
 `ATM-B2-MED-0042` wins. Note what the formula did to the other two: the grammar chunk is penalised for being easy and for a strand already over quota, and the speaking chunk is penalised for unmet prerequisites and a predicted success of 0.55, which is too far below 0.80 to be useful. The engine's answer is that Yusuf is not ready for that speaking chunk yet, not that speaking should be skipped. Its prerequisite criterion rises in the week's candidate set as soon as its readiness clears 1.0, and the use phase gives him a spoken task every single session regardless.
 
-Variant: his rolling accuracy is 0.93, so dense, with 4 controlled checks.
+Variant: his rolling accuracy is 0.93, so dense. No cut list applies, so he gets all 3 scaffolds and the full six-item bank.
+
+His session opens on the scene too, and that is the point for a learner like Yusuf. The spec he would have written for himself begins with the rule; the spine puts him in a situation at 0:00 and on the mic at 0:47, which is the strand he avoids. Nothing in the composer lets him opt out of the spoken turn, because there is no phase before it to hide in.
 
 **Day 5 and after.**
 
