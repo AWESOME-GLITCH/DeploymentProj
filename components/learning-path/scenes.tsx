@@ -201,7 +201,7 @@ function Bubble({ x, y, w, text, tail, tone }: { x: number; y: number; w: number
 function Stage({ children, label }: { children: ReactNode; label?: string }) {
   return (
     <div className="lp-stage">
-      <svg viewBox="0 0 360 640" preserveAspectRatio="xMidYMid slice" className="lp-stage-svg" aria-hidden="true">{children}</svg>
+      <svg viewBox="0 0 360 560" preserveAspectRatio="xMidYMax slice" className="lp-stage-svg" aria-hidden="true">{children}</svg>
       {label ? <div className="lp-stage-label">{label}</div> : null}
     </div>
   );

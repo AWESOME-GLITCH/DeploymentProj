@@ -26,8 +26,68 @@ function pickVoice(): SpeechSynthesisVoice | null {
   return voice;
 }
 
+// ElevenLabs voice through the app's own API route; the browser voice is the
+// fallback when the route is unavailable (no key, offline, or a static bundle).
+let ttsEnabled: boolean | null = null;
+let probing: Promise<boolean> | null = null;
+const audioCache = new Map<string, string>();
+let current: HTMLAudioElement | null = null;
+
+export function ttsEndpoint(): string {
+  if (typeof window === "undefined") return "";
+  return `${window.location.origin}/api/learning-path/tts`;
+}
+
+export function probeTts(): Promise<boolean> {
+  if (ttsEnabled !== null) return Promise.resolve(ttsEnabled);
+  if (probing) return probing;
+  probing = fetch(`${ttsEndpoint()}?probe=1`, { cache: "no-store" })
+    .then((r) => (r.ok ? r.json() : { enabled: false }))
+    .then((j: { enabled?: boolean }) => { ttsEnabled = !!j.enabled; return ttsEnabled; })
+    .catch(() => { ttsEnabled = false; return false; });
+  return probing;
+}
+
+export function voiceName(): "elevenlabs" | "browser" | "unknown" {
+  return ttsEnabled === null ? "unknown" : ttsEnabled ? "elevenlabs" : "browser";
+}
+
+async function sayWithElevenLabs(text: string, rate: number, onEnd?: () => void): Promise<boolean> {
+  try {
+    let url = audioCache.get(text);
+    if (!url) {
+      const res = await fetch(`${ttsEndpoint()}?text=${encodeURIComponent(text)}`);
+      if (!res.ok) { if (res.status === 503) ttsEnabled = false; return false; }
+      url = URL.createObjectURL(await res.blob());
+      audioCache.set(text, url);
+    }
+    stopSpeaking();
+    const a = new Audio(url);
+    a.playbackRate = rate;
+    current = a;
+    a.onended = () => { if (current === a) current = null; onEnd?.(); };
+    a.onerror = () => { if (current === a) current = null; onEnd?.(); };
+    await a.play();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function say(text: string, rate = 1, onEnd?: () => void): void {
-  if (!canSpeak() || !text) { onEnd?.(); return; }
+  if (!text) { onEnd?.(); return; }
+  if (ttsEnabled !== false) {
+    void probeTts().then((ok) => {
+      if (!ok) { sayWithBrowser(text, rate, onEnd); return; }
+      void sayWithElevenLabs(text, rate, onEnd).then((played) => { if (!played) sayWithBrowser(text, rate, onEnd); });
+    });
+    return;
+  }
+  sayWithBrowser(text, rate, onEnd);
+}
+
+function sayWithBrowser(text: string, rate: number, onEnd?: () => void): void {
+  if (!canSpeak()) { onEnd?.(); return; }
   const synth = window.speechSynthesis;
   synth.cancel();
   const u = new SpeechSynthesisUtterance(text);
@@ -41,6 +101,7 @@ export function say(text: string, rate = 1, onEnd?: () => void): void {
 }
 
 export function stopSpeaking(): void {
+  if (current) { try { current.pause(); } catch { /* ignore */ } current = null; }
   if (canSpeak()) window.speechSynthesis.cancel();
 }
 

@@ -12,7 +12,7 @@ import { CEFR_LABEL, loc } from "@/lib/learning-path/i18n";
 import { useNow, useStore } from "@/lib/learning-path/store";
 import type { SubLevel } from "@/lib/learning-path/types";
 import { ItemRenderer, type ItemResult } from "./items";
-import { GlowButton, LocText, Pill, Say, useLp } from "./ui";
+import { GlowButton, LocText, Pill, STRAND_COLOR, Say, useLp } from "./ui";
 
 const STOP_GAP = 120;
 
@@ -68,7 +68,7 @@ export function Road({ onCheckpoint }: { onCheckpoint: () => void }) {
             const prog = outcomeProgress(state, o.outcome_id);
             return (
               <g key={o.outcome_id} className="lp-road-stop" onClick={() => setSelected(o.outcome_id)} style={{ cursor: "pointer" }}>
-                <circle cx={x(i)} cy={y(i)} r={24} fill={achieved ? "var(--lp-sea-tint)" : "var(--lp-well)"} stroke={isNext ? "var(--lp-glow-2)" : achieved ? "var(--lp-sea)" : "var(--lp-line-strong)"} strokeWidth={isNext ? 3 : 2} style={isNext ? { filter: "drop-shadow(0 0 10px rgba(21,154,139,0.6))" } : undefined} />
+                <circle cx={x(i)} cy={y(i)} r={24} fill={achieved ? "var(--lp-sea-tint)" : "var(--lp-surface)"} stroke={isNext ? "var(--lp-glow)" : achieved ? "var(--lp-sea)" : STRAND_COLOR[o.strand]} strokeWidth={isNext ? 4 : 2.5} style={isNext ? { filter: "drop-shadow(0 0 10px rgba(21,154,139,0.6))" } : undefined} />
                 {/* progress arc */}
                 <circle cx={x(i)} cy={y(i)} r={24} fill="none" stroke="var(--lp-sea)" strokeWidth={3} strokeDasharray={`${2 * Math.PI * 24 * prog} ${2 * Math.PI * 24}`} transform={`rotate(-90 ${x(i)} ${y(i)})`} opacity={prog > 0 && !achieved ? 0.9 : 0} />
                 <text x={x(i)} y={y(i) + 7} fontSize="20" textAnchor="middle">{o.icon}</text>

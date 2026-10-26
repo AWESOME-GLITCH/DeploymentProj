@@ -24,8 +24,10 @@ export function Onboarding({ onPlaced }: { onPlaced: () => void }) {
   const idx = order.indexOf(step);
 
   return (
-    <div className="flex h-full flex-col px-5 pb-5 pt-4">
-      <div className="mb-4 flex gap-1.5">{order.slice(0, 5).map((s, i) => <span key={s} className="h-1 flex-1 rounded-full" style={{ background: i <= Math.min(idx, 4) ? "var(--lp-glow-2)" : "var(--lp-track)" }} />)}</div>
+    <div className="relative flex h-full flex-col overflow-hidden px-5 pb-5 pt-4">
+      <div className="lp-blob" style={{ width: 300, height: 300, right: -120, top: -120, background: "var(--lp-glow-tint)" }} />
+      <div className="lp-blob" style={{ width: 220, height: 220, left: -100, bottom: 80, background: "var(--lp-accent-tint)" }} />
+      <div className="relative mb-4 flex gap-1.5">{order.slice(0, 5).map((s, i) => <span key={s} className="h-1.5 flex-1 rounded-full" style={{ background: i <= Math.min(idx, 4) ? "var(--lp-accent)" : "var(--lp-track)" }} />)}</div>
       {step === "language" ? (
         <>
           <div className="lp-head mb-1">{t("choose_language")}</div>

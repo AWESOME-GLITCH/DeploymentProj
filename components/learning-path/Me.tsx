@@ -5,6 +5,7 @@
 import { useState } from "react";
 import { LANGUAGES } from "@/lib/learning-path/i18n";
 import { useStore } from "@/lib/learning-path/store";
+import { voiceName } from "@/lib/learning-path/speech";
 import type { L1 } from "@/lib/learning-path/types";
 import { GlowButton, useLp } from "./ui";
 
@@ -52,6 +53,7 @@ export function Me() {
       </Row>
       <Row label={t("interface_language")}><Seg value={l.l1_override} options={[{ v: "auto", label: t("auto") }, { v: "full", label: t("full_l1") }, { v: "english", label: t("english_ui") }]} onChange={(v) => patch({ l1_override: v })} /></Row>
       <Row label={t("text_size")}><Seg value={l.text_scale} options={[{ v: 1, label: "A" }, { v: 1.15, label: "A+" }, { v: 1.3, label: "A++" }]} onChange={(v) => patch({ text_scale: v })} /></Row>
+      <Row label="Voice"><span className="lp-small" style={{ color: "var(--lp-paper-faint)" }}>{voiceName() === "elevenlabs" ? "ElevenLabs" : voiceName() === "browser" ? "Browser voice" : "…"}</span></Row>
       <Row label={t("audio_speed")}><Seg value={l.audio_speed} options={[{ v: 0.75, label: "0.75×" }, { v: 1, label: "1.0×" }]} onChange={(v) => patch({ audio_speed: v })} /></Row>
       <Row label={t("daily_goal")}><Seg value={l.daily_minutes} options={[{ v: 5, label: "5" }, { v: 10, label: "10" }, { v: 15, label: "15" }]} onChange={(v) => patch({ daily_minutes: v })} /></Row>
       <Row label={`${t("notifications")}${l.plan ? ` · ${l.plan.time}` : ""}`}><Toggle on={l.notifications} onChange={(v) => patch({ notifications: v })} /></Row>

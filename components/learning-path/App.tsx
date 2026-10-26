@@ -8,7 +8,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { FlaskConical, Home as HomeIcon, Route, TrendingUp, User, Users } from "lucide-react";
 import { composeSession, dayIndex, now as engineNow } from "@/lib/learning-path/engine";
 import { isRtl, makeT, tapToTranslate, uiLanguage } from "@/lib/learning-path/i18n";
-import { say as tts } from "@/lib/learning-path/speech";
+import { probeTts, say as tts } from "@/lib/learning-path/speech";
 import { StoreProvider, useStore } from "@/lib/learning-path/store";
 import { Capsule } from "./Capsule";
 import { Classmates } from "./Classmates";
@@ -35,6 +35,8 @@ function Shell() {
   const [testerOpen, setTesterOpen] = useState(false);
   const [wide, setWide] = useState(false);
   const [systemDark, setSystemDark] = useState(false);
+
+  useEffect(() => { void probeTts(); }, []);
 
   useEffect(() => {
     document.documentElement.classList.add("lp-active");

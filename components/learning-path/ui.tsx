@@ -110,8 +110,8 @@ export function Ring({ fills, size = 200, label }: { fills: [number, number, num
         })}
         <defs>
           <linearGradient id="lp-ring-grad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="var(--lp-glow-2)" />
-            <stop offset="100%" stopColor="var(--lp-glow)" />
+            <stop offset="0%" style={{ stopColor: "var(--lp-glow-2)" }} />
+            <stop offset="100%" style={{ stopColor: "var(--lp-glow)" }} />
           </linearGradient>
         </defs>
       </svg>
@@ -137,11 +137,13 @@ export function ProgressLine({ value }: { value: number }) {
   );
 }
 
-export function Bar({ value, label, tint }: { value: number; label: string; tint?: "review" }) {
+export const STRAND_COLOR: Record<string, string> = { GRM: "var(--lp-s-GRM)", RDG: "var(--lp-s-RDG)", WRT: "var(--lp-s-WRT)", LST: "var(--lp-s-LST)", SPK: "var(--lp-s-SPK)", MED: "var(--lp-s-MED)", INT: "var(--lp-s-INT)" };
+
+export function Bar({ value, label, tint, color }: { value: number; label: string; tint?: "review"; color?: string }) {
   return (
     <div className="flex items-center gap-3">
       <div className="lp-small w-24 shrink-0 truncate" style={{ opacity: 0.85 }}>{label}</div>
-      <div className="lp-bar flex-1"><div className={tint === "review" ? "lp-bar-review" : ""} style={{ width: `${Math.round(value * 100)}%` }} /></div>
+      <div className="lp-bar flex-1"><div className={tint === "review" ? "lp-bar-review" : ""} style={{ width: `${Math.round(value * 100)}%`, background: tint === "review" ? undefined : color }} /></div>
       <div className="lp-small w-9 text-right tabular-nums" style={{ opacity: 0.7 }}>{Math.round(value * 100)}</div>
     </div>
   );

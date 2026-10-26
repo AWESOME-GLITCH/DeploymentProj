@@ -9,7 +9,7 @@ import { dayIndex, levelEstimate, outcomeAchieved, recallProbability, strandStre
 import { CEFR_LABEL, loc, strandName } from "@/lib/learning-path/i18n";
 import { useNow, useStore } from "@/lib/learning-path/store";
 import { STRANDS } from "@/lib/learning-path/types";
-import { Bar, GlowButton, LocText, Pill, useLp } from "./ui";
+import { Bar, GlowButton, LocText, Pill, STRAND_COLOR, useLp } from "./ui";
 
 export function Progress() {
   const { state, dispatch } = useStore();
@@ -60,7 +60,7 @@ export function Progress() {
         )}
       </div>
       <div className="lp-glass mt-3 flex flex-col gap-2 p-4">
-        {STRANDS.map((s) => <Bar key={s} label={strandName(s, lang)} value={strandStrength(state, s, now)} tint={reviewTint(s) ? "review" : undefined} />)}
+        {STRANDS.map((s) => <Bar key={s} label={strandName(s, lang)} value={strandStrength(state, s, now)} tint={reviewTint(s) ? "review" : undefined} color={STRAND_COLOR[s]} />)}
       </div>
       <div className="lp-glass mt-3 p-4">
         <div className="lp-eyebrow mb-2">{t("weeks_active")}</div>
