@@ -378,12 +378,15 @@ export function composeSession(state: LearnerState, at: number, opts: { second?:
     return { id: `S-${day}-first`, day, second: false, warm_restart: false, new_allowed, due_count: due.length, phases, reasons };
   }
 
-  phases.push({ kind: "plan", can_do });
+  // The lesson opens on the scene, never on a plan screen: Home already carries
+  // the can-do and the Continue that got the learner here (docs/lesson-flow.md).
   const recall = pickRecall(state, at, warm_restart ? 10 : 8);
-  if (recall.length) { phases.push({ kind: "recall", items: recall }); reasons.push(`recall echo: ${recall.length} due items across ${new Set(recall.map((i) => ITEM_BY_ID[i].strand)).size} strands`); }
+  const recallPhase: SessionPhase | null = recall.length ? { kind: "recall", items: recall } : null;
+  if (recallPhase) reasons.push(`recall echo: ${recall.length} due items across ${new Set(recall.map((i) => ITEM_BY_ID[i].strand)).size} strands`);
   else reasons.push("recall echo: nothing due yet");
 
   if (warm_restart) {
+    if (recallPhase) phases.push(recallPhase);
     reasons.push(`${missed} days missed: warm restart (review and a story), welcome-back story unlock`);
     const story = pickStory(state);
     if (story) phases.push({ kind: "story", atom_id: story.atom_id });
@@ -393,6 +396,7 @@ export function composeSession(state: LearnerState, at: number, opts: { second?:
 
   if (opts.second) {
     reasons.push("second session: review and fluency only, no new atom");
+    if (recallPhase) phases.push(recallPhase);
     const useItem = pickUseItem(state, at, null);
     if (useItem) phases.push({ kind: "atom", atom_id: `USE:${useItem}`, role: "use" });
     phases.push({ kind: "atom", atom_id: "ATM-A2-FLU-0001", role: "fluency" });
@@ -417,6 +421,9 @@ export function composeSession(state: LearnerState, at: number, opts: { second?:
     const useItem = pickUseItem(state, at, newAtom);
     if (useItem) { phases.push({ kind: "atom", atom_id: `USE:${useItem}`, role: "use" }); reasons.push(`use atom: ${useItem}`); }
   }
+  // Come back later: older material is retrieved once today's sentence has
+  // landed, so the two do not compete for attention (spacing).
+  if (recallPhase) phases.push(recallPhase);
   if (wd === 4) { phases.push({ kind: "vote", item_id: "ITM-VOTE-0001" }); reasons.push("day 4: vote, see, revote"); }
 
   const story = pickStory(state);
@@ -478,8 +485,8 @@ export function phaseMinutes(p: SessionPhase): number {
 
 /** Slot of the daily ring (0, 1, 2) a phase fills. */
 export function ringSlice(p: SessionPhase): 0 | 1 | 2 {
-  if (p.kind === "plan" || p.kind === "recall" || (p.kind === "atom" && p.role === "new")) return 0;
-  if (p.kind === "atom" || p.kind === "vote") return 1;
+  if (p.kind === "plan" || (p.kind === "atom" && p.role === "new")) return 0;
+  if (p.kind === "atom" || p.kind === "recall" || p.kind === "vote") return 1;
   return 2;
 }
 

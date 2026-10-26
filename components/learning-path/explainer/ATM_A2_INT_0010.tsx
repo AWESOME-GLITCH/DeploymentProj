@@ -715,12 +715,12 @@ function RecapScene({ frame }: { frame: number }) {
           </pattern>
         </defs>
         <rect width="1080" height="1440" fill="url(#int10-stripes)" />
-        <BankCard x={300} y={900} rot={-9} scale={0.92 * springIn(frame, 1104, { damping: 10, stiffness: 180 })} />
-        <Coin x={520} y={924} r={32} rot={10} scale={springIn(frame, 1112, { damping: 9, stiffness: 200 })} />
-        <Coin x={596} y={948} r={32} rot={-18} scale={springIn(frame, 1118, { damping: 9, stiffness: 200 })} />
-        <TipJar frame={frame} appear={1110} x={820} baseY={1000} scale={0.82} coins={3} />
+        <BankCard x={290} y={966} rot={-9} scale={1.05 * springIn(frame, 1104, { damping: 10, stiffness: 180 })} />
+        <Coin x={534} y={954} r={38} rot={10} scale={springIn(frame, 1112, { damping: 9, stiffness: 200 })} />
+        <Coin x={616} y={986} r={38} rot={-18} scale={springIn(frame, 1118, { damping: 9, stiffness: 200 })} />
+        <TipJar frame={frame} appear={1110} x={840} baseY={1060} scale={0.95} coins={3} />
       </Stage>
-      <div style={{ position: "absolute", left: 80, top: 170, width: 920, transform: `scale(${card}) rotate(${(1 - card) * -4}deg)`, transformOrigin: "50% 50%" }}>
+      <div style={{ position: "absolute", left: 80, top: 196, width: 920, transform: `scale(${card}) rotate(${(1 - card) * -4}deg)`, transformOrigin: "50% 50%" }}>
         <div style={{ position: "absolute", inset: 0, transform: "translate(10px, 14px)", background: INK, borderRadius: 56 }} />
         <div style={{ position: "relative", background: "#fff", borderRadius: 56, padding: "42px 48px 48px", textAlign: "center" }}>
           <div style={{ fontSize: 38, fontWeight: 800, letterSpacing: 6, color: FAINT }}>REMEMBER</div>

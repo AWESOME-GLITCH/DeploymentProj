@@ -7,7 +7,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Player, type PlayerRef } from "@remotion/player";
-import { Captions, Mic, Pause, Play, RotateCcw } from "lucide-react";
+import { Captions, MoreHorizontal, Pause, Play, RotateCcw } from "lucide-react";
 import { CAFE_BEATS, CAFE_DURATION, CAFE_FPS, CAFE_H, CAFE_W, CafeExplainer } from "./Cafe";
 import { EXPLAINER as LST_0004 } from "./ATM_A2_LST_0004";
 import { EXPLAINER as RDG_0006 } from "./ATM_A2_RDG_0006";
@@ -70,6 +70,7 @@ export function ExplainerPlayer({ atomId, onProgress, onSpoken }: { atomId: stri
   const pausedFor = useRef<string>("");
   const maxPct = useRef(0);
   const [ended, setEnded] = useState(false);
+  const [more, setMore] = useState(false);
   // Progress only ever grows: replaying a beat never takes credit away.
   const report = useCallback((p: number) => { if (p > maxPct.current) { maxPct.current = p; onProgress(p); } }, [onProgress]);
   const beats = def.beats;
@@ -162,19 +163,26 @@ export function ExplainerPlayer({ atomId, onProgress, onSpoken }: { atomId: stri
         })}
       </div>
 
-      <div className="mt-auto flex items-center gap-2 pt-2">
+      {/* One lead control and one quiet "more". Speed, captions in my language and
+          the parts of the video live behind it, so the screen at rest is the
+          scene, the sentence and Continue. */}
+      <div className="mt-auto flex items-center justify-between pt-2">
         <button type="button" className="lp-icon-btn lp-icon-btn-lead" aria-label={playing ? "Pause" : "Play"} onClick={started ? toggle : start}>{playing ? <Pause size={20} /> : <Play size={20} />}</button>
-        <button type="button" className="lp-icon-btn lp-icon-btn-quiet" aria-label="Captions in my language" aria-pressed={showL1} data-on={showL1} onClick={() => setShowL1((v) => !v)}><Captions size={18} /></button>
-        <button type="button" className="lp-icon-btn lp-icon-btn-quiet lp-small" aria-label="Playback speed" style={{ width: 56 }} onClick={() => setRate((r) => (r === 1 ? 0.75 : 1))}>{rate === 1 ? "1.0×" : "0.75×"}</button>
-        <div className="ms-auto flex items-center" aria-label="Parts of this video">
-          {beats.map((b, i) => (
-            <button key={b.id} type="button" aria-label={`Part ${i + 1} of ${beats.length}`} onClick={() => seekBeat(b)}
-              className="lp-beat" data-done={frame >= b.to} data-now={b.id === beat.id}
-              style={reduceMotion ? { transition: "none" } : undefined}><i /></button>
-          ))}
-        </div>
-        {beat.kind === "practise" && !paused ? <Mic size={16} style={{ color: "var(--lp-paper-faint)" }} /> : null}
+        <button type="button" className="lp-icon-btn lp-icon-btn-quiet" aria-label="More options" aria-expanded={more} onClick={() => setMore((v) => !v)}><MoreHorizontal size={18} /></button>
       </div>
+      {more ? (
+        <div className="mt-2 flex items-center gap-2">
+          <button type="button" className="lp-icon-btn lp-icon-btn-quiet" aria-label="Captions in my language" aria-pressed={showL1} data-on={showL1} onClick={() => setShowL1((v) => !v)}><Captions size={18} /></button>
+          <button type="button" className="lp-icon-btn lp-icon-btn-quiet lp-small" aria-label="Playback speed" style={{ width: 56 }} onClick={() => setRate((r) => (r === 1 ? 0.75 : 1))}>{rate === 1 ? "1.0×" : "0.75×"}</button>
+          <div className="ms-auto flex items-center" aria-label="Parts of this video">
+            {beats.map((b, i) => (
+              <button key={b.id} type="button" aria-label={`Part ${i + 1} of ${beats.length}`} onClick={() => seekBeat(b)}
+                className="lp-beat" data-done={frame >= b.to} data-now={b.id === beat.id}
+                style={reduceMotion ? { transition: "none" } : undefined}><i /></button>
+            ))}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

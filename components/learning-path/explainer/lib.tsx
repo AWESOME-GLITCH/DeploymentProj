@@ -270,9 +270,9 @@ export function Character(p: CharacterProps) {
           </g>
           {[-20, 20].map((ex) => (
             <g key={ex} transform={`translate(${ex} -4)`}>
-              <ellipse cx="0" cy="0" rx="10" ry={12 * Math.max(0.08, bl)} fill="#fff" />
-              <circle cx={2 + gaze * 3.4} cy={1} r={5.5 * Math.max(0.08, bl)} fill={INK} />
-              <circle cx={gaze * 3.4} cy={-2} r={1.9 * Math.max(0, bl)} fill="#fff" />
+              <ellipse cx="0" cy="0" rx={10 * Math.max(0.2, bl)} ry={12 * bl} fill="#fff" />
+              <circle cx={2 + gaze * 3.4} cy={1} r={5.5 * bl} fill={INK} />
+              <circle cx={gaze * 3.4} cy={-2} r={1.9 * bl} fill="#fff" />
               {bl < 0.45 ? <path d="M-10 0 Q0 4 10 0" fill="none" stroke={L.hair} strokeWidth="3.4" strokeLinecap="round" opacity={1 - bl / 0.45} /> : null}
             </g>
           ))}

@@ -20,8 +20,8 @@ import { GlowButton, IsoStop, StopTick, useLp } from "./ui";
 // end (below the frame) to 1 at the horizon.
 const SLOT_T = [0.17, 0.35, 0.53, 0.72, 0.9];
 const VISIBLE = SLOT_T.length;
-const LABEL_MAX = 18; // characters per label line
-const LABEL_LINES = 3;
+const LABEL_MAX = 20; // characters per label line
+const LABEL_LINES = 4;
 
 type Box = { w: number; h: number };
 
@@ -36,9 +36,9 @@ function geo(box: Box) {
     y: (t: number) => bottom - t * span,
     // A gentle double bend up the left of the frame, so the labels always have
     // the same column on the right.
-    cx: (t: number) => box.w * 0.36 + Math.sin(t * 4.4) * box.w * 0.15 * (1 - t * 0.5),
+    cx: (t: number) => box.w * 0.33 + Math.sin(t * 4.4) * box.w * 0.16 * (1 - t * 0.45),
     // Perspective: wide and near at the bottom, a few pixels at the horizon.
-    half: (t: number) => box.w * 0.195 * Math.pow(1 - t, 1.4) + box.w * 0.012,
+    half: (t: number) => box.w * 0.22 * Math.pow(1 - t, 1.15) + box.w * 0.014,
   };
 }
 
@@ -189,8 +189,15 @@ export function Home({ onStart, onSecond }: { onStart: () => void; onSecond: () 
               </linearGradient>
               {/* Fog over the far road, the page colour fading downwards. */}
               <linearGradient id="lp-home-fog" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="var(--lp-bg-0)" stopOpacity="0.82" />
+                <stop offset="0%" stopColor="var(--lp-bg-0)" stopOpacity="0.8" />
+                <stop offset="55%" stopColor="var(--lp-bg-0)" stopOpacity="0.4" />
                 <stop offset="100%" stopColor="var(--lp-bg-0)" stopOpacity="0" />
+              </linearGradient>
+              {/* The horizon line fades out at both ends. */}
+              <linearGradient id="lp-home-hz" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="var(--lp-line-strong)" stopOpacity="0" />
+                <stop offset="45%" stopColor="var(--lp-line-strong)" stopOpacity="1" />
+                <stop offset="100%" stopColor="var(--lp-line-strong)" stopOpacity="0" />
               </linearGradient>
               {/* The near end of the road dissolves into the page instead of
                   stopping at a hard edge. */}
@@ -198,9 +205,9 @@ export function Home({ onStart, onSecond }: { onStart: () => void; onSecond: () 
                 <stop offset="0%" stopColor="var(--lp-bg-0)" stopOpacity="0" />
                 <stop offset="100%" stopColor="var(--lp-bg-0)" stopOpacity="0.92" />
               </linearGradient>
-              <linearGradient id="lp-home-walked" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="var(--lp-sea)" stopOpacity="0.15" />
-                <stop offset="22%" stopColor="var(--lp-sea)" stopOpacity="0.5" />
+              {/* The walked road fades in rather than starting on a hard edge. */}
+              <linearGradient id="lp-home-walked" gradientUnits="userSpaceOnUse" x1="0" y1={g.y(tHere)} x2="0" y2={g.y(tHere) + 110}>
+                <stop offset="0%" stopColor="var(--lp-sea)" stopOpacity="0" />
                 <stop offset="100%" stopColor="var(--lp-sea)" stopOpacity="0.55" />
               </linearGradient>
               <filter id="lp-home-shadow" x="-30%" y="-30%" width="160%" height="160%">
@@ -213,7 +220,7 @@ export function Home({ onStart, onSecond }: { onStart: () => void; onSecond: () 
 
             {/* Horizon light behind the destination */}
             <ellipse cx={mx(g.cx(1))} cy={g.top} rx={box.w * 0.55} ry={box.h * 0.16} fill="url(#lp-home-horizon)" />
-            <line x1={box.w * 0.08} y1={g.top} x2={box.w * 0.92} y2={g.top} stroke="var(--lp-line)" strokeWidth={1} />
+            <line x1={0} y1={g.top} x2={box.w} y2={g.top} stroke="url(#lp-home-hz)" strokeWidth={1} />
 
             {/* The road: a soft shadow under it, the surface, light from the
                 horizon, the walked part filled, then a kerb line. */}
@@ -221,6 +228,7 @@ export function Home({ onStart, onSecond }: { onStart: () => void; onSecond: () 
               <polygon points={ribbon} fill="var(--lp-shade)" opacity={0.3} filter="url(#lp-home-shadow)" />
             </g>
             <polygon points={ribbon} fill="var(--lp-road)" />
+            <polygon points={ribbon} fill="var(--lp-shade)" opacity={0.05} />
             <polygon points={ribbon} fill="url(#lp-home-light)" />
             <g clipPath="url(#lp-home-clip)">
               <polygon points={ribbon} fill="url(#lp-home-walked)" />
@@ -228,7 +236,7 @@ export function Home({ onStart, onSecond }: { onStart: () => void; onSecond: () 
             <polygon points={ribbon} fill="none" stroke="var(--lp-line-strong)" strokeWidth={1.25} strokeLinejoin="round" />
 
             {/* Fog over the distance */}
-            <rect x="0" y={g.top - 10} width={box.w} height={box.h * 0.42} fill="url(#lp-home-fog)" />
+            <rect x="0" y={0} width={box.w} height={box.h * 0.5} fill="url(#lp-home-fog)" />
 
             {/* The destination: the next level, with a flag */}
             <g opacity={0.9}>
@@ -256,7 +264,7 @@ export function Home({ onStart, onSecond }: { onStart: () => void; onSecond: () 
                       y={py}
                       w={(isToday ? 19 : 15) * depth}
                       h={(isToday ? 13 : 10) * depth}
-                      colour={achieved ? "var(--lp-sea)" : isToday ? "var(--lp-marker)" : "var(--lp-fog)"}
+                      colour={achieved ? "var(--lp-sea)" : isToday ? "var(--lp-marker)" : "var(--lp-paper-faint)"}
                     />
                     {achieved ? <StopTick x={px} y={py - 4 * depth} size={5.5 * depth} /> : null}
                   </g>

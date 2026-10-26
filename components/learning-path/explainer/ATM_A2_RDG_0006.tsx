@@ -496,12 +496,12 @@ function TickSign({ x, y, frame, from = 0, k = 1, label }: { x: number; y: numbe
 }
 
 /** A small leaf tick that pops on the corner of a sign. */
-function TickBadge({ x, y, frame, from }: { x: number; y: number; frame: number; from: number }) {
+function TickBadge({ x, y, frame, from, k = 1 }: { x: number; y: number; frame: number; from: number; k?: number }) {
   if (frame < from) return null;
   const s = springIn(frame, from, { damping: 8, stiffness: 220 });
   const ring = tween(frame, from, from + 24, 0, 1, EASE.out);
   return (
-    <g transform={`translate(${x} ${y})`}>
+    <g transform={`translate(${x} ${y}) scale(${k})`}>
       <circle r={30 * (1 + ring * 1.3)} fill="none" stroke={SEA} strokeWidth={6 * (1 - ring)} opacity={1 - ring} />
       <g transform={`scale(${s})`}>
         <circle r="32" fill={INK} />
@@ -669,8 +669,9 @@ function EscalatorBack({ frame }: { frame: number }) {
 function EscalatorFront() {
   return (
     <g>
-      <path d={escBand(0, -134)} fill="#dceaf2" opacity="0.16" />
-      <path d={escBand(-126, -134)} fill={FOG} opacity="0.45" />
+      {/* the glass has to read, or the handrail looks like a bar floating over the riders */}
+      <path d={escBand(0, -134)} fill={PALE} opacity="0.32" />
+      <path d={escBand(-126, -134)} fill={FOG} opacity="0.7" />
       <path
         d={`M${escPoint(0, -146).x} ${escPoint(0, -146).y} L${escPoint(1, -146).x} ${escPoint(1, -146).y}`}
         stroke={INK}
@@ -780,8 +781,8 @@ function HookScene({ frame }: { frame: number }) {
               <Character
                 who="you"
                 x={walkX}
-                y={1180}
-                scale={1.16}
+                y={1040}
+                scale={1.1}
                 facing={1}
                 frame={frame}
                 enter={22}
@@ -790,7 +791,7 @@ function HookScene({ frame }: { frame: number }) {
                 gesture={looking ? "think" : "idle"}
                 gestureAt={72}
               />
-              <Tote x={walkX + 120} y={1012} k={0.78} />
+              <Tote x={walkX + 120} y={880} k={0.78} />
             </Stage>
           ),
         },
@@ -900,7 +901,7 @@ function W3Scene({ frame }: { frame: number }) {
   const youT = tween(frame, W3 + 6, W3 + 170, 0.36, 0.5, EASE.inOut);
   const famT = tween(frame, W3 + 8, W3 + 150, 0.02, 1.02, EASE.inOut);
   const youP = escPoint(youT, 0);
-  const famP = escPoint(famT, -52);
+  const famP = escPoint(famT, 0);
   const youK = 0.82 * (1 - 0.2 * youT);
   const famK = 0.68 * (1 - 0.2 * famT);
   return (
@@ -1056,8 +1057,9 @@ function PractiseScene({ frame }: { frame: number }) {
         {/* both signs pop a tick when the learner comes back */}
         <NoFoodSign x={386} y={1104} frame={frame} from={P0 + 30} k={0.62} />
         <TickSign x={694} y={1104} frame={frame} from={P0 + 42} k={0.62} />
-        <TickBadge x={428} y={1062} frame={frame} from={1060} />
-        <TickBadge x={736} y={1062} frame={frame} from={1072} />
+        {/* just off the plate corner, so the badge never covers the sign it is ticking */}
+        <TickBadge x={440} y={1050} frame={frame} from={1060} k={0.72} />
+        <TickBadge x={748} y={1050} frame={frame} from={1072} k={0.72} />
         {yourTurn ? (
           <g>
             <g transform={`translate(150 266) scale(${turn}) translate(-150 -266)`}>
@@ -1100,6 +1102,9 @@ function RecapScene({ frame }: { frame: number }) {
         <EscalatorSign x={540} y={700} frame={frame} from={R0 + 48} k={0.6} />
         <SeatSign x={740} y={700} frame={frame} from={R0 + 56} k={0.74} />
         <GapSign x={940} y={700} frame={frame} from={R0 + 46} k={0.74} />
+        {/* a platform band to stand on: blue trousers vanish against the accent ground */}
+        <rect x="0" y="1046" width={STAGE_W} height={STAGE_H - 1046} fill={PALE} opacity="0.94" />
+        <rect x="0" y="1046" width={STAGE_W} height="9" fill={GOLD} />
         <Character who="you" x={232} y={1212} scale={0.88} facing={1} frame={frame} enter={R0 + 38} slideFrom={-150} mood="happy" gesture="thumbs" gestureAt={R0 + 50} />
         <Fatima x={856} y={1212} frame={frame} scale={0.88} facing={-1} enter={R0 + 44} slideFrom={150} smile arm="wave" armAt={R0 + 56} />
       </Stage>

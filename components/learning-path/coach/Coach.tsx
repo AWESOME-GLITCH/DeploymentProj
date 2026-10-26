@@ -536,7 +536,7 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
       <div className="mt-auto pt-3">
         {ended ? (
           <div className="flex gap-2">
-            <GlowButton secondary size="normal" className="!w-28 shrink-0" onClick={again}>{t("retry")}</GlowButton>
+            <GlowButton secondary size="normal" className="!w-32 shrink-0" onClick={again}>{t("retry")}</GlowButton>
             <GlowButton size="normal" onClick={() => { clearTimers(); stopSpeaking(); onNext(); }}>{stage === "reply" ? t("continue") : t("keep_going")}</GlowButton>
           </div>
         ) : (
