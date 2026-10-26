@@ -168,10 +168,6 @@ function Desk({ x, y, mode = "solid" }: { x: number; y: number; mode?: Mode }) {
         <path d="M-44 -62 L44 -62 L44 -8 L-44 -8 Z" fill={GLASS} />
         <rect x="-62" y="-4" width="124" height="12" rx="6" fill={INK} opacity="0.85" />
       </g>
-      <g transform="translate(-136 -14)">
-        <rect x="-74" y="-16" width="148" height="18" rx="9" fill={PAPER} stroke={INK} strokeWidth="4" />
-        <circle cx="-74" cy="-7" r="9" fill={CARD} stroke={INK} strokeWidth="4" />
-      </g>
       <rect x="-230" y="0" width="460" height="28" rx="10" fill={WOOD_LIGHT} stroke={INK} strokeWidth="4" />
       <rect x="-210" y="28" width="28" height="138" rx="8" fill={WOOD} />
       <rect x="182" y="28" width="28" height="138" rx="8" fill={WOOD} />
@@ -185,13 +181,13 @@ function Seated({ x, y, scale = 1 }: { x: number; y: number; scale?: number }) {
   return (
     <g transform={`translate(${x} ${y}) scale(${scale})`}>
       {/* the stool */}
-      <rect x="-56" y="-152" width="104" height="20" rx="9" fill={WOOD} />
-      <rect x="-18" y="-136" width="24" height="136" rx="9" fill={WOOD} />
-      <rect x="-52" y="-12" width="92" height="16" rx="8" fill={WOOD} />
-      {/* thigh forward, shin down, shoe */}
-      <rect x="-24" y="-160" width="148" height="44" rx="20" fill={ACCENT} />
-      <rect x="82" y="-148" width="42" height="140" rx="18" fill={ACCENT} />
-      <ellipse cx="110" cy="0" rx="42" ry="14" fill={INK} />
+      <rect x="-60" y="-158" width="110" height="20" rx="9" fill={WOOD} />
+      <rect x="-16" y="-142" width="24" height="138" rx="10" fill={WOOD} />
+      <ellipse cx="-4" cy="-2" rx="44" ry="11" fill={WOOD} />
+      {/* thigh forward, shin down, shoe on the ground */}
+      <rect x="-26" y="-162" width="150" height="48" rx="22" fill={ACCENT} />
+      <rect x="82" y="-130" width="44" height="118" rx="18" fill={ACCENT} />
+      <path d="M80 -24 L128 -24 Q166 -24 166 -6 Q166 2 154 2 L88 2 Q80 2 80 -8 Z" fill={INK} />
     </g>
   );
 }
@@ -473,9 +469,9 @@ function RiyadhCity({ cx }: { cx: number }) {
       // The landmarks stand left and right of centre, so the desk never hides them.
       parts={[
         { d: `M${cx - 450} ${BASE} L${cx - 450} ${BASE - 190} L${cx - 340} ${BASE - 190} L${cx - 340} ${BASE} Z`, fill: CITY_LIGHT },
-        { d: `M${cx - 308} ${BASE} L${cx - 288} ${BASE - 430} L${cx - 250} ${BASE - 430} L${cx - 260} ${BASE} Z`, fill: CITY_MID },
-        { d: `M${cx - 200} ${BASE} L${cx - 210} ${BASE - 430} L${cx - 172} ${BASE - 430} L${cx - 152} ${BASE} Z`, fill: CITY_MID },
-        { d: `M${cx - 288} ${BASE - 430} Q${cx - 230} ${BASE - 540} ${cx - 172} ${BASE - 430} L${cx - 210} ${BASE - 430} Q${cx - 230} ${BASE - 486} ${cx - 250} ${BASE - 430} Z`, fill: CITY_MID },
+        { d: `M${cx - 320} ${BASE} L${cx - 302} ${BASE - 430} L${cx - 262} ${BASE - 430} L${cx - 272} ${BASE} Z`, fill: CITY_MID },
+        { d: `M${cx - 188} ${BASE} L${cx - 198} ${BASE - 430} L${cx - 158} ${BASE - 430} L${cx - 140} ${BASE} Z`, fill: CITY_MID },
+        { d: `M${cx - 302} ${BASE - 430} Q${cx - 230} ${BASE - 548} ${cx - 158} ${BASE - 430} L${cx - 198} ${BASE - 430} Q${cx - 230} ${BASE - 492} ${cx - 262} ${BASE - 430} Z`, fill: CITY_MID },
         { d: `M${cx + 120} ${BASE} L${cx + 120} ${BASE - 250} L${cx + 228} ${BASE - 250} L${cx + 228} ${BASE} Z`, fill: CITY_DARK },
         { d: `M${cx + 262} ${BASE} L${cx + 332} ${BASE - 350} L${cx + 402} ${BASE} Z`, fill: CITY_MID },
         { d: `M${cx + 420} ${BASE} L${cx + 420} ${BASE - 150} L${cx + 520} ${BASE - 150} L${cx + 520} ${BASE} Z`, fill: CITY_LIGHT },
@@ -799,10 +795,10 @@ function PractiseScene({ frame }: { frame: number }) {
 // ---------------------------------------------------------------- recap
 function RecapScene({ frame }: { frame: number }) {
   const card = springIn(frame, 1356, { damping: 11, stiffness: 110 });
-  const COLS: { kind: "back" | "now" | "next"; parts: FormPart[] }[] = [
-    { kind: "back", parts: [{ t: "work" }, { t: "ed", add: true }] },
-    { kind: "now", parts: [{ t: "work" }] },
-    { kind: "next", parts: [{ t: "will ", add: true }, { t: "work" }] },
+  const COLS: { kind: "back" | "now" | "next"; label: string; parts: FormPart[] }[] = [
+    { kind: "back", label: "Yesterday", parts: [{ t: "work" }, { t: "ed", add: true }] },
+    { kind: "now", label: "Today", parts: [{ t: "work" }] },
+    { kind: "next", label: "Tomorrow", parts: [{ t: "will ", add: true }, { t: "work" }] },
   ];
   return (
     <AbsoluteFill style={{ background: ACCENT }}>
@@ -817,8 +813,9 @@ function RecapScene({ frame }: { frame: number }) {
           <text x="535" y="330" textAnchor="middle" fontFamily={FONT} fontWeight="800" fontSize="36" letterSpacing="6" fill={FAINT}>REMEMBER</text>
           {COLS.map((c, i) => (
             <g key={c.kind}>
-              <TimeIcon kind={c.kind} x={225 + i * 310} y={470} scale={0.9} color={ACCENT} />
-              {i < 2 ? <line x1={380 + i * 310} y1="390" x2={380 + i * 310} y2="660" stroke={FOG} strokeWidth="4" /> : null}
+              <TimeIcon kind={c.kind} x={225 + i * 310} y={450} scale={0.9} color={ACCENT} />
+              <text x={225 + i * 310} y={648} textAnchor="middle" fontFamily={FONT} fontWeight="700" fontSize="34" fill={FAINT}>{c.label}</text>
+              {i < 2 ? <line x1={380 + i * 310} y1="390" x2={380 + i * 310} y2="672" stroke={FOG} strokeWidth="4" /> : null}
             </g>
           ))}
         </g>
@@ -830,7 +827,7 @@ function RecapScene({ frame }: { frame: number }) {
       {card > 0.05 ? (
         <div style={{ position: "absolute", inset: 0, opacity: Math.min(1, card * 2), transform: `scale(${card})`, transformOrigin: "540px 480px" }}>
           {COLS.map((c, i) => (
-            <FormWord key={c.kind} frame={frame} parts={c.parts} size={50} top={552} left={70 + i * 310} width={310} addColor={SAFFRON} addChip />
+            <FormWord key={c.kind} frame={frame} parts={c.parts} size={50} top={528} left={70 + i * 310} width={310} addColor={SAFFRON} addChip />
           ))}
         </div>
       ) : null}

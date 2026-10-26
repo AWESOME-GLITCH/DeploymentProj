@@ -8,14 +8,38 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Player, type PlayerRef } from "@remotion/player";
 import { Captions, Mic, Pause, Play, RotateCcw } from "lucide-react";
-import { CAFE_BEATS, CAFE_DURATION, CAFE_FPS, CAFE_H, CAFE_W, CafeExplainer, beatAt, type Beat } from "./Cafe";
+import { CAFE_BEATS, CAFE_DURATION, CAFE_FPS, CAFE_H, CAFE_W, CafeExplainer } from "./Cafe";
+import { EXPLAINER as LST_0004 } from "./ATM_A2_LST_0004";
+import { EXPLAINER as RDG_0006 } from "./ATM_A2_RDG_0006";
+import { EXPLAINER as INT_0009 } from "./ATM_A2_INT_0009";
+import { EXPLAINER as WRT_0007 } from "./ATM_A2_WRT_0007";
+import { EXPLAINER as GRM_0003 } from "./ATM_A2_GRM_0003";
+import { EXPLAINER as INT_0010 } from "./ATM_A2_INT_0010";
+
+/** The beat contract every lesson explainer exports. */
+export type Beat = { id: string; from: number; to: number; line: string; target?: string[]; kind: string; pauseAt?: number };
+export type ExplainerDef = { component: React.FC<{ l1?: Record<string, string> }>; beats: Beat[]; duration: number; fps?: number; width?: number; height?: number; l1: Record<string, Record<string, string>> };
+
+function beatIn(beats: Beat[], frame: number): Beat {
+  return beats.find((b) => frame >= b.from && frame < b.to) ?? beats[beats.length - 1];
+}
+/** The line the learner repeats at the pause: the practise line without the "Say it with me." lead-in. */
+export function practiseLine(beat: Beat): string {
+  return beat.line.replace(/^say it with me[.,!:]?\s*/i, "").trim() || beat.line;
+}
 import { Recorder, ResultBars } from "../items";
 import { scoreReadAloud, type SpeechScore } from "@/lib/learning-path/scoring";
 import { useLp } from "../ui";
 
-export const EXPLAINERS: Record<string, { component: React.FC<{ l1?: Record<string, string> }>; beats: Beat[]; duration: number; l1: Record<string, Record<string, string>> }> = {
+export const EXPLAINERS: Record<string, ExplainerDef> = {
+  "ATM-A2-LST-0004": LST_0004,
+  "ATM-A2-RDG-0006": RDG_0006,
+  "ATM-A2-INT-0009": INT_0009,
+  "ATM-A2-WRT-0007": WRT_0007,
+  "ATM-A2-GRM-0003": GRM_0003,
+  "ATM-A2-INT-0010": INT_0010,
   "ATM-A2-INT-0001": {
-    component: CafeExplainer, beats: CAFE_BEATS, duration: CAFE_DURATION,
+    component: CafeExplainer, beats: CAFE_BEATS, duration: CAFE_DURATION, fps: CAFE_FPS, width: CAFE_W, height: CAFE_H,
     l1: {
       ar: { hook: "صباح الاثنين. شورديتش. القهوة أولًا.", n1: "أريد قهوة، من فضلك.", n2: "أريد قهوتين، من فضلك.", n3: "هل يمكنني الحصول على شاي؟", explain: "I'd like تعني أريد، لكن بأدب.", practise: "قلها معي.", recap: "I'd like ... please." },
       es: { hook: "Lunes por la mañana. Shoreditch. Primero, café.", n1: "Quisiera un café, por favor.", n2: "Quisiera dos cafés, por favor.", n3: "¿Podría tomar un té?", explain: "I'd like significa quiero, pero con cortesía.", practise: "Dilo conmigo.", recap: "I'd like ... please." },
@@ -49,7 +73,8 @@ export function ExplainerPlayer({ atomId, onProgress, onSpoken }: { atomId: stri
   // Progress only ever grows: replaying a beat never takes credit away.
   const report = useCallback((p: number) => { if (p > maxPct.current) { maxPct.current = p; onProgress(p); } }, [onProgress]);
   const beats = def.beats;
-  const beat = beatAt(frame);
+  const beat = beatIn(beats, frame);
+  const model = paused ? practiseLine(paused) : "";
   const l1Map = showL1 && l1 !== "en" ? def.l1[l1] : undefined;
   const inputProps = useMemo(() => ({ l1: l1Map }), [l1Map]);
 
@@ -97,7 +122,7 @@ export function ExplainerPlayer({ atomId, onProgress, onSpoken }: { atomId: stri
   return (
     <div className="flex h-full flex-col">
       <div className="lp-video relative w-full" style={{ aspectRatio: "3 / 4" }}>
-        <Player ref={ref} component={def.component} inputProps={inputProps} durationInFrames={def.duration} fps={CAFE_FPS} compositionWidth={CAFE_W} compositionHeight={CAFE_H} style={{ width: "100%", height: "100%" }} controls={false} playbackRate={rate} clickToPlay={false} loop={false} moveToBeginningWhenEnded={false} />
+        <Player ref={ref} component={def.component} inputProps={inputProps} durationInFrames={def.duration} fps={def.fps ?? CAFE_FPS} compositionWidth={def.width ?? CAFE_W} compositionHeight={def.height ?? CAFE_H} style={{ width: "100%", height: "100%" }} controls={false} playbackRate={rate} clickToPlay={false} loop={false} moveToBeginningWhenEnded={false} />
         {!started ? (
           <button type="button" aria-label={t("listen")} onClick={start} className="absolute inset-0 z-10 flex items-center justify-center" style={{ background: "var(--lp-dim)" }}>
             <span className="lp-mic" style={{ width: 76, height: 76 }}><Play size={34} /></span>
@@ -112,10 +137,10 @@ export function ExplainerPlayer({ atomId, onProgress, onSpoken }: { atomId: stri
           <div className="absolute inset-x-0 bottom-0 z-20 p-3">
             <div className="lp-glass p-3">
               <div className="lp-eyebrow mb-1">{t("your_turn")}</div>
-              <div className="lp-lesson mb-2">I'd like a coffee, please.</div>
+              <div className="lp-lesson mb-2">{model}</div>
               {score ? <div className="mb-2"><ResultBars score={score} /></div> : null}
               {!score ? (
-                <Recorder maxSeconds={8} autoText="I'd like a coffee, please." onDone={(tr, ms) => { const s = scoreReadAloud("I'd like a coffee, please.", tr, ms); setScore(s); onSpoken?.(); }} />
+                <Recorder maxSeconds={8} autoText={model} onDone={(tr, ms) => { const s = scoreReadAloud(model, tr, ms); setScore(s); onSpoken?.(); }} />
               ) : (
                 <div className="flex gap-2"><button type="button" className="lp-btn-primary lp-btn-48" onClick={resume}>{t("continue")}</button><button type="button" className="lp-icon-btn" aria-label={t("retry")} onClick={() => setScore(null)}><RotateCcw size={18} /></button></div>
               )}
