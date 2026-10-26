@@ -82,13 +82,19 @@ function buildTurn(item: Item, dayParity: number, t: (k: string) => string): Tur
 
 const clean = (w: string) => w.toLowerCase().replace(/[^a-z']/g, "");
 
+/** Scoring works on lower-case words; the learner sees a readable one. */
+function tidy(w: string): string {
+  const s = w.replace(/[.,?!]/g, "").replace(/\bi\b/g, "I");
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
 /** The word to practise: the longest one the coach did not hear. */
 function hardestWord(score: SpeechScore, line: string): string {
   const missed = [...score.missed].sort((a, b) => b.length - a.length)[0];
   const words = line.split(/\s+/);
   if (missed) {
     const shown = words.find((w) => clean(w) === missed || clean(w).startsWith(missed.slice(0, 4)));
-    return (shown ?? missed).replace(/[.,?!]/g, "");
+    return shown ? shown.replace(/[.,?!]/g, "") : tidy(missed);
   }
   return (words.sort((a, b) => clean(b).length - clean(a).length)[0] ?? line).replace(/[.,?!]/g, "");
 }
@@ -245,7 +251,9 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
     return Math.sin(d / 3.2) * 9 * (1 - d / 34);
   })();
 
-  const words = lineText.split(/\s+/).filter(Boolean);
+  // A hard word stays whole; a long prompt reads as chips, not as big tiles.
+  const words = bigWord ? [bigWord] : lineText.split(/\s+/).filter(Boolean);
+  const compact = !bigWord && words.length > 8;
   // Only the model line itself has words to mark as missed.
   const missedNow = turn.model && lineText === turn.model ? score?.missed ?? [] : [];
 
@@ -274,7 +282,12 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
               className="lp-tile"
               style={bigWord
                 ? { fontSize: "calc(40px * var(--lp-scale))", fontWeight: 700, padding: "10px 22px", color: "var(--lp-accent)" }
-                : { minHeight: 44, fontSize: "calc(20px * var(--lp-scale))", ...(missed ? { color: "var(--lp-accent)", borderColor: "var(--lp-accent-line)" } : {}) }}
+                : {
+                  minHeight: 44,
+                  fontSize: `calc(${compact ? 16 : 20}px * var(--lp-scale))`,
+                  padding: compact ? "8px 12px" : undefined,
+                  ...(missed ? { color: "var(--lp-accent)", borderColor: "var(--lp-accent-line)" } : {}),
+                }}
             >
               {w}
             </button>
