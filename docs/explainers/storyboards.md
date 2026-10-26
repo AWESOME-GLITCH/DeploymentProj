@@ -410,7 +410,7 @@ mid-move and the whole caption lit.
 | atom_id | ATM-A2-GRM-0003 |
 | title | Yesterday, today, tomorrow |
 | sublevel / strand | A2.1 / GRM (Grammar) |
-| type | video, 50 s, 1500 frames |
+| type | video, 40 s, 1200 frames (re-cut from 50 s on 26 October) |
 | single target | Time word first, then the regular verb changes: worked / work / will work |
 | characters | you (the traveller, in a hard hat as the engineer on secondment), maya (explain and practise) |
 | setting | A road-style timeline across three flat skylines: Riyadh (left, sepia), Dubai (centre, full colour), London (right, outline only) |
@@ -418,15 +418,23 @@ mid-move and the whole caption lit.
 
 ### Beats
 
-| id | kind | from | to | narration (TTS) | targets | pauseAt | scene for the animator |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| hook | hook | 0 | 120 | One week. Three cities. | | | PAPER background. A suitcase slides in from the left and stops; three city stickers slap onto it one by one: Riyadh (tower with a crown), Dubai (sail hotel), London (clock tower). A small calendar page flutters down and lands on the suitcase. Cut to the timeline road. |
-| n1 | notice | 120 | 270 | Yesterday I worked in Riyadh. | worked | | A road runs left to right with three stops. Camera starts on the left stop: the Riyadh skyline in sepia, a calendar page reading "Yesterday" with a left-pointing arrow. you sits at a desk with a hard hat, drawn in sepia too. Bubble: "Yesterday I worked in Riyadh." As the word "worked" types, a small "-ed" tag flies in from the right and clips onto the end of "work" with a click. |
-| n2 | notice | 270 | 420 | Today I work in Dubai. | work | | Camera slides right to the centre stop: Dubai in full colour, a saffron "you are here" pin bouncing over you at a desk. Calendar page "Today". Bubble: "Today I work in Dubai." The verb "work" stands alone, nothing attached, and gets a small ACCENT underline. |
-| n3 | notice | 420 | 570 | Tomorrow I will work in London. | will work | | Camera slides right to the last stop: London drawn as a dotted outline (not here yet), the calendar page "Tomorrow" with a right-pointing arrow. you is a dotted outline too, with a tiny suitcase. Bubble: "Tomorrow I will work in London." As it types, a "will" tile slides in from the left and parks in front of "work" with a click. |
-| explain | explain | 570 | 1020 | Past: add ed. Future: add will. | ed, will | | PAPER background, maya small in the corner circle. Centre: a horizontal slider with three notches labelled with the three calendar pages (Yesterday, Today, Tomorrow) and the verb "work" in 150 px above the knob. you's hand drags the knob left (frame 630): a magnet tile "-ed" snaps onto the end, "worked", with a magnetic clack and two small motion lines. Knob back to centre (750): the tile falls off, "work". Knob dragged right (840): a "will" magnet snaps onto the front, "will work". At frame 940 all three forms line up in a column under their calendar pages, the added parts in ACCENT. |
-| practise | practise | 1020 | 1350 | Say it with me. Worked. Work. Will work. | Worked, Work, Will work | 1230 | Pale blue background, maya large in a white circle. Karaoke of the three forms in 96 px, one per line; as each is spoken the slider knob at the bottom jumps to its notch (left, centre, right). At 1230 the mic pulses and the player pauses. On resume the three forms glow leaf. |
-| recap | recap | 1350 | 1500 | worked, work, will work | worked, work, will work | | ACCENT background, white card: "REMEMBER" and the three forms in a row with their time icons above (left arrow, pin, right arrow), the "-ed" and "will" parts in SAFFRON. The three city stickers from the hook spring in under the card. |
+Re-cut 26 October 2026 to **The attention law**, on the nine-beat contrast grid: three time frames need
+three notice beats and the rule is two sentences, so it needs two explain beats. The old
+fifteen-second explain beat and eleven-second practise beat are gone. The `predict` beat sits in slot 4,
+immediately before the scene gives the future form, and it is the best prediction in the whole set:
+the learner guesses the grammar itself, with one tap, before anyone says it.
+
+| id | kind | from | to | narration (TTS) | targets | ask | pauseAt | scene for the animator |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| hook | hook | 0 | 60 | One week. Three cities. | | | | PAPER background. A suitcase slides in from the left and stops by frame 24; three city stickers slap onto it one per 10 frames: Riyadh (tower with a crown), Dubai (sail hotel), London (clock tower). Two seconds and a title, nothing else: the beat says where we are and gets out of the way. The cut to the timeline road is on 60. |
+| n1 | notice | 60 | 210 | Yesterday I worked in Riyadh. | worked | tap | 198 | A road runs left to right with three stops. Camera on the left stop: the Riyadh skyline in sepia, a calendar page reading "Yesterday" with a left-pointing arrow. you sits at a desk with a hard hat, drawn in sepia too. Bubble: "Yesterday I worked in Riyadh." As the word "worked" types, a small "-ed" tag flies in from the right and clips onto the end of "work" with a click, landing by 180. The tap is the chips "Yesterday" and "worked". |
+| n2 | notice | 210 | 360 | Today I work in Dubai. | work | say the word | 348 | Camera slides right to the centre stop: Dubai in full colour, a saffron "you are here" pin bouncing over you at a desk. Calendar page "Today". Bubble: "Today I work in Dubai." The verb "work" stands alone, nothing attached, and gets a small ACCENT underline. The learner says "work" at 348, the bare form, which is the easy rung. |
+| predict | predict | 360 | 450 | And tomorrow? | work, worked, will work | predict | 438 | The prediction moment, and the one that does the most work in the whole set. Camera slides to the third stop but London is still a dotted outline with no bubble over it. A thought cloud over you holds three chips: "work", "worked", "will work". Nothing is spoken in English; the caption asks in the learner's own language. The ask is one tap. A tap on "will work" lights it leaf; a tap on either other chip leaves it in place and dims it slightly, no cross and no sound of failure. n3 answers it either way, which is the point: a guess before the answer is remembered better than the answer alone. |
+| n3 | notice | 450 | 600 | Tomorrow I will work in London. | will work | say the line | 588 | London completes as a dotted outline (not here yet), the calendar page "Tomorrow" with a right-pointing arrow. you is a dotted outline too, with a tiny suitcase. Bubble: "Tomorrow I will work in London." As it types, a "will" tile slides in from the left and parks in front of "work" with a click, landing by 570. The learner says the whole line at 588. |
+| explain | explain | 600 | 750 | Past: add ed. | ed | tap | 738 | PAPER background, maya small in the corner circle. Centre: a horizontal slider with three notches labelled with the three calendar pages and the verb "work" in 150 px above the knob. you's hand drags the knob left (frame 630): a magnet tile "-ed" snaps onto the end, "worked", with a magnetic clack and two small motion lines, settling by 690. One idea on the page. The tap is the "-ed" tile and the word. |
+| explain2 | explain | 750 | 900 | Future: add will. | will | tap | 888 | The same slider. The knob returns to centre (frame 762) and the "-ed" tile falls off, "work"; then the knob is dragged right (798) and a "will" magnet snaps onto the front, "will work", same clack, mirrored. At 840 all three forms line up in a column under their calendar pages, the added parts in ACCENT, which is the picture the recap reuses. |
+| practise | practise | 900 | 1080 | Say it with me. Yesterday I worked. Tomorrow I will work. | worked, will work | say it changed | 1068 | Pale blue background, maya large in a white circle. Two sentences, not the three bare forms the old cut used: a bare form said into a microphone is a word, and the criterion is a sentence. The places are gone, so the shape has moved off Riyadh and London, which is the change. Karaoke in 88 px over two lines; as each is spoken the slider knob at the bottom jumps to its notch. Line complete by 1032, mic cue in by 1044. On resume both forms glow leaf. |
+| recap | recap | 1080 | 1200 | You can talk about yesterday and tomorrow. Again in the morning. | | | | ACCENT background, white card: the three forms in a row with their time icons above (left arrow, pin, right arrow), the "-ed" and "will" parts in SAFFRON, which is the check stem. The three city stickers from the hook spring in under the card. The narration is the self-efficacy close, in the learner's own language. Hold with nothing moving. |
 
 ### L1 captions
 
@@ -435,16 +443,20 @@ mid-move and the whole caption lit.
 | hook | أسبوع واحد. ثلاث مدن. | Una semana. Tres ciudades. | एक हफ़्ता। तीन शहर। | Одна неделя. Три города. | Bir hafta. Üç şehir. | 一周，三座城市。 |
 | n1 | أمس عملت في الرياض. | Ayer trabajé en Riad. | कल मैंने रियाद में काम किया। | Вчера я работал в Эр-Рияде. | Dün Riyad'da çalıştım. | 昨天我在利雅得工作。 |
 | n2 | اليوم أعمل في دبي. | Hoy trabajo en Dubái. | आज मैं दुबई में काम करता हूँ। | Сегодня я работаю в Дубае. | Bugün Dubai'de çalışıyorum. | 今天我在迪拜工作。 |
+| predict | وغدًا؟ | ¿Y mañana? | और कल? | А завтра? | Ya yarın? | 那明天呢？ |
 | n3 | غدًا سأعمل في لندن. | Mañana trabajaré en Londres. | कल मैं लंदन में काम करूँगा। | Завтра я буду работать в Лондоне. | Yarın Londra'da çalışacağım. | 明天我将在伦敦工作。 |
-| explain | الماضي: أضف ed. المستقبل: أضف will. | Pasado: añade ed. Futuro: añade will. | भूतकाल: ed जोड़ें। भविष्य: will जोड़ें। | Прошлое: добавь ed. Будущее: добавь will. | Geçmiş: ed ekle. Gelecek: will ekle. | 过去：加 ed。将来：加 will。 |
+| explain | الماضي: أضف ed. | Pasado: añade ed. | भूतकाल: ed जोड़ें। | Прошлое: добавь ed. | Geçmiş: ed ekle. | 过去：加 ed。 |
+| explain2 | المستقبل: أضف will. | Futuro: añade will. | भविष्य: will जोड़ें। | Будущее: добавь will. | Gelecek: will ekle. | 将来：加 will。 |
 | practise | قلها معي. | Dilo conmigo. | मेरे साथ बोलो। | Скажи со мной. | Benimle söyle. | 跟我一起说。 |
-| recap | أمس، اليوم، غدًا. | ayer, hoy, mañana. | कल, आज, कल। | вчера, сегодня, завтра. | dün, bugün, yarın. | 昨天、今天、明天。 |
+| recap | يمكنك التحدث عن الأمس والغد. نعيدها في الصباح. | Ya puedes hablar de ayer y de mañana. Seguimos por la mañana. | अब आप कल और आने वाले कल की बात कर सकते हैं। सुबह फिर। | Теперь вы можете говорить о вчера и завтра. Снова утром. | Artık dünden ve yarından konuşabilirsin. Sabah tekrar. | 你现在能谈昨天和明天了。早上再来。 |
 
 ### Interactive moments
 
 - Tappable words: all caption words; the three calendar pages are chips that play "yesterday", "today", "tomorrow".
-- At the pause (frame 1230) the learner says: "Worked. Work. Will work." Model answer: the same three forms. Scored as read-aloud; the open-response item that follows asks for one real yesterday and one real tomorrow sentence.
-- Extra tap: in the explain beat the slider is live for the whole beat: the learner can drag the knob to any notch and hear that form; this is the same control as the `time_slider` item (ITM-GRM-0301), so the learner meets it here before being scored on it.
+- Six stops, growing: tap the key words at 198, say "work" at 348, predict the future form at 438, say the whole line at 588, tap the "-ed" and "will" tiles at 738 and 888, say both sentences at 1068. The first ask lands at 6.6 s and no passive stretch runs longer than 6.6 s.
+- At 1068 the learner says: "Yesterday I worked. Tomorrow I will work." Scored as read-aloud; the open-response item that follows asks for one real yesterday and one real tomorrow sentence.
+- Prediction (frame 438, `predict` beat): one tap on "work", "worked" or "will work", before n3 says it. This is the strongest prediction moment in the set, because what is guessed is the target form itself rather than a picture. **Not wired yet**: needs the `predict` beat kind and ask kind, LP-46.
+- Extra tap: in both explain beats the slider is live for the whole beat: the learner can drag the knob to any notch and hear that form; this is the same control as the `time_slider` item (ITM-GRM-0301), so the learner meets it here before being scored on it.
 
 ---
 
@@ -455,7 +467,7 @@ mid-move and the whole caption lit.
 | atom_id | ATM-A2-GRM-0002 |
 | title | Two coffees, some water |
 | sublevel / strand | A2.1 / GRM (Grammar) |
-| type | word_tutorial, 40 s, 1200 frames |
+| type | word_tutorial, 35 s, 1050 frames (re-cut from 40 s on 26 October) |
 | single target | Count it: a number and s (two coffees). Cannot count it: some (some water) |
 | characters | leo, you |
 | setting | Cafe counter close-up from Cafe.tsx: counter top, a jug, a sugar jar, cups |
@@ -463,15 +475,21 @@ mid-move and the whole caption lit.
 
 ### Beats
 
-| id | kind | from | to | narration (TTS) | targets | pauseAt | scene for the animator |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| hook | hook | 0 | 120 | Two coffees and some water, please. | | | Cafe counter. you orders, bubble (tail right): "Two coffees and some water, please." leo nods and reaches below the counter. Two cups and a glass appear as grey outlines waiting to be filled. Cut in on the counter. |
-| w1 | word | 120 | 330 | A coffee, two coffees. You can count coffees. | a coffee, two coffees | | Word card at the top: "a coffee, two coffees" with the s in ACCENT. Mini-scene: one cup springs up, a pointing finger taps it, "1" pops; a second cup springs up, tap, "2" pops; an "s" tile flies from the number and clips onto the end of "coffee". Steam from both cups. |
-| w2 | word | 330 | 540 | Some water. You cannot count water. | some water | | Word card: "some water". Mini-scene: leo pours from a jug into a glass. Gag: a "2" tile tries to land on the water, slides off the surface and plops into the glass, bubbles rise. Then a "some" tile floats on the surface like a little boat and stays. leo shrugs, smiles. |
-| w3 | word | 540 | 720 | Some sugar. Sugar is not counted either. | some sugar | | Word card: "some sugar". Mini-scene: sugar pours from a jar into a small pile. The "2" tile tries again, sinks into the pile with a puff; a "some" scoop lifts a spoonful and the "some" tile sits on the spoon. Quick beat, same rhythm as w2 so the pattern lands. |
-| w4 | word | 720 | 880 | A sandwich, two sandwiches. Add es after ch. | two sandwiches | | Word card: "a sandwich, two sandwiches" with "es" in ACCENT. Mini-scene: two sandwiches slide onto a plate; the word "sandwich" splits so "ch" is visible, and an "es" tile clips on after it with the same click as w1. you's hand reaches for one. |
-| practise | practise | 880 | 1120 | Say it with me. Two coffees and some water, please. | two coffees, some water | 1060 | Pale blue background, leo large in a white circle. Karaoke of "Two coffees and some water, please." in 88 px; "coffees" gets the s in ACCENT, "some" in ACCENT. At 1060 the mic pulses and the player pauses. On resume the grey outlines from the hook fill in: two cups and a glass, with a tick. |
-| recap | recap | 1120 | 1200 | Count it: two coffees. Cannot count it: some water. | two coffees, some water | | ACCENT background, white card in two columns: left "count it" with two cups and "two coffee**s**"; right "cannot count it" with the glass and "**some** water". Hold. |
+Re-cut 26 October 2026 to **The attention law**, on the word-tutorial spine. The first ask moves from
+10.6 s to 7.6 s, and the `predict` beat goes in slot 3, where the learner guesses whether water takes a
+number before the gag shows that it does not. The practise line changes: it used to be the hook line
+back again, and it is now the two cards the learner has not said yet, so all four cards are used once.
+
+| id | kind | from | to | narration (TTS) | targets | ask | pauseAt | scene for the animator |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| hook | hook | 0 | 90 | Two coffees and some water, please. | | | | Cafe counter. you orders, bubble (tail right): "Two coffees and some water, please." leo nods and reaches below the counter. Two cups and a glass appear as grey outlines waiting to be filled, settled by 78. Cut in on the counter on 90. |
+| w1 | word | 90 | 240 | A coffee, two coffees. You can count coffees. | a coffee, two coffees | tap | 228 | Word card at the top: "a coffee, two coffees" with the s in ACCENT. Mini-scene: one cup springs up, a pointing finger taps it, "1" pops; a second cup springs up, tap, "2" pops; an "s" tile flies from the number and clips onto the end of "coffee" by frame 210. Steam from both cups. The tap is the chips "a coffee" and "two coffees". |
+| predict | predict | 240 | 330 | Two waters? | two waters, some water | predict | 318 | The prediction moment. leo holds the jug over an empty glass and waits, mid-pour, nothing poured yet. Two chips float above the glass: "two waters" and "some water". Nothing is spoken in English; the caption asks in the learner's own language. The ask is one tap, and the learner is guessing the rule before the gag teaches it, which is the whole value of putting it here. A tap on "some water" lights it leaf; a tap on "two waters" leaves it up and dims it, and w2 then shows why, which is better than a cross. |
+| w2 | word | 330 | 480 | Some water. You cannot count water. | some water | say the word | 468 | Word card: "some water". Mini-scene: leo finishes the pour. Gag: the "2" tile tries to land on the water, slides off the surface and plops into the glass, bubbles rise (frames 360 to 420). Then a "some" tile floats on the surface like a little boat and stays. leo shrugs, smiles. Settled by 450; the learner says "some water" at 468. |
+| w3 | word | 480 | 630 | Some sugar. Sugar is not counted either. | some sugar | say the word | 618 | Word card: "some sugar". Mini-scene: sugar pours from a jar into a small pile. The "2" tile tries again, sinks into the pile with a puff; a "some" scoop lifts a spoonful and the "some" tile sits on the spoon. Same rhythm as w2 so the pattern lands as one gesture, not two facts. |
+| w4 | word | 630 | 780 | A sandwich, two sandwiches. Add es after ch. | two sandwiches | say the line | 768 | Word card: "a sandwich, two sandwiches" with "es" in ACCENT. Mini-scene: two sandwiches slide onto a plate; the word "sandwich" splits so "ch" is visible, and an "es" tile clips on after it with the same click as w1. you's hand reaches for one. The learner says "two sandwiches, please" at 768. |
+| practise | practise | 780 | 960 | Say it with me. Two sandwiches and some sugar, please. | two sandwiches, some sugar | say it changed | 948 | Pale blue background, leo large in a white circle. A new order, built from the two cards the learner has not yet said in a sentence, so one line uses all four cards across the video and none of it is the hook line read back. Karaoke in 88 px; the "es" in ACCENT and "some" in ACCENT. Line complete by 912, mic cue in by 924. On resume a plate and a sugar bowl land beside the grey outlines from the hook, all filled in, with a tick. |
+| recap | recap | 960 | 1050 | You can count coffees and ask for some water. Again tomorrow. | | | | ACCENT background, white card in two columns: left "count it" with two cups and "two coffee**s**"; right "cannot count it" with the glass and "**some** water". That card is the check stem. The narration is the self-efficacy close, in the learner's own language. Hold with nothing moving. |
 
 ### L1 captions
 
@@ -479,16 +497,19 @@ mid-move and the whole caption lit.
 | --- | --- | --- | --- | --- | --- | --- |
 | hook | قهوتان وبعض الماء، من فضلك. | Dos cafés y algo de agua, por favor. | दो कॉफ़ी और थोड़ा पानी, कृपया। | Два кофе и немного воды, пожалуйста. | İki kahve ve biraz su, lütfen. | 两杯咖啡和一些水，谢谢。 |
 | w1 | يمكن عدّ القهوة: قهوة، قهوتان. | Los cafés se cuentan: uno, dos. | कॉफ़ी गिनी जा सकती है: एक, दो। | Кофе можно сосчитать: один, два. | Kahve sayılır: bir, iki. | 咖啡可以数：一杯，两杯。 |
+| predict | هل نقول two waters؟ | ¿Se dice two waters? | क्या two waters कहेंगे? | Говорим ли two waters? | "Two waters" denir mi? | 可以说 two waters 吗？ |
 | w2 | لا يمكن عدّ الماء. قل some. | El agua no se cuenta. Di some. | पानी गिना नहीं जाता। some कहें। | Воду не сосчитать. Говори some. | Su sayılmaz. Some de. | 水不可数。用 some。 |
 | w3 | السكر أيضًا لا يُعد. | El azúcar tampoco se cuenta. | चीनी भी नहीं गिनी जाती। | Сахар тоже не считают. | Şeker de sayılmaz. | 糖也不可数。 |
 | w4 | أضف es بعد ch. | Añade es después de ch. | ch के बाद es जोड़ें। | После ch добавь es. | ch'den sonra es ekle. | ch 后面加 es。 |
 | practise | قلها معي. | Dilo conmigo. | मेरे साथ बोलो। | Скажи со мной. | Benimle söyle. | 跟我一起说。 |
-| recap | معدود: رقم و s. غير معدود: some. | Se cuenta: número y s. No se cuenta: some. | गिन सकते हैं: संख्या और s। नहीं: some। | Считаем: число и s. Не считаем: some. | Sayılıyorsa: sayı ve s. Sayılmıyorsa: some. | 可数：数字加 s。不可数：some。 |
+| recap | يمكنك عدّ القهوة وطلب some water. غدًا مرة أخرى. | Ya cuentas cafés y pides some water. Mañana otra vez. | अब आप कॉफ़ी गिन सकते हैं और some water माँग सकते हैं। कल फिर। | Теперь вы считаете кофе и просите some water. Завтра снова. | Artık kahveleri sayıp some water isteyebilirsin. Yarın tekrar. | 你现在会数咖啡，也会说 some water 了。明天再来。 |
 
 ### Interactive moments
 
 - Tappable words: all caption words; each word card title is a chip that plays the card word; the "s", "es" and "some" tiles are chips that play "two coffees", "two sandwiches", "some water".
-- At the pause (frame 1060) the learner says: "Two coffees and some water, please." Model answer: the same line. Scored as read-aloud; the free-use item ITM-GRM-0205 then asks for "some water" in a scene.
+- Five stops, growing: tap the key words at 228, predict whether water takes a number at 318, say "some water" at 468 and "some sugar" at 618, say "two sandwiches, please" at 768, say the new order at 948. The first ask lands at 7.6 s and no passive stretch runs longer than 7.6 s.
+- At 948 the learner says: "Two sandwiches and some sugar, please." Scored as read-aloud; the free-use item ITM-GRM-0205 then asks for "some water" in a scene.
+- Prediction (frame 318, `predict` beat): one tap on "two waters" or "some water", with leo mid-pour, before w2 shows the "2" tile sliding off. **Not wired yet**: needs the `predict` beat kind and ask kind, LP-46.
 - Extra tap: in w2 the "2" tile is draggable for 90 frames. Dropped on a cup it clips on and plays "two coffees" (leaf glow); dropped on the glass it slides off and plops, then the "some" boat appears and plays "some water". Consequence first, then the correct form.
 
 ---

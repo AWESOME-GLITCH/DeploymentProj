@@ -58,7 +58,7 @@ await p.waitForTimeout(500);
 
 // lesson
 await p.click('#start');
-await p.waitForTimeout(250);
+await p.waitForTimeout(130);
 await shot('06-lesson-transition');
 await p.waitForTimeout(900);
 await shot('07-lesson');
@@ -69,7 +69,7 @@ await p.waitForTimeout(600);
 await shot('08-typed');
 await p.fill('.typed', 'a flat white please');
 await p.keyboard.press('Enter');
-await p.waitForTimeout(260);
+await p.waitForTimeout(150);
 await shot('09-star');
 await p.waitForTimeout(1200);
 await shot('10-turn2');

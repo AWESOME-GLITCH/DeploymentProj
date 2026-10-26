@@ -8,7 +8,7 @@ import { useState } from "react";
 import { ATOMS, CRITERIA, ITEM_BY_ID } from "@/lib/learning-path/content";
 import { composeSession, dayIndex, dueItems, nextReviewAt, recallProbability, weekDay } from "@/lib/learning-path/engine";
 import { useNow, useStore } from "@/lib/learning-path/store";
-import type { SubLevel } from "@/lib/learning-path/types";
+import type { LearnerState, SessionPhase, SubLevel } from "@/lib/learning-path/types";
 import { SUBLEVELS } from "@/lib/learning-path/types";
 import { fireAuto } from "./items";
 import type { Screen } from "./ui";
@@ -73,6 +73,13 @@ export function Tester({ screen, go, startSession, onClose }: { screen: Screen; 
             <Section title="Counts">
               <div>Items tracked {items.length} · due {due.length} · attempts {state.attempts.length} · sessions {state.sessions.length} · events {state.events.length}</div>
               <div>Spoken this session: {state.current?.spoken ? "yes" : "no"} · reflections {state.reflections.length} · story unlocks {state.story_unlocks}</div>
+            </Section>
+            <Section title="Time to the first spoken turn">
+              <div>Opens on: {state.current ? phaseLabel(state.current.session.phases[0]) : "no session running"}</div>
+              <div style={{ color: timeToSpoken(state) === null ? "#9aa3a8" : (timeToSpoken(state) as number) <= 60 ? "#5fd3b5" : "#ffb547" }}>
+                First spoken turn: {state.current ? (timeToSpoken(state) === null ? "not spoken yet" : `+${(timeToSpoken(state) as number).toFixed(1)} s`) : "-"}
+              </div>
+              <div style={{ color: "#9aa3a8" }}>Measured from session_started to the first spoken answer. Target: inside 60 s (board rule 2).</div>
             </Section>
           </div>
         ) : null}
@@ -139,6 +146,24 @@ export function Tester({ screen, go, startSession, onClose }: { screen: Screen; 
       </div>
     </div>
   );
+}
+
+/** Seconds from the session starting to the learner's first spoken answer, or
+ *  null if nothing has been spoken yet. The board's rule 2 is "inside 60 s". */
+function timeToSpoken(state: LearnerState): number | null {
+  const cur = state.current;
+  if (!cur) return null;
+  const spoken = state.events.find((e) => e.at >= cur.started_at
+    && (e.name === "explainer_spoken" || (e.name === "item_answered" && e.data?.modality === "spoken")));
+  return spoken ? (spoken.at - cur.started_at) / 1000 : null;
+}
+
+function phaseLabel(p: SessionPhase): string {
+  if (p.kind === "atom") return `${p.atom_id.startsWith("USE:") ? "use task" : "atom"} · ${p.role} · ${p.atom_id}`;
+  if (p.kind === "recall") return `recall · ${p.items.length} items`;
+  if (p.kind === "story") return `story · ${p.atom_id}`;
+  if (p.kind === "vote") return `vote · ${p.item_id}`;
+  return p.kind;
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {

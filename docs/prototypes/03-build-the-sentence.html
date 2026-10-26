@@ -150,7 +150,7 @@ h1{
   transition:width .4s var(--spring);
 }
 /* once the words are gone the coach steps forward and the line is the hero */
-.card.open .coach{width:92%}
+.card.open .coach{width:96%}
 .card.open .slot{font-size:24px;height:46px}
 .coach svg{width:100%;height:auto;display:block;overflow:visible}
 .breathe{animation:breathe 3s ease-in-out infinite}
@@ -266,7 +266,12 @@ h1{
 .v{display:none}
 svg[data-mood="idle"] .v-idle,
 svg[data-mood="lean"] .v-lean,
+svg[data-mood="listen"] .v-listen,
 svg[data-mood="cheer"] .v-cheer{display:block}
+/* she leans in when she is listening or when a word does not fit */
+.fig{transition:transform .34s var(--spring);transform-origin:110px 236px}
+svg[data-mood="lean"] .fig{transform:rotate(-4deg)}
+svg[data-mood="listen"] .fig{transform:rotate(4deg)}
 .blink{animation:blink 5s steps(1,end) infinite}
 @keyframes blink{0%,96%{transform:scaleY(1)}97%,99%{transform:scaleY(.1)}100%{transform:scaleY(1)}}
 </style>
@@ -308,17 +313,17 @@ svg[data-mood="cheer"] .v-cheer{display:block}
             </filter>
           </defs>
 
-          <g filter="url(#wob)" fill="none" stroke="#121212" stroke-width="4.6" stroke-linecap="round" stroke-linejoin="round">
+          <g class="fig" filter="url(#wob)" fill="none" stroke="#121212" stroke-width="4.6" stroke-linecap="round" stroke-linejoin="round">
 
             <!-- arms sit behind the jumper, so the shoulder join is hidden -->
             <g stroke-width="10">
               <!-- resting, the right hand holds the bill -->
-              <g class="v v-idle">
+              <g class="v v-idle v-lean">
                 <path d="M90 162c-22 8-32 26-32 48"/>
                 <path d="M130 164c18 2 28-8 28-24"/>
               </g>
-              <!-- leaning in to listen -->
-              <g class="v v-lean">
+              <!-- a hand cupped at her ear while she listens -->
+              <g class="v v-listen">
                 <path d="M90 162c-22 8-32 26-32 48"/>
                 <path d="M130 164c16 0 24-10 22-24"/>
               </g>
@@ -334,7 +339,7 @@ svg[data-mood="cheer"] .v-cheer{display:block}
             <path d="M94 150c4 10 9 15 16 15s12-5 16-15" fill="none"/>
 
             <!-- the bill she is holding -->
-            <g class="v v-idle" transform="rotate(-8 174 112)">
+            <g class="v v-idle v-lean" transform="rotate(-8 174 112)">
               <path d="M152 70h44v56h-44z" fill="#FFF7E8"/>
               <path d="M152 126l7 7 8-7 7 7 7-7 8 7 7-7"/>
               <path d="M160 84h28M160 96h28M160 108h16" stroke-width="3.6"/>
@@ -342,8 +347,8 @@ svg[data-mood="cheer"] .v-cheer{display:block}
 
             <!-- hands, drawn last so she clearly grips the bill -->
             <g fill="#FFF7E8">
-              <g class="v v-idle"><circle cx="58" cy="212" r="9.5"/><circle cx="156" cy="138" r="9.5"/></g>
-              <g class="v v-lean"><circle cx="58" cy="212" r="9.5"/><circle cx="150" cy="138" r="9.5"/></g>
+              <g class="v v-idle v-lean"><circle cx="58" cy="212" r="9.5"/><circle cx="156" cy="138" r="9.5"/></g>
+              <g class="v v-listen"><circle cx="58" cy="212" r="9.5"/><circle cx="150" cy="138" r="9.5"/></g>
               <g class="v v-cheer"><circle cx="56" cy="108" r="9.5"/><circle cx="164" cy="108" r="9.5"/></g>
             </g>
 
@@ -357,18 +362,23 @@ svg[data-mood="cheer"] .v-cheer{display:block}
             <path d="M74 90c4-31 20-46 38-46 20 0 33 13 37 33-11-13-23-17-35-13-13 4-22 13-27 26-4-4-9-3-13 0z" fill="#121212" stroke="#121212"/>
 
             <!-- faces -->
-            <g class="v v-idle">
+            <g class="v v-idle v-lean">
               <g class="blink" style="transform-origin:96px 104px"><circle cx="96" cy="104" r="4.8" fill="#121212" stroke="none"/></g>
               <g class="blink" style="transform-origin:126px 104px"><circle cx="126" cy="104" r="4.8" fill="#121212" stroke="none"/></g>
               <path d="M100 122c6 5 14 5 21 0" stroke-width="4.4"/>
               <circle cx="80" cy="118" r="5" fill="#FF5A2D" stroke="none" opacity=".32"/>
               <circle cx="141" cy="118" r="5" fill="#FF5A2D" stroke="none" opacity=".32"/>
             </g>
-            <g class="v v-lean">
+            <g class="v v-listen">
               <circle cx="97" cy="106" r="4.8" fill="#121212" stroke="none"/>
               <circle cx="127" cy="106" r="4.8" fill="#121212" stroke="none"/>
-              <path d="M105 122c5-4 11-4 15 1" stroke-width="4.4"/>
-              <path d="M86 94c4-5 11-6 16-2M120 92c5-4 12-3 16 2" stroke-width="4"/>
+              <path d="M102 123c6 5 13 5 18 0" stroke-width="4.4"/>
+              <path d="M86 93c5-5 12-5 16-1M120 92c5-4 12-4 16 1" stroke-width="4"/>
+              <circle cx="80" cy="118" r="5" fill="#FF5A2D" stroke="none" opacity=".32"/>
+            </g>
+            <!-- curious brows when a word does not fit yet -->
+            <g class="v v-lean">
+              <path d="M86 90c5-5 12-5 16-1M120 89c5-4 12-4 16 1" stroke-width="4"/>
             </g>
             <g class="v v-cheer">
               <path d="M88 102c4-6 12-6 16 0M118 102c4-6 12-6 16 0" stroke-width="4.6"/>
@@ -377,9 +387,10 @@ svg[data-mood="cheer"] .v-cheer{display:block}
               <circle cx="141" cy="118" r="6" fill="#FF5A2D" stroke="none" opacity=".38"/>
             </g>
 
-            <!-- the ear sticker while she listens -->
-            <g class="v v-lean">
-              <path d="M150 96c12-3 20 5 20 15s-8 15-17 13" stroke-width="4.4" fill="#FFF7E8"/>
+            <!-- she is listening: sound coming in towards her ear -->
+            <g class="v v-listen" stroke-width="4">
+              <path d="M163 92c6 7 6 19 0 26"/>
+              <path d="M174 84c11 12 11 32 0 44"/>
             </g>
           </g>
         </svg>
@@ -434,9 +445,10 @@ svg[data-mood="cheer"] .v-cheer{display:block}
     asterisk:"<svg viewBox='0 0 100 100' fill='none' stroke='currentColor' stroke-width='9' stroke-linecap='round'><path d='M50 6v88M6 50h88M19 19l62 62M81 19L19 81'/></svg>",
     ring:"<svg viewBox='0 0 100 100' fill='none' stroke='currentColor' stroke-width='9'><circle cx='50' cy='50' r='38'/></svg>"
   };
+  var BOLD = ["star","sparkle","heart"];   /* the big pop is always a bold shape */
   var lastSticker = null;
-  function pickSticker(){
-    var keys = Object.keys(SHAPES).filter(function(k){ return k !== lastSticker; });
+  function pickSticker(from){
+    var keys = (from || Object.keys(SHAPES)).filter(function(k){ return k !== lastSticker; });
     lastSticker = keys[Math.floor(Math.random()*keys.length)];
     return lastSticker;
   }
@@ -459,17 +471,17 @@ svg[data-mood="cheer"] .v-cheer{display:block}
   }
   /* where a reward sticker may pop, clear of the coach and of each other */
   var SPOTS = [
-    "width:44px;height:44px;right:7%;top:44%",
-    "width:24px;height:24px;left:9%;top:40%",
-    "width:30px;height:30px;left:4%;bottom:24%",
-    "width:18px;height:18px;right:9%;bottom:28%"
+    "width:44px;height:44px;right:8%;top:38%",
+    "width:24px;height:24px;left:10%;top:34%",
+    "width:30px;height:30px;left:5%;bottom:30%",
+    "width:18px;height:18px;right:11%;bottom:34%"
   ];
   var rewards = [];
   function reward(n){
     idleStickersOn(false);
     for (var i = 0; i < n; i++){
       (function(i){
-        var s = sticker(pickSticker(), SPOTS[i] + ";animation-delay:" + (i*90) + "ms", "burst");
+        var s = sticker(pickSticker(i === 0 ? BOLD : null), SPOTS[i] + ";animation-delay:" + (i*90) + "ms", "burst");
         rewards.push(s);
         setTimeout(function(){ s.classList.add("tw"); }, 460 + i*90);
       })(i);
@@ -673,9 +685,9 @@ svg[data-mood="cheer"] .v-cheer{display:block}
 
   function listening(){
     phase = "speak";
-    mood("lean");
+    mood("listen");
     bank.hidden = true; typed.hidden = true;
-    setTitle("Say it aloud", "Could I have the bill, please?");
+    setTitle("Say it aloud", "Say it to Maya.");
     cta.innerHTML = 'Listening <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>';
     cta.setAttribute("aria-label", "Listening, tap to stop");
     alt.hidden = false;
@@ -689,7 +701,7 @@ svg[data-mood="cheer"] .v-cheer{display:block}
     bank.hidden = true; typed.hidden = false;
     alt.hidden = true;
     note.textContent = message || "Type what you would say.";
-    setTitle("Say it aloud", "Could I have the bill, please?");
+    setTitle("Say it aloud", "Say it to Maya.");
     cta.innerHTML = 'Check <span class="chev" aria-hidden="true">&#187;</span>';
     cta.removeAttribute("aria-label");
     cta.disabled = false;

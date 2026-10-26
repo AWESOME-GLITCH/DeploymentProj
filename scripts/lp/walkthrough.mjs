@@ -131,16 +131,20 @@ function sources() {
  * components that put it on an element. A style failure names a class, not a
  * file, so without this the owner has to go looking.
  */
-function classHomes(cls) {
-  const decl = new RegExp(`\\.${cls.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\w-])`);
-  const used = new RegExp(`["'\\s\`]${cls.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\w-])`);
+function classHomes(cls, onScreen = "") {
+  const esc = cls.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const decl = new RegExp(`\\.${esc}(?![\\w-])`);
+  const used = new RegExp(`["'\\s\`]${esc}(?![\\w-])`);
+  // Words that were on the broken screen: a file carrying them is the likelier site.
+  const words = String(onScreen).split(/[^A-Za-z']+/).filter((w) => w.length > 3);
   const defs = [];
   const uses = [];
   for (const f of sources()) {
     if (f.rel.endsWith(".css")) { if (decl.test(f.body)) defs.push(f.rel); }
-    else if (used.test(f.body)) uses.push(f.rel);
+    else if (used.test(f.body)) uses.push({ rel: f.rel, hits: words.filter((w) => f.body.includes(w)).length });
   }
-  return [...defs, ...uses.slice(0, 3)];
+  uses.sort((a, b) => b.hits - a.hits || a.rel.localeCompare(b.rel));
+  return [...defs, ...uses.slice(0, 5).map((u) => u.rel)];
 }
 
 /** Repo files named in a stack trace or error text, so a failure points at an owner. */
@@ -149,9 +153,10 @@ function suspects(text) {
   const s = String(text);
   for (const m of s.matchAll(/((?:app|components|lib|scripts)\/[\w./-]+\.(?:tsx?|mjs|css))/g)) found.add(m[1]);
   // Style failures quote the offending selector (`.lp-glass.lp-ask`) instead.
+  const onScreen = (s.match(/"([^"]{4,})"/) || [, ""])[1];
   for (const m of s.matchAll(/`((?:\.[\w-]+)+)`/g)) {
     for (const cls of m[1].split(".").filter(Boolean)) {
-      for (const f of classHomes(cls)) found.add(f);
+      for (const f of classHomes(cls, onScreen)) found.add(f);
     }
   }
   return [...found];

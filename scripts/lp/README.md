@@ -21,7 +21,7 @@ Output lands in `scripts/lp/out/`:
 |---|---|
 | `<theme>-<nn>-<screen>.png` | one PNG per screen, 375×812 at 2× |
 | `report.txt` | one PASS/WARN/FAIL line per screen |
-| `report.md` | the table, plus the evidence and `git log` for each failure |
+| `report.md` | the table, plus the evidence and the likely source file (with `git log -1`) for each failure |
 | `report.json` | the same, for whatever reads it next |
 | `build.log`, `typecheck.log`, `server.log` | when a step fails |
 
@@ -43,6 +43,21 @@ window.dispatchEvent(new CustomEvent("lp:auto", { detail: { correct: true } }))
 It never imports app source and never keys off a hand-written list of screens,
 so it survives other agents moving the markup about. Screens are named from
 what is on them, so a new screen shows up in the report on its own.
+
+## How a failure finds its owner
+
+`report.md` names the likely source file under each failure, with `git log -1`
+so you can see which agent last touched it. Two routes:
+
+- A console error or stack trace names the file directly.
+- A style failure names only a selector, so the run resolves it: the stylesheet
+  that declares the class, then the components that put it on an element,
+  ranked by how much of the broken screen's wording each file carries. That
+  ranking is what puts `ExplainerPlayer.tsx` above the four other `.lp-glass`
+  users for the explainer's ask sheet.
+
+It is a ranked guess, not a verdict. Read the PNG before you post it on a
+ticket.
 
 ## What makes a screen fail
 
