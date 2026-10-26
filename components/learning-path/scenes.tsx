@@ -66,7 +66,7 @@ function Cup({ x, y, kind, large, delay }: { x: number; y: number; kind: "coffee
   const s = large ? 1.3 : 1;
   const fill = kind === "coffee" ? "#6b3f22" : kind === "tea" ? "#b9823a" : kind === "latte" ? "#e9d6bf" : "#8fd0ef";
   return (
-    <g transform={`translate(${x} ${y}) scale(${s})`} className="lp-anim-pop" style={{ animationDelay: `${delay}s`, transformBox: "fill-box", transformOrigin: "50% 100%" }}>
+    <g transform={`translate(${x} ${y}) scale(${s})`}><g className="lp-anim-pop" style={{ animationDelay: `${delay}s`, transformBox: "fill-box", transformOrigin: "50% 100%" }}>
       {kind === "water" ? (
         <g><path d="M-12 -40 L12 -40 L9 0 L-9 0 Z" fill="#dff2fb" stroke="#9fb6c2" strokeWidth="2" /><path d="M-10 -22 L10 -22 L9 0 L-9 0 Z" fill={fill} /></g>
       ) : (
@@ -79,19 +79,19 @@ function Cup({ x, y, kind, large, delay }: { x: number; y: number; kind: "coffee
           </g>
         </g>
       )}
-    </g>
+    </g></g>
   );
 }
 
 function MilkCarton({ x, y, empty }: { x: number; y: number; empty: boolean }) {
   return (
-    <g transform={`translate(${x} ${y})`} className={empty ? "lp-carton-tip" : "lp-anim-pop"} style={{ transformBox: "fill-box", transformOrigin: "50% 100%" }}>
+    <g transform={`translate(${x} ${y})`}><g className={empty ? "lp-carton-tip" : "lp-anim-pop"} style={{ transformBox: "fill-box", transformOrigin: "50% 100%" }}>
       <path d="M-14 -50 L14 -50 L14 0 L-14 0 Z" fill="#f4efe6" stroke="#c9bfb2" strokeWidth="2" />
       <path d="M-14 -50 L0 -62 L14 -50 Z" fill="#e9e2d6" stroke="#c9bfb2" strokeWidth="2" />
       <rect x="-14" y="-32" width="28" height="12" fill="#8fb98f" />
       <text x="0" y="-23" textAnchor="middle" fontSize="8" fontWeight="700" fill="#fff" fontFamily="system-ui, sans-serif">OAT</text>
       {empty ? <g className="lp-anim-pop" style={{ animationDelay: "0.5s" }}><circle cx="18" cy="-54" r="11" fill="#e07a5f" /><path d="M14 -58 L22 -50 M22 -58 L14 -50" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" /></g> : null}
-    </g>
+    </g></g>
   );
 }
 
@@ -185,7 +185,7 @@ function Bubble({ x, y, w, text, tail, tone }: { x: number; y: number; w: number
   const h = 22 + lines.length * 24;
   const targets = /I'd like|Could I have|instead|out of|please|That's fine|Do you have/;
   return (
-    <g transform={`translate(${x} ${y})`} className="lp-anim-pop" style={{ transformBox: "fill-box", transformOrigin: tail === "left" ? "0% 100%" : "100% 100%", animationDelay: "0.2s" }}>
+    <g transform={`translate(${x} ${y})`}><g className="lp-anim-pop" style={{ transformBox: "fill-box", transformOrigin: tail === "left" ? "0% 100%" : "100% 100%", animationDelay: "0.2s" }}>
       <rect x="0" y="0" width={w} height={h} rx="16" fill="#fff" stroke={tone === "sorry" ? "#d9a441" : "#1e1a17"} strokeWidth="2.5" />
       {tail === "left" ? <path d={`M18 ${h} L10 ${h + 14} L34 ${h}`} fill="#fff" stroke="#1e1a17" strokeWidth="2.5" strokeLinejoin="round" /> : <path d={`M${w - 34} ${h} L${w - 10} ${h + 14} L${w - 18} ${h}`} fill="#fff" stroke="#1e1a17" strokeWidth="2.5" strokeLinejoin="round" />}
       <rect x={tail === "left" ? 12 : w - 32} y={h - 3} width="20" height="6" fill="#fff" />
@@ -194,7 +194,7 @@ function Bubble({ x, y, w, text, tail, tone }: { x: number; y: number; w: number
           {l.split(/(I'd like|Could I have|instead|out of|please|That's fine|Do you have)/).map((part, j) => <tspan key={j} fill={targets.test(part) ? "#1f3ae6" : "#1e1a17"} fontWeight={targets.test(part) ? 800 : 600}>{part}</tspan>)}
         </text>
       ))}
-    </g>
+    </g></g>
   );
 }
 
@@ -263,10 +263,10 @@ export function Scene({ spec, talking }: { spec?: SceneSpec; talking?: boolean }
             <rect x="0" y="408" width="360" height="16" fill="#c9a27a" />
             <rect x="0" y="424" width="360" height="216" fill="#e4d7c4" />
             {spec.facts.slice(0, spec.show).map((f, i) => (
-              <g key={i} transform={`translate(190 ${160 + i * 54})`} className="lp-anim-rise" style={{ animationDelay: `${0.25 + i * 0.3}s` }}>
+              <g key={i} transform={`translate(190 ${160 + i * 54})`}><g className="lp-anim-rise" style={{ animationDelay: `${0.25 + i * 0.3}s` }}>
                 <rect x="0" y="0" width="156" height="42" rx="12" fill="#fff" stroke="#1e1a17" strokeWidth="2" />
                 <text x="12" y="27" fontSize="15" fontWeight="700" fill="#1e1a17" fontFamily="system-ui, sans-serif">{f.text}</text>
-              </g>
+              </g></g>
             ))}
             {spec.bubble ? <Bubble x={120} y={100} w={216} text={spec.bubble} tail="left" /> : null}
           </ShopSet>
@@ -278,7 +278,7 @@ export function Scene({ spec, talking }: { spec?: SceneSpec; talking?: boolean }
           <FlatSet>
             <Person who={spec.who} x={110} y={330} scale={1.2} facing={1} pose={spec.pose ?? "hold"} talking={!!talking} />
             {spec.letter ? (
-              <g transform="translate(176 150)" className="lp-anim-rise">
+              <g transform="translate(176 150)"><g className="lp-anim-rise">
                 <rect x="0" y="0" width="166" height="190" rx="8" fill="#fff" stroke="#1e1a17" strokeWidth="2" />
                 <text x="14" y="30" fontSize="12" fontWeight="800" letterSpacing="2" fill="#6f757c" fontFamily="system-ui, sans-serif">{spec.letter.title}</text>
                 {spec.letter.lines.map((l, i) => {
@@ -290,7 +290,7 @@ export function Scene({ spec, talking }: { spec?: SceneSpec; talking?: boolean }
                     </g>
                   );
                 })}
-              </g>
+              </g></g>
             ) : null}
             {spec.bubble ? <Bubble x={120} y={60} w={216} text={spec.bubble} tail="left" /> : null}
           </FlatSet>
@@ -312,9 +312,9 @@ export function Scene({ spec, talking }: { spec?: SceneSpec; talking?: boolean }
             ))}
             {spec.position !== "all" ? <circle cx={px} cy="0" r="14" fill="#1f3ae6" className="lp-marker-slide" style={{ transformBox: "fill-box", transformOrigin: "50% 50%" }} /> : null}
           </g>
-          <g transform="translate(180 120)" className="lp-anim-rise">
+          <g transform="translate(180 120)"><g className="lp-anim-rise">
             <text x="0" y="0" textAnchor="middle" fontSize="22" fontWeight="700" fill="#1e1a17" fontFamily="system-ui, sans-serif">{spec.label ? `${spec.label} I` : ""} <tspan fill="#1f3ae6" fontWeight="800">{spec.verb}</tspan></text>
-          </g>
+          </g></g>
         </Stage>
       );
     }
@@ -327,10 +327,10 @@ export function Scene({ spec, talking }: { spec?: SceneSpec; talking?: boolean }
               <rect x="0" y="0" width="190" height="330" rx="26" fill="#1e1a17" />
               <rect x="8" y="8" width="174" height="314" rx="20" fill="#fff" />
               {spec.bubbles.map((b, i) => (
-                <g key={i} transform={`translate(${b.who === "me" ? 40 : 18} ${40 + i * 62})`} className="lp-anim-rise" style={{ animationDelay: `${0.2 + i * 0.7}s` }}>
+                <g key={i} transform={`translate(${b.who === "me" ? 40 : 18} ${40 + i * 62})`}><g className="lp-anim-rise" style={{ animationDelay: `${0.2 + i * 0.7}s` }}>
                   <rect x="0" y="0" width="134" height="46" rx="14" fill={b.who === "me" ? "#e3e8ff" : "#eeeae2"} />
                   <text x="10" y="28" fontSize="14" fontWeight="700" fill="#1e1a17" fontFamily="system-ui, sans-serif">{b.text}</text>
-                </g>
+                </g></g>
               ))}
             </g>
           </FlatSet>
