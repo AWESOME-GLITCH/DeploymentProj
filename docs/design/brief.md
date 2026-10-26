@@ -106,3 +106,21 @@ handles an error, so a mistake is never red, never a loss, always a small laugh.
   tidies a mispronounced word out of the bubble), and the Welcome back screen (he has dusted the
   learner's path). He never appears on Today or the session-end card.
 - Reduced motion: a single fade and sweep, no bounce.
+
+## Illustration source (board decision after round one, 26 Oct)
+
+Round one of the prototypes was judged "super low quality": generic clip-art characters, empty cards,
+no wit in the line. Hand-coded characters are withdrawn as the primary art. From now on:
+
+- Cast faces and expressions come from Open Peeps (CC0), pre-rendered in the palette by
+  `node scripts/lp/cast.mjs` into `docs/design/cast/`: maya, leo, fatima, sami, you, each with
+  idle, talk, listen, happy, wow, think, oops, laugh, cheeky. Inline these SVGs; never redraw them.
+  Talking is a swap between talk and idle on the syllable beat; listening is listen with a lean-in.
+- Full-body hero scenes come from Open Doodles (CC0), same folder, `doodle-*.svg`, recoloured
+  ink and tangerine. Use them big: the character fills at least half the card, cropped with
+  confidence, never a small figure floating in an empty block.
+- Blobert stays custom but is drawn in the same sketchy ink line as the doodles.
+- Quality gate: a screen passes only if, placed next to the Dribbble reference, it reads as the
+  same family: a bold block colour, one oversized expressive character, black stickers with
+  intent, a headline of 2 to 4 words in heavy type, one black pill button. Anything that reads as
+  clip-art, a diagram, or a form is sent back.

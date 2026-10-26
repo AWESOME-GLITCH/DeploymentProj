@@ -10,11 +10,14 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.27.3",
+    "@dicebear/core": "^9.4.2",
+    "@dicebear/open-peeps": "^9.4.2",
     "@remotion/player": "^4.0.300",
     "lucide-react": "0.417.0",
     "next": "14.2.5",
     "react": "18.3.1",
     "react-dom": "18.3.1",
+    "react-open-doodles": "^1.0.5",
     "remotion": "^4.0.300"
   },
   "devDependencies": {
