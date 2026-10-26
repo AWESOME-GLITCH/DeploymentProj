@@ -379,23 +379,38 @@ export function Cup({ kind, x, y, frame, appear = 0, scale = 1, slideFrom = 0, l
   );
 }
 
-export function MenuBoard({ x, y, w = 360, h = 330, items = [["Flat white", "2.80"], ["Coffee", "2.50"], ["Tea", "2.00"], ["Croissant", "1.80"]] }: { x: number; y: number; w?: number; h?: number; items?: [string, string][] }) {
+/** A chalkboard menu. Rows are laid out in proportion to `h`, so it reads at any size. */
+export function MenuBoard({ x, y, w = 360, h = 330, title = "MENU", items = [["Flat white", "2.80"], ["Coffee", "2.50"], ["Tea", "2.00"], ["Croissant", "1.80"]] }: { x: number; y: number; w?: number; h?: number; title?: string; items?: [string, string][] }) {
   const chalk = "#f3ead9";
+  const top = h * 0.4;
+  const gap = (h * 0.92 - top) / Math.max(1, items.length);
+  const size = Math.min(gap * 0.68, w * 0.085);
   return (
     <g transform={`translate(${x} ${y})`}>
       <rect x="0" y="0" width={w} height={h} rx="14" fill={WOOD_LIGHT} />
       <rect x="14" y="14" width={w - 28} height={h - 28} rx="8" fill="#2f3b37" />
-      <text x={w / 2} y="76" textAnchor="middle" fontFamily={FONT} fontWeight="800" fontSize="40" letterSpacing="6" fill={chalk}>MENU</text>
-      <line x1="60" y1="92" x2={w - 60} y2="92" stroke={chalk} strokeWidth="3" strokeLinecap="round" opacity="0.7" />
+      <text x={w / 2} y={h * 0.23} textAnchor="middle" fontFamily={FONT} fontWeight="800" fontSize={h * 0.121} letterSpacing="6" fill={chalk}>{title}</text>
+      <line x1={w * 0.17} y1={h * 0.28} x2={w * 0.83} y2={h * 0.28} stroke={chalk} strokeWidth="3" strokeLinecap="round" opacity="0.7" />
       {items.map(([name, price], i) => (
-        <g key={name} transform={`translate(0 ${136 + i * 50})`}>
-          <text x="44" y="0" fontFamily={FONT} fontWeight="600" fontSize="30" fill={chalk}>{name}</text>
-          <text x={w - 44} y="0" textAnchor="end" fontFamily={FONT} fontWeight="700" fontSize="30" fill={SAFFRON}>{price}</text>
+        <g key={name} transform={`translate(0 ${top + gap * (i + 0.5)})`}>
+          <text x={w * 0.12} y="0" fontFamily={FONT} fontWeight="600" fontSize={size} fill={chalk}>{name}</text>
+          <text x={w - w * 0.12} y="0" textAnchor="end" fontFamily={FONT} fontWeight="700" fontSize={size} fill={SAFFRON}>{price}</text>
         </g>
       ))}
-      <g transform={`translate(${w - 70} ${h - 46})`} fill="none" stroke={chalk} strokeWidth="3" opacity="0.6">
-        <path d="M-14 -16 L14 -16 L10 6 L-10 6 Z" /><path d="M14 -10 Q26 -10 22 2 L12 2" />
-      </g>
+    </g>
+  );
+}
+
+/** A wall shelf with a few jars on it. */
+export function Shelf({ x, y, w = 400, frame, seed = 0, plant = true }: { x: number; y: number; w?: number; frame: number; seed?: number; plant?: boolean }) {
+  return (
+    <g transform={`translate(${x} ${y})`}>
+      <g transform={`translate(${w * 0.12} 0)`}><rect x="-18" y="-50" width="36" height="50" rx="6" fill="#d9a441" /><rect x="-14" y="-60" width="28" height="12" rx="3" fill={INK} /></g>
+      <g transform={`translate(${w * 0.28} 0)`}><rect x="-18" y="-40" width="36" height="40" rx="6" fill="#e07a5f" /><rect x="-14" y="-50" width="28" height="12" rx="3" fill={INK} /></g>
+      <g transform={`translate(${w * 0.44} 0)`}><rect x="-16" y="-56" width="32" height="56" rx="6" fill="#8fb8a8" /><rect x="-12" y="-64" width="24" height="10" rx="3" fill={INK} /></g>
+      {plant ? <Plant x={w * 0.84} y={0} scale={0.5} frame={frame} seed={seed} /> : null}
+      <rect x="0" y="0" width={w} height="14" rx="4" fill={WOOD_LIGHT} />
+      <rect x="0" y="14" width={w} height="6" rx="3" fill={WOOD_DARK} opacity="0.4" />
     </g>
   );
 }
@@ -556,15 +571,24 @@ export function Transition({ frame, at, duration = 26, kind = "wipe", color = SA
   );
 }
 
-/** A hand-drawn marker stroke, drawn in over 14 frames. Fills its parent box. */
-export function Highlight({ frame, from, color = SAFFRON, thickness = 0.55, opacity = 0.5, strike = false, duration = 14 }: { frame: number; from: number; color?: string; thickness?: number; opacity?: number; strike?: boolean; duration?: number }) {
+/**
+ * A hand-drawn marker swipe behind its parent box, wiped in over `duration`
+ * frames. The stroke is a filled shape in box units, so it stays in proportion
+ * at any type size. `strike` draws a thin line through the middle instead.
+ */
+export function Highlight({ frame, from, color = SAFFRON, thickness = 0.55, opacity = 0.5, strike = false, duration = 14, y }: { frame: number; from: number; color?: string; thickness?: number; opacity?: number; strike?: boolean; duration?: number; y?: number }) {
   const p = tween(frame, from, from + duration, 0, 1, EASE.out);
   if (p <= 0) return null;
-  const y = strike ? 50 : 76;
+  const mid = y ?? (strike ? 52 : 72);
+  const h = strike ? 7 : Math.max(10, thickness * 62);
+  const a = mid - h / 2, b = mid + h / 2;
+  const d = `M1 ${a + 2} C 22 ${a - 3}, 48 ${a + 3}, 74 ${a - 1} S 95 ${a + 2}, 99 ${a} L99 ${b - 1} C 74 ${b + 3}, 46 ${b - 3}, 22 ${b + 2} S 5 ${b - 1}, 1 ${b} Z`;
   return (
-    <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ position: "absolute", left: -4, right: -4, top: 0, bottom: 0, width: "calc(100% + 8px)", height: "100%", zIndex: strike ? 1 : -1, overflow: "visible" }}>
-      <path d={`M2 ${y} Q30 ${y - 3} 55 ${y + 2} T98 ${y - 1}`} fill="none" stroke={color} strokeWidth={strike ? 10 : 100 * thickness * 0.5} strokeLinecap="round" vectorEffect="non-scaling-stroke" pathLength={100} strokeDasharray="100" strokeDashoffset={100 * (1 - p)} opacity={opacity} style={{ strokeWidth: strike ? 12 : undefined }} />
-    </svg>
+    <span aria-hidden style={{ position: "absolute", left: -6, right: -6, top: 0, bottom: 0, zIndex: strike ? 1 : -1, clipPath: `inset(0 ${(1 - p) * 100}% 0 0)` }}>
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ display: "block", width: "100%", height: "100%" }}>
+        <path d={d} fill={color} opacity={opacity} />
+      </svg>
+    </span>
   );
 }
 

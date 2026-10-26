@@ -34,11 +34,11 @@ Counts are lesson items. "Scaffold" means the item runs up to a spoken item and 
 
 | Item type | Now | Verdict | What is wrong today for a learner with little English | Place in the lesson |
 | --- | --- | --- | --- | --- |
-| `gap_fill` | 14 | **Cut from lessons** | The learner picks one word from three and never says the sentence. The model sentence sits in `audio` and is never played; the speaker button reads the gapped line, so the learner hears "I'd blank a coffee". Fails tests 1, 2 and 4. | none. The meaning work moves to the notice step, the sentence to a say-it item |
-| `pick_picture` (emoji) | 3 | **Cut** | The "pictures" are emoji. 🍵🍵 for "two teas" asks the learner to count glyphs, not to hear English. ☕ against 🍵 is a guess at a glyph, not comprehension. Fails tests 1 and 6. | none |
-| `pick_picture` (numbers) | 2 | **Keep**, renamed `listen_and_do` | Here the digit *is* the stimulus and hearing 14 against 40 is the whole can-do, so recognition is honest. But it ends on a tap. | scaffold, before say it |
+| `gap_fill` | 14 | **Cut from lessons** | The learner picks one word from three and never says the sentence. The model sentence sits in `audio` and is never played **before** the learner answers; it is spoken only after a correct tap (`ChoiceItem`, the `say(correctText)` line), so it arrives when it is no longer input. Meanwhile no listen button renders at all, and the speaker on the stem reads the gapped line, so the learner hears "I'd blank a coffee". Fails tests 1, 2 and 4. | none. The meaning work moves to the notice step, the sentence to a say-it item |
+| `pick_picture` (emoji) | 2 | **Cut** | The "pictures" are emoji: ☕ / 🍵🍵 / 🍵 for "two teas", and 💳 / 💵 / 🧾 for "card". 🍵🍵 asks the learner to count glyphs, not to hear English. Fails tests 1 and 6. | none |
+| `pick_picture` (numbers) | 3 | **Keep**, renamed `listen_and_do` | Here the digit *is* the stimulus and hearing 14 against 40 is the whole can-do, so recognition is honest. But it ends on a tap. | scaffold, before say it |
 | `detail_gap` | 2 | **Fix**, folded into `listen_and_do` | Same job as the above, different screen for no reason. Two screens for one skill. | scaffold |
-| `tfng` | 4 | **Fix**, 4 to 2 | Reading a notice is a real outcome, but "Not given" is an exam construct an A2 learner cannot parse, and three of the four are about the same six-word notice. | scaffold, before the relay |
+| `tfng` | 4 | **Fix**, 4 to 2 | Reading a notice is a real outcome, but "Not given" is an exam construct an A2 learner cannot parse, and three of the four ask about the same 11-word notice ("No eating or drinking on the train. Water is allowed."). | scaffold, before the relay. Ends on the mic: see the scaffold rule below |
 | `gist_mcq` | 2 | **Cut** | "What is the bill for? Gas / Water / Internet" after a recording that opens with "This is your gas bill". It tests nothing the relay item does not prove by production. | none |
 | `inference_mcq` | 1 | **Cut** | "We're out of oat milk means..." is a vocabulary gloss dressed as a test. The gloss belongs in the notice step. | none |
 | `heading_match` | 1 | **Cut** | One instance, and choosing a title is a reading-exam task, not something the learner will do. | none |
@@ -49,7 +49,7 @@ Counts are lesson items. "Scaffold" means the item runs up to a spoken item and 
 | `time_slider` | 1 | **Cut** | Three tenses on one screen breaks test 3, the cue card and the track carry four emoji, and the dot row scores the learner mid-item. | replaced by three say-it items, one tense each, across three lessons |
 | `transform` | 1 | **Keep, fix** | Real production ("Make it polite: I want a sandwich"). Wrong channel: typing is the fallback, not the first offer. | say it, with the keyboard as fallback |
 | `correct_message` | 1 | **Keep** | Writing is the outcome here, so typing is right. | use it |
-| `dictation` | 1 | **Keep** | Typing a price you have just heard is a real act. | scaffold |
+| `dictation` | 1 | **Keep** | Typing a price you have just heard is a real act. | use it. Keyboard-outcome exemption, see the scaffold rule below |
 | `short_production` | 1 | **Keep, fix** | Writing outcome, right channel. The target-word pill row and the live word counter are clutter. | use it |
 | `read_aloud` | 4 | **Keep**, through the coach | Right idea. Today it is a mic under a prompt with three score bars after it. | say it |
 | `shadow` | 1 | **Fix**, merged into the coach say-it turn | The instruction is the hardcoded English string "Shadow duet". A beginner cannot read it and it is not localised. | say it |
@@ -73,11 +73,25 @@ The board's order, and what fills each place.
 | --- | --- | --- |
 | Scene | Watches or swipes the situation. No exercise. | input phase |
 | Notice | Sees the one target form highlighted, hears it again. No exercise. | notice phase. The glosses cut from `inference_mcq` and `gap_fill` land here |
-| Say it, with a response | Says the phrase inside the first minute and something reacts | coach say-it, `say_it_see_it`, `read_aloud` |
-| Use it | Says or writes it to get something done | `roleplay`, `relay`, `open_response`, `correct_message`, `short_production` |
+| Say it, with a response | Says the phrase inside the first minute and something reacts | coach say-it, `say_it_see_it`, `read_aloud`, `transform` (mic first, keyboard as fallback) |
+| Use it | Says or writes it to get something done | `roleplay`, `relay`, `open_response`, `correct_message`, `short_production`, `dictation` |
 | Come back later | The same phrase inside a new situation | delayed say-it check, recall echo, fluency rounds, teach back |
 
-Scaffolds (`tap_order`, `magnet_tiles`, `error_spot`, `listen_and_do`, `dictation`) sit between notice and say it. Each one ends by handing the sentence to the mic: the last thing the learner does on a scaffold screen is say what they just built. Retrieval practice, and it is the reason the tap survives at all.
+### The scaffold rule, and its one exemption
+
+Scaffolds (`tap_order`, `magnet_tiles`, `error_spot`, `listen_and_do`, `tfng`) sit between notice and say it. Each one ends by handing the sentence to the mic: the last thing the learner does on a scaffold screen is say what they just built. Retrieval practice, and it is the reason the tap survives at all.
+
+`tfng` included: after True or False, the learner says the one thing the notice means for them ("You can't eat on the train"). That is the natural act anyway, telling someone, and it is the step the relay then extends. Reading the notice aloud would not be natural, so the mic takes the meaning, not the words.
+
+**The exemption, stated so test 2 has no hole:** an item may end on the keyboard rather than the mic only when **writing is the can-do itself**. That is three items, all in the reading and writing strands, and each is "use it", not a scaffold:
+
+| Item | Why the keyboard is the right ending |
+| --- | --- |
+| `dictation` | The act is writing down a price you heard. Nobody says a price back to the person who just said it |
+| `correct_message` | The outcome is a message that reads correctly |
+| `short_production` | The outcome is two written lines |
+
+No other item may end without the learner producing the phrase aloud. Spoken items never take the keyboard ending except as the accessibility fallback, where speech is unavailable.
 
 Per atom after part 2: one scaffold, one listening or reading scaffold if the strand needs it, two spoken, one delayed say-it check. Reading and writing atoms swap one spoken for one typed.
 
