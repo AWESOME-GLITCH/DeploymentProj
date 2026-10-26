@@ -134,9 +134,11 @@
 
 .lp-root * { box-sizing: border-box; }
 .lp-root h1, .lp-root h2, .lp-root h3 { font-family: inherit; font-weight: var(--lp-head-weight); letter-spacing: var(--lp-head-tracking); margin: 0; }
-/* Buttons inherit the page ink unless they set their own colour; the compound
-   selector keeps this reset from out-ranking .lp-btn-primary and .lp-mic. */
-.lp-root button:not([class*="lp-btn-"]):not(.lp-mic) { color: inherit; }
+/* Buttons inherit the page ink unless they set their own colour. :where() keeps
+   this reset at the specificity of .lp-root alone, so any later button class
+   (.lp-btn-primary, .lp-mic, .lp-word-target) simply wins. An earlier :not()
+   chain did the same job but had to be extended for every new button class. */
+.lp-root :where(button) { color: inherit; }
 .lp-root button { font-family: inherit; }
 .lp-root input, .lp-root textarea { font-family: inherit; }
 .lp-root[data-reduce-motion="true"] * { transition: none !important; animation: none !important; }
@@ -204,8 +206,9 @@
 /* The one button to press in a player controls row: tinted, never glowing, so
    it stays below the primary action in the hierarchy. */
 .lp-icon-btn-lead { background: var(--lp-glow-tint); border-color: var(--lp-glow-line); color: var(--lp-glow); }
-/* A helper control (captions, speed): same 48px target, less ink. */
-.lp-icon-btn-quiet { background: none; border-color: transparent; box-shadow: none; color: var(--lp-paper-faint); }
+/* A helper control (captions, speed): same 48px target, less ink. Keeps a faint
+   well so it still reads as something you can press, not as a label. */
+.lp-icon-btn-quiet { background: var(--lp-well); border-color: transparent; box-shadow: none; color: var(--lp-paper-faint); }
 .lp-icon-btn-quiet[data-on="true"] { color: var(--lp-accent); background: var(--lp-accent-tint); border-color: var(--lp-accent-line); }
 .lp-speaker {
   width: 32px; height: 32px; min-width: 32px; margin-top: 2px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center;
@@ -220,13 +223,16 @@
    coloured thing. Each word keeps a 44px tap target through vertical padding. */
 .lp-wordline { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 7px; row-gap: 0; }
 .lp-word {
-  background: none; border: none; cursor: pointer; padding: 10px 0; margin: 0;
+  background: none; border: none; cursor: pointer; padding: 11px 0; margin: 0;
   font-size: calc(19px * var(--lp-scale)); font-weight: 500; line-height: 1.15; color: var(--lp-paper);
-  border-bottom: 1.5px solid var(--lp-line-strong);
-  transition: color var(--lp-t-press) var(--lp-ease), border-color var(--lp-t-press) var(--lp-ease);
+  /* The underline rides the text rather than the 44px tap box, so the line
+     stays attached to the word instead of floating below it. */
+  text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 4px;
+  text-decoration-color: var(--lp-line-strong);
+  transition: color var(--lp-t-press) var(--lp-ease), text-decoration-color var(--lp-t-press) var(--lp-ease);
 }
-.lp-word:active { color: var(--lp-accent); border-color: var(--lp-accent); }
-.lp-word-target { color: var(--lp-accent); font-weight: 700; border-color: var(--lp-accent-line); }
+.lp-word:active { color: var(--lp-accent); text-decoration-color: var(--lp-accent); }
+.lp-word-target { color: var(--lp-accent); font-weight: 700; text-decoration-color: var(--lp-accent-line); }
 
 /* Beat scrubber: the parts of an explainer. Filled means watched, the wide one
    is where the learner is. The visible mark is small; the button around it is a
@@ -432,3 +438,7 @@ body.lp-active > main { margin-left: 0 !important; overflow: hidden; width: 100%
 
 /* Ambient page glow. The only gradient outside the primary button. */
 .lp-blob { position: absolute; border-radius: 999px; pointer-events: none; filter: blur(2px); }
+
+/* Board decision 26 Oct: calm by default. Decorative motion and background blobs are off; only earned changes (a tick, a stop filling, the marker) and the explainer video move. */
+.lp-root .lp-blob { display: none !important; }
+.lp-root[data-reduce-motion="true"] .lp-tick, .lp-root[data-reduce-motion="true"] .lp-marker { animation: none !important; }

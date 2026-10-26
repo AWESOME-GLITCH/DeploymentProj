@@ -14,7 +14,7 @@ export const STORAGE_KEY = "learning-path.v1";
 export function defaultLearner(): Learner {
   return {
     onboarded: false, l1: "en", l1_override: "auto", why: null, daily_minutes: 10, plan: null, text_scale: 1, audio_speed: 1,
-    reduce_motion: false, theme: "auto", notifications: false, teen_mode: false, report_sharing: false, confirmed_sublevel: null,
+    reduce_motion: true, theme: "auto", notifications: false, teen_mode: false, report_sharing: false, confirmed_sublevel: null,
     provisional_sublevel: null, strand_levels: null, placement_done: false, account: "deferred", name: "",
   };
 }
