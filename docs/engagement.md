@@ -506,5 +506,5 @@ principle and does not appear as a string. Say so if the board wants the words o
 Visual reference for the four moments this document invents rather than inherits (Today with the
 weekly bar, Path with one stop in reach, session end, and the return card) is
 `docs/design/engagement-patterns.html`, rendered at 390 px in
-`scripts/lp/out/engagement-today-path.png`, `engagement-coach-item.png` and
-`engagement-end-return.png`.
+`docs/design/shots/engagement-today-path.png`, `docs/design/shots/engagement-coach-item.png`
+and `docs/design/shots/engagement-end-return.png`.

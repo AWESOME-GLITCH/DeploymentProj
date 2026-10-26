@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>Engagement patterns, 390px</title>
+<style>
+  :root{
+    --sun:#FFD93D; --lilac:#CDB8FF; --tangerine:#FF5A2D; --mint:#A8F0C6;
+    --sky:#BFE3FF; --ink:#121212; --cream:#FFF7E8; --paper:#FFFFFF;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:#E7E2D6; color:var(--ink);
+    font-family:"Plus Jakarta Sans",Inter,system-ui,sans-serif;
+    padding:28px;
+  }
+  .shot{display:flex;gap:28px;align-items:flex-start;padding:24px;background:#E7E2D6;width:max-content}
+  .col{width:390px}
+  .cap{font-size:13px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;opacity:.65;margin:0 0 10px 4px}
+  .phone{
+    width:390px;height:764px;background:var(--cream);border:3px solid var(--ink);
+    border-radius:34px;overflow:hidden;position:relative;display:flex;flex-direction:column;
+  }
+  .body{flex:1;display:flex;flex-direction:column;padding:22px 20px 0}
+  .card{
+    border-radius:28px;border:3px solid var(--ink);padding:24px 22px 22px;
+    display:flex;flex-direction:column;
+  }
+  .c-sun{background:var(--sun)} .c-lilac{background:var(--lilac)}
+  .c-mint{background:var(--mint)} .c-sky{background:var(--sky)} .c-tang{background:var(--tangerine)}
+  h1{font-size:36px;font-weight:800;line-height:1.05;letter-spacing:-.01em}
+  h1.sm{font-size:30px}
+  .line{font-size:16px;font-weight:600;line-height:1.35;margin-top:10px}
+  .btn{
+    height:56px;border-radius:28px;background:var(--ink);color:#fff;font-size:17px;font-weight:700;
+    display:flex;align-items:center;justify-content:space-between;padding:0 24px;margin-top:20px;
+  }
+  .btn span.go{font-size:20px;font-weight:800}
+  .secondary{margin-top:14px;text-align:center;font-size:16px;font-weight:700;text-decoration:underline;text-underline-offset:4px}
+  .art{display:flex;justify-content:center;align-items:flex-end;margin-top:14px}
+  /* weekly bar: 7 ink marks, below the fold */
+  .week{display:flex;gap:7px;margin:0 4px}
+  .week i{flex:1;height:8px;border-radius:4px;border:2px solid var(--ink)}
+  .week i.on{background:var(--ink)}
+  .belowlabel{font-size:13.5px;font-weight:600;opacity:.7;margin:0 4px 8px}
+  .mates{display:flex;gap:10px;margin:14px 4px 0;align-items:flex-end}
+  .fold{border-top:2px dashed rgba(18,18,18,.3);margin:18px 0 12px;position:relative}
+  .fold::after{content:"fold";position:absolute;right:0;top:-9px;background:var(--cream);font-size:11px;font-weight:700;opacity:.55;padding:0 6px}
+  .tabs{
+    height:68px;border-top:3px solid var(--ink);display:flex;align-items:center;justify-content:space-around;
+    font-size:14px;font-weight:700;background:var(--cream);margin-top:auto
+  }
+  .tabs b{border-bottom:3px solid var(--ink);padding-bottom:3px}
+  .tabs s{text-decoration:none;opacity:.5}
+  /* road */
+  .road{flex:1;position:relative;display:flex;flex-direction:column;justify-content:center;padding-left:6px}
+  .road::before{content:"";position:absolute;left:22px;top:0;bottom:96px;width:5px;border-radius:3px;
+    -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 24%,#000 100%);
+    background:repeating-linear-gradient(to bottom,var(--ink) 0 16px,transparent 16px 28px)}
+  .road > *{position:relative}
+  .stopline{display:flex;align-items:center;gap:14px;margin-bottom:22px}
+  .dot{width:34px;height:34px;border-radius:50%;border:3px solid var(--ink);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;background:var(--cream);flex:0 0 auto}
+  .dot.done{background:var(--ink);color:#fff}
+  .stoptxt{font-size:16px;font-weight:700}
+  .ahead{color:rgba(18,18,18,.42)}
+  .ahead .dot{border-color:rgba(18,18,18,.42)}
+  .nextcard{background:var(--sun);border:3px solid var(--ink);border-radius:28px;padding:18px 20px}
+  .nextcard .eyebrow{font-size:13.5px;font-weight:700;opacity:.75}
+  .nextcard h2{font-size:26px;font-weight:800;line-height:1.08;margin-top:4px}
+  .bubble{background:var(--paper);border:3px solid var(--ink);border-radius:22px;padding:14px 18px;font-size:17px;font-weight:700;display:inline-block}
+  .tile{border:3px solid var(--ink);border-radius:18px;background:var(--paper);padding:10px 14px;font-size:20px;font-weight:700}
+  .tilerow{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+  .mic{width:88px;height:88px;border-radius:50%;background:var(--ink);display:flex;align-items:center;justify-content:center;margin:22px auto 0}
+  .bars{display:flex;gap:16px;margin-top:18px}
+  .bars div{flex:1}
+  .bars span{display:block;font-size:13.5px;font-weight:700;margin-bottom:6px}
+  .bars u{display:block;height:10px;border-radius:5px;border:2px solid var(--ink);text-decoration:none;overflow:hidden}
+  .bars u b{display:block;height:100%;background:var(--ink)}
+  .ring{display:flex;justify-content:center;margin-top:6px}
+  .note{font-size:13.5px;font-weight:600;opacity:.75;margin:0 4px}
+</style>
+</head>
+<body>
+
+<!-- ============ SHOT 1: Today and Path ============ -->
+<div class="shot" id="shot-1">
+  <div class="col">
+    <p class="cap">1. Today, fresh state (§3.1)</p>
+    <div class="phone">
+      <div class="body">
+        <div class="card c-sun">
+          <h1>Today</h1>
+          <p class="line">Order a coffee. Five minutes.</p>
+          <div class="art">
+            <!-- Maya with a cup -->
+            <svg width="200" height="200" viewBox="0 0 200 200" aria-label="Maya the coach, holding a cup">
+              <g fill="none" stroke="#121212" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M54 196c0-44 20-68 46-68s46 24 46 68z" fill="#FFF7E8"/>
+                <circle cx="100" cy="86" r="36" fill="#FFF7E8"/>
+                <path d="M64 80c0-26 16-38 36-38s36 12 36 38c-7-8-18-13-36-13s-29 5-36 13z" fill="#121212" stroke="none"/>
+                <path d="M64 80c0-26 16-38 36-38s36 12 36 38"/>
+                <circle cx="88" cy="88" r="3.6" fill="#121212" stroke="none"/>
+                <circle cx="112" cy="88" r="3.6" fill="#121212" stroke="none"/>
+                <path d="M92 103c5 4 11 4 16 0"/>
+                <path d="M128 180c16 7 31 2 38-12"/>
+                <circle cx="166" cy="148" r="8" fill="#FFF7E8"/>
+                <path d="M158 126h20l-3 18h-14z" fill="#FFF7E8"/>
+                <path d="M156 124h24"/>
+                <path d="M163 117c2-5 8-5 10 0"/>
+                <path d="M28 44l5 11 11 5-11 5-5 11-5-11-11-5 11-5z" fill="#121212" stroke="none"/>
+                <path d="M176 58l4 8 8 4-8 4-4 8-4-8-8-4 8-4z" fill="#121212" stroke="none"/>
+                <path d="M26 104c7-5 12 2 7 7"/>
+              </g>
+            </svg>
+          </div>
+          <div class="btn"><span>Order a coffee</span><span class="go">&raquo;</span></div>
+        </div>
+        <div class="fold"></div>
+        <p class="belowlabel">This week</p>
+        <div class="week"><i class="on"></i><i class="on"></i><i></i><i class="on"></i><i class="on"></i><i></i><i></i></div>
+        <p class="belowlabel" style="margin-top:16px">Here today</p>
+        <div class="mates">
+          <svg width="40" height="46" viewBox="0 0 40 46"><g fill="none" stroke="#121212" stroke-width="3" stroke-linejoin="round"><circle cx="20" cy="15" r="11" fill="#FFF7E8"/><path d="M6 44c0-11 6-17 14-17s14 6 14 17"/><circle cx="16" cy="15" r="2.2" fill="#121212" stroke="none"/><circle cx="24" cy="15" r="2.2" fill="#121212" stroke="none"/></g></svg>
+          <svg width="40" height="46" viewBox="0 0 40 46"><g fill="none" stroke="#121212" stroke-width="3" stroke-linejoin="round"><circle cx="20" cy="15" r="11" fill="#FFF7E8"/><path d="M6 44c0-11 6-17 14-17s14 6 14 17"/><circle cx="16" cy="15" r="2.2" fill="#121212" stroke="none"/><circle cx="24" cy="15" r="2.2" fill="#121212" stroke="none"/></g></svg>
+          <svg width="40" height="46" viewBox="0 0 40 46"><g fill="none" stroke="#121212" stroke-width="3" stroke-linejoin="round"><circle cx="20" cy="15" r="11" fill="#FFF7E8"/><path d="M6 44c0-11 6-17 14-17s14 6 14 17"/><circle cx="16" cy="15" r="2.2" fill="#121212" stroke="none"/><circle cx="24" cy="15" r="2.2" fill="#121212" stroke="none"/></g></svg>
+          <svg width="40" height="46" viewBox="0 0 40 46"><g fill="none" stroke="#121212" stroke-width="3" stroke-linejoin="round"><circle cx="20" cy="15" r="11" fill="#FFF7E8"/><path d="M6 44c0-11 6-17 14-17s14 6 14 17"/><circle cx="16" cy="15" r="2.2" fill="#121212" stroke="none"/><circle cx="24" cy="15" r="2.2" fill="#121212" stroke="none"/></g></svg>
+        </div>
+      </div>
+      <div class="tabs"><b>Today</b><s>Path</s><s>Me</s></div>
+    </div>
+  </div>
+
+  <div class="col">
+    <p class="cap">2. Path, one stop in reach (§3.2)</p>
+    <div class="phone">
+      <div class="body">
+        <h1 class="sm">Your road</h1>
+        <p class="line" style="margin-bottom:22px">You are at the lit stop.</p>
+        <div class="road">
+          <div class="stopline ahead"><div class="dot">&nbsp;</div><div class="stoptxt">Ask for the bill</div></div>
+          <div class="stopline ahead"><div class="dot">&nbsp;</div><div class="stoptxt">Buy a ticket</div></div>
+          <div class="nextcard" style="margin-left:-6px">
+            <p class="eyebrow">Next stop, two stops to the check</p>
+            <h2>Order a coffee</h2>
+          </div>
+          <div class="stopline" style="margin-top:22px"><div class="dot done">&#10003;</div><div class="stoptxt">Say hello</div></div>
+          <div class="stopline"><div class="dot done">&#10003;</div><div class="stoptxt">Say your name</div></div>
+        </div>
+        <p class="note" style="margin-bottom:16px">A2.1 &middot; done stops keep their tick, nothing fades back</p>
+      </div>
+      <div class="tabs"><s>Today</s><b>Path</b><s>Me</s></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SHOT 2: Coach miss and a scaffold handing to the mic ============ -->
+<div class="shot" id="shot-2">
+  <div class="col">
+    <p class="cap">3. Coach, a near attempt (§3.4)</p>
+    <div class="phone">
+      <div class="body">
+        <div class="card c-sky" style="flex:1">
+          <h1 class="sm">Nearly.<br>Listen once more.</h1>
+          <div class="art" style="flex:1;align-items:center">
+            <svg width="230" height="230" viewBox="0 0 230 230" aria-label="Maya leaning in to listen">
+              <g fill="none" stroke="#121212" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M58 226c0-50 25-78 55-78s55 28 55 78z" fill="#FFF7E8"/>
+                <g transform="rotate(-9 113 152)">
+                  <circle cx="113" cy="100" r="41" fill="#FFF7E8"/>
+                  <path d="M72 94c0-30 18-44 41-44s41 14 41 44c-8-9-20-15-41-15s-33 6-41 15z" fill="#121212" stroke="none"/>
+                  <path d="M72 94c0-30 18-44 41-44s41 14 41 44"/>
+                  <circle cx="99" cy="102" r="4" fill="#121212" stroke="none"/>
+                  <circle cx="127" cy="102" r="4" fill="#121212" stroke="none"/>
+                  <path d="M104 120c6 4 13 4 19 0"/>
+                  <path d="M154 98c9-1 13 8 8 14" fill="#FFF7E8"/>
+                </g>
+                <path d="M184 92c13 5 17 20 9 32"/>
+                <path d="M198 80c20 9 25 32 13 51"/>
+                <path d="M34 56l5 11 11 5-11 5-5 11-5-11-11-5 11-5z" fill="#121212" stroke="none"/>
+                <path d="M28 130c7-5 12 2 7 7"/>
+              </g>
+            </svg>
+          </div>
+          <p class="line" style="font-size:22px;font-weight:800">I&rsquo;d like a coffee, please.</p>
+          <div class="btn"><span>Listen</span><span class="go">&#9654;</span></div>
+          <p class="secondary">Say it</p>
+        </div>
+        <p class="note" style="margin:14px 4px 16px">No red, no count of tries, no pass line. The sentence stays.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <p class="cap">4. Scaffold ends on the mic (§3.5)</p>
+    <div class="phone">
+      <div class="body">
+        <p class="line" style="margin:0 0 4px">Put it in order</p>
+        <div class="card c-mint" style="flex:1">
+          <div class="bubble">&#9654;&nbsp;&nbsp;Listen again</div>
+          <div class="tilerow">
+            <div class="tile">I&rsquo;d like</div>
+            <div class="tile">a coffee</div>
+            <div class="tile">please</div>
+          </div>
+          <p class="line" style="font-size:22px;font-weight:800;margin-top:26px">I&rsquo;d like a coffee, please.</p>
+          <p class="line">Now say it.</p>
+          <div class="mic">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round">
+              <rect x="14" y="6" width="12" height="20" rx="6"/>
+              <path d="M9 22c0 6 5 11 11 11s11-5 11-11"/>
+              <path d="M20 33v4"/>
+            </svg>
+          </div>
+          <div class="bars">
+            <div><span>Sounds</span><u><b style="width:72%"></b></u></div>
+            <div><span>Rhythm</span><u><b style="width:58%"></b></u></div>
+            <div><span>Words</span><u><b style="width:88%"></b></u></div>
+          </div>
+        </div>
+        <p class="note" style="margin:14px 4px 16px">Bars have no numbers and no pass line. The tap never finishes the item.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SHOT 3: Session end and the return card ============ -->
+<div class="shot" id="shot-3">
+  <div class="col">
+    <p class="cap">5. Session end (§3.6)</p>
+    <div class="phone">
+      <div class="body">
+        <div class="card c-sun">
+          <h1>You can order a drink.</h1>
+          <div class="ring">
+            <svg width="150" height="150" viewBox="0 0 150 150" aria-label="Can-do ring, two thirds round">
+              <circle cx="75" cy="75" r="56" fill="none" stroke="#121212" stroke-width="3" opacity=".3"/>
+              <path d="M75 19a56 56 0 0 1 36 99" fill="none" stroke="#121212" stroke-width="13" stroke-linecap="round"/>
+              <path d="M75 60l6 12 12 6-12 6-6 12-6-12-12-6 12-6z" fill="#121212"/>
+            </svg>
+          </div>
+          <div class="art" style="margin-top:0">
+            <svg width="180" height="170" viewBox="0 0 180 170" aria-label="Maya with a star sticker">
+              <g fill="none" stroke="#121212" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M48 166c0-38 17-58 40-58s40 20 40 58z" fill="#FFF7E8"/>
+                <circle cx="88" cy="76" r="31" fill="#FFF7E8"/>
+                <path d="M57 71c0-23 14-33 31-33s31 10 31 33c-6-7-16-11-31-11s-25 4-31 11z" fill="#121212" stroke="none"/>
+                <path d="M57 71c0-23 14-33 31-33s31 10 31 33"/>
+                <circle cx="78" cy="78" r="3.2" fill="#121212" stroke="none"/>
+                <circle cx="98" cy="78" r="3.2" fill="#121212" stroke="none"/>
+                <path d="M81 91c4 4 10 4 14 0"/>
+                <path d="M146 36l6 12 12 6-12 6-6 12-6-12-12-6 12-6z" fill="#121212" stroke="none"/>
+                <path d="M26 50l4 9 9 4-9 4-4 9-4-9-9-4 9-4z" fill="#121212" stroke="none"/>
+                <path d="M22 108c7-5 12 2 7 7"/>
+              </g>
+            </svg>
+          </div>
+          <div class="btn"><span>Say it once more</span><span class="go">&raquo;</span></div>
+          <p class="secondary">Finish for today</p>
+        </div>
+        <p class="note" style="margin:14px 4px 16px">This comes back tomorrow. No minutes, no count, no streak.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <p class="cap">6. Coming back after a missed day (§3.7)</p>
+    <div class="phone">
+      <div class="body">
+        <div class="card c-lilac">
+          <h1>Carry on</h1>
+          <p class="line">Order a coffee again. Three minutes.</p>
+          <div class="art">
+            <svg width="200" height="190" viewBox="0 0 200 190" aria-label="Maya, settled and neutral">
+              <g fill="none" stroke="#121212" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M56 186c0-42 20-64 44-64s44 22 44 64z" fill="#FFF7E8"/>
+                <circle cx="100" cy="82" r="34" fill="#FFF7E8"/>
+                <path d="M66 77c0-25 15-36 34-36s34 11 34 36c-7-8-17-12-34-12s-27 4-34 12z" fill="#121212" stroke="none"/>
+                <path d="M66 77c0-25 15-36 34-36s34 11 34 36"/>
+                <circle cx="89" cy="84" r="3.4" fill="#121212" stroke="none"/>
+                <circle cx="111" cy="84" r="3.4" fill="#121212" stroke="none"/>
+                <path d="M91 99h18"/>
+                <path d="M30 56c7-5 12 2 7 7"/>
+                <path d="M168 68c7-5 12 2 7 7"/>
+              </g>
+            </svg>
+          </div>
+          <div class="btn"><span>Order a coffee</span><span class="go">&raquo;</span></div>
+        </div>
+        <div class="fold"></div>
+        <p class="belowlabel">This week</p>
+        <div class="week"><i class="on"></i><i class="on"></i><i></i><i class="on"></i><i></i><i></i><i></i></div>
+        <p class="note" style="margin-top:18px">The empty marks do not reset, change colour, or animate. Nothing was lost, so nothing is mentioned.</p>
+      </div>
+      <div class="tabs"><b>Today</b><s>Path</s><s>Me</s></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
