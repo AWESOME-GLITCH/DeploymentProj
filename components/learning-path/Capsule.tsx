@@ -14,6 +14,7 @@ import type { Atom, AtomPhase, Item, Localised, SessionPhase } from "@/lib/learn
 import { ItemRenderer, type ItemResult } from "./items";
 import { GlowButton, LocText, Pill, ProgressLine, Say, useLp } from "./ui";
 import { Scene, sceneFor } from "./scenes";
+import { ExplainerPlayer, hasExplainer } from "./explainer/ExplainerPlayer";
 
 export function Capsule({ onExit, onComplete }: { onExit: () => void; onComplete: () => void }) {
   const { state, dispatch } = useStore();
@@ -178,7 +179,9 @@ function AtomRun({ atomId, role, onDone }: { atomId: string; role: "new" | "use"
   if (!phase) { onDone(); return null; }
   switch (phase.kind) {
     case "input": return phase.media.kind === "video"
-      ? <VideoPhase atom={atom} media={phase.media} variant={variant} onDone={advance} />
+      ? (hasExplainer(atom.atom_id)
+        ? <ExplainerPhase atom={atom} variant={variant} onDone={advance} />
+        : <VideoPhase atom={atom} media={phase.media} variant={variant} onDone={advance} />)
       : <WordCards atom={atom} cards={phase.media.cards} onDone={advance} />;
     case "noticing": return <NoticingPhase atom={atom} highlight={phase.highlight} why={phase.why} onDone={advance} />;
     case "controlled": return <ItemRun items={phase.items} mode="controlled" title={role === "fluency" ? "keep_going" : undefined} onDone={advance} atomId={atomId} variant={variant} />;
@@ -197,6 +200,33 @@ function pickVariantLocal(attempts: { attempt_n: number; modality: string; corre
   if (recent.length < 5) return "standard";
   const acc = recent.filter((a) => a.correct).length / recent.length;
   return acc < 0.7 ? "light" : acc > 0.9 ? "dense" : "standard";
+}
+
+/** A real 2D motion-graphics explainer (Remotion) with the interactive layer; Continue unlocks at 80%. */
+function ExplainerPhase({ atom, variant, onDone }: { atom: Atom; variant: Atom["variant"]; onDone: () => void }) {
+  const { t, lang } = useLp();
+  const { state, dispatch } = useStore();
+  const [pct, setPct] = useState(0);
+  const logged = useRef(false);
+  useEffect(() => {
+    if (pct >= 0.8 && !logged.current) {
+      logged.current = true;
+      if (!state.events.some((e) => e.name === "video_progress" && e.data?.atom_id === atom.atom_id && e.data?.pct === 80))
+        dispatch({ type: "event", name: "video_progress", data: { atom_id: atom.atom_id, pct: 80, explainer: true } });
+    }
+  }, [pct, atom.atom_id, dispatch, state.events]);
+  return (
+    <div className="flex h-full flex-col">
+      <div className="mb-2 flex items-center justify-between">
+        <div><div className="lp-eyebrow">Explainer · {variant}</div><div className="lp-body">{loc(atom.title, lang)}</div></div>
+        <Pill>{atom.sublevel}</Pill>
+      </div>
+      <div className="min-h-0 flex-1">
+        <ExplainerPlayer atomId={atom.atom_id} onProgress={setPct} onSpoken={() => dispatch({ type: "event", name: "explainer_spoken", data: { atom_id: atom.atom_id } })} />
+      </div>
+      <div className="mt-3"><GlowButton size="normal" disabled={pct < 0.8} onClick={onDone}>{pct < 0.8 ? `${t("continue")} · ${Math.round(pct * 100)}%` : t("continue")}</GlowButton></div>
+    </div>
+  );
 }
 
 /** Video stand-in: a presenter card with word-synced captions, spoken line by line. */
