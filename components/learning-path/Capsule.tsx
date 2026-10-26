@@ -15,6 +15,7 @@ import { ItemRenderer, type ItemResult } from "./items";
 import { GlowButton, LocText, Pill, ProgressLine, Say, useLp } from "./ui";
 import { Scene, sceneFor } from "./scenes";
 import { ExplainerPlayer, hasExplainer } from "./explainer/ExplainerPlayer";
+import { Coach, isCoachItem } from "./coach/Coach";
 
 export function Capsule({ onExit, onComplete }: { onExit: () => void; onComplete: () => void }) {
   const { state, dispatch } = useStore();
@@ -133,7 +134,12 @@ function ItemRun({ items, mode, title, subtitle, onDone, atomId, tryItems, varia
       {current.attempt === 2 ? <div className="lp-small mb-2" style={{ color: "var(--lp-sand)" }}>{t("wrong_again")}</div> : null}
       {missedTwice.includes(current.id) ? <div className="lp-small mb-2" style={{ color: "var(--lp-paper-faint)" }}>{t("tomorrow_fb")}</div> : null}
       <div className="min-h-0 flex-1">
-        <ItemRenderer key={`${current.id}-${current.attempt}`} item={item} onAnswer={onAnswer} onNext={onNext} mode={mode === "use" ? "use" : mode} tryItems={tryItems} variant={variant} dayParity={day} />
+        {/* Speaking practice in a use phase is a turn with the coach, not a mic under a prompt. */}
+        {mode === "use" && isCoachItem(item) ? (
+          <Coach key={`${current.id}-${current.attempt}`} item={item} onAnswer={onAnswer} onNext={onNext} mode="use" tryItems={tryItems} variant={variant} dayParity={day} />
+        ) : (
+          <ItemRenderer key={`${current.id}-${current.attempt}`} item={item} onAnswer={onAnswer} onNext={onNext} mode={mode === "use" ? "use" : mode} tryItems={tryItems} variant={variant} dayParity={day} />
+        )}
       </div>
     </div>
   );
@@ -185,12 +191,16 @@ function AtomRun({ atomId, role, onDone }: { atomId: string; role: "new" | "use"
       : <WordCards atom={atom} cards={phase.media.cards} onDone={advance} />;
     case "noticing": return <NoticingPhase atom={atom} highlight={phase.highlight} why={phase.why} onDone={advance} />;
     case "controlled": return <ItemRun items={phase.items} mode="controlled" title={role === "fluency" ? "keep_going" : undefined} onDone={advance} atomId={atomId} variant={variant} />;
-    case "free_use": return (
-      <div className="flex h-full flex-col">
-        <div className="mb-3 flex items-center justify-between"><div className="lp-eyebrow">{t("your_turn")}</div><Pill tone="glow">{loc(atom.title, "en")}</Pill></div>
-        <div className="min-h-0 flex-1"><ItemRun items={phase.items} mode="use" onDone={advance} atomId={atomId} /></div>
-      </div>
-    );
+    case "free_use": {
+      // The coach owns her screen: no header above her while she is talking.
+      const coachOnly = phase.items.every((id) => ITEM_BY_ID[id] && isCoachItem(ITEM_BY_ID[id]));
+      return (
+        <div className="flex h-full flex-col">
+          {coachOnly ? null : <div className="mb-3 flex items-center justify-between"><div className="lp-eyebrow">{t("your_turn")}</div><Pill tone="glow">{loc(atom.title, "en")}</Pill></div>}
+          <div className="min-h-0 flex-1"><ItemRun items={phase.items} mode="use" onDone={advance} atomId={atomId} /></div>
+        </div>
+      );
+    }
     default: advance(); return null;
   }
 }
