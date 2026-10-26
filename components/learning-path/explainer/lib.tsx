@@ -90,7 +90,7 @@ const clean = (w: string) => w.replace(/[.,?!…]/g, "");
 /** True when a word belongs to one of the target phrases. */
 export function wordIsTarget(word: string, targets: string[] = []): boolean {
   const w = clean(word);
-  return targets.some((t) => t.split(" ").includes(w));
+  return targets.some((t) => t.split(" ").some((p) => clean(p) === w));
 }
 
 // ---------------------------------------------------------------- stage
@@ -596,7 +596,7 @@ export function targetMask(words: string[], targets: string[]): boolean[] {
   const mask = words.map(() => false);
   const cw = words.map(clean);
   for (const t of targets) {
-    const tw = t.split(" ");
+    const tw = t.split(" ").map(clean);
     for (let i = 0; i + tw.length <= cw.length; i++) {
       if (tw.every((x, k) => cw[i + k] === x)) for (let k = 0; k < tw.length; k++) mask[i + k] = true;
     }

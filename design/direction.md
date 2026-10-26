@@ -68,7 +68,7 @@ and the review tint. One primary-action hue in both modes so the button is learn
 | Road surface | `--lp-road` | `rgba(255,255,255,0.07)` |
 
 Strand colours stay as a set of seven but lose the pink and the coral-red that read as
-errors: grammar teal, reading blue, writing gold, listening sky, speaking cyan, mediation
+errors: grammar teal, reading blue, writing moss, listening sky, speaking cyan, mediation
 emerald, interaction deep blue.
 
 ## Type scale

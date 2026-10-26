@@ -15,7 +15,7 @@ import { ItemRenderer, type ItemResult } from "./items";
 import { GlowButton, IsoStop, LocText, Pill, ProgressLine, STRAND_COLOR, StopTick, useLp } from "./ui";
 
 const STOP_GAP = 150;
-const H = 380;
+const H = 290;
 
 export function Road({ onCheckpoint }: { onCheckpoint: () => void }) {
   const { state } = useStore();
@@ -28,7 +28,7 @@ export function Road({ onCheckpoint }: { onCheckpoint: () => void }) {
   const width = 80 + stops.length * STOP_GAP + 120;
   const ckp = checkpointAvailable(state, now);
   const x = (i: number) => (rtl ? width - (60 + i * STOP_GAP) : 60 + i * STOP_GAP);
-  const y = (i: number) => 190 + Math.sin(i * 1.1) * 92;
+  const y = (i: number) => 140 + Math.sin(i * 1.1) * 76;
 
   useEffect(() => {
     const el = scroller.current;
