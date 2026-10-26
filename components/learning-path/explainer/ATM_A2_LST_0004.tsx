@@ -202,11 +202,14 @@ function HookScene({ frame }: { frame: number }) {
           <clipPath id="lst-train-body"><rect x="-370" y="820" width="740" height="180" rx="28" /></clipPath>
           <clipPath id="lst-door-a"><rect x="-212" y="840" width="124" height="122" /></clipPath>
           <clipPath id="lst-door-b"><rect x="88" y="840" width="124" height="122" /></clipPath>
+          <linearGradient id="lst-sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor={SKY_HIGH} />
+            <stop offset="0.6" stopColor={SKY_MID} />
+            <stop offset="1" stopColor={SKY_LOW} />
+          </linearGradient>
         </defs>
-        {/* evening sky in flat bands, deepest at the top */}
-        {([[0, 380, SKY_HIGH], [380, 140, "#f09a58"], [520, 180, SKY_MID], [700, 130, "#f8b56c"], [830, 190, SKY_LOW]] as [number, number, string][]).map(([by, bh, bc]) => (
-          <rect key={by} x="0" y={by} width="1080" height={bh} fill={bc} />
-        ))}
+        {/* evening sky, deepest at the top */}
+        <rect x="0" y="0" width="1080" height="1020" fill="url(#lst-sky)" />
         <circle cx="828" cy={706 - sun * 72} r="88" fill={SAFFRON} />
         {/* city silhouettes */}
         <g fill={CITY}>
@@ -220,17 +223,24 @@ function HookScene({ frame }: { frame: number }) {
         </g>
         {/* the station rises from the bottom */}
         <g transform={`translate(0 ${rise})`}>
-          <rect x="132" y="770" width="74" height="236" fill={WALL} />
-          <rect x="876" y="770" width="74" height="236" fill={WALL} />
-          {[132, 876].map((cx) => <rect key={cx} x={cx} y="770" width="12" height="236" fill={INK} opacity="0.1" />)}
-          <path d="M90 836 Q540 590 990 836 L990 790 Q540 540 90 790 Z" fill={GOLD} />
-          <path d="M90 800 Q540 552 990 800 L990 786 Q540 536 90 786 Z" fill={GOLD_LIGHT} />
-          {[0, 1, 2, 3, 4, 5, 6].map((i) => {
-            const t = 0.08 + i * 0.14;
-            const bx = 90 + t * 900;
-            const by = (1 - t) * (1 - t) * 836 + 2 * t * (1 - t) * 590 + t * t * 836;
-            return <line key={i} x1={bx} y1={by} x2={bx} y2={by + 34} stroke={GOLD} strokeWidth="6" opacity="0.75" />;
+          {/* the gold shell rests on two columns, clear of the train */}
+          {[52, 946].map((cx) => (
+            <g key={cx}>
+              <rect x={cx} y="824" width="82" height="182" fill={WALL} />
+              <rect x={cx} y="824" width="14" height="182" fill={INK} opacity="0.09" />
+            </g>
+          ))}
+          <path d="M40 760 Q540 500 1040 760 L1040 836 Q540 576 40 836 Z" fill={GOLD} />
+          <path d="M40 760 Q540 500 1040 760 L1040 782 Q540 522 40 782 Z" fill={GOLD_LIGHT} />
+          <path d="M40 836 Q540 576 1040 836" fill="none" stroke={INK} strokeWidth="7" opacity="0.3" />
+          {[0.14, 0.28, 0.42, 0.58, 0.72, 0.86].map((t) => {
+            const bx = 40 + t * 1000;
+            const ty = (1 - t) * (1 - t) * 760 + 2 * t * (1 - t) * 500 + t * t * 760;
+            const by = (1 - t) * (1 - t) * 836 + 2 * t * (1 - t) * 576 + t * t * 836;
+            return <line key={t} x1={bx} y1={ty + 20} x2={bx} y2={by} stroke={INK} strokeWidth="5" opacity="0.12" />;
           })}
+          {/* the platform behind the train */}
+          <rect x="120" y="950" width="840" height="56" fill="#e6dccb" />
           {/* viaduct deck */}
           <rect x="0" y="1000" width="1080" height="58" fill="#cfc6b6" />
           <rect x="0" y="1052" width="1080" height="14" fill="#b8ae9c" />
@@ -246,12 +256,12 @@ function HookScene({ frame }: { frame: number }) {
               <rect x="-80" y="848" width="150" height="62" rx="14" fill={GLASS} />
               <rect x="228" y="848" width="124" height="62" rx="14" fill={GLASS} />
               <g clipPath="url(#lst-door-a)">
-                <rect x="-212" y="840" width="124" height="122" fill="#dde4ef" />
+                <rect x="-212" y="840" width="124" height="122" fill="#bcc6d7" />
                 <rect x={-212 - door} y="840" width="62" height="122" fill="#f9fafd" stroke={INK} strokeWidth="3" />
                 <rect x={-150 + door} y="840" width="62" height="122" fill="#f9fafd" stroke={INK} strokeWidth="3" />
               </g>
               <g clipPath="url(#lst-door-b)">
-                <rect x="88" y="840" width="124" height="122" fill="#dde4ef" />
+                <rect x="88" y="840" width="124" height="122" fill="#bcc6d7" />
                 <rect x={88 - door} y="840" width="62" height="122" fill="#f9fafd" stroke={INK} strokeWidth="3" />
                 <rect x={150 + door} y="840" width="62" height="122" fill="#f9fafd" stroke={INK} strokeWidth="3" />
               </g>

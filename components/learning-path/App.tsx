@@ -156,12 +156,12 @@ function Shell() {
   return (
     <LpContext.Provider value={ctx}>
       {wide ? (
-        <div className="flex h-full w-full items-center justify-center gap-8 px-6" style={{ background: "radial-gradient(900px 600px at 30% 40%, #13232c, #090f14 70%)" }}>
+        <div className="flex h-full w-full items-center justify-center gap-8 px-6" style={{ background: "radial-gradient(900px 600px at 30% 40%, #10201e, #060d0c 70%)" }}>
           <div className="flex flex-col items-center gap-3">
-            <div className="overflow-hidden" style={{ width: 375, height: 812, borderRadius: 44, border: "10px solid #1b242b", boxShadow: "0 40px 100px -30px rgba(0,0,0,0.9), inset 0 0 0 1px var(--lp-well)" }}>
+            <div className="overflow-hidden" style={{ width: 375, height: 812, borderRadius: 44, border: "10px solid #182524", boxShadow: "0 40px 100px -30px rgba(0,0,0,0.9)" }}>
               {phone}
             </div>
-            <div className="text-[11px] uppercase tracking-[0.18em]" style={{ color: "#6f7c84" }}>375 × 812 · Learning Path prototype</div>
+            <div className="text-[11px] uppercase tracking-[0.18em]" style={{ color: "#6b8580" }}>375 × 812 · Learning Path prototype</div>
           </div>
           <div className="h-[812px] w-[440px] overflow-hidden rounded-2xl" style={{ background: "#0e161d", border: "1px solid var(--lp-track)" }}>
             <Tester screen={screen} go={setScreen} startSession={startSession} />

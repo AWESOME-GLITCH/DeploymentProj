@@ -99,12 +99,12 @@ export function ExplainerPlayer({ atomId, onProgress, onSpoken }: { atomId: stri
       <div className="lp-video relative w-full" style={{ aspectRatio: "3 / 4" }}>
         <Player ref={ref} component={def.component} inputProps={inputProps} durationInFrames={def.duration} fps={CAFE_FPS} compositionWidth={CAFE_W} compositionHeight={CAFE_H} style={{ width: "100%", height: "100%" }} controls={false} playbackRate={rate} clickToPlay={false} loop={false} moveToBeginningWhenEnded={false} />
         {!started ? (
-          <button type="button" aria-label={t("listen")} onClick={start} className="absolute inset-0 z-10 flex items-center justify-center" style={{ background: "rgba(27,29,58,0.18)" }}>
+          <button type="button" aria-label={t("listen")} onClick={start} className="absolute inset-0 z-10 flex items-center justify-center" style={{ background: "var(--lp-dim)" }}>
             <span className="lp-mic" style={{ width: 76, height: 76 }}><Play size={34} /></span>
           </button>
         ) : null}
         {ended && !paused ? (
-          <button type="button" aria-label={t("retry")} onClick={replay} className="absolute inset-0 z-10 flex items-center justify-center" style={{ background: "rgba(27,29,58,0.18)" }}>
+          <button type="button" aria-label={t("retry")} onClick={replay} className="absolute inset-0 z-10 flex items-center justify-center" style={{ background: "var(--lp-dim)" }}>
             <span className="lp-mic" style={{ width: 64, height: 64 }}><RotateCcw size={28} /></span>
           </button>
         ) : null}
@@ -138,7 +138,7 @@ export function ExplainerPlayer({ atomId, onProgress, onSpoken }: { atomId: stri
         <button type="button" className="lp-icon-btn lp-small" style={{ width: 56 }} onClick={() => setRate((r) => (r === 1 ? 0.75 : 1))}>{rate === 1 ? "1.0×" : "0.75×"}</button>
         <div className="ms-auto flex items-center gap-1.5">
           {beats.map((b) => (
-            <button key={b.id} type="button" aria-label={b.id} onClick={() => seekBeat(b)} className="lp-dot" style={{ width: b.id === beat.id ? 18 : 10, height: 10, borderRadius: 6, background: frame >= b.to ? "var(--lp-accent)" : b.id === beat.id ? "var(--lp-glow)" : undefined, transition: reduceMotion ? "none" : "width 0.2s" }} />
+            <button key={b.id} type="button" aria-label={b.id} onClick={() => seekBeat(b)} className="lp-dot" style={{ width: b.id === beat.id ? 18 : 10, height: 10, borderRadius: 6, background: frame >= b.to ? "var(--lp-sea)" : b.id === beat.id ? "var(--lp-marker)" : undefined, transition: reduceMotion ? "none" : "width 0.2s" }} />
           ))}
         </div>
         {beat.kind === "practise" && !paused ? <span className="lp-small" style={{ color: "var(--lp-paper-faint)" }}><Mic size={14} /></span> : null}

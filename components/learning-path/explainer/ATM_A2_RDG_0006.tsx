@@ -295,11 +295,13 @@ function Silhouette({ x, y, frame, scale = 1, facing = 1, sit = false, stick = t
     <g transform={`translate(${x + slide * facing} ${y}) scale(${scale * facing} ${scale * s})`}>
       <ellipse cx="0" cy="2" rx="66" ry="11" fill={INK} opacity="0.12" />
       <g transform={`translate(0 ${-bob})`} fill={GREY_FIG}>
+        <rect x="-74" y="-300" width="20" height="132" rx="10" />
+        <rect x="54" y="-300" width="20" height="132" rx="10" />
         {sit ? (
-          <path d="M-52 -296 Q-52 -322 -28 -322 L28 -322 Q52 -322 52 -296 L60 -150 L-60 -150 Z" />
+          <path d="M-62 -292 Q-62 -324 -30 -324 L30 -324 Q62 -324 62 -292 L66 -150 L-66 -150 Z" />
         ) : (
           <g>
-            <path d="M-52 -296 Q-52 -322 -28 -322 L28 -322 Q52 -322 52 -296 L44 -150 L-44 -150 Z" />
+            <path d="M-62 -292 Q-62 -324 -30 -324 L30 -324 Q62 -324 62 -292 L46 -150 L-46 -150 Z" />
             {[-18, 18].map((k, i) => (
               <g key={k} transform={`rotate(${walking ? Math.sin(walkT + i * Math.PI) * 16 : 0} ${k} -150)`}>
                 <rect x={k - 15} y="-156" width="30" height="156" rx="13" />
@@ -308,12 +310,12 @@ function Silhouette({ x, y, frame, scale = 1, facing = 1, sit = false, stick = t
             ))}
           </g>
         )}
-        <rect x="-14" y="-362" width="28" height="56" />
-        <circle cx="0" cy="-398" r="50" />
+        <rect x="-13" y="-366" width="26" height="54" />
+        <circle cx="0" cy="-398" r="44" />
       </g>
       {stick ? (
         <g transform={`translate(0 ${-bob})`}>
-          <path d="M62 -286 Q84 -288 84 -258 L90 -6" fill="none" stroke="#6f7384" strokeWidth="10" strokeLinecap="round" />
+          <path d="M64 -192 Q86 -196 86 -166 L92 -6" fill="none" stroke="#6f7384" strokeWidth="10" strokeLinecap="round" />
         </g>
       ) : null}
     </g>
@@ -664,16 +666,16 @@ function EscalatorBack({ frame }: { frame: number }) {
 function EscalatorFront() {
   return (
     <g>
-      <path d={escBand(0, -156)} fill="#dceaf2" opacity="0.16" />
-      <path d={escBand(-150, -156)} fill={FOG} opacity="0.45" />
+      <path d={escBand(0, -134)} fill="#dceaf2" opacity="0.16" />
+      <path d={escBand(-126, -134)} fill={FOG} opacity="0.45" />
       <path
-        d={`M${escPoint(0, -168).x} ${escPoint(0, -168).y} L${escPoint(1, -168).x} ${escPoint(1, -168).y}`}
+        d={`M${escPoint(0, -146).x} ${escPoint(0, -146).y} L${escPoint(1, -146).x} ${escPoint(1, -146).y}`}
         stroke={INK}
         strokeWidth="26"
         strokeLinecap="round"
       />
       <path
-        d={`M${escPoint(0, -176).x} ${escPoint(0, -176).y} L${escPoint(1, -176).x} ${escPoint(1, -176).y}`}
+        d={`M${escPoint(0, -154).x} ${escPoint(0, -154).y} L${escPoint(1, -154).x} ${escPoint(1, -154).y}`}
         stroke="#474b73"
         strokeWidth="8"
         strokeLinecap="round"
@@ -851,8 +853,8 @@ function W2Scene({ frame }: { frame: number }) {
   const bag = { x: 418, y: 876 };
   const out = tween(frame, W2 + 22, W2 + 50, 0, 1, EASE.out);
   const drink = tween(frame, W2 + 76, W2 + 104, 0, 1, EASE.inOut) * (1 - tween(frame, W2 + 132, W2 + 158, 0, 1, EASE.inOut));
-  const bx = bag.x + (low.x - bag.x) * out + (high.x - low.x) * drink - 34 * drink;
-  const by = bag.y - 40 + (low.y - (bag.y - 40)) * out + (high.y - low.y) * drink + 18 * drink;
+  const bx = bag.x + (low.x - bag.x) * out + (high.x - low.x) * drink - 62 * drink;
+  const by = bag.y - 40 + (low.y - (bag.y - 40)) * out + (high.y - low.y) * drink + 30 * drink;
   return (
     <AbsoluteFill style={{ background: WALL }}>
       <Stage>
@@ -877,7 +879,7 @@ function W2Scene({ frame }: { frame: number }) {
         <Fatima x={864} y={1040} frame={frame} scale={1.2} facing={-1} enter={W2 + 8} sit smile nodAt={W2 + 112} />
         <CarriageFloor />
         <Tote x={bag.x} y={bag.y} k={0.72} />
-        <Bottle x={bx} y={by} k={0.68} rot={drink * 36} />
+        <Bottle x={bx} y={by} k={0.68} rot={drink * 52} />
         <Glow frame={frame} from={W2 + 86} x={676} y={748} r={62} color={SEA} />
       </Stage>
       <WordCard frame={frame} from={W2 + 4} parts={[{ t: "allowed", a: true }]} size={86} tick />
@@ -893,7 +895,7 @@ const W3 = 510;
 
 function W3Scene({ frame }: { frame: number }) {
   const youT = tween(frame, W3 + 6, W3 + 170, 0.36, 0.5, EASE.inOut);
-  const famT = tween(frame, W3 + 10, W3 + 162, 0.02, 0.94, EASE.inOut);
+  const famT = tween(frame, W3 + 8, W3 + 150, 0.02, 1.02, EASE.inOut);
   const youP = escPoint(youT, 0);
   const famP = escPoint(famT, -52);
   const youK = 0.82 * (1 - 0.2 * youT);

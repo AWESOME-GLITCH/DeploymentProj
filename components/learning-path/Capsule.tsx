@@ -63,7 +63,7 @@ export function Capsule({ onExit, onComplete }: { onExit: () => void; onComplete
 function PhaseView({ phase, onDone }: { phase: SessionPhase; onDone: () => void }) {
   switch (phase.kind) {
     case "plan": return <PlanPhase canDo={phase.can_do} onDone={onDone} />;
-    case "recall": return <ItemRun items={phase.items} mode="recall" title="recall_title" subtitle="recall_sub" onDone={onDone} />;
+    case "recall": return <ItemRun items={phase.items} mode="recall" title="recall_title" onDone={onDone} />;
     case "atom": return <AtomRun atomId={phase.atom_id} role={phase.role} onDone={onDone} />;
     case "vote": return <ItemRun items={[phase.item_id]} mode="controlled" title="vote_q" onDone={onDone} />;
     case "story": return <StoryPhase atomId={phase.atom_id} onDone={onDone} />;
@@ -94,13 +94,12 @@ function PlanPhase({ canDo, onDone }: { canDo: Localised; onDone: () => void }) 
 }
 
 /** Runs a list of items one per screen. Missed items return once at the end. */
-function ItemRun({ items, mode, title, subtitle, onDone, atomId, tryItems, variant }: { items: string[]; mode: "recall" | "controlled" | "check" | "use"; title?: string; subtitle?: string; onDone: () => void; atomId?: string; tryItems?: string[]; variant?: Atom["variant"] }) {
+function ItemRun({ items, mode, title, onDone, atomId, tryItems, variant }: { items: string[]; mode: "recall" | "controlled" | "check" | "use"; title?: string; onDone: () => void; atomId?: string; tryItems?: string[]; variant?: Atom["variant"] }) {
   const { t } = useLp();
   const { state, dispatch } = useStore();
   const now = useNow();
   const [queue, setQueue] = useState<{ id: string; attempt: number }[]>(items.map((id) => ({ id, attempt: 1 })));
   const [idx, setIdx] = useState(0);
-  const [missedTwice, setMissedTwice] = useState<string[]>([]);
   const current = queue[idx];
   const item: Item | undefined = current ? ITEM_BY_ID[current.id] : undefined;
   const day = dayIndex(state, now);
@@ -110,10 +109,9 @@ function ItemRun({ items, mode, title, subtitle, onDone, atomId, tryItems, varia
 
   const onAnswer = (r: ItemResult) => {
     dispatch({ type: "attempt", item_id: item.item_id, atom_id: atomId, correct: r.correct, modality: r.modality, response_ms: r.response_ms, attempt_n: current.attempt, score: r.score, sub_scores: r.sub_scores, ai_confidence: r.ai_confidence, scorer_version: "proto-heuristic-0.3", transcript: r.transcript, task_id: r.task_id, ai: r.ai });
-    if (!r.correct && mode !== "use") {
-      if (current.attempt === 1) setQueue((q) => [...q, { id: current.id, attempt: 2 }]);
-      else setMissedTwice((m) => [...m, current.id]);
-    }
+    // A first miss comes back once at the end of the run; a second miss is left
+    // to the memory engine to schedule again.
+    if (!r.correct && mode !== "use" && current.attempt === 1) setQueue((q) => [...q, { id: current.id, attempt: 2 }]);
   };
   const onNext = () => setIdx((i) => i + 1);
 
@@ -220,10 +218,7 @@ function ExplainerPhase({ atom, variant, onDone }: { atom: Atom; variant: Atom["
   }, [pct, atom.atom_id, dispatch, state.events]);
   return (
     <div className="flex h-full flex-col">
-      <div className="mb-2 flex items-center justify-between">
-        <div><div className="lp-eyebrow">Explainer · {variant}</div><div className="lp-body">{loc(atom.title, lang)}</div></div>
-        <Pill>{atom.sublevel}</Pill>
-      </div>
+      <div className="lp-body mb-2" style={{ fontWeight: 500 }}>{loc(atom.title, lang)}</div>
       <div className="min-h-0 flex-1">
         <ExplainerPlayer atomId={atom.atom_id} onProgress={setPct} onSpoken={() => dispatch({ type: "event", name: "explainer_spoken", data: { atom_id: atom.atom_id } })} />
       </div>
@@ -263,10 +258,7 @@ function VideoPhase({ atom, media, variant, onDone }: { atom: Atom; media: Extra
   const scene = sceneFor(atom.atom_id, lineIdx);
   return (
     <div className="flex h-full flex-col">
-      <div className="mb-3 flex items-center justify-between">
-        <div><div className="lp-eyebrow">{atom.type === "video" ? "Video" : "Input"} · {variant}</div><div className="lp-body">{loc(atom.title, lang)}</div></div>
-        <Pill>{atom.sublevel}</Pill>
-      </div>
+      <div className="lp-body mb-2" style={{ fontWeight: 500 }}>{loc(atom.title, lang)}</div>
       <div className="lp-video flex-1" style={{ minHeight: 300 }}>
         {sec === 0 && !playing && media.l1_card && (lang !== "en" || variant === "light") ? (
           <div className="absolute inset-x-4 top-4 z-10 lp-glass p-3 text-center lp-small">{loc(media.l1_card, l1)}</div>
@@ -330,13 +322,11 @@ function NoticingPhase({ atom, highlight, why, onDone }: { atom: Atom; highlight
   useEffect(() => { const id = window.setTimeout(() => say(highlight), 300); return () => window.clearTimeout(id); }, [highlight, say]);
   return (
     <div className="flex h-full flex-col">
-      <div className="lp-eyebrow mb-1">{t("notice_title")}</div>
-      <div className="lp-small mb-6" style={{ color: "var(--lp-paper-faint)" }}>{t("notice_sub")}</div>
+      <div className="lp-eyebrow mb-4">{t("notice_title")}</div>
       <div className="lp-glass lp-glass-glow flex flex-1 flex-col items-center justify-center p-6 text-center">
-        <div className="lp-head lp-target" style={{ fontSize: "calc(34px * var(--lp-scale))" }}>{highlight}</div>
-        <button type="button" onClick={() => say(highlight)} className="lp-speaker mt-4" style={{ width: 48, height: 48 }} aria-label={t("listen")}><Play size={20} /></button>
+        <div className="lp-display lp-target">{highlight}</div>
+        <button type="button" onClick={() => say(highlight)} className="lp-speaker mt-5" style={{ width: 48, height: 48, minWidth: 48 }} aria-label={t("listen")}><Play size={20} /></button>
         <div className="lp-body mt-6" style={{ color: "var(--lp-paper-soft)" }}>{(why as Record<string, string>)[lang] ?? why.en}</div>
-        <div className="lp-small mt-3" style={{ color: "var(--lp-paper-faint)" }}>{loc(atom.title, "en")}</div>
       </div>
       <div className="mt-3"><GlowButton onClick={onDone}>{t("continue")}</GlowButton></div>
     </div>
@@ -354,10 +344,10 @@ function StoryPhase({ atomId, onDone }: { atomId: string; onDone: () => void }) 
   return (
     <div className="flex h-full flex-col">
       <div className="mb-2 flex items-center justify-between">
-        <div><div className="lp-eyebrow">{t("story_title")}</div><div className="lp-small" style={{ color: "var(--lp-paper-faint)" }}>{t("story_sub")} · {Math.round((story.story.coverage) * 100)}%</div></div>
+        <div className="lp-eyebrow">{t("story_title")}</div>
         <div className="flex gap-1">
-          <button type="button" className="lp-pill" style={mode === "read" ? { color: "var(--lp-glow-2)" } : undefined} onClick={() => setMode("read")}>{t("read")}</button>
-          <button type="button" className="lp-pill" style={mode === "listen" ? { color: "var(--lp-glow-2)" } : undefined} onClick={() => { setMode("listen"); say(story.story!.text, () => setDone(true)); }}>{t("listen_mode")}</button>
+          <button type="button" className={`lp-pill ${mode === "read" ? "lp-pill-glow" : ""}`} onClick={() => setMode("read")}>{t("read")}</button>
+          <button type="button" className={`lp-pill ${mode === "listen" ? "lp-pill-glow" : ""}`} onClick={() => { setMode("listen"); say(story.story!.text, () => setDone(true)); }}>{t("listen_mode")}</button>
         </div>
       </div>
       <div className="lp-head mb-3">{loc(story.title, lang)}</div>
@@ -398,7 +388,6 @@ function ClosePhase({ checkItems, canDo, onDone }: { checkItems: string[]; canDo
     <div className="flex h-full flex-col items-center justify-center text-center">
       <div className="lp-eyebrow mb-3">{t("what_you_can_do")}</div>
       <div className="lp-glass lp-glass-glow p-6"><LocText text={canDo} size="lesson" auto /></div>
-      <div className="lp-small mt-4" style={{ color: "var(--lp-paper-faint)" }}>{t("coach_done")}</div>
       <div className="mt-8 w-full"><GlowButton onClick={onDone}>{t("done")}</GlowButton></div>
     </div>
   );
