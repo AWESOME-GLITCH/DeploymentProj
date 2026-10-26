@@ -97,13 +97,42 @@ Two characters on screen never breathe in phase. Offset by the existing `seed`.
 | Event | Motion | Length |
 | --- | --- | --- |
 | Good answer | One star sticker pops in `snap`, holds 400 ms, fades `out` in 160 ms. The character nods once | 800 ms total |
-| Miss | The character leans in 4 degrees over 200 ms and holds. The line replays at 0.75 speed | 200 ms plus the line |
+| Miss | Blobert clears it, see section 7a. Then the right answer shows and the line replays at 0.75 speed | 900 ms plus the line |
 | Streak or session end | A "You can now..." card, `settle`, one line of text | 350 ms |
 
 The reward sticker is one of six and never the same twice in a row: hold the last index and pick from
 the other five. No red, no shake, no lives, no flame, no falling confetti at full screen. The kit's
 `Confetti` default of 70 pieces in five colours breaks "one block colour per screen"; if a celebration
 needs particles, cap it at 18 pieces in ink plus the screen's one block colour.
+
+## 7a. Blobert
+
+Blobert is the only thing that handles an error, so his timing is the error state. The brief caps a
+gag at 900 ms; that is a budget for a scripted sequence, not a single move. Every move inside it
+still obeys the 400 ms ceiling.
+
+| Step | Motion | Length |
+| --- | --- | --- |
+| Pop in from the nearest edge | `pop`, travelling 180 px, wobble amplitude 3 degrees | 200 ms |
+| Look at the wrong tile | Eyes and body turn, `soft` | 120 ms |
+| The gag | One of six, below | 360 ms |
+| Wave | Two cycles of a 6 degree arm swing | 160 ms |
+| Slide out | `out` easing, back to the same edge | 160 ms |
+
+Total 1000 ms if every step runs end to end, so overlap the wave with the tail of the gag by 100 ms
+to land under 900 ms. Measure it, do not estimate it.
+
+The six gags, 360 ms each, each ending with the wrong word gone from the frame: sweep it off with the
+broom, eat it and burp a star sticker, mop it into a puddle that evaporates, bin it with a lid clap,
+vacuum it up and sneeze, lift it away with the tiny crane. Pick with the same no-repeat rule as the
+reward sticker: hold the last index and choose from the other five.
+
+He wobbles on a 96 frame (3.2 s) idle loop, scale 1 to 1.03 on the horizontal only, so he reads as
+soft rather than as a bouncing ball. His sounds are stickers, never a line of text. Under reduced
+motion he does one 120 ms fade in, the wrong word fades out over 120 ms, and he fades out: no travel,
+no wobble, no bounce.
+
+He never appears on Today or the session-end card. On a correct answer he does not appear at all.
 
 ## 8. Reduced motion
 
