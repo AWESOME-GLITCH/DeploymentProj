@@ -384,9 +384,12 @@ function Carriage({ frame, doors = false, doorOpen = 1, keyId }: { frame: number
           <rect x="340" y={WIN_T - 70} width="400" height={FLOOR_T - WIN_T + 70} rx="10" fill="#b9b2a6" />
           <rect x="356" y={WIN_T - 54} width="368" height={FLOOR_T - WIN_T + 38} rx="8" fill="#9aa3ab" />
           {/* platform behind */}
-          <rect x="380" y={WIN_T - 30} width="320" height="320" fill="#c9cfd6" />
+          <rect x="380" y={WIN_T - 30} width="320" height="320" fill="#ccd6dd" />
+          <rect x="556" y={WIN_T - 30} width="52" height="260" fill="#bbc6ce" />
+          <rect x="404" y={WIN_T + 40} width="120" height="54" rx="10" fill="#aebac3" />
           <rect x="380" y={WIN_T + 230} width="320" height="24" fill={SAFFRON} />
           <rect x="380" y={WIN_T + 254} width="320" height={FLOOR_T - WIN_T - 254 + 36} fill="#b5bcc4" />
+          <rect x="380" y={FLOOR_T - 26} width="320" height="22" fill={INK} opacity="0.3" />
           {[0, 1].map((k) => {
             const slid = 200 * doorOpen;
             return (
@@ -1096,7 +1099,7 @@ function RecapScene({ frame }: { frame: number }) {
         <TickSign x={340} y={700} frame={frame} from={R0 + 40} k={0.74} />
         <EscalatorSign x={540} y={700} frame={frame} from={R0 + 48} k={0.6} />
         <SeatSign x={740} y={700} frame={frame} from={R0 + 56} k={0.74} />
-        <GapSign x={940} y={700} frame={frame} from={R0 + 58} k={0.74} />
+        <GapSign x={940} y={700} frame={frame} from={R0 + 46} k={0.74} />
         <Character who="you" x={232} y={1212} scale={0.88} facing={1} frame={frame} enter={R0 + 38} slideFrom={-150} mood="happy" gesture="thumbs" gestureAt={R0 + 50} />
         <Fatima x={856} y={1212} frame={frame} scale={0.88} facing={-1} enter={R0 + 44} slideFrom={150} smile arm="wave" armAt={R0 + 56} />
       </Stage>

@@ -89,7 +89,12 @@ function SignBoard({
           <rect x={-86 - glow * 16} y={22 - glow * 16} width={172 + glow * 32} height={132 + glow * 32} rx={17 + glow * 8} fill="none" stroke={ACCENT} strokeWidth={8 * (1 - glow)} opacity={1 - glow} />
         </g>
       ) : null}
-      {weightSide !== 0 ? <Weight x={weightSide * 66} y={208} scale={0.92} color={weightColor} /> : null}
+      {weightSide !== 0 ? (
+        <g>
+          <line x1={weightSide * 62} y1="152" x2={weightSide * 62} y2="182" stroke={weightColor} strokeWidth="5" strokeDasharray="7 7" />
+          <Weight x={weightSide * 62} y={208} scale={0.92} color={weightColor} />
+        </g>
+      ) : null}
     </g>
   );
 }
@@ -191,7 +196,9 @@ function StressBubble({
 
 // ---------------------------------------------------------------- hook: the station outside
 function HookScene({ frame }: { frame: number }) {
-  const rise = (1 - springIn(frame, 8, { damping: 14, stiffness: 60, clamp: true })) * 540;
+  // The station slides up from the bottom, but it is already in frame at 0 so the
+  // poster frame the player shows before play is composed, not empty.
+  const rise = (1 - springIn(frame, 0, { damping: 15, stiffness: 52, clamp: true })) * 330;
   const sun = springIn(frame, 0, { damping: 14, stiffness: 38, clamp: true });
   const trainX = 1760 - 1220 * springIn(frame, 44, { damping: 11, stiffness: 52 });
   const door = tween(frame, 130, 150, 0, 1, EASE.out) * 56;
@@ -554,9 +561,9 @@ function RecapScene({ frame }: { frame: number }) {
         <defs><pattern id="lst-stripes" width="60" height="60" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="30" height="60" fill={PAPER} opacity="0.06" /></pattern></defs>
         <rect width="1080" height="1440" fill="url(#lst-stripes)" />
         {/* the three platform signs come back, weighted on the stressed side */}
-        <SignBoard x={226} y={790} label="4" frame={frame} appear={1540} />
+        <SignBoard x={196} y={790} label="4" frame={frame} appear={1540} />
         <SignBoard x={540} y={790} label="14" frame={frame} appear={1552} weightSide={1} weightColor={SAFFRON} />
-        <SignBoard x={854} y={790} label="40" frame={frame} appear={1564} weightSide={-1} weightColor={SAFFRON} />
+        <SignBoard x={884} y={790} label="40" frame={frame} appear={1564} weightSide={-1} weightColor={SAFFRON} />
       </Stage>
       <div style={{ position: "absolute", left: 70, right: 70, top: 236, transform: `scale(${a}) rotate(${(1 - a) * -4}deg)`, transformOrigin: "50% 50%" }}>
         <div style={{ position: "absolute", inset: 0, transform: "translate(10px, 14px)", background: INK, borderRadius: 54 }} />
@@ -599,7 +606,8 @@ export function PlatformExplainer({ l1 }: { l1?: Record<string, string> }) {
       <Transition frame={frame} at={1110} kind="slide" color={ACCENT} color2={SAFFRON} />
       <Transition frame={frame} at={1500} kind="wipe" color={SAFFRON} color2={INK} />
       <CaptionBar line={beat.line} k={k} targets={beat.target} l1={l1?.[beat.id]} />
-      <BeatProgress frame={frame} beats={LST_BEATS} />
+      {/* saffron in the recap: accent on an accent background would disappear */}
+      <BeatProgress frame={frame} beats={LST_BEATS} color={beat.kind === "recap" ? SAFFRON : ACCENT} />
     </AbsoluteFill>
   );
 }
