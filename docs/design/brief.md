@@ -86,3 +86,23 @@ Short lines: a headline of 2 to 4 words, one supporting line of at most 12 words
 - Autonomy: the learner picks between two equally good next steps once per session, never more.
 - Relatedness: classmates online today shown as small characters, no leaderboard.
 - Streak shown as a soft weekly bar, never a flame; a missed day is "Welcome back", never a loss.
+
+## Blobert (board request, 26 Oct)
+
+Blobert is a blob character who clears out mistakes in a funny way. He is the only thing that ever
+handles an error, so a mistake is never red, never a loss, always a small laugh.
+
+- Design: a soft rounded blob in the hand-drawn outline style (3 px ink line, flat fill in the
+  screen's block colour, dot eyes, big expressive mouth, two stubby arms, no legs; he wobbles).
+  He carries one tool at a time: a broom, a mop, a sponge, a bin, a vacuum, a tiny crane.
+- Behaviour on a miss: he pops in from the edge with a spring, looks at the wrong tile or word,
+  does one gag (sweeps it off the screen, eats it and burps a star, mops it into a puddle that
+  evaporates, bins it and the lid claps, vacuums it up and sneezes, lifts it away with the crane),
+  waves, and slides out. One gag per miss, never the same twice in a row, each under 900 ms.
+- Then the real thing: the right answer is shown and the line replays at 0.75 speed, calm.
+- Voice: he never speaks a sentence. Tiny sounds only (a "hup", a sweep, a burp), captioned as
+  stickers, so every learner understands him regardless of English level.
+- Where he appears: every exercise type, the explainer's practice pause, Talk with Maya (he
+  tidies a mispronounced word out of the bubble), and the Welcome back screen (he has dusted the
+  learner's path). He never appears on Today or the session-end card.
+- Reduced motion: a single fade and sweep, no bounce.
