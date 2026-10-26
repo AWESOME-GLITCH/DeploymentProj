@@ -9,8 +9,8 @@
 import { AbsoluteFill, useCurrentFrame } from "remotion";
 import type { CSSProperties } from "react";
 import {
-  ACCENT, Badge, BeatProgress, CaptionBar, Character, Confetti, CREAM, Cup, EASE, Eyebrow, FAINT, FOG, FONT, Highlight, INK, KineticText, karaoke, MenuBoard,
-  PAPER, Parallax, Pastry, PendantLamp, PINK, Plant, Pulse, SAFFRON, SEA, SpeechBubble, springIn, Stage, Till, Transition, tween, Window, WOOD, WOOD_DARK, WOOD_LIGHT,
+  ACCENT, Badge, BeatProgress, Birds, CaptionBar, Character, Confetti, CREAM, Cup, EASE, Eyebrow, FaceChip, FAINT, FOG, FONT, Highlight, INK, KineticText, karaoke, MenuBoard,
+  PAPER, Parallax, Pastry, PendantLamp, PINK, Plant, Pulse, SAFFRON, SEA, Shelf, SpeechBubble, springIn, Stage, Till, Transition, tween, Waveform, Window, WOOD, WOOD_DARK, WOOD_LIGHT,
 } from "./lib";
 
 export { karaoke };
@@ -41,17 +41,19 @@ function HookScene({ frame }: { frame: number }) {
   const sun = springIn(frame, 0, { damping: 14, stiffness: 40, clamp: true });
   const drift = frame * 0.35;
   const rise = (i: number) => (1 - springIn(frame, 4 + i * 6, { damping: 13, stiffness: 90, clamp: true })) * 420;
-  const walkX = tween(frame, 0, 150, 90, 600, EASE.inOut);
+  const walkX = tween(frame, 0, 138, 120, 616, EASE.inOut);
   return (
     <AbsoluteFill style={{ background: "#dbe9f3" }}>
       <Parallax frame={frame} from={0} to={150} zoom={1.07} originX={640} originY={980} layers={[
         { depth: 0, children: (
           <Stage>
+            <circle cx="930" cy={470 - sun * 150} r="104" fill={SAFFRON} opacity="0.18" />
             <circle cx="930" cy={470 - sun * 150} r="84" fill={SAFFRON} />
             <g fill="#fff" opacity="0.95">
               <path transform={`translate(${120 + drift} 230)`} d="M0 40 q 0 -34 34 -34 q 14 -30 50 -16 q 30 -14 48 14 q 36 -4 36 36 Z" />
               <path transform={`translate(${560 + drift * 0.6} 330) scale(0.8)`} d="M0 40 q 0 -34 34 -34 q 14 -30 50 -16 q 30 -14 48 14 q 36 -4 36 36 Z" />
             </g>
+            <Birds frame={frame} y={430} count={4} seed={9} color="#6e7ea8" speed={0.9} />
           </Stage>
         ) },
         { depth: 0.3, children: (
@@ -87,7 +89,7 @@ function HookScene({ frame }: { frame: number }) {
               {/* awning */}
               <path d="M290 690 L810 690 L790 760 L310 760 Z" fill={SAFFRON} />
               {[0, 1, 2, 3, 4, 5].map((i) => <path key={i} d={`M${312 + i * 84} 690 L${354 + i * 84} 690 L${352 + i * 84} 760 L${322 + i * 84} 760 Z`} fill={PAPER} />)}
-              {[0, 1, 2, 3, 4, 5, 6].map((i) => <path key={i} d={`M${310 + i * 80} 760 Q${350 + i * 80} 790 ${390 + i * 80} 760 Z`} fill={SAFFRON} />)}
+              {[0, 1, 2, 3, 4, 5].map((i) => <path key={i} d={`M${310 + i * 80} 760 Q${350 + i * 80} 790 ${390 + i * 80} 760 Z`} fill={SAFFRON} />)}
               {/* window with warm light */}
               <rect x="330" y="790" width="250" height="180" rx="10" fill="#f7e2a6" />
               <rect x="330" y="790" width="250" height="180" rx="10" fill="none" stroke="#2b2d4a" strokeWidth="10" />
@@ -111,16 +113,24 @@ function HookScene({ frame }: { frame: number }) {
             <rect x="0" y="1198" width="1080" height="260" fill="#2b2d4a" />
             {[0, 1, 2, 3, 4, 5].map((i) => <rect key={i} x={40 + i * 190} y="1290" width="100" height="10" rx="5" fill={PAPER} opacity="0.5" />)}
             <g transform={`translate(0 ${rise(2) * 0.6})`}>
-              <rect x="104" y="520" width="12" height="670" fill={INK} />
-              <rect x="80" y="470" width="60" height="70" rx="10" fill={INK} />
-              <rect x="90" y="482" width="40" height="46" rx="6" fill={SAFFRON} />
+              <rect x="50" y="520" width="12" height="670" fill={INK} />
+              <rect x="26" y="470" width="60" height="70" rx="10" fill={INK} />
+              <rect x="36" y="482" width="40" height="46" rx="6" fill={SAFFRON} />
             </g>
-            <rect x="950" y="1120" width="34" height="70" rx="10" fill={INK} />
+            {/* pavement A-board */}
+            <g transform={`translate(880 ${1176 + rise(4) * 0.4})`}>
+              <ellipse cx="0" cy="4" rx="78" ry="11" fill={INK} opacity="0.12" />
+              <path d="M-62 0 L-30 -150 L30 -150 L62 0 Z" fill={WOOD_LIGHT} />
+              <path d="M-46 -16 L-24 -132 L24 -132 L46 -16 Z" fill="#2f3b37" />
+              <text x="0" y="-92" textAnchor="middle" fontFamily={FONT} fontWeight="800" fontSize="30" fill={PAPER}>OPEN</text>
+              <text x="0" y="-52" textAnchor="middle" fontFamily={FONT} fontWeight="700" fontSize="24" fill={SAFFRON}>Coffee</text>
+            </g>
+            <rect x="990" y="1120" width="34" height="70" rx="10" fill={INK} />
           </Stage>
         ) },
         { depth: 1, children: (
           <Stage>
-            <Character who="you" x={walkX} y={1178} scale={0.98} facing={1} frame={frame} enter={0} walking mood="happy" holding="takeaway" gesture="cup" gestureAt={0} />
+            <Character who="you" x={walkX} y={1172} scale={0.72} facing={1} frame={frame} enter={0} walking walkSpeed={5.6} mood="happy" gaze={0.7} holding="takeaway" gesture="cup" gestureAt={0} />
           </Stage>
         ) },
       ]} />
@@ -136,12 +146,14 @@ function NoticeScene({ frame }: { frame: number }) {
   const local = frame - 150;
   const beat = local < 150 ? 0 : local < 300 ? 1 : 2;
   const bs = 150 + beat * 150;
-  const youTalks = local - beat * 150 > 22 && local - beat * 150 < 100;
-  const leoTalks = frame > 152 && frame < 172;
+  // the customer speaks after the barista's greeting in the first beat
+  const say = beat === 0 ? 196 : bs + 22;
+  const youTalks = frame > say && frame < say + 78;
+  const leoTalks = frame > 154 && frame < 182;
   const leoGesture = beat === 0 ? (frame < 214 ? { g: "wave" as const, at: 152, from: "idle" as const } : { g: "serve" as const, at: 214, from: "wave" as const })
     : beat === 1 ? (frame < 366 ? { g: "point" as const, at: 312, from: "idle" as const } : { g: "serve" as const, at: 366, from: "point" as const })
     : (frame < 516 ? { g: "thumbs" as const, at: 470, from: "idle" as const } : { g: "serve" as const, at: 516, from: "thumbs" as const });
-  const youGesture = beat === 0 ? { g: "raise" as const, at: 194 } : beat === 1 ? { g: "two" as const, at: 322 } : { g: "think" as const, at: 466 };
+  const youGesture = beat === 0 ? { g: "raise" as const, at: 196 } : beat === 1 ? { g: "two" as const, at: 322 } : { g: "think" as const, at: 466 };
   const youMood = beat === 2 ? (frame < 545 ? "think" as const : "happy" as const) : (frame > bs + 60 ? "happy" as const : "neutral" as const);
   return (
     <AbsoluteFill style={{ background: CREAM }}>
@@ -152,32 +164,29 @@ function NoticeScene({ frame }: { frame: number }) {
             <rect x="0" y="700" width="1080" height="180" fill="#e9d8bf" />
             {[0, 1, 2, 3, 4, 5].map((i) => <rect key={i} x={30 + i * 176} y="724" width="140" height="134" rx="8" fill="none" stroke="#d9c4a4" strokeWidth="6" />)}
             <rect x="0" y="694" width="1080" height="12" fill={WOOD_LIGHT} />
-            <Window x={30} y={250} w={290} h={360} />
-            <MenuBoard x={660} y={240} />
-            <rect x="640" y="190" width="400" height="14" rx="4" fill={WOOD_LIGHT} />
-            <g transform="translate(700 190)"><rect x="-18" y="-50" width="36" height="50" rx="6" fill="#d9a441" /><rect x="-14" y="-60" width="28" height="12" rx="3" fill={INK} /></g>
-            <g transform="translate(760 190)"><rect x="-18" y="-40" width="36" height="40" rx="6" fill="#e07a5f" /><rect x="-14" y="-50" width="28" height="12" rx="3" fill={INK} /></g>
-            <Plant x={960} y={190} scale={0.55} frame={frame} seed={2} />
-            <PendantLamp x={160} length={70} frame={frame} seed={0} />
-            <PendantLamp x={920} length={70} frame={frame} seed={2} />
+            <Shelf x={28} y={382} w={300} frame={frame} seed={2} />
+            <Window x={40} y={432} w={280} h={240} />
+            <MenuBoard x={690} y={126} w={350} h={300} />
+            <PendantLamp x={210} length={42} frame={frame} seed={0} />
+            <PendantLamp x={880} length={42} frame={frame} seed={2} />
           </Stage>
         ) },
         { depth: 0.45, children: (
           <Stage>
-            <Character who="leo" x={330} y={1150} scale={1.5} facing={1} frame={frame} enter={150} slideFrom={-120} talking={leoTalks} mood="happy" gesture={leoGesture.g} gestureAt={leoGesture.at} from={leoGesture.from} />
+            <Character who="leo" x={780} y={1150} scale={1.5} facing={-1} frame={frame} enter={150} slideFrom={-120} talking={leoTalks} mood="happy" gaze={0.8} gesture={leoGesture.g} gestureAt={leoGesture.at} from={leoGesture.from} />
             {/* counter */}
             <rect x="0" y="924" width="1080" height="330" fill={WOOD} />
             {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => <rect key={i} x={i * 124 - 10} y="950" width="100" height="250" rx="8" fill="none" stroke={WOOD_DARK} strokeWidth="5" opacity="0.6" />)}
             <rect x="0" y="1228" width="1080" height="26" fill={WOOD_DARK} />
             <rect x="0" y="878" width="1080" height="50" rx="6" fill={WOOD_LIGHT} />
             <rect x="0" y="878" width="1080" height="10" fill="#dcc096" />
-            <Pastry x={170} y={878} />
-            <Till x={700} y={878} frame={frame} total={beat === 0 ? "2.50" : beat === 1 ? "5.00" : "2.00"} />
-            <Plant x={1020} y={878} scale={0.9} frame={frame} seed={5} />
-            {beat === 0 ? <Cup kind="mug" x={500} y={876} frame={frame} appear={222} slideFrom={-170} leave={290} seed={1} /> : null}
-            {beat === 1 ? <><Cup kind="takeaway" x={452} y={876} frame={frame} appear={372} slideFrom={-150} leave={440} seed={2} /><Cup kind="takeaway" x={566} y={876} frame={frame} appear={388} slideFrom={-260} leave={444} seed={3} /></> : null}
-            {beat === 2 ? <Cup kind="tea" x={500} y={876} frame={frame} appear={522} slideFrom={-170} dunkAt={542} seed={4} /> : null}
-            {beat === 1 ? <Badge frame={frame} from={404} text="2" x={560} y={690} /> : null}
+            <Pastry x={120} y={878} />
+            <Till x={480} y={878} frame={frame} total={beat === 0 ? "2.50" : beat === 1 ? "5.00" : "2.00"} />
+            <Plant x={1040} y={878} scale={0.9} frame={frame} seed={5} />
+            {beat === 0 ? <Cup kind="mug" x={690} y={876} frame={frame} appear={222} slideFrom={170} leave={290} seed={1} /> : null}
+            {beat === 1 ? <><Cup kind="takeaway" x={650} y={876} frame={frame} appear={372} slideFrom={210} leave={440} seed={2} /><Cup kind="takeaway" x={764} y={876} frame={frame} appear={388} slideFrom={150} leave={444} seed={3} /></> : null}
+            {beat === 2 ? <Cup kind="tea" x={690} y={876} frame={frame} appear={522} slideFrom={170} dunkAt={542} seed={4} /> : null}
+            {beat === 1 ? <Badge frame={frame} from={404} text="2" x={598} y={716} /> : null}
             {/* floor */}
             <rect x="0" y="1254" width="1080" height="200" fill="#e4d7c4" />
             {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => <rect key={i} x={(i % 2) * 140 + Math.floor(i / 2) * 280 - 140} y={1254 + (i % 2) * 70} width="140" height="70" fill="#d8c9b2" />)}
@@ -185,14 +194,14 @@ function NoticeScene({ frame }: { frame: number }) {
         ) },
         { depth: 0.85, children: (
           <Stage>
-            <Character who="you" x={840} y={1246} scale={1.55} facing={-1} frame={frame} enter={158} slideFrom={300} talking={youTalks} mood={youMood} gesture={youGesture.g} gestureAt={youGesture.at} />
+            <Character who="you" x={300} y={1246} scale={1.55} facing={1} frame={frame} enter={158} slideFrom={-300} talking={youTalks} mood={youMood} gaze={0.8} gesture={youGesture.g} gestureAt={youGesture.at} />
           </Stage>
         ) },
       ]} />
-      <SpeechBubble text="Hi there!" x={250} y={330} w={300} from={154} until={206} frame={frame} tail="left" size={46} typing={false} />
-      {beat === 0 ? <SpeechBubble text="I'd like a coffee, please." targets={["I'd like", "please"]} x={110} y={160} w={640} from={172} frame={frame} tail="right" /> : null}
-      {beat === 1 ? <SpeechBubble text="I'd like two coffees, please." targets={["I'd like", "please"]} x={110} y={160} w={640} from={322} frame={frame} tail="right" /> : null}
-      {beat === 2 ? <SpeechBubble text="Could I have a tea?" targets={["Could I have"]} x={110} y={160} w={640} from={472} frame={frame} tail="right" /> : null}
+      <SpeechBubble text="Hi there!" x={402} y={172} w={268} from={154} until={184} frame={frame} tail="right" tailX={168} size={46} typing={false} />
+      {beat === 0 ? <SpeechBubble text="I'd like a coffee, please." targets={["I'd like", "please"]} x={58} y={128} w={580} from={196} frame={frame} tail="left" tailX={188} size={50} /> : null}
+      {beat === 1 ? <SpeechBubble text="I'd like two coffees, please." targets={["I'd like", "please"]} x={58} y={128} w={580} from={322} frame={frame} tail="left" tailX={188} size={50} /> : null}
+      {beat === 2 ? <SpeechBubble text="Could I have a tea?" targets={["Could I have"]} x={58} y={128} w={580} from={472} frame={frame} tail="left" tailX={188} size={50} /> : null}
     </AbsoluteFill>
   );
 }
@@ -221,6 +230,9 @@ function ExplainScene({ frame }: { frame: number }) {
           <text x={cx - r - 10} y={cy + 56} textAnchor="middle" fontFamily={FONT} fontWeight="800" fontSize="42" fill={PINK}>rude</text>
           <text x={cx + r + 10} y={cy + 56} textAnchor="middle" fontFamily={FONT} fontWeight="800" fontSize="42" fill={SEA}>polite</text>
         </g>
+        {/* two faces: the same wish, two tones */}
+        <FaceChip x={760} y={292} r={62} mood="think" frame={frame} from={636} skin="#e7b998" />
+        <FaceChip x={820} y={556} r={70} mood="happy" frame={frame} from={742} skin="#f1c9a5" />
         {/* sparkles by "please" */}
         {[[640, 800, 1], [700, 760, 0.7], [690, 870, 0.6]].map(([x, y, k], i) => (
           <g key={i} transform={`translate(${x} ${y}) scale(${spark(i) * (k as number)}) rotate(${local * 2})`} fill={SAFFRON}>
@@ -259,9 +271,11 @@ function PractiseScene({ frame }: { frame: number }) {
           <circle cx="540" cy="460" r="310" fill="#fff" />
           <circle cx="540" cy="460" r="310" fill="none" stroke={SAFFRON} strokeWidth="14" />
           <g clipPath="url(#maya-clip)">
-            <Character who="maya" x={540} y={1200} scale={2.05} facing={1} frame={frame} enter={994} talking={local > 14 && local < 188} mood="happy" gesture={mayaGesture.g} gestureAt={mayaGesture.at} from={mayaGesture.from} />
+            <Character who="maya" x={540} y={1200} scale={2.05} facing={1} frame={frame} enter={994} talking={local > 14 && local < 188} mood="happy" gaze={-0.5} gesture={mayaGesture.g} gestureAt={mayaGesture.at} from={mayaGesture.from} />
           </g>
         </g>
+        {/* her voice, then yours */}
+        <Waveform x={540} y={1168} frame={frame} from={1012} width={620} bars={27} color={yourTurn ? SEA : ACCENT} height={yourTurn ? 110 : 76} seed={4} />
         {yourTurn ? (
           <g transform={`translate(150 250) scale(${turn}) translate(-150 -250)`}>
             <Pulse frame={frame} x={150} y={250} size={120}>
@@ -298,9 +312,10 @@ function RecapScene({ frame }: { frame: number }) {
       <Stage>
         <defs><pattern id="stripes" width="60" height="60" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="30" height="60" fill={PAPER} opacity="0.06" /></pattern></defs>
         <rect width="1080" height="1440" fill="url(#stripes)" />
-        {[0, 1, 2].map((i) => <Cup key={i} kind="takeaway" x={380 + i * 160} y={1130} frame={frame} appear={1396 + i * 9} scale={0.9} seed={i} />)}
-        <Character who="leo" x={150} y={1232} scale={0.85} facing={1} frame={frame} enter={1390} slideFrom={-160} mood="happy" gesture="wave" gestureAt={1400} />
-        <Character who="you" x={930} y={1232} scale={0.85} facing={-1} frame={frame} enter={1396} slideFrom={160} mood="happy" gesture="thumbs" gestureAt={1408} />
+        <rect x="60" y="1236" width="960" height="7" rx="4" fill={PAPER} opacity="0.3" />
+        {[0, 1, 2].map((i) => <Cup key={i} kind="takeaway" x={408 + i * 132} y={1238} frame={frame} appear={1396 + i * 9} scale={0.78} slideFrom={i === 2 ? 120 : -120} seed={i} />)}
+        <Character who="leo" x={150} y={1238} scale={0.85} facing={1} frame={frame} enter={1390} slideFrom={-160} mood="happy" gaze={0.6} gesture="wave" gestureAt={1400} />
+        <Character who="you" x={930} y={1238} scale={0.85} facing={-1} frame={frame} enter={1396} slideFrom={160} mood="happy" gaze={0.6} gesture="thumbs" gestureAt={1408} />
         <Confetti frame={frame} from={1354} count={90} seed={11} />
       </Stage>
       <div style={{ position: "absolute", left: 80, right: 80, top: 230, transform: `scale(${a}) rotate(${(1 - a) * -5}deg)`, transformOrigin: "50% 50%" }}>
@@ -309,7 +324,7 @@ function RecapScene({ frame }: { frame: number }) {
           <div style={{ fontSize: 38, fontWeight: 800, letterSpacing: 6, color: FAINT }}>REMEMBER</div>
           <div style={{ position: "relative", display: "inline-block", fontSize: 140, fontWeight: 800, color: ACCENT, lineHeight: 1.05, marginTop: 16, zIndex: 0 }}>I'd like<Highlight frame={frame} from={1384} color={SAFFRON} /></div>
           <div style={{ fontSize: 68, fontWeight: 700, color: FAINT, margin: "10px 0" }}>… a coffee …</div>
-          <div style={{ position: "relative", display: "inline-block", fontSize: 140, fontWeight: 800, color: SAFFRON, lineHeight: 1.05, textShadow: "0 8px 0 rgba(27,29,58,0.14)", zIndex: 0 }}>please.<Highlight frame={frame} from={1398} color={ACCENT} opacity={0.25} /></div>
+          <div style={{ position: "relative", display: "inline-block", fontSize: 140, fontWeight: 800, color: SAFFRON, lineHeight: 1.05, textShadow: "0 8px 0 rgba(27,29,58,0.14)", zIndex: 0 }}>please.</div>
         </div>
       </div>
     </AbsoluteFill>

@@ -150,7 +150,9 @@ export type CharacterProps = {
   who: Who; x: number; y: number; frame: number;
   scale?: number; facing?: 1 | -1; enter?: number; slideFrom?: number;
   talking?: boolean; gesture?: Gesture; gestureAt?: number; from?: Gesture; mood?: Mood;
-  walking?: boolean; legs?: boolean; seed?: number; holding?: "mug" | "takeaway" | "tea";
+  walking?: boolean; walkSpeed?: number; legs?: boolean; seed?: number; holding?: "mug" | "takeaway" | "tea";
+  /** Where the eyes look, -1 (behind) to 1 (the way the body faces). */
+  gaze?: number;
 };
 
 /** A flat-vector character. Origin at the feet; +x is the side it faces. */
@@ -166,7 +168,7 @@ export function Character(p: CharacterProps) {
   const squashX = 1 + (1 - s) * 0.35;
   const slide = (p.slideFrom ?? 0) * (1 - tween(frame, enter, enter + 22, 0, 1, EASE.out));
   const br = Math.sin((frame + seed * 7) / 16);
-  const walkT = frame / 4.5;
+  const walkT = frame / (p.walkSpeed ?? 4.5);
   const bob = p.walking ? Math.abs(Math.sin(walkT)) * 7 : br * 1.6;
   const bl = blink(frame, seed);
   const talking = !!p.talking;
@@ -179,6 +181,7 @@ export function Character(p: CharacterProps) {
   const trail: Pose = { s: IDLE.s + br * 1.5, e: IDLE.e };
   const tilt = (mood === "think" ? 7 : 0) + (talking ? Math.sin(frame / 4) * 1.5 : 0);
   const legs = p.legs ?? true;
+  const gaze = p.gaze ?? 0;
 
   const Arm = ({ pose: ap, mirror, hand }: { pose: Pose; mirror: boolean; hand?: Gesture }) => (
     <g transform={`translate(${mirror ? -SHOULDER.x : SHOULDER.x} ${SHOULDER.y}) scale(${mirror ? -1 : 1} 1) rotate(${-ap.s})`}>
@@ -268,8 +271,8 @@ export function Character(p: CharacterProps) {
           {[-20, 20].map((ex) => (
             <g key={ex} transform={`translate(${ex} -4)`}>
               <ellipse cx="0" cy="0" rx="10" ry={12 * Math.max(0.08, bl)} fill="#fff" />
-              <circle cx={2} cy={1} r={5.5 * Math.max(0.08, bl)} fill={INK} />
-              <circle cx={0} cy={-2} r={1.9 * Math.max(0, bl)} fill="#fff" />
+              <circle cx={2 + gaze * 3.4} cy={1} r={5.5 * Math.max(0.08, bl)} fill={INK} />
+              <circle cx={gaze * 3.4} cy={-2} r={1.9 * Math.max(0, bl)} fill="#fff" />
             </g>
           ))}
           {who === "maya" ? (
@@ -462,11 +465,13 @@ export function PendantLamp({ x, y = 0, length = 110, frame, seed = 0, cone = tr
   );
 }
 
-export function Window({ x, y, w = 300, h = 360, shaft = true }: { x: number; y: number; w?: number; h?: number; shaft?: boolean }) {
+export function Window({ x, y, w = 300, h = 360, shaft = true, shaftDir = 1 }: { x: number; y: number; w?: number; h?: number; shaft?: boolean; shaftDir?: 1 | -1 }) {
   const id = `win-${x}-${y}`;
+  const e = shaftDir === 1 ? x + w : x;
+  const far = e + shaftDir * 560;
   return (
     <g>
-      {shaft ? <path d={`M${x + w} ${y + 40} L${x + w} ${y + h - 40} L${x + w + 560} ${y + h + 520} L${x + w + 560} ${y + h + 180} Z`} fill="#fff1c4" opacity="0.32" /> : null}
+      {shaft ? <path d={`M${e} ${y + 40} L${e} ${y + h - 40} L${far} ${y + h + 520} L${far} ${y + h + 180} Z`} fill="#fff1c4" opacity="0.32" /> : null}
       <defs><clipPath id={id}><rect x={x + 14} y={y + 14} width={w - 28} height={h - 28} /></clipPath></defs>
       <rect x={x} y={y} width={w} height={h} rx="10" fill={WOOD_LIGHT} />
       <rect x={x + 14} y={y + 14} width={w - 28} height={h - 28} fill="#d9e9f1" />
@@ -509,6 +514,57 @@ export function Badge({ frame, from, text, x, y, size = 110, color = SAFFRON }: 
         <circle r={size / 2} fill={color} />
         <text y={size * 0.22} textAnchor="middle" fontFamily={FONT} fontWeight="800" fontSize={size * 0.62} fill={INK}>{text}</text>
       </g>
+    </g>
+  );
+}
+
+/** An animated voice waveform: symmetric bars that settle flat before `from`. */
+export function Waveform({ x, y, frame, from = 0, width = 600, bars = 23, color = ACCENT, height = 90, seed = 3, live = true }: { x: number; y: number; frame: number; from?: number; width?: number; bars?: number; color?: string; height?: number; seed?: number; live?: boolean }) {
+  const on = tween(frame, from, from + 12, 0, 1, EASE.out);
+  const gap = width / bars;
+  return (
+    <g transform={`translate(${x - width / 2} ${y})`}>
+      {Array.from({ length: bars }, (_, i) => {
+        const env = Math.sin((i / (bars - 1)) * Math.PI);
+        const wob = live ? 0.35 + 0.65 * Math.abs(Math.sin(frame / (5 + hash(i, seed) * 7) + i * 0.9)) : 0.12;
+        const h = Math.max(6, height * env * wob * on);
+        return <rect key={i} x={i * gap} y={-h / 2} width={gap * 0.46} height={h} rx={gap * 0.23} fill={color} opacity={0.35 + 0.65 * env} />;
+      })}
+    </g>
+  );
+}
+
+/** A few birds drifting across the sky. */
+export function Birds({ frame, y = 240, count = 3, seed = 5, color = INK, speed = 0.6, w = STAGE_W }: { frame: number; y?: number; count?: number; seed?: number; color?: string; speed?: number; w?: number }) {
+  return (
+    <g fill="none" stroke={color} strokeWidth="5" strokeLinecap="round" opacity="0.45">
+      {Array.from({ length: count }, (_, i) => {
+        const r0 = hash(i, seed), r1 = hash(i, seed + 1);
+        const x = ((r0 * w + frame * speed * (0.7 + r1 * 0.6)) % (w + 240)) - 120;
+        const yy = y + r1 * 150 + Math.sin(frame / 34 + i) * 10;
+        const f = 10 + Math.sin(frame / 5 + i * 2) * 7;
+        const s = 0.7 + r0 * 0.5;
+        return <path key={i} transform={`translate(${x} ${yy}) scale(${s})`} d={`M-22 0 Q-11 ${-f} 0 0 Q11 ${-f} 22 0`} />;
+      })}
+    </g>
+  );
+}
+
+/** A round face chip: a quick way to label a tone (direct, polite, unsure). */
+export function FaceChip({ x, y, r = 54, mood = "neutral", frame, from = 0, skin = "#f1c9a5", ring = INK }: { x: number; y: number; r?: number; mood?: Mood; frame?: number; from?: number; skin?: string; ring?: string }) {
+  const s = frame !== undefined ? springIn(frame, from, { damping: 9, stiffness: 180 }) : 1;
+  if (s <= 0) return null;
+  const eye = r * 0.17;
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      <circle r={r + 5} fill={ring} />
+      <circle r={r} fill={skin} />
+      {[-1, 1].map((k) => <circle key={k} cx={k * r * 0.34} cy={-r * 0.12} r={eye} fill={INK} />)}
+      {mood === "happy" ? <path d={`M${-r * 0.42} ${r * 0.26} Q0 ${r * 0.72} ${r * 0.42} ${r * 0.26} Q0 ${r * 0.46} ${-r * 0.42} ${r * 0.26} Z`} fill={INK} />
+        : mood === "surprised" ? <ellipse cy={r * 0.36} rx={r * 0.17} ry={r * 0.22} fill={INK} />
+        : mood === "think" ? <path d={`M${-r * 0.34} ${r * 0.42} Q0 ${r * 0.24} ${r * 0.34} ${r * 0.44}`} fill="none" stroke={INK} strokeWidth={r * 0.1} strokeLinecap="round" />
+        : <path d={`M${-r * 0.34} ${r * 0.38} L${r * 0.34} ${r * 0.38}`} fill="none" stroke={INK} strokeWidth={r * 0.1} strokeLinecap="round" />}
+      {[-1, 1].map((k) => <path key={k} d={`M${k * r * 0.52} ${-r * 0.42} Q${k * r * 0.34} ${-r * (mood === "surprised" ? 0.62 : 0.52)} ${k * r * 0.16} ${-r * 0.42}`} fill="none" stroke={INK} strokeWidth={r * 0.08} strokeLinecap="round" />)}
     </g>
   );
 }
