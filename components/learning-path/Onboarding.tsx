@@ -11,6 +11,7 @@ import { LANGUAGES } from "@/lib/learning-path/i18n";
 import { useStore } from "@/lib/learning-path/store";
 import type { L1, SubLevel } from "@/lib/learning-path/types";
 import { SUBLEVELS } from "@/lib/learning-path/types";
+import { Home } from "./Home";
 import { ItemRenderer, type ItemResult } from "./items";
 import { GlowButton, Ring, Say, useLp } from "./ui";
 
@@ -23,6 +24,10 @@ export function Onboarding({ onPlaced }: { onPlaced: () => void }) {
   const [plan, setPlan] = useState<{ cue: string; time: string }>({ cue: "breakfast", time: "08:00" });
   const order: Step[] = ["language", "why", "time", "plan", "placement", "landing"];
   const idx = order.indexOf(step);
+
+  // After placement the learner lands on their own journey, not on an
+  // interstitial: the same Home screen, with Start as the one action.
+  if (step === "landing") return <Home onStart={onPlaced} onSecond={onPlaced} />;
 
   return (
     <div className="relative flex h-full flex-col overflow-hidden px-5 pb-5 pt-4">

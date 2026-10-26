@@ -652,7 +652,7 @@ function ExplainScene({ frame }: { frame: number }) {
   const bigOut = tween(frame, 918, 948, 0, 1, EASE.in);
   const rows = springIn(frame, 940, { damping: 11, stiffness: 120 });
   // Once the big verb goes, the slider rises to meet the summary card.
-  const lift = -140 * tween(frame, 940, 984, 0, 1, EASE.inOut);
+  const lift = -180 * tween(frame, 940, 984, 0, 1, EASE.inOut);
   const mayaIn = springIn(frame, 584, { damping: 11, stiffness: 130 });
   const mayaG = frame < 660 ? { g: "raise" as const, at: 590, from: "idle" as const }
     : frame < 840 ? { g: "point" as const, at: 660, from: "raise" as const }

@@ -178,6 +178,18 @@
 }
 .lp-btn-primary:active { transform: scale(0.985); }
 .lp-btn-primary:disabled { opacity: 0.4; box-shadow: none; cursor: default; }
+/* A primary action the learner has not unlocked yet. It reads as a track that
+   the video fills, so the wait is shown as movement and never as a percentage.
+   The label keeps one colour across both the filled and unfilled parts so the
+   contrast holds all the way along. Overrides the flat disabled dimming. */
+.lp-btn-primary.lp-btn-gated:disabled {
+  opacity: 1; box-shadow: none; color: var(--lp-paper-soft);
+  background:
+    linear-gradient(90deg, var(--lp-glow-tint) 0 calc(var(--lp-fill, 0) * 100%), transparent calc(var(--lp-fill, 0) * 100%)),
+    var(--lp-track);
+  border-color: var(--lp-line);
+  transition: background var(--lp-t-move) var(--lp-ease-emph);
+}
 .lp-btn-secondary {
   color: var(--lp-paper); background: var(--lp-glass-strong); border-color: var(--lp-line-strong); box-shadow: var(--lp-tile-shadow);
 }
@@ -189,12 +201,43 @@
   transition: transform var(--lp-t-press) var(--lp-ease), background var(--lp-t-swap) var(--lp-ease);
 }
 .lp-icon-btn:active { transform: scale(0.96); }
+/* The one button to press in a player controls row: tinted, never glowing, so
+   it stays below the primary action in the hierarchy. */
+.lp-icon-btn-lead { background: var(--lp-glow-tint); border-color: var(--lp-glow-line); color: var(--lp-glow); }
+/* A helper control (captions, speed): same 48px target, less ink. */
+.lp-icon-btn-quiet { background: none; border-color: transparent; box-shadow: none; color: var(--lp-paper-faint); }
+.lp-icon-btn-quiet[data-on="true"] { color: var(--lp-accent); background: var(--lp-accent-tint); border-color: var(--lp-accent-line); }
 .lp-speaker {
   width: 32px; height: 32px; min-width: 32px; margin-top: 2px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center;
   background: var(--lp-accent-tint); border: var(--lp-border-w) solid var(--lp-accent-line); color: var(--lp-accent); cursor: pointer;
 }
 .lp-speaker:active { transform: scale(0.94); }
 .lp-translate { display: block; margin-top: 2px; font-size: 13px; color: var(--lp-accent); background: none; border: none; cursor: pointer; padding: 0; text-align: start; }
+
+/* The spoken line under a video, tappable word by word. It has to read as a
+   sentence, not as a row of chips: the words keep their spacing and baseline,
+   and only a faint underline says "you can tap me". The target form is the one
+   coloured thing. Each word keeps a 44px tap target through vertical padding. */
+.lp-wordline { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 7px; row-gap: 0; }
+.lp-word {
+  background: none; border: none; cursor: pointer; padding: 10px 0; margin: 0;
+  font-size: calc(19px * var(--lp-scale)); font-weight: 500; line-height: 1.15; color: var(--lp-paper);
+  border-bottom: 1.5px solid var(--lp-line-strong);
+  transition: color var(--lp-t-press) var(--lp-ease), border-color var(--lp-t-press) var(--lp-ease);
+}
+.lp-word:active { color: var(--lp-accent); border-color: var(--lp-accent); }
+.lp-word-target { color: var(--lp-accent); font-weight: 700; border-color: var(--lp-accent-line); }
+
+/* Beat scrubber: the parts of an explainer. Filled means watched, the wide one
+   is where the learner is. The visible mark is small; the button around it is a
+   full 44px target. */
+.lp-beat { background: none; border: none; padding: 16px 3px; cursor: pointer; display: inline-flex; align-items: center; }
+.lp-beat > i {
+  display: block; width: 9px; height: 9px; border-radius: 99px; background: var(--lp-track);
+  border: 1.5px solid var(--lp-line); transition: width var(--lp-t-swap) var(--lp-ease), background var(--lp-t-swap) var(--lp-ease);
+}
+.lp-beat[data-done="true"] > i { background: var(--lp-sea); border-color: var(--lp-sea); }
+.lp-beat[data-now="true"] > i { width: 20px; background: var(--lp-marker); border-color: var(--lp-marker); }
 
 /* Choices: wrong dims to grey, correct glows emerald and plays audio */
 .lp-choice {
