@@ -30,6 +30,7 @@
   --lp-marker: #0d7f9c;
   --lp-marker-tint: rgba(13, 127, 156, 0.14);
   --lp-marker-shadow: rgba(13, 127, 156, 0.45);
+  --lp-shade: #0b1a18;
   --lp-s-GRM: #0b7a6c; --lp-s-RDG: #2f6fb0; --lp-s-WRT: #a07c36; --lp-s-LST: #1f8fb3; --lp-s-SPK: #12a0a8; --lp-s-MED: #2a8f5f; --lp-s-INT: #37558f;
   --lp-glass: #ffffff;
   --lp-glass-strong: #ffffff;
@@ -105,6 +106,7 @@
   --lp-marker: #f0d070;
   --lp-marker-tint: rgba(240, 208, 112, 0.16);
   --lp-marker-shadow: rgba(240, 208, 112, 0.4);
+  --lp-shade: #000000;
   --lp-s-GRM: #3fc4ab; --lp-s-RDG: #6aa8e8; --lp-s-WRT: #d8b86a; --lp-s-LST: #5cc4e8; --lp-s-SPK: #44cfd6; --lp-s-MED: #4fd1a3; --lp-s-INT: #7f9ff0;
   --lp-glass: rgba(255, 255, 255, 0.05);
   --lp-glass-strong: rgba(255, 255, 255, 0.08);
@@ -136,7 +138,7 @@
 
 /* Type scale 13.5, 17, 22, 28, 34, scalable to 130%. Tracking tightens as the
    size grows and relaxes at small sizes. */
-.lp-body { font-size: calc(17px * var(--lp-scale)); line-height: 1.45; font-weight: 450; }
+.lp-body { font-size: calc(17px * var(--lp-scale)); line-height: 1.45; font-weight: 400; }
 .lp-lesson { font-size: calc(22px * var(--lp-scale)); line-height: 1.35; font-weight: 500; letter-spacing: -0.01em; }
 .lp-head { font-size: calc(28px * var(--lp-scale)); line-height: 1.14; font-weight: var(--lp-head-weight); letter-spacing: var(--lp-head-tracking); }
 .lp-display { font-size: calc(34px * var(--lp-scale)); line-height: 1.08; font-weight: 700; letter-spacing: -0.03em; }
@@ -200,6 +202,20 @@
 .lp-choice-selected { border-color: var(--lp-accent-line); background: var(--lp-accent-tint); }
 .lp-choice-correct { border-color: var(--lp-sea-line); background: var(--lp-sea-tint); box-shadow: var(--lp-tile-shadow), 0 0 22px -8px var(--lp-sea-shadow); }
 .lp-choice-dim { opacity: 0.38; color: var(--lp-paper-faint); box-shadow: none; }
+
+/* A conversation turn: the line, the mic, the response. Used by every speaking
+   item so pronunciation always reads as a dialogue, never as a form. */
+.lp-turn {
+  max-width: 88%; align-self: flex-start; padding: 12px 14px;
+  border-radius: var(--lp-r-lg) var(--lp-r-lg) var(--lp-r-lg) var(--lp-r-sm);
+  background: var(--lp-glass); border: var(--lp-border-w) solid var(--lp-line); box-shadow: var(--lp-tile-shadow);
+}
+.lp-turn-me {
+  align-self: flex-end;
+  border-radius: var(--lp-r-lg) var(--lp-r-lg) var(--lp-r-sm) var(--lp-r-lg);
+  background: var(--lp-glow-tint); border-color: var(--lp-glow-line);
+}
+.lp-turn-miss { background: var(--lp-well); border-color: var(--lp-line); }
 
 .lp-tile {
   display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 8px 16px; border-radius: var(--lp-r-sm);

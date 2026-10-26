@@ -5,7 +5,7 @@
 // glows and plays audio, then a one-line why (in L1 below A2). Red is never used.
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { Keyboard, Mic, Play, Square, Volume2 } from "lucide-react";
+import { Check, Keyboard, Mic, Play, Square, Volume2 } from "lucide-react";
 import type { Item, Modality } from "@/lib/learning-path/types";
 import { loc } from "@/lib/learning-path/i18n";
 import { canListen, listen, stopSpeaking, type RecognitionHandle } from "@/lib/learning-path/speech";
@@ -65,6 +65,8 @@ export function Instruction({ k, children }: { k?: string; children?: ReactNode 
   return <div className="lp-eyebrow mb-2">{children ?? (k ? t(k) : "")}</div>;
 }
 
+/** Feedback is movement. Right: a tick scales in and that is all. Wrong: the
+ *  model answer and one line of why, because that is the only time words help. */
 export function Feedback({ correct, item, onNext, extra, label, modelText }: { correct: boolean | null; item: Item; onNext: () => void; extra?: ReactNode; label?: string; modelText?: string }) {
   const { t, lang, say } = useLp();
   useEffect(() => {
@@ -74,12 +76,20 @@ export function Feedback({ correct, item, onNext, extra, label, modelText }: { c
   const why = loc(item.why, lang);
   return (
     <div className="lp-fade-in mt-auto">
-      <div className="lp-glass p-4" style={{ borderColor: correct ? "var(--lp-sea-line)" : "var(--lp-line)" }}>
-        <div className="lp-small" style={{ color: correct ? "var(--lp-sea)" : "var(--lp-paper-soft)" }}>{correct ? t("correct_fb") : t("wrong_fb")}</div>
-        {!correct && modelText ? <div className="lp-lesson mt-1"><Say text={modelText} size="lesson" /></div> : null}
-        {why ? <div className="lp-body mt-1" style={{ color: "var(--lp-paper-soft)" }}>{why}</div> : null}
-        {extra}
-      </div>
+      {correct ? (
+        <div className="flex items-center gap-3">
+          <span className="lp-tick"><Check size={22} strokeWidth={3} /></span>
+          <span className="lp-lesson" style={{ color: "var(--lp-sea)" }}>{t("correct_fb")}</span>
+          {extra}
+        </div>
+      ) : (
+        <div className="lp-glass p-4">
+          <div className="lp-small" style={{ color: "var(--lp-paper-faint)" }}>{t("wrong_fb")}</div>
+          {modelText ? <div className="lp-lesson mt-1"><Say text={modelText} size="lesson" /></div> : null}
+          {why ? <div className="lp-body mt-1" style={{ color: "var(--lp-paper-soft)" }}>{why}</div> : null}
+          {extra}
+        </div>
+      )}
       <div className="mt-3"><GlowButton onClick={onNext}>{label ?? t("continue")}</GlowButton></div>
     </div>
   );
@@ -115,7 +125,7 @@ function ChoiceItem({ item, onAnswer, onNext, mode }: ItemProps) {
     <div className="flex h-full flex-col">
       <Instruction k={instruction} />
       {text ? (
-        <div className="lp-glass mb-3 p-3"><div className="lp-eyebrow mb-1">Notice</div><Say text={text} size="body" /></div>
+        <div className="lp-glass mb-3 p-3"><Say text={text} size="body" /></div>
       ) : null}
       {item.audio && isListening ? (
         <button type="button" onClick={() => say(item.audio!)} className="lp-glass mb-3 flex items-center justify-center gap-3 p-4" aria-label={t("listen")}>
@@ -250,7 +260,6 @@ function MagnetTiles({ item, onAnswer, onNext }: ItemProps) {
   return (
     <div className="flex h-full flex-col">
       <Instruction k="build" />
-      <div className="lp-small mb-3" style={{ color: "var(--lp-paper-faint)" }}>{t("tiles_hint")}</div>
       <div className="lp-slot mb-4">
         {placed.map((i, n) => <span key={n} className="lp-tile lp-tile-placed">{tiles[i]}</span>)}
       </div>
@@ -480,14 +489,15 @@ export function ResultBars({ score }: { score: SpeechScore }) {
 
 // Speech items: shadow, read_aloud, open_response (also teach-it-back and fluency)
 
-function SpeechItem({ item, onAnswer, onNext, tryItems, dayParity = 0 }: ItemProps) {
-  const { t, say, lang } = useLp();
+function SpeechItem({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
+  const { t, say } = useLp();
   const cfg = (item.config ?? {}) as { targets?: string[]; min_sentences?: number; need?: number; seconds?: number; variants?: string[]; fluency?: boolean; teach_back?: boolean };
   const isOpen = item.item_type === "open_response";
   const model = String(item.key ?? "");
   const prompt = isOpen ? cfg.variants?.[dayParity % (cfg.variants?.length || 1)] ?? loc(item.stem, "en") : loc(item.stem, "en");
   const [attempt, setAttempt] = useState(1);
   const [score, setScore] = useState<(SpeechScore & { used?: string[]; sentences?: number }) | null>(null);
+  const [said, setSaid] = useState("");
   const [unclear, setUnclear] = useState(false);
   const [done, setDone] = useState(false);
   const [timerOn, setTimerOn] = useState<boolean | null>(cfg.fluency ? null : false);
@@ -496,6 +506,7 @@ function SpeechItem({ item, onAnswer, onNext, tryItems, dayParity = 0 }: ItemPro
   const judge = (transcript: string, durationMs: number) => {
     if (!transcript.trim()) { setUnclear(true); return; }
     setUnclear(false);
+    setSaid(transcript);
     const s = isOpen ? scoreOpenResponse(transcript, cfg, durationMs) : scoreReadAloud(model, transcript, durationMs);
     setScore(s);
     // Confidence below 0.6 returns practise again and writes no mastery evidence.
@@ -514,38 +525,48 @@ function SpeechItem({ item, onAnswer, onNext, tryItems, dayParity = 0 }: ItemPro
     );
   }
 
+  // A conversation, not a form: the line, the mic, the response. The coach from
+  // LP-06 mounts in this column when components/learning-path/coach/ lands.
   return (
     <div className="flex h-full flex-col">
       <Instruction>{cfg.teach_back ? t("teach_back_title") : item.item_type === "shadow" ? "Shadow duet" : t("say_it")}</Instruction>
-      <div className="lp-lesson mb-2"><Say text={prompt} size={isOpen ? "lesson" : "body"} auto={isOpen} /></div>
-      {!isOpen ? (
-        <button type="button" onClick={() => say(model)} className="lp-glass mb-3 flex items-center gap-3 p-4 text-start">
-          <span className="lp-speaker" style={{ width: 44, height: 44, minWidth: 44 }}><Play size={20} /></span>
-          <span className="lp-lesson">{model.split(" ").map((w, i) => {
-            const clean = w.toLowerCase().replace(/[^a-z']/g, "");
-            const missed = score?.missed.some((m) => clean.startsWith(m.slice(0, 4)) || m.startsWith(clean.slice(0, 4)));
-            return <span key={i} className={missed ? "lp-target" : ""}>{w} </span>;
-          })}</span>
-        </button>
-      ) : null}
-      {isOpen && (cfg.targets?.length || tryItems?.length) ? (
-        <div className="mb-3 flex flex-wrap gap-2">
-          {(cfg.targets ?? []).filter((x) => x !== "ed").map((x) => <span key={x} className={`lp-pill ${score?.used?.includes(x) ? "lp-pill-good" : "lp-pill-glow"}`}>{x}</span>)}
+      <div className="flex flex-col gap-3">
+        <div className="lp-turn">
+          {isOpen ? (
+            <Say text={prompt} size="lesson" auto />
+          ) : (
+            <button type="button" onClick={() => say(model)} aria-label={t("listen")} className="flex w-full items-start gap-3 text-start" style={{ background: "none", border: "none", padding: 0 }}>
+              <span className="lp-speaker" style={{ width: 40, height: 40, minWidth: 40, marginTop: 0 }}><Play size={18} /></span>
+              <span className="lp-lesson">{model.split(" ").map((w, i) => {
+                const clean = w.toLowerCase().replace(/[^a-z']/g, "");
+                const missed = score?.missed.some((m) => clean.startsWith(m.slice(0, 4)) || m.startsWith(clean.slice(0, 4)));
+                return <span key={i} className={missed ? "lp-target" : ""}>{w} </span>;
+              })}</span>
+            </button>
+          )}
         </div>
-      ) : null}
-      {cfg.fluency && timerOn ? <div className="lp-small mb-2" style={{ color: "var(--lp-paper-faint)" }}>Round {round} of 3 · {cfg.seconds}s</div> : null}
-      {score ? <div className="mb-3"><ResultBars score={score} /></div> : null}
-      {unclear ? <div className="lp-small mb-2" style={{ color: "var(--lp-sand)" }}>{t("practise_again")}</div> : null}
-      {score && !isOpen && score.missed.length ? <div className="lp-small mb-2" style={{ color: "var(--lp-paper-faint)" }}>{t("tap_words")}</div> : null}
+        {isOpen && cfg.targets?.length ? (
+          <div className="flex flex-wrap gap-2">
+            {cfg.targets.filter((x) => x !== "ed").map((x) => <span key={x} className={`lp-pill ${score?.used?.includes(x) ? "lp-pill-good" : "lp-pill-glow"}`}>{x}</span>)}
+          </div>
+        ) : null}
+        {said ? (
+          <div className={`lp-turn lp-turn-me lp-fade-in ${score && !score.pass ? "lp-turn-miss" : ""}`}>
+            <div className="lp-body">{said}</div>
+            {score ? <div className="mt-2"><ResultBars score={score} /></div> : null}
+          </div>
+        ) : null}
+        {unclear ? <div className="lp-small" style={{ color: "var(--lp-sand)" }}>{t("practise_again")}</div> : null}
+        {cfg.fluency && timerOn ? <div className="lp-small" style={{ color: "var(--lp-paper-faint)" }}>Round {round} of 3 · {cfg.seconds}s</div> : null}
+      </div>
       {!done ? (
         <div className="mt-auto">
           <Recorder maxSeconds={cfg.seconds ?? (isOpen ? 30 : 12)} onDone={(tr, ms) => { judge(tr, ms); if (cfg.fluency && timerOn && round < 3) setRound((r) => r + 1); }} autoText={isOpen ? "I'm Fatima. I live in Dubai and I work in a shop. Yesterday I worked and tomorrow I will visit a friend. I'd like a coffee please, could I have the bill instead." : model} />
-          {score && attempt > 1 && !score.pass ? <div className="lp-small mt-2 text-center" style={{ color: "var(--lp-paper-faint)" }}>{t("retry")} · {attempt} / 3</div> : null}
+          {score && attempt > 1 && !score.pass ? <div className="lp-small mt-2 text-center" style={{ color: "var(--lp-paper-faint)" }}>{attempt} / 3</div> : null}
         </div>
       ) : (
         <Feedback correct={!!score?.pass} item={item} onNext={onNext} label={score?.pass ? t("continue") : t("keep_going")} />
       )}
-      {lang !== "en" && !done && !score ? <div className="lp-small mt-2 text-center" style={{ color: "var(--lp-paper-faint)" }}>{t("mic_hint")}</div> : null}
     </div>
   );
 }
@@ -598,8 +619,10 @@ function SayItSeeIt({ item, onAnswer, onNext }: ItemProps) {
       <Instruction>Say it, see it</Instruction>
       <div className="lp-lesson mb-3"><Say text={loc(item.stem, "en")} size="lesson" auto /></div>
       <CafeScene intent={shown} mood={mood} />
-      <div className="lp-small mt-2 min-h-[20px] text-center" style={{ color: "var(--lp-paper-soft)" }}>{line}</div>
-      {transcript ? <div className="lp-small text-center" style={{ color: "var(--lp-paper-faint)" }}>{t("scene_said")}: “{transcript}”</div> : null}
+      <div className="mt-3 flex flex-col gap-2">
+        {transcript ? <div className="lp-turn lp-turn-me lp-fade-in"><div className="lp-body">{transcript}</div></div> : null}
+        {line ? <div className="lp-turn lp-fade-in"><Say text={line} size="body" speakText="" /></div> : null}
+      </div>
       {done === null ? (
         <div className="mt-auto"><Recorder maxSeconds={12} onDone={judge} autoText={cfg.model} /></div>
       ) : (
@@ -650,8 +673,8 @@ function Roleplay({ item, onAnswer, onNext }: ItemProps) {
       <div className="lp-small mb-2" style={{ color: "var(--lp-paper-faint)" }}>{loc(item.stem, "en")}</div>
       <div className="flex flex-1 flex-col gap-2 overflow-y-auto">
         {log.map((m, i) => (
-          <div key={i} className={`max-w-[85%] rounded-2xl px-3 py-2 ${m.who === "ai" ? "self-start lp-glass" : "self-end"}`} style={m.who === "me" ? { background: m.ok === false ? "var(--lp-track)" : "var(--lp-glow-tint)", border: "1px solid var(--lp-glow-line)" } : undefined}>
-            {m.who === "ai" ? <div className="lp-small" style={{ color: "var(--lp-paper-faint)" }}>{cfg.character}</div> : null}
+          <div key={i} className={`lp-turn ${m.who === "me" ? `lp-turn-me ${m.ok === false ? "lp-turn-miss" : ""}` : ""}`}>
+            {m.who === "ai" ? <div className="lp-small mb-1" style={{ color: "var(--lp-paper-faint)" }}>{cfg.character}</div> : null}
             <Say text={m.text} size="body" speakText={m.who === "ai" ? m.text : ""} />
           </div>
         ))}
@@ -709,7 +732,6 @@ function RelayItem({ item, onAnswer, onNext }: ItemProps) {
               <div key={q.q} className="flex items-center gap-2 lp-small"><span className={`lp-dot ${answered[i] ? "lp-dot-on" : ""}`} /><span style={{ opacity: answered.length && !answered[i] ? 1 : 0.7 }}>{who} {answered.length && !answered[i] ? t("sami_more") : "asks:"} {q.q}</span></div>
             ))}
           </div>
-          {transcript ? <div className="lp-small mb-2" style={{ color: "var(--lp-paper-faint)" }}>“{transcript}”</div> : null}
           {stage === "say" ? (
             <div className="mt-auto">
               {additions > 0 ? <div className="lp-small mb-1 text-center" style={{ color: "var(--lp-sand)" }}>{t("add_sentence")} ({additions}/2)</div> : null}

@@ -33,6 +33,9 @@ const MIN_TALK_MS = 900;
 /** One try and two retries. */
 const MAX_TRIES = 3;
 
+/** What she says when two retries are spent: no blame, the item comes back. */
+const ENCOURAGE = "Good try. We will practise this again.";
+
 /** A typed stand-in rich enough to pass any open task, for the tester hook. */
 const OPEN_AUTO = "I'm Fatima. I live in Dubai and I work in a shop. Yesterday I worked and tomorrow I will visit a friend. I'd like a coffee please, could I have the bill instead.";
 
@@ -118,6 +121,8 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
   const [talking, setTalking] = useState(true);
   const [tries, setTries] = useState(1);
   const [score, setScore] = useState<SpeechScore | null>(null);
+  // The one line on screen is always the last thing the coach said.
+  const [lineText, setLineText] = useState(turn.line);
   const [note, setNote] = useState("");
   const [heard, setHeard] = useState("");
   const [bigWord, setBigWord] = useState("");
@@ -160,6 +165,7 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
 
   const ask = useCallback(() => {
     setBigWord("");
+    setLineText(turn.line);
     speak(turn.line, () => setStage("listen"));
     setStage("say");
   }, [speak, turn.line]);
@@ -180,9 +186,9 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
     setTalking(false);
     setBigWord("");
     if (!transcript.trim()) {
-      setNote(t("not_caught"));
       setStage("say");
-      speak(t("not_caught"), () => setStage("listen"));
+      setLineText(t("not_caught"));
+      speak(t("not_caught"), () => ask());
       return;
     }
     const s = turn.model
@@ -212,17 +218,20 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
     if (s.pass) {
       setStage("reply");
       setBowFrom(frameRef.current);
+      setLineText(turn.reply);
       speak(turn.reply, () => undefined);
       return;
     }
     if (tries >= MAX_TRIES) {
       setStage("end");
-      speak("Good try. Let us keep going.", () => undefined);
+      setLineText(ENCOURAGE);
+      speak(ENCOURAGE, () => undefined);
       return;
     }
     setTries((n) => n + 1);
     const word = hardestWord(s, turn.model ?? turn.line);
     setBigWord(word);
+    setLineText(word);
     setStage("word");
     speak(word, () => later(() => ask(), 250), true);
   };
@@ -236,9 +245,9 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
     return Math.sin(d / 3.2) * 9 * (1 - d / 34);
   })();
 
-  const words = (bigWord ? [bigWord] : turn.line.split(/\s+/)).filter(Boolean);
-  // Only a model line has words to mark: open answers miss target phrases.
-  const missedNow = turn.model ? score?.missed ?? [] : [];
+  const words = lineText.split(/\s+/).filter(Boolean);
+  // Only the model line itself has words to mark as missed.
+  const missedNow = turn.model && lineText === turn.model ? score?.missed ?? [] : [];
 
   return (
     <div className="flex h-full flex-col">
@@ -259,7 +268,7 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
           const missed = missedNow.some((m) => c === m || (c.length > 3 && (c.startsWith(m.slice(0, 4)) || m.startsWith(c.slice(0, 4)))));
           return (
             <button
-              key={`${stage === "word" ? "big" : "line"}-${i}`}
+              key={`${lineText}-${i}`}
               type="button"
               onClick={() => say(w.replace(/[.,?!]/g, ""))}
               className="lp-tile"
@@ -272,8 +281,10 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
           );
         })}
       </div>
-      {!talking && note ? <div className="lp-small mt-2 text-center" style={{ color: "var(--lp-sand)" }}>{note}</div> : null}
-      {!talking && score && heard ? (
+      {/* While she says the hard word that word is the only thing on screen.
+          Once there is a score it stays put, so nothing flickers. */}
+      {note && stage !== "word" ? <div className="lp-small mt-2 text-center" style={{ color: "var(--lp-sand)" }}>{note}</div> : null}
+      {score && heard && stage !== "word" ? (
         <div className="lp-fade-in mt-3">
           <ResultBars score={score} />
           <div className="lp-small text-center" style={{ color: "var(--lp-paper-faint)" }}>{t("scene_said")}: “{heard}”</div>

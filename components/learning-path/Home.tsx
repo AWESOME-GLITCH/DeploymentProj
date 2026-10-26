@@ -1,38 +1,52 @@
 "use client";
 
-// Home (Today). Three things a learner needs at a glance: where they are on
-// the path (a strip of stops with the current one highlighted), what today's
-// ten minutes contain (the composed session, step by step, with minutes), and
-// one Start. Then the ring, the live study scene and the 7-day dot row.
+// Home. Three things and nothing else: the journey drawn as a road the learner
+// is standing on, one line saying what today is, one big button. Past stops are
+// ticked, today is the lit stop with the three slices of today's ten minutes
+// around it, the next stops sit ahead in fog, and the road ends at the next
+// CEFR level. Tapping the road opens the whole road.
 
 import { useMemo } from "react";
-import { BookOpen, Check, ChevronRight, Film, Mic, RefreshCw, Users } from "lucide-react";
-import { ATOM_BY_ID, OUTCOMES, OUTCOME_BY_ID } from "@/lib/learning-path/content";
-import { composeSession, dayIndex, outcomeAchieved, outcomeProgress, phaseMinutes, ringSlice, weekDay } from "@/lib/learning-path/engine";
+import { OUTCOMES, OUTCOME_BY_ID } from "@/lib/learning-path/content";
+import { dayIndex, outcomeAchieved, phaseMinutes, ringSlice } from "@/lib/learning-path/engine";
 import { useNow, useStore } from "@/lib/learning-path/store";
-import type { SessionPhase } from "@/lib/learning-path/types";
-import { loc } from "@/lib/learning-path/i18n";
-import { DotRow, GlowButton, LocText, Ring, STRAND_COLOR, Say, useLp } from "./ui";
+import { CEFR_LABEL } from "@/lib/learning-path/i18n";
+import { GlowButton, IsoStop, LocText, RingArcs, Say, StopTick, useLp } from "./ui";
 
-function phaseLabel(p: SessionPhase, t: (k: string) => string, lang: "en" | string): { icon: React.ReactNode; label: string; sub?: string } {
-  switch (p.kind) {
-    case "plan": return { icon: <BookOpen size={16} />, label: t("plan_phase") };
-    case "recall": return { icon: <RefreshCw size={16} />, label: t("recall_title"), sub: `${p.items.length} items` };
-    case "atom": {
-      const a = ATOM_BY_ID[p.atom_id];
-      if (p.role === "new") return { icon: <Film size={16} />, label: a ? loc(a.title, lang as "en") : "New lesson", sub: a?.type === "video" ? "video" : "word cards" };
-      if (p.role === "fluency") return { icon: <Mic size={16} />, label: "Fluency", sub: "known words, faster" };
-      return { icon: <Mic size={16} />, label: t("your_turn"), sub: "speak" };
-    }
-    case "vote": return { icon: <Users size={16} />, label: t("vote_q") };
-    case "story": return { icon: <BookOpen size={16} />, label: t("story_title"), sub: t("story_sub") };
-    case "close": return { icon: <Check size={16} />, label: t("check_title") };
+// The drawn road: five stops bottom to top, then the destination. Fixed slots
+// keep the curve the same shape for every learner.
+const W = 320;
+const H = 430;
+const SLOTS: { x: number; y: number }[] = [
+  { x: 64, y: 404 },
+  { x: 240, y: 332 },
+  { x: 92, y: 254 },
+  { x: 246, y: 180 },
+  { x: 88, y: 112 },
+];
+const DEST = { x: 206, y: 48 };
+const VISIBLE = SLOTS.length;
+
+/** Catmull-Rom through the stops, so the road bends instead of kinking. */
+function roadPath(pts: { x: number; y: number }[]): string {
+  const d = [`M ${pts[0].x} ${pts[0].y}`];
+  for (let i = 0; i < pts.length - 1; i += 1) {
+    const p0 = pts[i - 1] ?? pts[i];
+    const p1 = pts[i];
+    const p2 = pts[i + 1];
+    const p3 = pts[i + 2] ?? p2;
+    const c1x = p1.x + (p2.x - p0.x) / 6;
+    const c1y = p1.y + (p2.y - p0.y) / 6;
+    const c2x = p2.x - (p3.x - p1.x) / 6;
+    const c2y = p2.y - (p3.y - p1.y) / 6;
+    d.push(`C ${c1x.toFixed(1)} ${c1y.toFixed(1)}, ${c2x.toFixed(1)} ${c2y.toFixed(1)}, ${p2.x} ${p2.y}`);
   }
+  return d.join(" ");
 }
 
 export function Home({ onStart, onSecond }: { onStart: () => void; onSecond: () => void }) {
   const { state } = useStore();
-  const { t, lang, go } = useLp();
+  const { t, rtl, go } = useLp();
   const now = useNow();
   const day = dayIndex(state, now);
   const todays = state.sessions.filter((s) => s.day === day);
@@ -41,10 +55,6 @@ export function Home({ onStart, onSecond }: { onStart: () => void; onSecond: () 
   const cur = state.current && state.current.session.day === day ? state.current : null;
   const lastDay = state.sessions.filter((s) => s.completed).map((s) => s.day).sort((a, b) => b - a)[0];
   const missed = lastDay === undefined ? 0 : day - lastDay - 1;
-
-  const session = useMemo(() => cur?.session ?? (state.learner.placement_done ? composeSession(state, now) : null), [cur, state, now]);
-  const steps = (session?.phases ?? []).filter((p) => p.kind !== "plan");
-  const stepIndex = cur ? cur.phase_index - 1 : -1;
 
   const fills = useMemo<[number, number, number]>(() => {
     if (doneToday) return [1, 1, 1];
@@ -55,118 +65,105 @@ export function Home({ onStart, onSecond }: { onStart: () => void; onSecond: () 
     return slices.map((v, i) => (totals[i] ? v / totals[i] : 0)) as [number, number, number];
   }, [cur, doneToday]);
 
-  const week = Array.from({ length: 7 }, (_, i) => state.sessions.some((s) => s.completed && weekDay(state, s.day) === i + 1 && s.day >= state.week_start_day));
-  const todayIdx = weekDay(state, day) - 1;
-  const onTrack = week.filter(Boolean).length;
-  const coach = doneToday ? t("coach_done") : cur ? t("coach_mid") : missed >= 2 ? t("coach_welcome_back") : t("coach_fresh");
+  const curIdx = Math.max(0, OUTCOMES.findIndex((o) => o.outcome_id === state.week_can_do));
+  const start = Math.min(Math.max(0, curIdx - 2), Math.max(0, OUTCOMES.length - VISIBLE));
+  const stops = OUTCOMES.slice(start, start + VISIBLE);
+  const todaySlot = Math.min(VISIBLE - 1, curIdx - start);
   const weekCanDo = state.week_can_do ? OUTCOME_BY_ID[state.week_can_do] : null;
-  const currentIdx = Math.max(0, OUTCOMES.findIndex((o) => o.outcome_id === state.week_can_do));
-  const live = 120 + Math.round(40 * Math.sin(now / 600_000)) + (day % 7) * 3;
-  const minutesDone = Math.round(((fills[0] + fills[1] + fills[2]) / 3) * state.learner.daily_minutes);
-  const totalMinutes = Math.round(steps.reduce((a, p) => a + phaseMinutes(p), 0));
-  const dateLabel = new Date(now).toLocaleDateString(lang === "en" ? "en-GB" : lang, { weekday: "long", day: "numeric", month: "long" });
+  const level = state.learner.confirmed_sublevel ?? state.learner.provisional_sublevel ?? "A2.1";
+
+  // Mirror the road for right-to-left languages; the labels stay upright.
+  const mx = (x: number) => (rtl ? W - x : x);
+  const points = [...SLOTS.slice(0, stops.length), DEST].map((p) => ({ x: mx(p.x), y: p.y }));
+  const path = roadPath(points);
+  const walked = (todaySlot / (points.length - 1)) * 100;
+
+  // The one line: where the learner is in their week, or why today is short.
+  const line = doneToday ? t("coach_done") : missed >= 2 ? t("coach_welcome_back") : null;
 
   return (
     <div className="relative flex h-full flex-col overflow-hidden px-5 pb-3 pt-4">
-      <div className="lp-blob" style={{ width: 260, height: 260, right: -110, top: -60, background: "var(--lp-glow-tint)" }} />
+      <div className="lp-blob" style={{ width: 300, height: 300, right: -130, top: -110, background: "var(--lp-glow-tint)" }} />
 
-      <div className="relative flex items-center justify-between">
-        <div>
-          <div className="lp-eyebrow">{t("today")}</div>
-          <div className="lp-body" style={{ fontWeight: 800 }}>{dateLabel}</div>
-        </div>
-        <div className="flex h-11 items-center justify-center rounded-full px-3" style={{ background: "var(--lp-accent)", color: "#fff", fontWeight: 800, fontSize: 14 }}>Day {day + 1}</div>
+      <div className="relative flex items-baseline justify-between">
+        <div className="lp-eyebrow">{t("today")}</div>
+        <div className="lp-small" style={{ color: "var(--lp-paper-faint)" }}>{CEFR_LABEL[level]} → B1</div>
       </div>
 
-      {/* Your path: a strip of stops, tap to open the Road */}
-      <button type="button" onClick={() => go("road")} className="lp-glass relative mt-3 w-full p-3 text-start" style={{ cursor: "pointer" }}>
-        <div className="flex items-center justify-between">
-          <div className="lp-eyebrow">{t("road")} · {state.learner.confirmed_sublevel ?? "A2.1"}</div>
-          <div className="lp-small flex items-center gap-1" style={{ color: "var(--lp-accent)", fontWeight: 800 }}>{currentIdx + 1} / {OUTCOMES.length} <ChevronRight size={14} /></div>
-        </div>
-        <div className="relative mt-2 h-10">
-          <div className="absolute inset-x-1 top-1/2 h-1 -translate-y-1/2 rounded-full" style={{ background: "var(--lp-track)" }} />
-          <div className="absolute left-1 top-1/2 h-1 -translate-y-1/2 rounded-full" style={{ width: `${(currentIdx / Math.max(1, OUTCOMES.length - 1)) * 100}%`, background: "var(--lp-sea)" }} />
-          {OUTCOMES.map((o, i) => {
+      {/* The journey. Tap it to see the whole road. */}
+      <button type="button" onClick={() => go("road")} aria-label={t("road")} className="relative min-h-0 flex-1 bg-transparent" style={{ border: "none", padding: 0, cursor: "pointer" }}>
+        <svg viewBox={`0 0 ${W} ${H}`} className="h-full w-full" preserveAspectRatio="xMidYMid meet" role="img" aria-label={t("road")}>
+          <defs>
+            <radialGradient id="lp-horizon" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="var(--lp-glow)" stopOpacity="0.22" />
+              <stop offset="100%" stopColor="var(--lp-glow)" stopOpacity="0" />
+            </radialGradient>
+          </defs>
+
+          {/* Horizon behind the destination */}
+          <circle cx={mx(DEST.x)} cy={DEST.y} r={96} fill="url(#lp-horizon)" />
+
+          {/* Road surface, the walked part filled, centre dashes on top */}
+          <path d={path} fill="none" stroke="var(--lp-track)" strokeWidth={20} strokeLinecap="round" />
+          <path d={path} fill="none" stroke="var(--lp-sea)" strokeWidth={20} strokeLinecap="round" pathLength={100}
+            className="lp-road-trail" strokeDasharray={`${walked} 100`} opacity={0.9} />
+          <path d={path} fill="none" stroke="var(--lp-line-strong)" strokeWidth={2} strokeDasharray="5 11" strokeLinecap="round" />
+
+          {/* The stops */}
+          {stops.map((o, i) => {
             const achieved = outcomeAchieved(state, o.outcome_id);
-            const isCur = i === currentIdx;
-            const left = `${(i / Math.max(1, OUTCOMES.length - 1)) * 100}%`;
-            return (
-              <div key={o.outcome_id} className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2" style={{ left }}>
-                <div className="flex items-center justify-center rounded-full" style={{ width: isCur ? 34 : 18, height: isCur ? 34 : 18, background: isCur ? "var(--lp-glow)" : achieved ? "var(--lp-sea)" : "var(--lp-surface)", border: `2px solid ${isCur ? "var(--lp-glow)" : achieved ? "var(--lp-sea)" : STRAND_COLOR[o.strand]}`, fontSize: isCur ? 17 : 9, boxShadow: isCur ? "0 6px 14px -6px var(--lp-glow-shadow)" : undefined }}>
-                  {isCur ? o.icon : achieved ? <Check size={10} color="#fff" /> : ""}
-                </div>
-              </div>
-            );
+            const p = { x: mx(SLOTS[i].x), y: SLOTS[i].y };
+            if (i === todaySlot) {
+              return (
+                <g key={o.outcome_id}>
+                  <circle cx={p.x} cy={p.y} r={30} fill="var(--lp-marker)" opacity={0.18} className="lp-marker-breathe" />
+                  <RingArcs cx={p.x} cy={p.y} r={30} width={6} fills={fills} />
+                  <g className="lp-marker-glow"><IsoStop x={p.x} y={p.y} w={17} h={11} colour="var(--lp-marker)" /></g>
+                </g>
+              );
+            }
+            if (achieved || i < todaySlot) {
+              return (
+                <g key={o.outcome_id}>
+                  <IsoStop x={p.x} y={p.y} w={14} h={9} colour="var(--lp-sea)" />
+                  <StopTick x={p.x} y={p.y - 4} />
+                </g>
+              );
+            }
+            return <g key={o.outcome_id} opacity={0.62}><IsoStop x={p.x} y={p.y} w={12} h={8} colour="var(--lp-fog)" /></g>;
           })}
-        </div>
-        {weekCanDo ? (
-          <div className="mt-1 flex items-center gap-2">
-            <span className="lp-small" style={{ color: "var(--lp-paper-faint)", fontWeight: 700 }}>{t("this_week")}:</span>
-            <span className="lp-small flex-1 truncate" style={{ fontWeight: 700 }}>{loc(weekCanDo.can_do, lang)}</span>
-            <span className="lp-small" style={{ color: "var(--lp-sea-deep)", fontWeight: 800 }}>{Math.round(outcomeProgress(state, weekCanDo.outcome_id) * 100)}%</span>
-          </div>
-        ) : null}
+
+          {/* Destination: a flag at the next CEFR level */}
+          <g>
+            <IsoStop x={mx(DEST.x)} y={DEST.y} w={13} h={9} colour="var(--lp-glow)" />
+            <line x1={mx(DEST.x)} y1={DEST.y - 8} x2={mx(DEST.x)} y2={DEST.y - 40} stroke="var(--lp-glow)" strokeWidth={2} strokeLinecap="round" />
+            <polygon points={`${mx(DEST.x)},${DEST.y - 40} ${mx(DEST.x) + (rtl ? -26 : 26)},${DEST.y - 33} ${mx(DEST.x)},${DEST.y - 26}`} fill="var(--lp-glow)" />
+            <text x={mx(DEST.x) + (rtl ? -34 : 34)} y={DEST.y - 28} textAnchor={rtl ? "end" : "start"} fill="var(--lp-paper-faint)" fontSize="13" fontWeight="700" letterSpacing="0.08em">B1</text>
+          </g>
+        </svg>
       </button>
 
-      {/* Today's session, step by step */}
-      <div className="lp-glass relative mt-3 flex flex-1 flex-col overflow-hidden p-3">
-        <div className="flex items-center justify-between">
-          <div className="lp-eyebrow">{t("plan_phase")}</div>
-          <div className="lp-small" style={{ color: "var(--lp-paper-faint)", fontWeight: 700 }}>{totalMinutes} {t("minutes")}</div>
-        </div>
-        <div className="mt-2 flex flex-col gap-1.5">
-          {steps.slice(0, 5).map((p, i) => {
-            const info = phaseLabel(p, t, lang);
-            const done = doneToday || i < stepIndex;
-            const active = !doneToday && i === stepIndex;
-            return (
-              <div key={i} className="flex items-center gap-3 rounded-xl px-2 py-1.5" style={{ background: active ? "var(--lp-glow-tint)" : "transparent", opacity: done ? 0.55 : 1 }}>
-                <span className="flex h-8 w-8 items-center justify-center rounded-full" style={{ background: done ? "var(--lp-sea)" : active ? "var(--lp-glow)" : "var(--lp-well)", color: done ? "#fff" : active ? "var(--lp-on-glow)" : "var(--lp-paper-soft)" }}>{done ? <Check size={16} /> : info.icon}</span>
-                <div className="min-w-0 flex-1">
-                  <div className="lp-small truncate" style={{ fontWeight: 800 }}>{info.label}</div>
-                  {info.sub ? <div className="truncate" style={{ fontSize: 11.5, color: "var(--lp-paper-faint)" }}>{info.sub}</div> : null}
-                </div>
-                <span className="lp-small tabular-nums" style={{ color: "var(--lp-paper-faint)", fontWeight: 700 }}>{Math.round(phaseMinutes(p) * 10) / 10}′</span>
-              </div>
-            );
-          })}
-          {!steps.length ? <div className="lp-small" style={{ color: "var(--lp-paper-faint)" }}>{t("coach_fresh")}</div> : null}
-        </div>
-        <div className="mt-auto flex items-center gap-3 pt-2">
-          <Ring fills={fills} size={84} label={<div style={{ fontSize: 18, fontWeight: 800, lineHeight: 1 }}>{minutesDone}<div style={{ fontSize: 10, color: "var(--lp-paper-faint)", fontWeight: 700 }}>/ {state.learner.daily_minutes}</div></div>} />
-          <div className="min-w-0 flex-1">
-            <div className="lp-body" style={{ fontWeight: 700, lineHeight: 1.25 }}><Say text={coach} /></div>
-            {missed >= 2 && !doneToday && !cur ? <div className="lp-small mt-1" style={{ color: "var(--lp-sea-deep)", fontWeight: 700 }}>{missed} {t("days_missed")}</div> : null}
-          </div>
-        </div>
-      </div>
-
-      <div className="relative mt-3">
-        {!doneToday ? (
-          <GlowButton onClick={onStart}>{cur ? t("continue") : t("start")} · {totalMinutes} {t("minutes")}</GlowButton>
-        ) : !secondDone ? (
-          <button type="button" onClick={onSecond} className="lp-small w-full py-3 text-center" style={{ color: "var(--lp-accent)", fontWeight: 800, background: "none", border: "none" }}>{t("more_today")}</button>
+      {/* One line: what today is */}
+      <div className="relative mt-2 min-h-[52px]">
+        {line ? (
+          <div className="lp-lesson"><Say text={line} size="lesson" /></div>
+        ) : weekCanDo ? (
+          <LocText text={weekCanDo.can_do} size="lesson" />
         ) : (
-          <div className="lp-small py-3 text-center" style={{ color: "var(--lp-paper-faint)" }}>{t("coach_second")}</div>
+          <div className="lp-lesson"><Say text={t("coach_fresh")} size="lesson" /></div>
         )}
       </div>
 
-      <div className="relative mt-3 flex items-end justify-between gap-3">
-        <div className="lp-scene-card">
-          <div className="lp-people">
-            <span style={{ background: "var(--lp-s-INT)" }}>🧕</span>
-            <span style={{ background: "var(--lp-s-LST)" }}>🧑🏽‍💻</span>
-            <span style={{ background: "var(--lp-s-MED)", color: "#fff" }}><Users size={15} /></span>
-          </div>
-          <div className="lp-small" style={{ fontWeight: 700 }}>{live} <span style={{ color: "var(--lp-paper-faint)", fontWeight: 600 }}>{t("learners_now")}</span></div>
-        </div>
-        <div className="flex flex-col items-end gap-1">
-          <DotRow days={week} today={todayIdx} />
-          <div className="lp-small" style={{ color: onTrack >= 4 ? "var(--lp-sea-deep)" : "var(--lp-paper-faint)", fontSize: 11, fontWeight: 700 }}>{onTrack >= 4 ? t("on_track") : `${onTrack} / 4 ${t("sessions_this_week")}`}</div>
-        </div>
+      {/* One action */}
+      <div className="relative mt-3">
+        {!doneToday ? (
+          <GlowButton onClick={onStart}>{cur ? t("continue") : t("start")}</GlowButton>
+        ) : !secondDone ? (
+          <button type="button" onClick={onSecond} className="lp-small w-full py-4 text-center" style={{ color: "var(--lp-glow)", fontWeight: 600, background: "none", border: "none" }}>{t("more_today")}</button>
+        ) : (
+          <div className="lp-small py-4 text-center" style={{ color: "var(--lp-paper-faint)" }}>{t("coach_second")}</div>
+        )}
       </div>
-      <span hidden><LocText text={{ en: "" }} /></span>
     </div>
   );
 }

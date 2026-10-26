@@ -87,33 +87,61 @@ export function LocText({ text, size = "body", className = "", auto }: { text: L
   );
 }
 
-/** Three-slice daily ring. fills: 0..1 per slice. */
-export function Ring({ fills, size = 200, label }: { fills: [number, number, number]; size?: number; label?: ReactNode }) {
+/** A stop on the road: a small isometric block with three visible faces, never
+ *  a flat disc or rectangle. Lives inside a parent <svg>. */
+export function IsoStop({ x, y, w, h, colour, shade = true }: { x: number; y: number; w: number; h: number; colour: string; shade?: boolean }) {
+  const top = `${x},${y - h} ${x + w},${y - h / 2} ${x},${y} ${x - w},${y - h / 2}`;
+  const left = `${x - w},${y - h / 2} ${x},${y} ${x},${y + h} ${x - w},${y + h / 2}`;
+  const right = `${x + w},${y - h / 2} ${x},${y} ${x},${y + h} ${x + w},${y + h / 2}`;
+  return (
+    <g>
+      <polygon points={left} fill={colour} />
+      <polygon points={right} fill={colour} />
+      {shade ? <polygon points={left} fill="var(--lp-shade)" opacity={0.18} /> : null}
+      {shade ? <polygon points={right} fill="var(--lp-shade)" opacity={0.32} /> : null}
+      <polygon points={top} fill={colour} />
+    </g>
+  );
+}
+
+/** The tick on a stop the learner has finished. */
+export function StopTick({ x, y, size = 5.5 }: { x: number; y: number; size?: number }) {
+  return (
+    <polyline points={`${x - size},${y - size * 1.7} ${x - size * 0.3},${y - size} ${x + size},${y - size * 2.2}`}
+      fill="none" stroke="#fff" strokeWidth={size * 0.45} strokeLinecap="round" strokeLinejoin="round" />
+  );
+}
+
+/** Today's ten minutes as three slices, drawn around a point. Lives inside a
+ *  parent <svg> so it can sit on the road at the learner's own stop. */
+export function RingArcs({ cx, cy, r, width = 7, fills, colour = "var(--lp-glow)" }: { cx: number; cy: number; r: number; width?: number; fills: [number, number, number]; colour?: string }) {
   const { reduceMotion } = useLp();
-  const r = size / 2 - 14;
   const c = 2 * Math.PI * r;
-  const gap = 10;
+  const gap = c * 0.07;
   const seg = (c - gap * 3) / 3;
   return (
+    <g transform={`rotate(-90 ${cx} ${cy})`}>
+      {fills.map((f, i) => {
+        const offset = i * (seg + gap);
+        return (
+          <g key={i}>
+            <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--lp-track)" strokeWidth={width} strokeLinecap="round" strokeDasharray={`${seg} ${c - seg}`} strokeDashoffset={-offset} />
+            <circle cx={cx} cy={cy} r={r} fill="none" stroke={colour} strokeWidth={width} strokeLinecap="round"
+              strokeDasharray={`${Math.max(0.01, seg * Math.min(1, f))} ${c}`} strokeDashoffset={-offset} opacity={f > 0 ? 1 : 0}
+              style={{ transition: reduceMotion ? "none" : "stroke-dasharray var(--lp-t-move) var(--lp-ease-emph)" }} />
+          </g>
+        );
+      })}
+    </g>
+  );
+}
+
+/** Three-slice daily ring as a standalone block. fills: 0..1 per slice. */
+export function Ring({ fills, size = 200, label }: { fills: [number, number, number]; size?: number; label?: ReactNode }) {
+  return (
     <div className="relative" style={{ width: size, height: size }}>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90">
-        {fills.map((f, i) => {
-          const offset = i * (seg + gap);
-          return (
-            <g key={i}>
-              <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--lp-track)" strokeWidth={12} style={{ stroke: "var(--lp-track)" }} strokeLinecap="round" strokeDasharray={`${seg} ${c - seg}`} strokeDashoffset={-offset} />
-              <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="url(#lp-ring-grad)" strokeWidth={12} strokeLinecap="round"
-                strokeDasharray={`${Math.max(0.01, seg * Math.min(1, f))} ${c}`} strokeDashoffset={-offset} opacity={f > 0 ? 1 : 0}
-                style={{ transition: reduceMotion ? "none" : "stroke-dasharray 0.8s cubic-bezier(0.22,1,0.36,1)", filter: f > 0 ? "drop-shadow(0 0 6px rgba(21,154,139,0.5))" : undefined }} />
-            </g>
-          );
-        })}
-        <defs>
-          <linearGradient id="lp-ring-grad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" style={{ stopColor: "var(--lp-glow-2)" }} />
-            <stop offset="100%" style={{ stopColor: "var(--lp-glow)" }} />
-          </linearGradient>
-        </defs>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        <RingArcs cx={size / 2} cy={size / 2} r={size / 2 - 8} width={8} fills={fills} />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center">{label}</div>
     </div>
