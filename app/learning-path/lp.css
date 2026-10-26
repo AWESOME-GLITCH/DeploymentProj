@@ -25,12 +25,13 @@
   --lp-sea-tint: rgba(21, 127, 98, 0.12);
   --lp-sea-line: rgba(21, 127, 98, 0.55);
   --lp-sea-shadow: rgba(21, 127, 98, 0.45);
-  --lp-sand: #b08a3e;
+  --lp-sand: #2f7d93;
   --lp-fog: #aebfbb;
   --lp-marker: #0d7f9c;
   --lp-marker-tint: rgba(13, 127, 156, 0.14);
   --lp-marker-shadow: rgba(13, 127, 156, 0.45);
   --lp-shade: #0b1a18;
+  --lp-road: #e0e9e7;
   --lp-s-GRM: #0b7a6c; --lp-s-RDG: #2f6fb0; --lp-s-WRT: #a07c36; --lp-s-LST: #1f8fb3; --lp-s-SPK: #12a0a8; --lp-s-MED: #2a8f5f; --lp-s-INT: #37558f;
   --lp-glass: #ffffff;
   --lp-glass-strong: #ffffff;
@@ -107,6 +108,7 @@
   --lp-marker-tint: rgba(240, 208, 112, 0.16);
   --lp-marker-shadow: rgba(240, 208, 112, 0.4);
   --lp-shade: #000000;
+  --lp-road: rgba(255, 255, 255, 0.07);
   --lp-s-GRM: #3fc4ab; --lp-s-RDG: #6aa8e8; --lp-s-WRT: #d8b86a; --lp-s-LST: #5cc4e8; --lp-s-SPK: #44cfd6; --lp-s-MED: #4fd1a3; --lp-s-INT: #7f9ff0;
   --lp-glass: rgba(255, 255, 255, 0.05);
   --lp-glass-strong: rgba(255, 255, 255, 0.08);
@@ -132,7 +134,10 @@
 
 .lp-root * { box-sizing: border-box; }
 .lp-root h1, .lp-root h2, .lp-root h3 { font-family: inherit; font-weight: var(--lp-head-weight); letter-spacing: var(--lp-head-tracking); margin: 0; }
-.lp-root button { font-family: inherit; color: inherit; }
+/* Buttons inherit the page ink unless they set their own colour; the compound
+   selector keeps this reset from out-ranking .lp-btn-primary and .lp-mic. */
+.lp-root button:not([class*="lp-btn-"]):not(.lp-mic) { color: inherit; }
+.lp-root button { font-family: inherit; }
 .lp-root input, .lp-root textarea { font-family: inherit; }
 .lp-root[data-reduce-motion="true"] * { transition: none !important; animation: none !important; }
 

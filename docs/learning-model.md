@@ -1,10 +1,12 @@
 # Learning model: chunk template, CEFR map, repetition and path rules
 
-LP-02 · Learning Designer · 26 October 2026 · v1.0, for QA then the board
+LP-02 · Learning Designer · 26 October 2026 · v1.1, for QA then the board
 
-This is the pedagogy contract for the Learning Path app. It says what a chunk is, how chunks add up to a CEFR level, when a chunk comes back, and how the system picks the next chunk. It is written so a developer can implement the path logic without asking a question, and a content author or a model can write three consistent chunks from the template alone.
+This is the pedagogy contract for the Learning Path app. It says what a lesson is, how lessons add up to a CEFR level, when a lesson comes back, and how the system picks the next one. It is written so a developer can implement the path logic without asking a question, and a content author or a model can write three consistent chunks from the template alone.
 
-Source documents: `docs/learning-path/PRD.md` (sections "The learning atom and the 10-minute session", "Repetition and memory engine", "Competency framework and adaptive path") and `docs/design-rules.md`. Where a rule here differs from the PRD, it is listed in section 7 with the reason.
+**What changed in v1.1.** Section 1 is no longer a free-form chunk template. It is the board's lesson order of 26 October, mapped onto `AtomPhase` and `SessionPhase`, with a divergences table against the code as it stands (§1.4). The consequences reach sections 4.2 to 4.7, 5.1 to 5.3, 5.6 and 7. Sections 2 and 3 are unchanged except where the lesson order touched them, which is §3.2's retrieval-type column. The six items QA returned on LEA-2 are answered: F1 and F2 in §3.5 and §7 row 6, F3 in §1.6, the two lesson-order fails in §1.2 and §1.7, the recall-phase question in §1.3, and the day-one label conflict in §4.2 rule 4 and §7 row 7.
+
+Source documents: the board note of 26 October (lesson order and its seven points), `docs/learning-path/PRD.md` (sections "The learning atom and the 10-minute session", "Repetition and memory engine", "Competency framework and adaptive path"), `docs/exercises.md` (the LP-20 item cut list) and `docs/design-rules.md`. Where a rule here differs from the PRD or from the code, it is listed in section 7 or §1.4 with the reason. Board direction outranks both.
 
 ## 0. Terminology, so nothing is ambiguous
 
@@ -18,9 +20,11 @@ Source documents: `docs/learning-path/PRD.md` (sections "The learning atom and t
 | Can-do outcome | One CEFR descriptor, 1 to 4 criteria beneath it. IDs `OUT-...` | PRD, code, Road screen |
 | Strand | One of GRM, RDG, WRT, LST, SPK, MED, INT | PRD, code |
 
-Read "chunk" and "atom" as the same object throughout. Section 1.6 maps every field of this template onto the implemented `Atom` type so there is one schema, not two.
+Read "chunk" and "atom" as the same object throughout. Section 1.9 maps every field of this template onto the implemented `Atom` type so there is one schema, not two.
 
-Hierarchy, unchanged from the PRD: Level > Sub-level > Strand > Cluster > Can-do outcome > Criterion > Chunk > Check.
+One more word, because the board note changes it: this spec says **item**, not "check". A check implies something that tests. Every item in a lesson ends with the learner producing the phrase, and the only thing that "checks" is the delayed say-it in the close.
+
+Hierarchy, unchanged from the PRD: Level > Sub-level > Strand > Cluster > Can-do outcome > Criterion > Chunk > Item.
 
 ---
 
@@ -784,12 +788,14 @@ Flagged rather than quietly changed. None of them blocks implementation.
 
 | # | This spec says | The PRD says | Why, and who decides |
 | --- | --- | --- | --- |
-| 1 | 3 to 5 checks per chunk (6 authored, cut to 5 standard and 3 light) | 3 to 4 controlled plus 1 free use plus 1 to 2 delayed, so 5 to 7 | The LP-02 brief sets 3 to 5. One authored bank with cut lists satisfies both: the dense variant is the PRD's shape, the light variant protects a struggling learner from a 7-check chunk. Learning Designer, confirmed by ST |
+| 1 | 4 to 6 items per chunk (6 authored, cut to 5 standard and 4 light), of which 3 are production in every variant | 3 to 4 controlled plus 1 free use plus 1 to 2 delayed, so 5 to 7. The LP-02 brief says 3 to 5 checks | The spine fixes the three production steps and lets only the scaffold count move, so light is 4 rather than 3 and dense is 6 rather than 5. Dropping to 3 would mean cutting a production step, which the board's lesson order forbids. Learning Designer; ST to confirm the 4 to 6 band |
 | 2 | Week can-do candidates are filtered by each strand's own sub-level | The prototype filters by one overall sub-level (`pickWeekCanDo` in `engine.ts`) | A learner is normally at two or three sub-levels at once, and the PRD data model already stores ability per strand. A small change to the composer, worth making before B1 content lands. Front-end Builder to action under its own ticket, not this one |
 | 3 | Academic English is a tag on existing outcomes from B1, not an eighth strand | Open question Q4 leaves this undecided | Keeps the seven-bar "How I'm doing" design and the seven-strand framework intact. Academic Lead and ST |
 | 4 | Retire at 180 days with a spot check every 21 to 28 days | Retire at 180 with spot checks | Same rule, with the interval made explicit so it is implementable |
 | 5 | Provisional items from placement are excluded from the 25-item review cap | Cap stated without the exclusion | Otherwise a learner placed at B2 is capped out on day one by items they already know. Matches the implemented behaviour |
 | 6 | **Recommends capping the half-life at the state's nominal ceiling (learning 1, consolidating 7, known 30, mastered 120) until an item has 6 attempts** | Multipliers compound with no ceiling, and the regression model takes over at 6 or more attempts | Traced against the implemented rules (3.5), an item reaches Mastered on day 129 and is then unseen for 220 days on the strength of nine retrievals. Capping until the regression model owns the half-life brings Mastered to about day 85 and keeps the published ladder honest. This needs a separate engine ticket for the Front-end Builder; it is not a content change and not in LP-02's scope |
+| 7 | A score is never shown on day one, but the sub-level **name** may appear from the path reveal onwards (§4.2 rule 4) | The earlier wording of this spec said no level name on day one either, and the running app shows CEFR labels and an `A2.1` badge on day one (screenshots on LEA-5) | QA flagged the conflict and did not call it; I am calling it in the app's favour. A label read as a position on the road is the visible journey the board asked for in point 6, not a mark. What stays hidden is anything that reads as a score: the placement number, percentages, and the strand strength bars, which need a week of data to mean anything. No app change; the spec moved |
+| 8 | No `plan`, `recall` or `vote` phase in a session (§1.3, §1.4) | The PRD and the prototype have all three, and the PRD's session shape leads with plan and recall | Board direction of 26 October: the lesson opens on the scene, due items return inside the scene, and a front-loaded recall drill is ruled out. `vote_see_revote` was cut on LP-20 on its own evidence. Removing the three also brings a week-day-4 session from 12.33 minutes back to 9. Board, already given; the code change is LP-30's |
 
 Open questions for the board, none blocking:
 
@@ -797,6 +803,8 @@ Open questions for the board, none blocking:
 2. Confirm the 0.70 AI rubric pass threshold and the 0.60 confidence floor against AZE's own banding, once Q2 on speech sub-score latency is answered.
 3. Confirm that "four sessions a week counts as on track" is the retention rule we want to publish, since it is the only place this model deliberately loosens daily spacing.
 4. Approve the half-life cap in row 6 above, which is the one recommendation in this document that changes code rather than content.
+5. Confirm the 4 to 6 item band in row 1, which is one above the brief's "3 to 5" at the dense end and one above at the light end, because the three production steps are now fixed in every variant.
+6. Note rather than decide: row 7 moves the spec to match the app on day-one labels. Say so if the board wants it the other way, because then the path reveal and the lesson badge both change and that is a design ticket.
 
 ---
 
