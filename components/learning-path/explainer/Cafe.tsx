@@ -10,7 +10,7 @@ import { AbsoluteFill, useCurrentFrame } from "remotion";
 import type { CSSProperties } from "react";
 import {
   ACCENT, Badge, BeatProgress, Birds, CaptionBar, Character, Confetti, CREAM, Cup, EASE, Eyebrow, FaceChip, FAINT, FOG, FONT, Highlight, INK, KineticText, karaoke, MenuBoard,
-  PAPER, Parallax, Pastry, PendantLamp, PINK, Plant, Pulse, SAFFRON, SEA, Shelf, SpeechBubble, springIn, Stage, Till, Transition, tween, Waveform, Window, WOOD, WOOD_DARK, WOOD_LIGHT,
+  PAPER, Parallax, Pastry, PendantLamp, PINK, Plant, Pulse, SAFFRON, SEA, SpeechBubble, springIn, Stage, Till, Transition, tween, WallShelf, Waveform, Window, WOOD, WOOD_DARK, WOOD_LIGHT,
 } from "./lib";
 
 export { karaoke };
@@ -164,7 +164,7 @@ function NoticeScene({ frame }: { frame: number }) {
             <rect x="0" y="700" width="1080" height="180" fill="#e9d8bf" />
             {[0, 1, 2, 3, 4, 5].map((i) => <rect key={i} x={30 + i * 176} y="724" width="140" height="134" rx="8" fill="none" stroke="#d9c4a4" strokeWidth="6" />)}
             <rect x="0" y="694" width="1080" height="12" fill={WOOD_LIGHT} />
-            <Shelf x={32} y={392} w={230} frame={frame} seed={2} plant={false} />
+            <WallShelf x={32} y={392} w={230} frame={frame} seed={2} plant={false} />
             <Window x={40} y={444} w={280} h={228} />
             <MenuBoard x={690} y={140} w={350} h={290} />
             <PendantLamp x={214} length={60} frame={frame} seed={0} />

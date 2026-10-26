@@ -405,8 +405,8 @@ export function MenuBoard({ x, y, w = 360, h = 330, title = "MENU", items = [["F
   );
 }
 
-/** A wall shelf with a few jars on it. */
-export function Shelf({ x, y, w = 400, frame, seed = 0, plant = true }: { x: number; y: number; w?: number; frame: number; seed?: number; plant?: boolean }) {
+/** A wall shelf with a few jars on it. (The storyboards keep `Shelf` for the explain-beat diagram.) */
+export function WallShelf({ x, y, w = 400, frame, seed = 0, plant = true }: { x: number; y: number; w?: number; frame: number; seed?: number; plant?: boolean }) {
   return (
     <g transform={`translate(${x} ${y})`}>
       <g transform={`translate(${w * 0.12} 0)`}><rect x="-18" y="-50" width="36" height="50" rx="6" fill="#d9a441" /><rect x="-14" y="-60" width="28" height="12" rx="3" fill={INK} /></g>
