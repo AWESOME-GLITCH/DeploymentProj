@@ -8,7 +8,7 @@
 
 import { useMemo } from "react";
 import { OUTCOMES, OUTCOME_BY_ID } from "@/lib/learning-path/content";
-import { dayIndex, outcomeAchieved, phaseMinutes, ringSlice } from "@/lib/learning-path/engine";
+import { dayIndex, outcomeAchieved, outcomeProgress, phaseMinutes, ringSlice } from "@/lib/learning-path/engine";
 import { useNow, useStore } from "@/lib/learning-path/store";
 import { CEFR_LABEL } from "@/lib/learning-path/i18n";
 import { GlowButton, IsoStop, LocText, RingArcs, Say, StopTick, useLp } from "./ui";
@@ -76,7 +76,10 @@ export function Home({ onStart, onSecond }: { onStart: () => void; onSecond: () 
   const mx = (x: number) => (rtl ? W - x : x);
   const points = [...SLOTS.slice(0, stops.length), DEST].map((p) => ({ x: mx(p.x), y: p.y }));
   const path = roadPath(points);
-  const walked = (todaySlot / (points.length - 1)) * 100;
+  // The road fills past the stops already ticked and part way into today's, so
+  // the learner can see they moved even before the stop is finished.
+  const here = state.week_can_do ? outcomeProgress(state, state.week_can_do) : 0;
+  const walked = ((todaySlot + Math.min(0.92, here)) / (points.length - 1)) * 100;
 
   // The one line: where the learner is in their week, or why today is short.
   const line = doneToday ? t("coach_done") : missed >= 2 ? t("coach_welcome_back") : null;
@@ -104,7 +107,7 @@ export function Home({ onStart, onSecond }: { onStart: () => void; onSecond: () 
           <circle cx={mx(DEST.x)} cy={DEST.y} r={96} fill="url(#lp-horizon)" />
 
           {/* Road surface, the walked part filled, centre dashes on top */}
-          <path d={path} fill="none" stroke="var(--lp-track)" strokeWidth={20} strokeLinecap="round" />
+          <path d={path} fill="none" stroke="var(--lp-road)" strokeWidth={20} strokeLinecap="round" />
           <path d={path} fill="none" stroke="var(--lp-sea)" strokeWidth={20} strokeLinecap="round" pathLength={100}
             className="lp-road-trail" strokeDasharray={`${walked} 100`} opacity={0.9} />
           <path d={path} fill="none" stroke="var(--lp-line-strong)" strokeWidth={2} strokeDasharray="5 11" strokeLinecap="round" />

@@ -47,8 +47,9 @@ marker. One primary-action hue in both modes so the button is learnable.
 | Primary deep | `--lp-glow-2` | `#0a6a5e` |
 | Known, correct | `--lp-sea` | `#157f62` |
 | You are here | `--lp-marker` | `#0d7f9c` (deep cyan) |
-| Review, not lost | `--lp-sand` | `#b08a3e` |
+| Review, not lost | `--lp-sand` | `#2f7d93` (deep cyan, never amber by day) |
 | Fog, not yet learned | `--lp-fog` | `#aebfbb` |
+| Road surface | `--lp-road` | `#e0e9e7` |
 
 ### Dark
 
@@ -62,8 +63,9 @@ marker. One primary-action hue in both modes so the button is learnable.
 | Primary action | `--lp-glow` | `#2fb89f` (ink text `#04201c`) |
 | Known, correct | `--lp-sea` | `#3cc89c` |
 | You are here | `--lp-marker` | `#f0d070` (soft yellow, the lamp on the night road) |
-| Review | `--lp-sand` | `#d8b86a` |
+| Review | `--lp-sand` | `#d8b86a` (soft yellow, allowed at night) |
 | Fog | `--lp-fog` | `#2b3b39` |
+| Road surface | `--lp-road` | `rgba(255,255,255,0.07)` |
 
 Strand colours stay as a set of seven but lose the pink and the coral-red that read as
 errors: grammar teal, reading blue, writing sand, listening sky, speaking cyan, mediation

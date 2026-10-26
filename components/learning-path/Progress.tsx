@@ -1,7 +1,7 @@
 "use client";
 
-// Progress: seven strand bars, a level estimate line, a weeks-active strip,
-// the "what I can do now" line, and a downloadable one-page report.
+// Progress: the level on one line, seven simple bars, the weeks kept, what the
+// learner can do now, and a downloadable one-page report.
 
 import { Download } from "lucide-react";
 import { OUTCOMES } from "@/lib/learning-path/content";
@@ -22,7 +22,7 @@ export function Progress() {
   const weeks = Array.from({ length: 8 }, (_, i) => state.sessions.filter((s) => s.completed && Math.floor((s.day - state.week_start_day) / 7) + Math.floor(state.week_start_day / 7) === i).length);
   const achieved = OUTCOMES.filter((o) => outcomeAchieved(state, o.outcome_id));
   const canDo = achieved[achieved.length - 1]?.can_do ?? (state.week_can_do ? OUTCOMES.find((o) => o.outcome_id === state.week_can_do)?.can_do : undefined);
-  // Mastery that is fading into review shows as a sand tint, never as lost.
+  // Mastery that is fading into review shows in the cool review tint, never as lost.
   const reviewTint = (s: typeof STRANDS[number]) => {
     const ms = Object.values(state.items).filter((m) => m.state !== "new");
     const strandItems = ms.filter((m) => m.item_id.includes(`-${s}-`));
@@ -47,7 +47,7 @@ export function Progress() {
   return (
     <div className="flex h-full flex-col px-5 pb-4 pt-4">
       <div className="flex items-center justify-between">
-        <div className="lp-eyebrow">{t("progress")}</div>
+        <div className="lp-eyebrow">{t("progress")} · {hours.toFixed(1)} {t("hours")}</div>
         {state.checkpoints.length ? <Pill tone="good">AZE ✓</Pill> : null}
       </div>
 
@@ -90,7 +90,6 @@ export function Progress() {
         </div>
       ) : null}
       <div className="mt-auto pt-3">
-        <div className="lp-small mb-2" style={{ color: "var(--lp-paper-faint)" }}>{hours.toFixed(1)} {t("hours")}</div>
         <GlowButton secondary size="normal" onClick={download}><Download size={18} /> {t("download_report")}</GlowButton>
       </div>
     </div>

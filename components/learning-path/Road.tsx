@@ -15,7 +15,7 @@ import { ItemRenderer, type ItemResult } from "./items";
 import { GlowButton, IsoStop, LocText, Pill, ProgressLine, STRAND_COLOR, StopTick, useLp } from "./ui";
 
 const STOP_GAP = 150;
-const H = 420;
+const H = 380;
 
 export function Road({ onCheckpoint }: { onCheckpoint: () => void }) {
   const { state } = useStore();
@@ -28,7 +28,7 @@ export function Road({ onCheckpoint }: { onCheckpoint: () => void }) {
   const width = 80 + stops.length * STOP_GAP + 120;
   const ckp = checkpointAvailable(state, now);
   const x = (i: number) => (rtl ? width - (60 + i * STOP_GAP) : 60 + i * STOP_GAP);
-  const y = (i: number) => 215 + Math.sin(i * 1.1) * 62;
+  const y = (i: number) => 190 + Math.sin(i * 1.1) * 92;
 
   useEffect(() => {
     const el = scroller.current;
@@ -42,7 +42,7 @@ export function Road({ onCheckpoint }: { onCheckpoint: () => void }) {
   const end = { x: x(stops.length - 1) + (rtl ? -80 : 80), y: y(stops.length - 1) - 40 };
   const pts = stops.map((_, i) => ({ x: x(i), y: y(i) })).concat(end);
   const path = pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
-  const walked = (currentIdx / (pts.length - 1)) * 100;
+  const walked = ((currentIdx + Math.min(0.92, state.week_can_do ? outcomeProgress(state, state.week_can_do) : 0)) / (pts.length - 1)) * 100;
   const sel = selected ? stops.find((o) => o.outcome_id === selected) : null;
 
   return (
@@ -55,12 +55,12 @@ export function Road({ onCheckpoint }: { onCheckpoint: () => void }) {
       </div>
       <div ref={scroller} className="mt-2 flex min-h-0 flex-1 items-center overflow-x-auto overflow-y-hidden" style={{ direction: rtl ? "rtl" : "ltr" }}>
         <svg width={width} height={H} viewBox={`0 0 ${width} ${H}`} style={{ display: "block", flex: "none" }}>
-          <path d={path} fill="none" stroke="var(--lp-track)" strokeWidth={26} strokeLinecap="round" strokeLinejoin="round" />
+          <path d={path} fill="none" stroke="var(--lp-road)" strokeWidth={26} strokeLinecap="round" strokeLinejoin="round" />
           <path d={path} fill="none" stroke="var(--lp-sea)" strokeWidth={26} strokeLinecap="round" strokeLinejoin="round" pathLength={100} className="lp-road-trail" strokeDasharray={`${walked} 100`} opacity={0.9} />
           <path d={path} fill="none" stroke="var(--lp-line-strong)" strokeWidth={2} strokeDasharray="5 11" strokeLinecap="round" strokeLinejoin="round" />
 
           {/* Where the road starts and where it is going */}
-          <text x={x(0)} y={36} fill="var(--lp-paper-faint)" fontSize="13" fontWeight="700" textAnchor="middle" letterSpacing="0.08em">A2</text>
+          <text x={x(0)} y={y(0) - 34} fill="var(--lp-paper-faint)" fontSize="13" fontWeight="700" textAnchor="middle" letterSpacing="0.08em">A2</text>
           <g>
             <IsoStop x={end.x} y={end.y} w={13} h={9} colour="var(--lp-glow)" />
             <line x1={end.x} y1={end.y - 8} x2={end.x} y2={end.y - 40} stroke="var(--lp-glow)" strokeWidth={2} strokeLinecap="round" />

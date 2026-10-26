@@ -366,20 +366,22 @@ Quota rule: when `learner.why === "study"`, academic-tagged outcomes take 40% of
 
 > We bring each thing back just before you forget it, and sooner if you get it wrong.
 
-That line lives in the i18n files for all seven interface languages and is the only explanation the learner is ever given. There is no "review mode" to find: repetition is inside the path (design rules, product rules).
+That line lives in the i18n files for all seven interface languages and is the only explanation the learner is ever given. There is no "review mode" to find and no recall phase to sit through: a due item comes back inside the day's scene, because the situation needs it (§1.3).
 
 ### 3.2 The ladder
 
 Each item (phrase item, pattern, pronunciation feature) has its own forgetting curve per learner. Recall probability is `p = 2^(-elapsed_days / half_life_days)`. An item is **due when p falls to 0.8**, which is `elapsed = 0.3219 x half_life`.
 
-| State | Entered when | Half-life on entry (days) | Due after, at that half-life | Retrieval type at review |
+| State | Entered when | Half-life on entry (days) | Due after, at that half-life | How it comes back |
 | --- | --- | --- | --- | --- |
-| New | First exposure | 0.1 | Same session, 2 chunks later | Recognition |
-| Learning | 1 correct retrieval | 1 | 0.3 days, so the next session | Recognition, then cued recall |
-| Consolidating | 3 correct across 2 or more days | 3, then 7 | 1, then 2 days | Cued recall (gap-fill, say it) |
-| Known | Correct after a gap of 7 days or more, in 2 modalities, one of them productive | 14, then 30 | 4, then 10 days | Free production in a new context |
+| New | First exposure | 0.1 | Same session, in the use step | Said with the sentence still on screen |
+| Learning | 1 correct retrieval | 1 | 0.3 days, so the next session | A scaffold that hands to the mic, then said alone |
+| Consolidating | 3 correct across 2 or more days | 3, then 7 | 1, then 2 days | Said from a cue, no sentence shown |
+| Known | Correct after a gap of 7 days or more, in 2 modalities, one of them productive | 14, then 30 | 4, then 10 days | Free production in a new scene |
 | Mastered | Correct after a gap of 30 days or more in a productive modality | 60, then 120 | 19, then 39 days | Only inside fluency and interaction chunks |
 | Retired | 180 days at Mastered | n/a | Spot check every 21 to 28 days | Free use only |
+
+Note what that last column no longer says. The earlier version of this table had items returning as recognition at New and Learning, which is the half of the review stack the board ruled out. Every rung of the ladder is now a production event; what changes with the rung is how much scaffolding is left standing when the learner speaks.
 
 Important: the half-life column is the **floor applied on entering the state**, not the interval the learner actually gets. The multipliers below compound on top of it, so real intervals run longer than this table suggests. Section 3.5 traces a real item, and section 7 row 6 asks the board and the engineer to decide whether to cap that compounding.
 
@@ -389,7 +391,7 @@ On a correct retrieval the half-life is multiplied by:
 
 | Modality of the correct retrieval | Multiplier | Reason |
 | --- | --- | --- |
-| recognition, cued | 2.0 | Baseline |
+| recognition, cued | 2.0 | Baseline. Inside a lesson only `cued` occurs, because the scaffolds hand to the mic; `recognition` now comes only from placement and checkpoints, which stay scores-only by product rule |
 | typed | 2.4 | Production is a stronger memory event |
 | spoken | 2.8 | Strongest, and the strand we most need practised |
 | any, but slow (above the learner's 80th percentile response time for that item type) | 0.8, no state change | A slow correct is a weak trace |
@@ -400,13 +402,13 @@ The two-modality rule: an item cannot reach Known until it has been retrieved co
 
 | Situation | Half-life | State | Also |
 | --- | --- | --- | --- |
-| Wrong at New | reset to 0.1 | stays New | Re-queued in this session, at least 2 chunks later |
-| Wrong at Learning or Consolidating | halved, floor 0.1 | unchanged | Re-queued in this session, then again tomorrow |
+| Wrong at New | reset to 0.1 | stays New | Comes back in this session's use step, inside the exchange |
+| Wrong at Learning or Consolidating | halved, floor 0.1 | unchanged | Comes back in this session's use step, then in tomorrow's scene |
 | Wrong at Known or Mastered | reset to 3 days | drops to Consolidating | Never to zero: relearning is fast |
-| Two consecutive misses on the same item | as above | as above | `reteach = true`, so the next session inserts that item's input chunk before any further retrieval |
+| Two consecutive misses on the same item | as above | as above | `reteach = true`, so the next session's new chunk is replaced by that item's **scene**, not by a correction |
 | Hesitation or self-correction in speech | no change | no change | Logged, never penalised |
 
-A missed check also returns once at the end of the same chunk (meaning-first feedback, then one more attempt). No lives, no hearts, no lockout, anywhere (PRD R9).
+A missed item also returns once at the end of the same chunk: the right form said slowly and shown big, then one more try. No lives, no hearts, no lockout, no red, no mark, anywhere (PRD R9, board note point 5).
 
 ### 3.4 How mastery is decided
 

@@ -1,8 +1,8 @@
 /* Learning Path: the Quiet Horizon tokens. See design/direction.md.
    A drawn journey on calm paper by day and night air by dark. One teal primary
    action in both modes, a cyan "you are here" marker by day and a soft yellow
-   one by night, emerald for known and correct, sand for review, fog for the
-   road not yet walked. No purple, no orange, no red. Only one thing glows. */
+   one by night, emerald for known and correct, a cool tint for review, fog for
+   the road not yet walked. No purple, no orange, no red. Only one thing glows. */
 
 .lp-root {
   /* Light: paper with white cards and ink-tinted shadows. */
