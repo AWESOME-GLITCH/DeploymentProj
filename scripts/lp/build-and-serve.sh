@@ -46,6 +46,9 @@ stop_server() {
     fi
     rm -f "$RUN/server.pid"
   fi
+}
+
+drop_snapshot() {
   if [ -f "$RUN/snapshot.path" ]; then
     local snap; snap="$(cat "$RUN/snapshot.path")"
     case "$snap" in /tmp/lp-snapshot-*) rm -rf "$snap" ;; esac
@@ -53,7 +56,7 @@ stop_server() {
   fi
 }
 
-if [ "${STOP:-0}" = "1" ]; then stop_server; echo "stopped"; exit 0; fi
+if [ "${STOP:-0}" = "1" ]; then stop_server; drop_snapshot; echo "stopped"; exit 0; fi
 
 free_port() {
   local p
@@ -66,6 +69,8 @@ free_port() {
 
 # ---------------------------------------------------------------- typecheck
 if [ "$DO_BUILD" = "1" ]; then
+  stop_server
+  drop_snapshot
   echo "[lp] typecheck" >&2
   if ! npx tsc --noEmit >"$OUT/typecheck.log" 2>&1; then
     echo "[lp] TYPECHECK FAILED, see $OUT/typecheck.log" >&2
@@ -102,7 +107,7 @@ if [ "$DO_BUILD" = "1" ]; then
 fi
 
 # -------------------------------------------------------------------- serve
-stop_server
+stop_server   # only ours; the snapshot stays, it is what we are about to serve
 SNAP="$(cat "$RUN/snapshot.path" 2>/dev/null)"
 if [ -z "$SNAP" ] || [ ! -d "$SNAP/.next" ]; then
   echo "[lp] no snapshot to serve; run without --no-build" >&2

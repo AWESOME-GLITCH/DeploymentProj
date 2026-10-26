@@ -178,6 +178,31 @@ The fix is the atom phase swap, not more engine work: moving `free_use` ahead of
 `controlled` puts the coached turn straight after the notice, at about 65
 seconds. That change is with the CEFR Content Lead, who owns `content.ts`.
 
+### Seen, not just measured
+
+The LP-90 walkthrough of 26 October (`scripts/lp/out/`) captures the first cafe
+lesson screen by screen, and the file names alone are the finding:
+
+| Shot | Screen |
+|---|---|
+| `light-13/14/15-lesson-explainer-*` | The scene, playing, through its say-along |
+| `light-16-lesson-screen-02` | tapping |
+| `light-17-lesson-tiles-03` | **tap-order, "PUT THE WORDS IN ORDER", `I'd / like / a / coffee / please`** |
+| `light-18-lesson-choice-04` | tapping |
+| `light-19-lesson-choice-05` | tapping |
+| `light-20-lesson-screen-06` | tapping |
+| `light-21-lesson-tiles-07` | tapping |
+| `light-22-lesson-coach-08` | **the mic. The first time the learner speaks.** |
+
+Six tapping screens between the scene and the microphone. `light-17` is
+`ITM-INT-0101`, the first item on the cut list, and it asks the learner to
+assemble a sentence the scene has just said three times. That is the quiz the
+board means, and it is visible without reading a single number.
+
+The spoken turn itself, `light-22`, is now right: the coach, the sentence large,
+one quiet instruction line under it, the mic. No bars, no dots, no transcript, no
+score. That screen is the lesson the ticket asks for. It just arrives sixth.
+
 ### Three things the walkthrough turned up
 
 1. **The scene does not play on its own.** Pressing Continue lands the learner on
@@ -193,10 +218,15 @@ seconds. That change is with the CEFR Content Lead, who owns `content.ts`.
    rather than answered. On a Clear the reply is the whole response: no bars, no
    transcript. Keep the sub-scores going to `onAnswer` as evidence, and keep
    them out of the learner's sight.
+   **Fixed, 26 October** (LEA-51, in the coach work on LEA-6). `light-22` shows
+   the spoken turn with no bars, no transcript and no progress dots. The
+   sub-scores still go to `onAnswer` as evidence, which is where they belong.
 
 ### Verified session shapes
 
-`composeSession` output, five cases, after the re-order:
+`composeSession` output, five cases, after the re-order. Re-verified 26 October
+2026 against `content.ts` with the Content Lead's eight new atoms in it, to be
+sure the wider atom pool had not changed which phases get composed. It has not:
 
 | Case | Phase order |
 |---|---|
@@ -210,13 +240,38 @@ No `plan` phase in any of them. The two review-only shapes open on the recall
 echo, which is correct: there is no new scene to open on, and the echo is
 familiar material.
 
+## The atom shape this timeline needs
+
+The timeline above is an atom's `phases` array. The canonical order, adopted from
+the shape the CEFR Content Lead authored for atoms 12 to 19, is five phases:
+
+| Phase | Timeline step | Items | Why this slot |
+|---|---|---|---|
+| `input` | Scene | the video or word tutorial | Comprehensible input before anything is asked |
+| `noticing` | Notice | one highlighted form | One thing, not four |
+| `free_use` | **Say it** | **one** spoken turn with the coach | The first spoken turn, inside 90 seconds |
+| `controlled` | Use it, the run-up | two or three scaffolds | A 20 second run-up, never the finish |
+| `free_use` | Use it, the whole thing | one exchange with a problem to repair | Varied retrieval, changed situation |
+| `check` | Delayed check | one say-it of the whole sentence | Retrieval, delayed |
+
+This is better than the single `controlled`/`free_use` swap I first proposed on
+LEA-46, because it keeps a scaffold in the lesson without putting it between the
+scene and the learner's first spoken turn. The swap moved the run-up after the
+speaking turn; this shape *splits* `free_use` either side of it, so the learner
+speaks at 1:00, gets a run-up, then speaks the whole exchange. Adopt this shape,
+not the swap.
+
+Atoms 12 to 19 already read this way. **Atoms 1 to 10 do not**, and atom 1 is the
+cafe lesson at A2.1, which is the lesson in this ticket and the one the board is
+looking at. That split is the whole of the remaining gap.
+
 ## What this asks of the build
 
 | Owner | Change | Where | State |
 |---|---|---|---|
 | Learning Designer | `composeSession` in `lib/learning-path/engine.ts`: the session opens on the scene, the recall echo moves after the new atom, the plan screen goes (Home already carries the plan). | this ticket | **Done**, and the five session shapes above are its output |
 | Copywriter (LP-70) | The exact strings in the three responses table, and the one close sentence. | LEA-48, ruled on LEA-50 | **Delivered.** Five keys live in `i18n.ts` with six translations; folded into this doc above |
-| CEFR Content Lead (LP-60) | Atom phase order in `lib/learning-path/content.ts`: `input` → `noticing` → `free_use` → `controlled` → `check`, and the item cut above. | LEA-46 | **Open, and it is the one thing still holding the 90-second rule.** `content.ts` is theirs; not touched from here |
+| CEFR Content Lead (LP-60) | Bring atoms 1 to 10 onto the five-phase shape above, and the item cut below. Atoms 12 to 19 already have it. | LEA-46 | **Open, and it is the one thing still holding the 90-second rule.** `content.ts` is theirs; not touched from here |
 | Front-end Builder | `Coach.tsx`: the three responses named and nothing else; no score shown on a near attempt; both landed branches fall to `coach_clear`. | LEA-47 | **Open.** `"Good try."`, `"Good. Almost every word."` and `"Every word. Well done."` are all still in the file |
 
 The 90-second rule is met in the engine and not yet met in the product. The only

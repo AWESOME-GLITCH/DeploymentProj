@@ -40,7 +40,7 @@ export function Capsule({ onExit, onComplete }: { onExit: () => void; onComplete
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center gap-3 px-4 pt-3">
-        <button type="button" className="lp-icon-btn" style={{ width: 40, height: 40 }} aria-label={t("exit")} onClick={() => setPaused(true)}><X size={18} /></button>
+        <button type="button" className="lp-icon-btn" style={{ width: 44, height: 44 }} aria-label={t("exit")} onClick={() => setPaused(true)}><X size={18} /></button>
         <div className="flex-1"><ProgressLine value={progress} /></div>
         {/* Minutes left, not the total: a number that moves with the bar beside
             it, so "short and safe" is something the learner can watch happen. */}

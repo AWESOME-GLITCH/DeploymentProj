@@ -8,8 +8,11 @@
 // She opens by speaking, then listens, then answers what was actually said. A
 // weak attempt is never a mark: the word she did not hear comes back slowly and
 // big, then she asks once more. After the third try she still says "good try"
-// and there is always a way to try again. No red, no crosses, no score on a
-// turn that did not land.
+// and there is always a way to try again. No red, no crosses, no score.
+//
+// Four things are on the screen and nothing else, to the board's element
+// budget: her, the line she just said, one line of feedback in words, the mic.
+// No meters, no "you said", no dots, no chips, no second instruction line.
 //
 // The figure is the explainer kit character, so the tutor in a lesson and the
 // tutor in practice are the same person. Every pose is a pure function of the
@@ -18,7 +21,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Character, type Gesture, type Mood } from "../explainer/lib";
-import { Instruction, Recorder, ResultBars, type ItemProps } from "../items";
+import { Recorder, type ItemProps } from "../items";
 import { loc } from "@/lib/learning-path/i18n";
 import { classifyTurn, scoreOpenResponse, scoreReadAloud, scoreRelay, type SceneIntent, type SpeechScore } from "@/lib/learning-path/scoring";
 import { say as sayAtRate, stopSpeaking } from "@/lib/learning-path/speech";
@@ -211,9 +214,7 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
   // The one line on screen is always the last thing the coach said.
   const [lineText, setLineText] = useState(plan.turns[0]?.line ?? "");
   const [note, setNote] = useState("");
-  const [heard, setHeard] = useState("");
   const [bigWord, setBigWord] = useState("");
-  const [answered, setAnswered] = useState<boolean[]>([]);
   const [bowFrom, setBowFrom] = useState<number | null>(null);
   const timers = useRef<number[]>([]);
   const opened = useRef(false);
@@ -385,7 +386,6 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
     spentMs.current += ms;
     const all = said.current.join(" ").trim();
     const r = scoreRelay(all, plan.questions, plan.source ?? "");
-    setAnswered(r.answered);
     const landed = r.answered.filter(Boolean).length;
     const ok = landed >= plan.need;
     // She is still missing something: she asks for that one thing, not for
@@ -429,7 +429,6 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
       speak(t("not_caught"), () => ask());
       return;
     }
-    setHeard(transcript);
     if (plan.kind === "convo") { judgeConvo(transcript, ms); return; }
     if (plan.kind === "relay") { judgeRelay(transcript, ms); return; }
     judgeSaid(transcript, ms);
@@ -447,9 +446,7 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
     asked.current = 0;
     spentMs.current = 0;
     setScore(null);
-    setHeard("");
     setNote("");
-    setAnswered([]);
     setBowFrom(null);
     open(0);
   };
@@ -463,27 +460,29 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
     return Math.sin(d / 3.2) * 9 * (1 - d / 34);
   })();
 
-  // A hard word stays whole; a long prompt reads as chips, not as big tiles.
+  // A hard word stays whole. A long line (a notice she reads out) is a
+  // paragraph, not a row of word buttons: nothing there is big enough to tap.
   const words = bigWord ? [bigWord] : lineText.split(/\s+/).filter(Boolean);
-  const compact = !bigWord && words.length > 8;
+  const long = !bigWord && words.length > 8;
   // Only the model line itself has words to mark as missed.
   const missedNow = turn.model && lineText === turn.model ? score?.missed ?? [] : [];
-  // A turn that did not land carries no score: the word she teaches is the
-  // only thing she gives back.
-  const showScore = !!score?.pass && !!heard && stage !== "word";
-  const dots = plan.kind === "relay" ? plan.questions.map((_, i) => !!answered[i])
-    : plan.kind === "convo" ? plan.turns.map((_, i) => i < turnIdx || ended) : [];
+  // One line in words, never a score and never two lines at once: what to do
+  // before the learner speaks, what she heard after.
+  const feedback = note ? note
+    : stage === "word" ? (bigWord ? t("coach_hard_word") : t("coach_nearly"))
+    : stage === "end" ? t("coach_tries_spent")
+    : stage === "reply" && plan.kind === "model" ? t("coach_clear")
+    : plan.instruction;
 
   return (
     <div className="flex h-full flex-col">
-      <Instruction>{plan.instruction}</Instruction>
       <CoachStage
         frame={frame}
         talking={talking}
         gesture={gesture}
         mood={mood}
         bow={bow}
-        label="Your coach"
+        label={t("coach_label")}
         onTap={() => {
           clearTimers();
           stopSpeaking();
@@ -495,44 +494,43 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
         }}
         tapLabel={t("listen")}
       />
-      <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5" dir="ltr">
-        {words.map((w, i) => {
-          const c = clean(w);
-          const missed = missedNow.some((m) => c === m || (c.length > 3 && (c.startsWith(m.slice(0, 4)) || m.startsWith(c.slice(0, 4)))));
-          return (
-            <button
-              key={`${lineText}-${i}`}
-              type="button"
-              onClick={() => say(w.replace(/[.,?!]/g, ""))}
-              className="lp-tile"
-              style={bigWord
-                ? { fontSize: "calc(40px * var(--lp-scale))", fontWeight: 700, padding: "10px 22px", color: "var(--lp-accent)" }
-                : {
-                  minHeight: 44,
-                  fontSize: `calc(${compact ? 16 : 20}px * var(--lp-scale))`,
-                  padding: compact ? "8px 12px" : undefined,
-                  ...(missed ? { color: "var(--lp-accent)", borderColor: "var(--lp-accent-line)" } : {}),
-                }}
-            >
-              {w}
-            </button>
-          );
-        })}
+      {/* The line she just said. Tap a word to hear that word on its own: the
+          words are the line, not a second row of chips under it. */}
+      <div className="mt-4 text-center" style={{ color: "var(--lp-paper)" }} dir="ltr">
+        {long ? (
+          <p className="lp-lesson">{lineText}</p>
+        ) : (
+          <span className="flex flex-wrap items-center justify-center">
+            {words.map((w, i) => {
+              const c = clean(w);
+              const missed = missedNow.some((m) => c === m || (c.length > 3 && (c.startsWith(m.slice(0, 4)) || m.startsWith(c.slice(0, 4)))));
+              return (
+                <button
+                  key={`${lineText}-${i}`}
+                  type="button"
+                  onClick={() => say(w.replace(/[.,?!]/g, ""))}
+                  className="inline-flex items-center justify-center"
+                  style={bigWord
+                    ? { minHeight: 64, padding: "0 10px", fontSize: "calc(40px * var(--lp-scale))", fontWeight: 700, color: "var(--lp-accent)" }
+                    : {
+                      minHeight: 44,
+                      minWidth: 44,
+                      padding: "0 3px",
+                      fontSize: "calc(22px * var(--lp-scale))",
+                      fontWeight: 500,
+                      ...(missed ? { color: "var(--lp-accent)" } : {}),
+                    }}
+                >
+                  {w}
+                </button>
+              );
+            })}
+          </span>
+        )}
       </div>
-      {/* One dot per thing still to do: the only progress signal on screen. */}
-      {dots.length > 0 && stage !== "word" ? (
-        <div className="mt-3 flex items-center justify-center gap-2">
-          {dots.map((on, i) => <span key={i} className={`lp-dot ${on ? "lp-dot-on" : ""}`} />)}
-        </div>
-      ) : null}
-      {/* While she says the hard word that word is the only thing on screen. */}
-      {note && stage !== "word" ? <div className="lp-small mt-2 text-center" style={{ color: "var(--lp-sand)" }}>{note}</div> : null}
-      {showScore && score ? (
-        <div className="lp-fade-in mt-3">
-          <ResultBars score={score} />
-          <div className="lp-small text-center" style={{ color: "var(--lp-paper-faint)" }}>{t("scene_said")}: “{heard}”</div>
-        </div>
-      ) : null}
+      {/* One line of feedback, in words. The slot is always there, so nothing
+          on the screen moves when she answers. */}
+      <div className="lp-small mt-2 text-center" style={{ color: note ? "var(--lp-sand)" : "var(--lp-paper-faint)", minHeight: 19 }}>{feedback}</div>
       <div className="mt-auto pt-3">
         {ended ? (
           <div className="flex gap-2">
@@ -542,7 +540,9 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
         ) : (
           <Recorder
             maxSeconds={turn.seconds}
-            hint={t("mic_hint")}
+            // The one line above the mic already says what to do, so the
+            // recorder's own hint would be a second instruction line.
+            hint=""
             autoText={turn.auto}
             onDone={(tr, ms) => judge(tr, ms)}
           />

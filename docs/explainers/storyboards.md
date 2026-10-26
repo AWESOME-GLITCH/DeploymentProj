@@ -455,6 +455,427 @@ Named people who are NOT drawn: Amira (a contact name on a phone), Arjun and Yus
 
 ---
 
+# Part two: the second A2.1 week and the starter slice
+
+Added on LP-61 for the content authored in `lib/learning-path/content.ts` as the second A2.1 week (an appointment, and getting to it) and the Pre-A1 to A1.1 starter slice. Same conventions as part one, with three amendments, all stated here rather than assumed:
+
+| # | Amendment | Why |
+| --- | --- | --- |
+| A1 | One new drawn character, **ana**, which takes the cast to three new faces rather than the two part one allows | The starter slice is Pre-A1. Every existing character speaks at A1.2 or above in the atoms they already carry, and a learner on their first day needs a peer who says three words and stops. Omar, Noor and Elena are **not** drawn: Omar is told through **you**, Noor is a voice on a phone with sound rings (the tannoy treatment from Platform 4, not 14), and Elena is gone from the content, replaced by sami as the passer-by so the cast stays closed |
+| A2 | The lesson order is the one in `docs/learning-model.md` §1.2: scene, notice, **say it with a response**, scaffolds, use it, come back later | These atoms are authored with two `free_use` phases, so the first spoken turn comes before the scaffolds. The explainer owns the scene and the notice and ends at the practise pause, which is where it hands to the first `free_use` item. `pauseAt` is therefore earlier in the frame count than in part one: the mic must be live by 0:50 of the lesson, not of the video |
+| A3 | Word tutorials get a practise beat with a say-it, same as the video atoms | Part one's word tutorials ended on a recap. §1.2 makes the spoken turn compulsory in every variant |
+
+Cast for part two: **you** (Omar in the week-two atoms, the learner in the starter slice), **maya** (explain and practise), **sami** (the passer-by, and the flatmate with the appointment card), **leo** (the shopkeeper in Two, please), **ana** (new, the newcomer in the starter slice). Noor is a voice only.
+
+---
+
+## 10. ATM-A2-INT-0012: Monday at ten
+
+| Field | Value |
+| --- | --- |
+| atom_id | ATM-A2-INT-0012 |
+| title | Monday at ten |
+| sublevel / strand | A2.1 / INT (Talking with someone) |
+| type | video, 50 s, 1500 frames |
+| single target | Could I make an appointment, please? |
+| characters | you (on the phone), maya (explain and practise). Noor is a voice on the phone, not drawn |
+| setting | A kitchen table in a London flat, morning: a mug of tea, a phone, a wall clock at ten to nine. The health centre arrives as a flat-vector building card |
+| check stem echo | "Say it. Ask for an appointment." |
+
+### Beats
+
+| id | kind | from | to | narration (TTS) | targets | pauseAt | scene for the animator |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| hook | hook | 0 | 150 | Tuesday morning. Omar has a bad tooth. | | | Kitchen table, flat morning light. you sits with one hand against the cheek; a soft saffron ring pulses at the jaw twice (40 frames apart), no grimace, no red. A phone slides up from the bottom right and settles on the table. Title words drop in top-left: "Tuesday morning." |
+| n1 | notice | 150 | 420 | Hillside Health Centre. How can I help? Could I make an appointment, please? | Could I make an appointment, please? | | you lifts the phone to the ear. A grey bubble with a tail to the left and three sound rings types the centre's line. Then you's saffron bubble, tail right: "Could I make an appointment, please?" with the whole phrase in ACCENT weight 800, "make an appointment" arriving one word at a time on the narration. |
+| n2 | notice | 420 | 660 | Of course. Monday at ten? Monday at ten is fine, thank you. | Monday at ten is fine, thank you. | | A calendar page springs in centre-right with "MONDAY" and a small clock whose hands snap to ten with a thunk. The grey bubble offers the time; you nods once (12-frame ease) and the saffron bubble answers, with "is fine, thank you" in ACCENT. The page gets a leaf tick. |
+| explain | explain | 660 | 1020 | Could I ... please. The same words as the cafe. | Could I, please | | PAPER background, maya in the corner circle bottom-left. Centre: two cards side by side. Left, a cup and "Could I have a coffee, please?"; right, a phone and "Could I make an appointment, please?". At frame 780 "Could I" lifts out of both cards and merges into one ACCENT chip above them; at 870 "please" does the same below. A dotted line joins the two cards. Nothing else is explained. |
+| practise | practise | 1020 | 1380 | Say it with me. Could I make an appointment, please? | Could I make an appointment, please? | 1230 | Pale blue background, maya large in a white circle. Karaoke of the line in 88 px over two lines, "make an appointment" rising 10 px as it is spoken. At 1230 the player pauses and the mic pulses top-left with "Your turn". On resume the phone from the hook lights leaf green for 60 frames. |
+| recap | recap | 1380 | 1500 | Could I make an appointment, please? | Could I make an appointment, please? | | ACCENT background, white card: "REMEMBER" eyebrow, then "Could I make an appointment, please?" and under it, smaller, "Monday at ten is fine, thank you." Three icons spring in below: phone, calendar page, clock at ten. |
+
+### L1 captions
+
+| beat | ar | es | hi | ru | tr | zh |
+| --- | --- | --- | --- | --- | --- | --- |
+| hook | صباح الثلاثاء. عمر يؤلمه ضرسه. | Martes por la mañana. A Omar le duele un diente. | मंगलवार सुबह। उमर के दाँत में दर्द है। | Утро вторника. У Омара болит зуб. | Salı sabahı. Omar'ın dişi ağrıyor. | 星期二早上。Omar 牙疼。 |
+| n1 | هل يمكنني تحديد موعد، من فضلك؟ | ¿Podría pedir una cita, por favor? | क्या मैं अपॉइंटमेंट ले सकता हूँ? | Можно записаться на приём? | Randevu alabilir miyim, lütfen? | 我可以预约吗？ |
+| n2 | الاثنين في العاشرة مناسب، شكرًا. | El lunes a las diez está bien, gracias. | सोमवार दस बजे ठीक है, धन्यवाद। | В понедельник в десять подходит, спасибо. | Pazartesi onda olur, teşekkürler. | 星期一十点可以，谢谢。 |
+| explain | Could I ... please: نفس كلمات المقهى. | Could I ... please: como en la cafetería. | Could I ... please: कैफ़े जैसे शब्द। | Could I ... please: как в кафе. | Could I ... please: kafedeki gibi. | Could I ... please：和咖啡馆一样。 |
+| practise | قلها معي. | Dilo conmigo. | मेरे साथ बोलो। | Скажи со мной. | Benimle söyle. | 跟我一起说。 |
+| recap | اطلب موعدًا، ثم اقبل الوقت. | Pide la cita y acepta la hora. | अपॉइंटमेंट माँगो, समय मान लो। | Попроси приём и прими время. | Randevu iste, saati kabul et. | 先约时间，再接受时间。 |
+
+### Interactive moments
+
+- Tappable words: every caption word; in the explain beat the two cards are chips, each playing its own line, and the merged "Could I" chip plays both lines back to back.
+- At the pause (frame 1230) the learner says: "Could I make an appointment, please?" Model answer: the same line. Scored as read-aloud, then the first `free_use` item `ITM-INT-1201` puts the same words into a live turn with Noor on the phone.
+- Extra tap: in n2 the calendar page and the clock are tappable for 90 frames. Tapping the clock plays "ten o'clock" and the hands re-snap; tapping the page plays "Monday at ten". Tapping anywhere else replays the offer at 0.75x. No red, no lives.
+
+---
+
+## 11. ATM-A2-GRM-0013: Earlier or later? (word tutorial)
+
+| Field | Value |
+| --- | --- |
+| atom_id | ATM-A2-GRM-0013 |
+| title | Earlier or later? |
+| sublevel / strand | A2.1 / GRM (Grammar) |
+| type | word_tutorial, 40 s, 1200 frames |
+| single target | Add er to the short word, and than before the second thing: cheaper than the taxi |
+| characters | maya (presents throughout), you (in the mini-scenes) |
+| setting | PAPER background with a bus stop strip along the bottom; a taxi, a bus and a train enter and leave the strip as the cards change |
+| check stem echo | "Say it. Compare the two." |
+
+### Beats
+
+| id | kind | from | to | narration (TTS) | targets | pauseAt | scene for the animator |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| hook | hook | 0 | 120 | The taxi is twelve pounds. The bus is two pounds. | | | Bus stop strip. A taxi pulls in with a price tag "£12" that drops like a luggage label; a bus pulls in behind with "£2". you stands between them, looking from one tag to the other (two head turns, 12-frame ease). No words on screen yet. |
+| w1 | word | 120 | 330 | Cheaper. It costs less money. | cheaper | | Word card at the top: "cheaper" with "er" in ACCENT. Mini-scene: a seesaw with the two price tags on it tips down on the £2 side with a soft thunk; an "er" tile flies from the low side and clips onto the end of "cheap". The word card becomes "cheap**er**". |
+| w2 | word | 330 | 520 | Quicker. It takes less time. | quicker | | Card: "quicker". Mini-scene: the bus and a train race across the strip; the train arrives first and a stopwatch above it stops at 20 minutes against the bus's 35. The "er" tile clips onto "quick" with the same click as w1, so the pattern is one gesture, not a rule. |
+| w3 | word | 520 | 700 | Earlier. Before the time they said. Later. After it. | earlier, later | | Card: "earlier / later". Mini-scene: a single clock face centre; two ghost hands sweep back to nine and forward to eleven, leaving an "earlier" chip on the left of the clock and a "later" chip on the right. maya's hand points left, then right. |
+| w4 | word | 700 | 860 | Nearer. It is a shorter way. | nearer | | Card: "nearer". Mini-scene: two map pins drop on a simple street line, the health centre at 300 m and the hospital at 2 km; a dotted path draws to the nearer pin and the "er" tile clips onto "near". The three "er" tiles from w1, w2 and w4 then line up at the top edge. |
+| practise | practise | 860 | 1100 | Say it with me. The bus is cheaper than the taxi. | cheaper than | 1020 | Pale blue background, maya large in a white circle. Karaoke in 88 px; "cheaper" with the "er" in ACCENT, and "than" in SAFFRON with a small arrow under it pointing at "the taxi". At 1020 the mic pulses and the player pauses. On resume the two price tags from the hook swing in under the line. |
+| recap | recap | 1100 | 1200 | cheaper, quicker, earlier, nearer. Than comes next. | cheaper, than | | ACCENT background, white card: "REMEMBER", then "cheap**er** **than** the taxi" with er and than picked out, and under it the four words in a row, each with its own small icon (coin, stopwatch, clock, map pin). Hold. |
+
+### L1 captions
+
+| beat | ar | es | hi | ru | tr | zh |
+| --- | --- | --- | --- | --- | --- | --- |
+| hook | التاكسي 12 جنيهًا. الباص 2. | El taxi cuesta 12 libras. El bus, 2. | टैक्सी 12 पाउंड। बस 2 पाउंड। | Такси 12 фунтов. Автобус 2. | Taksi 12 sterlin. Otobüs 2. | 出租车 12 镑，公交 2 镑。 |
+| w1 | cheaper: أرخص، يكلف أقل. | cheaper: más barato, cuesta menos. | cheaper: सस्ता, कम पैसे। | cheaper: дешевле, стоит меньше. | cheaper: daha ucuz, az tutar. | cheaper：更便宜，花得少。 |
+| w2 | quicker: أسرع، وقت أقل. | quicker: más rápido, menos tiempo. | quicker: तेज़, कम समय। | quicker: быстрее, меньше времени. | quicker: daha hızlı, az zaman. | quicker：更快，用时少。 |
+| w3 | earlier: أبكر. later: لاحقًا. | earlier: más temprano. later: más tarde. | earlier: पहले। later: बाद में। | earlier: раньше. later: позже. | earlier: daha erken. later: daha geç. | earlier：更早。later：更晚。 |
+| w4 | nearer: أقرب. | nearer: más cerca. | nearer: ज़्यादा पास। | nearer: ближе. | nearer: daha yakın. | nearer：更近。 |
+| practise | قلها معي. | Dilo conmigo. | मेरे साथ बोलो। | Скажи со мной. | Benimle söyle. | 跟我一起说。 |
+| recap | أضف er، ثم than قبل الشيء الثاني. | Añade er y than antes de la segunda cosa. | er जोड़ो, दूसरी चीज़ से पहले than। | Добавь er, затем than перед вторым. | er ekle, sonra than. | 加 er，第二样前面用 than。 |
+
+### Interactive moments
+
+- Tappable words: all caption words; each card title is a chip; the three "er" tiles are chips that play "cheaper", "quicker", "nearer" in isolation so the ending is audible on its own.
+- At the pause (frame 1020) the learner says: "The bus is cheaper than the taxi." Model answer: the same line. Scored as read-aloud; the first `free_use` item `ITM-GRM-1301` then asks for the same comparison from the two prices, with Maya answering.
+- Extra tap: in w1 the "er" tile is draggable for 90 frames. Dropped on "cheap" it clips on with a click and plays "cheaper"; dropped on "more" (a decoy chip that floats in at frame 250) the "more" chip wobbles, fades, and the tile returns to its start. Consequence first, then the correct form, no mark.
+
+---
+
+## 12. ATM-A2-SPK-0014: Which way?
+
+| Field | Value |
+| --- | --- |
+| atom_id | ATM-A2-SPK-0014 |
+| title | Which way? |
+| sublevel / strand | A2.1 / SPK (Speaking) |
+| type | video, 50 s, 1500 frames |
+| single target | Excuse me, how do I get to the health centre? |
+| characters | you (lost, with a phone in hand), sami (the passer-by), maya (explain corner) |
+| setting | A north London street: terraced houses, a postbox, a chemist with a green cross, a side street on the left. Morning, thin blue sky |
+| check stem echo | "Say it. Ask the way." |
+
+### Beats
+
+| id | kind | from | to | narration (TTS) | targets | pauseAt | scene for the animator |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| hook | hook | 0 | 180 | Ten to ten. Omar cannot find the health centre. | | | Street in flat vector. you turns on the spot once (360 in 40 frames, feet sliding), a "?" bubble droops above. A wall clock graphic top-right reads ten to ten and ticks twice. The side street is visible at the left edge but unmarked. |
+| n1 | notice | 180 | 450 | Excuse me, how do I get to the health centre? | how do I get to | | sami enters from the right with a shopping bag. you's bubble, tail right: "Excuse me, how do I get to the health centre?" with "how do I get to" in ACCENT. The phrase types word by word on the narration; "Excuse me" arrives first and alone, with a small open-hand gesture from you. |
+| n2 | notice | 450 | 720 | Go straight on and take the second left. The second left. Thank you. | The second left | | sami's bubble, tail left, with the directions. As he speaks, a dotted ACCENT path draws along the street and turns down the second side street; two side-street mouths light in order, 1 then 2, with the second one holding. Then you's bubble repeats "The second left." and the dotted path flashes once to confirm. |
+| explain | explain | 720 | 1080 | Say the directions back. Then you know you heard them. | second left | | PAPER background, maya in the corner circle. Centre: two speech bubbles stacked, sami's above and you's below, with the words "second left" in both, joined by a vertical dotted line and a small return arrow. At frame 900 a tick stamps between them. The street plan sits small at the bottom with the dotted path. Nothing about grammar. |
+| practise | practise | 1080 | 1380 | Say it with me. How do I get to the health centre? | how do I get to | 1230 | Pale blue background, maya large in a white circle. Karaoke in 88 px, two lines, "get to" underlined in ACCENT. At 1230 the mic pulses and the player pauses. On resume the chemist sign and the health centre card slide in side by side with a leaf tick. |
+| recap | recap | 1380 | 1500 | Excuse me, how do I get to the health centre? | how do I get to | | ACCENT background, white card: "REMEMBER", then "Excuse me, how do I get to ...?" with a saffron dotted blank, and under it "... the second left. Thank you." Icons: open hand, dotted path, chemist cross. |
+
+### L1 captions
+
+| beat | ar | es | hi | ru | tr | zh |
+| --- | --- | --- | --- | --- | --- | --- |
+| hook | العاشرة إلا عشر دقائق. عمر لا يجد المركز. | Las diez menos diez. Omar no encuentra el centro. | दस बजने में दस मिनट। उमर को रास्ता नहीं मिला। | Без десяти десять. Омар не находит центр. | Ona on var. Omar merkezi bulamıyor. | 九点五十。Omar 找不到诊所。 |
+| n1 | عفوًا، كيف أصل إلى المركز الصحي؟ | Perdone, ¿cómo llego al centro de salud? | माफ़ कीजिए, हेल्थ सेंटर कैसे जाऊँ? | Извините, как добраться до поликлиники? | Affedersiniz, sağlık merkezine nasıl giderim? | 请问，诊所怎么走？ |
+| n2 | امشِ مستقيمًا وخُذ الثاني يسارًا. | Siga recto y tome la segunda a la izquierda. | सीधे जाइए, दूसरा बाएँ लीजिए। | Идите прямо и второй поворот налево. | Düz gidin, ikinci soldan dönün. | 直走，第二个路口左转。 |
+| explain | أعد الاتجاهات لتتأكد أنك سمعتها. | Repite las indicaciones para comprobar. | दिशा दोहराओ, तब पक्का होगा। | Повтори направления для проверки. | Yolu tekrarla, böylece emin olursun. | 把路线重复一遍就确认了。 |
+| practise | قلها معي. | Dilo conmigo. | मेरे साथ बोलो। | Скажи со мной. | Benimle söyle. | 跟我一起说。 |
+| recap | اسأل عن الطريق، ثم أعده. | Pregunta el camino y repítelo. | रास्ता पूछो, फिर दोहराओ। | Спроси дорогу и повтори её. | Yolu sor, sonra tekrarla. | 问路，然后重复一遍。 |
+
+### Interactive moments
+
+- Tappable words: all caption words; "second left" is one chip in both bubbles of the explain beat, so tapping either plays the same two words.
+- At the pause (frame 1230) the learner says: "Excuse me, how do I get to the health centre?" Model answer: the same line. Scored as read-aloud; `ITM-SPK-1401` then runs the same question as a live turn with sami, and `ITM-SPK-1404` adds the saying-back.
+- Extra tap: in n2 the two side-street mouths are tappable for 120 frames. Tapping the second one draws the dotted path and plays "the second left" (leaf glow); tapping the first dims it grey and replays the directions at 0.75x. The dotted path is never drawn wrongly, so a learner cannot be walked the wrong way.
+
+---
+
+## 13. ATM-A2-LST-0015: Thursday at half past six
+
+| Field | Value |
+| --- | --- |
+| atom_id | ATM-A2-LST-0015 |
+| title | Thursday at half past six |
+| sublevel / strand | A2.1 / LST (Listening) |
+| type | video, 45 s, 1350 frames |
+| single target | The day after on, the time after at: on Thursday at half past six |
+| characters | you (listening to a voice message), maya (explain and practise). Noor is a voice on the phone, not drawn |
+| setting | The same kitchen table as Monday at ten, early evening: the window behind goes from blue to amber over the video. A phone on the table with a voicemail bar |
+| check stem echo | "Say it. The day and the time." |
+
+### Beats
+
+| id | kind | from | to | narration (TTS) | targets | pauseAt | scene for the animator |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| hook | hook | 0 | 150 | A voice message. Omar listens twice. | | | Kitchen table, amber window. The phone lies flat with a voicemail bar that fills left to right and a small "2" badge for two plays. you leans in, chin on hand. Sound rings rise from the phone in time with the bar. |
+| n1 | notice | 150 | 420 | Your appointment is on Thursday at half past six. | on Thursday at half past six | | The message bubble floats up out of the phone, grey with a tail down. The words type on the narration; "Thursday" lands on a calendar page that springs in to the left, "half past six" on a clock face that springs in to the right, hands snapping to 6.30 with a thunk. Both stay on screen. |
+| n2 | notice | 420 | 620 | On Thursday. Not Tuesday. | On Thursday | | The calendar page flicks through the week: a Tuesday page tries to settle, then slides off with a small wobble; the Thursday page drops back with a leaf tick. The clock dims slightly so the day is the only thing moving. No cross, no red. |
+| explain | explain | 620 | 960 | The day after on. The time after at. | on, at | | PAPER background, maya in the corner circle. Centre: the sentence laid out as two slots, "on ___" over the calendar page and "at ___" over the clock. At frame 720 the Thursday page slides into the first slot with a click; at 810 the clock slides into the second. The words "on" and "at" are ACCENT chips above their slots. At 900 "half past six" and "6.30" appear side by side with an equals sign. |
+| practise | practise | 960 | 1260 | Say it with me. On Thursday at half past six. | on Thursday at half past six | 1140 | Pale blue background, maya large in a white circle. Karaoke in 88 px, one line, "on" and "at" in ACCENT. At 1140 the mic pulses and the player pauses. On resume the calendar page and the clock land under the line with a tick. |
+| recap | recap | 1260 | 1350 | On Thursday at half past six. | on Thursday at half past six | | ACCENT background, white card: "REMEMBER", then "**on** Thursday **at** half past six", and under it "6.30". Icons: calendar page, clock at 6.30, phone with a voicemail bar. |
+
+### L1 captions
+
+| beat | ar | es | hi | ru | tr | zh |
+| --- | --- | --- | --- | --- | --- | --- |
+| hook | رسالة صوتية. عمر يسمعها مرتين. | Un mensaje de voz. Omar lo oye dos veces. | एक वॉइस मैसेज। उमर दो बार सुनता है। | Голосовое сообщение. Омар слушает дважды. | Bir sesli mesaj. Omar iki kez dinler. | 一条语音留言。Omar 听了两遍。 |
+| n1 | موعدك الخميس في السادسة والنصف. | Su cita es el jueves a las seis y media. | आपका अपॉइंटमेंट गुरुवार साढ़े छह बजे है। | Ваш приём в четверг в половине седьмого. | Randevunuz perşembe altı buçukta. | 您的预约是星期四六点半。 |
+| n2 | الخميس، لا الثلاثاء. | El jueves, no el martes. | गुरुवार, मंगलवार नहीं। | В четверг, не во вторник. | Perşembe, salı değil. | 是星期四，不是星期二。 |
+| explain | اليوم بعد on، والوقت بعد at. | El día tras on, la hora tras at. | on के बाद दिन, at के बाद समय। | После on день, после at время. | on'dan sonra gün, at'ten sonra saat. | on 后面是日子，at 后面是时间。 |
+| practise | قلها معي. | Dilo conmigo. | मेरे साथ बोलो। | Скажи со мной. | Benimle söyle. | 跟我一起说。 |
+| recap | half past six تعني 6.30. | half past six es 6.30. | half past six यानी 6.30। | half past six это 6.30. | half past six yani 6.30. | half past six 就是 6.30。 |
+
+### Interactive moments
+
+- Tappable words: all caption words; the calendar page plays "Thursday" and the clock plays "half past six" wherever they appear, including in the recap card.
+- At the pause (frame 1140) the learner says: "On Thursday at half past six." Model answer: the same line. Scored as shadow (the day and the time must both be audible, not the whole sentence). `ITM-LST-1501` then asks for the same two facts back from a live message.
+- Extra tap: in n1 the voicemail bar is a scrub bar for 120 frames. Dragging it replays the message from that point at 0.75x, which is the only replay offered before the first attempt, exactly as the listening rule in `docs/learning-model.md` §1.7 requires.
+
+---
+
+## 14. ATM-A2-WRT-0016: Sorry, I can't come (word tutorial)
+
+| Field | Value |
+| --- | --- |
+| atom_id | ATM-A2-WRT-0016 |
+| title | Sorry, I can't come |
+| sublevel / strand | A2.1 / WRT (Writing) |
+| type | word_tutorial, 40 s, 1200 frames |
+| single target | Sorry, then the reason with because, then the new time |
+| characters | you (writing), maya (practise). The reader is a contact name on the phone, not drawn |
+| setting | A phone frame centre screen, chat header "Hillside Health Centre", saffron bubbles on the right. Behind it, a desk corner with a laptop and a wall clock at ten |
+| check stem echo | "Say it. Sorry, the reason, the new time." |
+
+### Beats
+
+| id | kind | from | to | narration (TTS) | targets | pauseAt | scene for the animator |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| hook | hook | 0 | 120 | Ten o'clock. Omar is at work. | | | The phone frame rises into the centre. Behind it the wall clock snaps to ten and a laptop screen glows. A calendar reminder slides down from the top of the phone: "Appointment 10.00" and pulses once. you looks at the clock, then at the phone. |
+| w1 | word | 120 | 330 | I'm sorry. Say this first when you change a plan. | I'm sorry | | Word card above the phone: "I'm sorry". Typing dots appear in a saffron bubble, then the words type themselves in. The bubble holds alone on the screen for 20 frames so the learner sees that the message starts here and nowhere else. |
+| w2 | word | 330 | 540 | I can't come at ten. | I can't come at ten | | Card: "I can't come at ten". The second saffron bubble types under the first. As "at ten" lands, the clock behind the phone dims to grey and the reminder card slides back up out of frame. Still no reason given: the message looks unfinished on purpose. |
+| w3 | word | 540 | 780 | Because I'm at work. Give the reason with because. | because I'm at work | | Card: "because I'm at work". The word "because" slides in as an ACCENT chip and the laptop behind the phone lights up; a dotted line joins the lit laptop to the chip. The bubble completes to "I can't come at ten because I'm at work." The unfinished look resolves. |
+| w4 | word | 780 | 940 | Could we make it later? Ask for a new time. | Could we make it later? | | Card: "Could we make it later?" A third saffron bubble types it, and the clock behind brightens again with the hands sweeping forward from ten to half past four. A small "?" chip hops once at the end of the bubble. |
+| practise | practise | 940 | 1120 | Say it with me. I'm sorry, I can't come at ten because I'm at work. | I'm sorry, because | 1060 | Pale blue background, maya large in a white circle. Karaoke in 80 px over three lines; "I'm sorry" and "because" in ACCENT. At 1060 the mic pulses and the player pauses. On resume the three bubbles reassemble as one message with a sent tick. |
+| recap | recap | 1120 | 1200 | Sorry. Then because. Then the new time. | sorry, because, later | | ACCENT background, white card: "REMEMBER" and three stacked lines, each with a small icon: 🙏 "I'm sorry", 💼 "because I'm at work", 📅 "Could we make it later?" Hold. |
+
+### L1 captions
+
+| beat | ar | es | hi | ru | tr | zh |
+| --- | --- | --- | --- | --- | --- | --- |
+| hook | العاشرة. عمر في العمل. | Las diez. Omar está en el trabajo. | दस बजे। उमर काम पर है। | Десять. Омар на работе. | Saat on. Omar işte. | 十点。Omar 在上班。 |
+| w1 | I'm sorry: قلها أولًا. | I'm sorry: dilo primero. | I'm sorry: पहले यही कहें। | I'm sorry: скажи это первым. | I'm sorry: önce bunu söyle. | I'm sorry：先说这句。 |
+| w2 | لا أستطيع الحضور في العاشرة. | No puedo ir a las diez. | मैं दस बजे नहीं आ सकता। | Я не могу прийти в десять. | Saat onda gelemiyorum. | 我十点来不了。 |
+| w3 | because: اذكر السبب. | because: da el motivo. | because: कारण बताएँ। | because: назови причину. | because: nedeni söyle. | because：说原因。 |
+| w4 | هل يمكن أن نجعله لاحقًا؟ | ¿Podríamos dejarlo más tarde? | क्या हम बाद में कर सकते हैं? | Можно перенести на позже? | Daha geç yapabilir miyiz? | 可以晚一点吗？ |
+| practise | قلها معي. | Dilo conmigo. | मेरे साथ बोलो। | Скажи со мной. | Benimle söyle. | 跟我一起说。 |
+| recap | اعتذار، ثم سبب، ثم وقت جديد. | Disculpa, motivo y hora nueva. | माफ़ी, कारण, नया समय। | Извинение, причина, новое время. | Özür, neden, yeni saat. | 道歉、原因、新时间。 |
+
+### Interactive moments
+
+- Tappable words: all caption words; each of the three bubbles is a chip that plays its own line, so the learner can hear the message in parts before writing it.
+- At the pause (frame 1060) the learner says the first two lines aloud: "I'm sorry, I can't come at ten because I'm at work." Model answer: the same line. This is the atom's spoken turn; the writing comes later, at `ITM-WRT-1605`, which is where the strand's mastery evidence sits.
+- Extra tap: in w3 the "because" chip is draggable for 90 frames. Dropped between the two halves it clips in with a click and the full sentence plays; dropped at the start of the message the bubble wobbles and the chip returns, with the message read back without a reason so the learner hears what is missing.
+
+---
+
+## 15. ATM-A2-MED-0017: Pass it on
+
+| Field | Value |
+| --- | --- |
+| atom_id | ATM-A2-MED-0017 |
+| title | Pass it on |
+| sublevel / strand | A2.1 / MED (Explaining) |
+| type | video, 45 s, 1350 frames |
+| single target | Three facts in one sentence: on Thursday at half past six, at the health centre |
+| characters | sami (holding the card), you (reading it to him), maya (explain corner) |
+| setting | The flat-share kitchen from The gas bill: table, kettle, fridge with magnets. An appointment card on the table, the size of a postcard |
+| check stem echo | "Say it. The day, the time, the place." |
+
+### Beats
+
+| id | kind | from | to | narration (TTS) | targets | pauseAt | scene for the animator |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| hook | hook | 0 | 150 | Sami has an appointment card. He cannot read it. | | | Kitchen table. sami holds a small card, turning it over twice; the text on it is squiggle lines. A "?" bubble appears over him and droops. you sits down opposite and holds a hand out for the card. |
+| n1 | notice | 150 | 420 | Your appointment is on Thursday. | on Thursday | | The card lands flat and large in the centre; its squiggles resolve line by line into "Hillside Health Centre / Thursday 18.30 / arrive 10 minutes early". The word "Thursday" lifts off the card into you's bubble and a calendar page springs in beside sami with THURSDAY on it. |
+| n2 | notice | 420 | 600 | At half past six. | at half past six | | "18.30" lifts off the card and becomes a clock face whose hands snap to 6.30, with "half past six" typing underneath it. sami's "?" bubble stands up straight with a small ping. The calendar page stays in frame, so two facts are now visible at once. |
+| n3 | notice | 600 | 780 | At the health centre. | at the health centre | | The health centre building card slides in behind the clock, with the green chemist cross from Which way? beside it as the landmark. Three objects now sit in a row in front of sami: calendar page, clock, building. |
+| explain | explain | 780 | 1080 | Three things: the day, the time, the place. | the day, the time, the place | | PAPER background, maya in the corner circle. The three objects line up as three cards with their labels under them. At frame 870 a single sentence draws itself under the row, picking up each fact in order with a dotted line from its card: "on Thursday / at half past six / at the health centre". At 1000 sami's silhouette nods at the far right. |
+| practise | practise | 1080 | 1290 | Say it with me. On Thursday at half past six, at the health centre. | on Thursday at half past six, at the health centre | 1200 | Pale blue background, maya large in a white circle. Karaoke in 80 px over two lines; the three facts in ACCENT in turn as they are spoken. At 1200 the mic pulses and the player pauses. On resume the three cards stack into sami's hand with a leaf tick. |
+| recap | recap | 1290 | 1350 | On ... at ... at the ... | on, at, at the | | ACCENT background, white card: "REMEMBER", then three lines with saffron dotted blanks: "on ...", "at ...", "at the ...". The three icons sit under them in the same order. |
+
+### L1 captions
+
+| beat | ar | es | hi | ru | tr | zh |
+| --- | --- | --- | --- | --- | --- | --- |
+| hook | سامي لديه بطاقة موعد ولا يستطيع قراءتها. | Sami tiene una tarjeta de cita y no puede leerla. | सामी के पास अपॉइंटमेंट कार्ड है, पढ़ नहीं पाता। | У Сами карточка приёма, он не может её прочесть. | Sami'nin randevu kartı var, okuyamıyor. | Sami 有张预约卡，看不懂。 |
+| n1 | موعدك يوم الخميس. | Tu cita es el jueves. | तुम्हारा अपॉइंटमेंट गुरुवार को है। | Твой приём в четверг. | Randevun perşembe. | 你的预约在星期四。 |
+| n2 | في السادسة والنصف. | A las seis y media. | साढ़े छह बजे। | В половине седьмого. | Altı buçukta. | 六点半。 |
+| n3 | في المركز الصحي. | En el centro de salud. | हेल्थ सेंटर में। | В поликлинике. | Sağlık merkezinde. | 在诊所。 |
+| explain | ثلاث معلومات: اليوم، الوقت، المكان. | Tres datos: día, hora, lugar. | तीन बातें: दिन, समय, जगह। | Три факта: день, время, место. | Üç bilgi: gün, saat, yer. | 三件事：日子、时间、地点。 |
+| practise | قلها معي. | Dilo conmigo. | मेरे साथ बोलो। | Скажи со мной. | Benimle söyle. | 跟我一起说。 |
+| recap | قل الثلاثة، فلا يخطئ صديقك. | Di los tres y tu amigo no se equivoca. | तीनों कहो, दोस्त नहीं चूकेगा। | Назови все три, и друг не ошибётся. | Üçünü söyle, arkadaşın şaşırmaz. | 三件都说，朋友就不会错。 |
+
+### Interactive moments
+
+- Tappable words: all caption words; the three cards are chips that play "Thursday", "half past six" and "the health centre"; the card itself is a chip that reads all three lines in order.
+- At the pause (frame 1200) the learner says: "On Thursday at half past six, at the health centre." Model answer: the same line. Scored as read-aloud; `ITM-MED-1701` then gives sami one question to answer live, and `ITM-MED-1704` asks for all three facts.
+- Extra tap: in n2 "18.30" and the clock are a pair of chips for 120 frames. Tapping either plays "half past six" and flashes the other, which is the only place in the week where the 24-hour form and the spoken form are tied together. Tapping the "arrive 10 minutes early" line plays it and marks it on the clock as 6.20, ready for the relay item.
+
+---
+
+## 16. ATM-PA1-SPK-0018: Hello, I'm Ana
+
+| Field | Value |
+| --- | --- |
+| atom_id | ATM-PA1-SPK-0018 |
+| title | Hello, I'm Ana |
+| sublevel / strand | PreA1.1 / SPK (Speaking) |
+| type | video, 35 s, 1050 frames |
+| single target | Hello. I'm + your name |
+| characters | ana (new, the newcomer), you (the other new learner), maya (the teacher, in the doorway and the explain corner) |
+| setting | A community classroom in London on a Monday morning: six chairs in a half circle, a window with a plane tree, a whiteboard with nothing written on it |
+| check stem echo | "Say it. Hello and your name." |
+
+Pre-A1 rules that override the shared conventions for this section and the next two: narration at 90 wpm with a 1 second gap after every sentence; **three words maximum per caption line** and never two lines at once; every caption carries an icon; the L1 line is on by default below A1.2, not optional; no written word appears before it has been heard twice.
+
+### Beats
+
+| id | kind | from | to | narration (TTS) | targets | pauseAt | scene for the animator |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| hook | hook | 0 | 120 | A new class. Monday morning. | | | The classroom in flat vector, empty chairs. maya stands by the door and opens it; light spills in. No words on screen, only a small calendar card top-left showing MONDAY. The plane tree moves 2 degrees in the window. |
+| n1 | notice | 120 | 390 | Hello. I'm Ana. | I'm | | ana steps in, stops, and waves (arm wave for 40 frames). Her bubble types "Hello." and holds for 30 frames, alone. Then "I'm Ana." types under it with "I'm" in ACCENT. A name badge pins itself to her top reading "Ana" with a small click. Nothing else moves while she speaks. |
+| n2 | notice | 390 | 630 | Hello. I'm Omar. | I'm | | you is already sitting; you stands, waves back, bubble: "Hello. I'm Omar." with "I'm" in ACCENT again and in exactly the same position on screen, so the shape repeats. A second badge pins on, reading "Omar". The two badges then sit side by side at the top of frame. |
+| explain | explain | 630 | 810 | What is your name? | What is your name? | | PAPER background, maya in the corner circle, hand open in a small question gesture. Centre: one badge card with the photo circle empty and a saffron dotted blank where the name goes. Above it the question types once, four words, each word a separate chip: "What / is / your / name?" At frame 760 an arrow points from the question to the blank. |
+| practise | practise | 810 | 990 | Say it with me. Hello. I'm Ana. | Hello, I'm | 900 | Pale blue background, ana large in a white circle. Karaoke in 96 px, one short line, with a 1 second gap between "Hello." and "I'm Ana." At 900 the player pauses and the mic pulses with "Your turn". On resume the empty badge from the explain beat fills with a leaf tick. |
+| recap | recap | 990 | 1050 | Hello. I'm ... | Hello, I'm | | ACCENT background, white card: "Hello." on the first line and "I'm ..." on the second with a saffron dotted blank. Two icons under it: a waving hand and a name badge. Hold on screen with no further movement. |
+
+### L1 captions
+
+| beat | ar | es | hi | ru | tr | zh |
+| --- | --- | --- | --- | --- | --- | --- |
+| hook | صف جديد. صباح الاثنين. | Una clase nueva. Lunes. | नई क्लास। सोमवार सुबह। | Новый класс. Утро понедельника. | Yeni bir sınıf. Pazartesi. | 新班级。星期一早上。 |
+| n1 | مرحبًا. أنا آنا. | Hola. Soy Ana. | नमस्ते। मैं आना हूँ। | Здравствуйте. Я Ана. | Merhaba. Ben Ana. | 你好。我是 Ana。 |
+| n2 | مرحبًا. أنا عمر. | Hola. Soy Omar. | नमस्ते। मैं ओमर हूँ। | Здравствуйте. Я Омар. | Merhaba. Ben Omar. | 你好。我是 Omar。 |
+| explain | ما اسمك؟ | ¿Cómo te llamas? | तुम्हारा नाम क्या है? | Как вас зовут? | Adın ne? | 你叫什么名字？ |
+| practise | قلها معي. | Dilo conmigo. | मेरे साथ बोलो। | Скажи со мной. | Benimle söyle. | 跟我一起说。 |
+| recap | مرحبًا. أنا ... | Hola. Soy ... | नमस्ते। मैं ... हूँ। | Здравствуйте. Я ... | Merhaba. Ben ... | 你好。我是 ... |
+
+### Interactive moments
+
+- Tappable words: every caption word, and both name badges (each plays its own "I'm ..." line). In the explain beat the four question chips can be tapped one at a time, which is the only place a Pre-A1 learner meets the words separately.
+- At the pause (frame 900) the learner says: "Hello. I'm ..." with their own name. Model answer: "Hello. I'm Ana." Scored as read-aloud on the two words "hello" and "I'm" only; the name is never scored, because no scorer can know it.
+- Extra tap: in n1 and n2 the badge is draggable onto the empty badge card for 90 frames; dropping it there plays that person's line again. Nothing can be answered wrongly in this atom, by design: it is the first thing a learner ever does.
+
+---
+
+## 17. ATM-PA1-INT-0019: Two, please
+
+| Field | Value |
+| --- | --- |
+| atom_id | ATM-PA1-INT-0019 |
+| title | Two, please |
+| sublevel / strand | PreA1.2 / INT (Talking with someone) |
+| type | video, 35 s, 1050 frames |
+| single target | A number, the thing, then please: Two apples, please. |
+| characters | leo (behind the counter), ana (buying), you (next in the queue) |
+| setting | A small corner shop: a wooden counter, a crate of apples, a crate of bananas, a shelf of water bottles, a paper bag on a hook |
+| check stem echo | "Say it. Ask for two apples." |
+
+### Beats
+
+| id | kind | from | to | narration (TTS) | targets | pauseAt | scene for the animator |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| hook | hook | 0 | 150 | A small shop. Ana wants apples. | | | The shop in flat vector. ana comes in from the left and stops at the apple crate; she looks at the apples, then at leo. Two apples lift slightly out of the crate and hover with a soft bob, so what she wants is obvious with no words at all. |
+| n1 | notice | 150 | 420 | Two apples, please. | Two apples, please | | ana at the counter. Her bubble types "Two apples, please." one word at a time on the narration, with "please" in ACCENT. As "Two" is said, a "2" chip stamps above the two hovering apples; as "apples" is said, the two apples fly into a paper bag. |
+| n2 | notice | 420 | 630 | Here you are. Thank you. | Thank you | | leo hands the bag over (arm arc, 30 frames). His bubble: "Here you are." Then ana's bubble: "Thank you." with "Thank you" in ACCENT. Both bubbles stay on screen together for 40 frames: the exchange is the unit, not the single phrase. |
+| explain | explain | 630 | 810 | One. Two. Three. The number, the thing, then please. | please | | PAPER background, leo in the corner circle. Centre: three slots in a row, each with an icon above it: a "2" chip, an apple, and a please chip in SAFFRON. At frame 700 the three chips drop into the slots left to right with a click each, and the line reads "Two apples, please." Then the apple swaps for a water bottle and the line re-reads itself, so the slot, not the word, is the pattern. |
+| practise | practise | 810 | 990 | Say it with me. Two apples, please. | Two apples, please | 900 | Pale blue background, leo large in a white circle. Karaoke in 96 px, one line, with the "2" chip above the word "Two". At 900 the player pauses and the mic pulses. On resume the paper bag from n1 lands under the line with a leaf tick. |
+| recap | recap | 990 | 1050 | Two apples, please. Thank you. | please, Thank you | | ACCENT background, white card: "... please." on the first line, "Thank you." on the second. Three icons under them: a number chip, an apple, a paper bag. Hold. |
+
+### L1 captions
+
+| beat | ar | es | hi | ru | tr | zh |
+| --- | --- | --- | --- | --- | --- | --- |
+| hook | متجر صغير. آنا تريد تفاحًا. | Una tienda pequeña. Ana quiere manzanas. | छोटी दुकान। आना को सेब चाहिए। | Маленький магазин. Ана хочет яблоки. | Küçük bir dükkan. Ana elma istiyor. | 一家小店。Ana 想买苹果。 |
+| n1 | تفاحتان، من فضلك. | Dos manzanas, por favor. | दो सेब, कृपया। | Два яблока, пожалуйста. | İki elma, lütfen. | 两个苹果，谢谢。 |
+| n2 | تفضل. شكرًا. | Aquí tienes. Gracias. | लीजिए। धन्यवाद। | Вот, пожалуйста. Спасибо. | Buyurun. Teşekkürler. | 给您。谢谢。 |
+| explain | الرقم، ثم الشيء، ثم please. | El número, la cosa y please. | संख्या, चीज़, फिर please। | Число, предмет, потом please. | Sayı, şey, sonra please. | 数字、东西，再加 please。 |
+| practise | قلها معي. | Dilo conmigo. | मेरे साथ बोलो। | Скажи со мной. | Benimle söyle. | 跟我一起说。 |
+| recap | ... please. شكرًا. | ... please. Gracias. | ... please. धन्यवाद। | ... please. Спасибо. | ... please. Teşekkürler. | ... please。谢谢。 |
+
+### Interactive moments
+
+- Tappable words: every caption word; the "2" chip plays "two", the apple plays "apples", the please chip plays "please", so the three parts of the sentence are audible separately.
+- At the pause (frame 900) the learner says: "Two apples, please." Model answer: the same line. Scored as read-aloud. `ITM-INT-1901` then runs the same request as a live turn with leo, and `ITM-INT-1904` adds the one problem to repair: no apples today.
+- Extra tap: in the explain beat the thing slot is a carousel for 120 frames. Tapping it swaps apple for water, tea or bananas and re-reads the whole line with the new word. The number slot swaps between 1 and 2 and the noun follows ("One apple", "Two apples"), which is the first time a learner sees the plural s do anything, two bands before it is ever tested.
+
+---
+
+## 18. ATM-A1-GRM-0020: I'm from Spain (word tutorial)
+
+| Field | Value |
+| --- | --- |
+| atom_id | ATM-A1-GRM-0020 |
+| title | I'm from Spain |
+| sublevel / strand | A1.1 / GRM (Grammar) |
+| type | word_tutorial, 30 s, 900 frames |
+| single target | I'm about me, you're about the other person |
+| characters | ana, you, maya (practise) |
+| setting | PAPER background with two badge cards side by side, and a simple world map strip along the bottom with Spain, Egypt and the United Kingdom marked |
+| check stem echo | "Say it. Name, country, city." |
+
+### Beats
+
+| id | kind | from | to | narration (TTS) | targets | pauseAt | scene for the animator |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| hook | hook | 0 | 120 | I'm Ana. I'm from Spain. | I'm | | ana steps into the left badge card, which fills with her name. Her bubble: "I'm Ana. I'm from Spain." with both "I'm" in ACCENT. A map pin drops on Spain on the strip below and a thin line joins the pin to her badge. |
+| w1 | word | 120 | 330 | I'm. I am. Say it about you. | I'm | | Word card at the top: "I'm = I am". Mini-scene: the "I'm" chip hops onto ana's badge, then onto the empty badge on the right and waits there, pointing at the learner. The two chips are the same object moving, not two chips, so the word belongs to whoever is speaking. |
+| w2 | word | 330 | 540 | You're. You are. Say it about one person. | you're | | Card: "you're = you are". Mini-scene: ana turns to face right and the "you're" chip flies from her mouth across to the right badge and sticks. An arrow between the two badges points right. Then the chip tries to land back on ana's own badge, slides off and returns to the right, so the direction is visible without a rule. |
+| w3 | word | 540 | 720 | From, for the country. In, for the city. | from, in | | Card: "from / in". Mini-scene: on the map strip, "from" sits under the Spain pin and "in" sits under a London pin; a dotted flight path arcs from Spain to London with a little plane. The badge on the right completes: "I'm ... I'm from ... I'm in London." with saffron dotted blanks. |
+| practise | practise | 720 | 860 | Say it with me. I'm Ana. I'm from Spain. I'm in London. | I'm, from, in | 800 | Pale blue background, ana large in a white circle. Karaoke in 80 px over three short lines, one fact each, with a half second gap between them. At 800 the mic pulses and the player pauses. On resume all three lines show a leaf tick together. |
+| recap | recap | 860 | 900 | I'm ... I'm from ... I'm in ... | I'm, from, in | | ACCENT background, white card with three lines and saffron dotted blanks, each with an icon: name badge, map pin on a country, map pin on a city. Under the card, small: "you're" with an arrow pointing away from the learner. Hold. |
+
+### L1 captions
+
+| beat | ar | es | hi | ru | tr | zh |
+| --- | --- | --- | --- | --- | --- | --- |
+| hook | أنا آنا. أنا من إسبانيا. | Soy Ana. Soy de España. | मैं आना हूँ। मैं स्पेन से हूँ। | Я Ана. Я из Испании. | Ben Ana. İspanya'danım. | 我是 Ana。我来自西班牙。 |
+| w1 | I'm = I am. عن نفسك. | I'm = I am. Sobre ti. | I'm = I am। अपने लिए। | I'm = I am. О себе. | I'm = I am. Kendin için. | I'm = I am。说自己。 |
+| w2 | you're = you are. عن الآخر. | you're = you are. Sobre el otro. | you're = you are। दूसरे के लिए। | you're = you are. О другом. | you're = you are. Diğeri için. | you're = you are。说对方。 |
+| w3 | from للبلد، in للمدينة. | from para el país, in para la ciudad. | from देश के लिए, in शहर के लिए। | from о стране, in о городе. | from ülke, in şehir. | from 说国家，in 说城市。 |
+| practise | قلها معي. | Dilo conmigo. | मेरे साथ बोलो। | Скажи со мной. | Benimle söyle. | 跟我一起说。 |
+| recap | أنا ... أنا من ... أنا في ... | Soy ... Soy de ... Estoy en ... | मैं ... मैं ... से ... मैं ... में ... | Я ... Я из ... Я в ... | Ben ... ...danım ... ...deyim. | 我是 ... 我来自 ... 我在 ... |
+
+### Interactive moments
+
+- Tappable words: all caption words; the "I'm" and "you're" chips play their full forms ("I am", "you are") when tapped, which is the only place the uncontracted form is heard.
+- At the pause (frame 800) the learner says: "I'm ... I'm from ... I'm in ..." with their own name, country and city. Model answer: "I'm Ana. I'm from Spain. I'm in London." Scored as shadow on "I'm", "from" and "in"; names and places are not scored.
+- Extra tap: in w2 the "you're" chip is draggable for 90 frames. Dropped on the right badge it sticks and plays "You're Omar."; dropped on the learner's own badge it slides off and plays "I'm Omar." instead, so the wrong drop teaches the right word rather than marking anything.
+
+---
+
+## Part two additions to the shared kit
+
+On top of the list below, which part one already asks for:
+
+- `ana`: new `Who` value. Dark bob with a fringe, rose top with a round collar, small round earrings. Same rig as the others. Drawn facing right when listening, so she mirrors `you`.
+- Props: a phone frame with a **call** state (handset held to the ear, three sound rings) and a **voicemail** state (a fill bar with a play count badge and a draggable scrub head); an appointment card the size of a postcard, with the squiggle-to-text resolve already used for the letter; a calendar page that can flick through a week and let one day settle; a clock face whose hands snap to a named time and can sweep between two times; luggage-label price tags that drop on a string; a paper bag that fills with items; crates of apples and bananas; a stopwatch that stops at a number; a world map strip with three named pins and a dotted flight path.
+- Scene helpers: `StreetSet` (terraced houses, a postbox, a chemist with a green cross, two side-street mouths that can light in order, and a dotted route path that draws and turns); `ClassroomSet` (six chairs in a half circle, a door that opens, a blank whiteboard, a window with a plane tree); `CornerShopSet` (counter, crates, a shelf of bottles, a hook with paper bags); a `SlotLine` diagram helper (two to four labelled slots that chips drop into with a click, and a slot whose content can be swapped so the pattern re-reads itself).
+- Audio: a 90 wpm narration mode with a one second tail, used by sections 16 to 18; a short "sent" tick for the message atom; a soft ping for a question mark standing up (already listed); per-word clips for "I am" and "you are".
+- Player: `pauseAt` must be reachable inside the first 50 seconds of the **lesson**, which for these atoms means the explainer ends at the practise pause and the first `free_use` item follows immediately. The three Pre-A1 and A1 sections also need the L1 caption line on by default, which today is a learner toggle.
+
+---
+
 ## Shared kit needs
 
 What the storyboards assume exists in a shared explainer library, so a builder can add these once and reuse them. Items marked (have) already exist in `Cafe.tsx`; the rest are new.

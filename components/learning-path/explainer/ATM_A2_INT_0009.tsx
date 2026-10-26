@@ -584,7 +584,9 @@ export function OatMilkExplainer({ l1 }: { l1?: Record<string, string> }) {
       <Transition frame={frame} at={1050} kind="slide" color={ACCENT} color2={SAFFRON} />
       <Transition frame={frame} at={1380} kind="wipe" color={SAFFRON} color2={INK} />
       <CaptionBar line={beat.line} k={k} targets={beat.target} l1={l1?.[beat.id]} />
-      <BeatProgress frame={frame} beats={INT9_BEATS} />
+      {/* the recap sits on an ACCENT background, where the bar's default ACCENT
+          fill disappears, so it turns white for that beat */}
+      <BeatProgress frame={frame} beats={INT9_BEATS} color={beat.kind === "recap" ? CREAM : ACCENT} />
     </AbsoluteFill>
   );
 }

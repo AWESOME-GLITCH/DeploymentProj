@@ -318,3 +318,247 @@ The checkpoint covers GRM, LST, RDG and INT. It has no WRT, SPK or MED item, whi
 ## Verification
 
 `npx tsc --noEmit` clean after every edit. Every item id, criterion id, outcome id, atom id, item type, `key` shape, `config` shape and phase reference is unchanged, so the engine, the scheduler, the renderer and any persisted learner state are unaffected. `ITEM_CEFR` covers all 73 items, checked against the item ids parsed out of `content.ts`.
+
+---
+
+# Part two: the second A2.1 week and the Pre-A1 to A1.1 starter slice
+
+Owner: CEFR Content Lead. Status: authored on LP-61 (LEA-43), 26 October 2026. Everything above this line is the LEA-42 audit of the first week and is unchanged. This part is the levelling record for the 49 items, 9 atoms, 2 stories, 9 criteria and 9 outcomes added in the same pass, written to the same sources: the 2020 Companion Volume descriptor scales, the British Council and EAQUALS Core Inventory for grammar and functions, and the English Vocabulary Profile for words and phrases.
+
+## What was authored, and why this shape
+
+| Slice | Content | The question it answers |
+| --- | --- | --- |
+| A2.1 week two | Six atoms and one story, one theme: making an appointment and getting to it | The first week is a cafe week. A second week at the same band has to be a different situation or the learner is practising a script, not a level. Appointments are the next Core Inventory A2 function set: making arrangements, comparing options, asking the way, times and days, changing a plan, passing a message on |
+| Pre-A1 to A1.1 starter | Three atoms and one story, a ladder: greeting and name, asking for a thing, I'm and you're | Launch scope is Pre-A1 to B1 (PRD line 17) and `placementLevel()` can place a learner at PreA1.1, where until now there was nothing to serve. A learner placed at Pre-A1 was given A2.1 content |
+
+The week-two spine, one atom a day, and what each day adds:
+
+| Day | Atom | Band | What the learner can do that they could not the day before |
+| --- | --- | --- | --- |
+| 1 | Monday at ten | A2.1 | Ask for an appointment on the phone and take the time offered |
+| 2 | Earlier or later? | A2.1 | Compare two options, and ask for a better time |
+| 3 | Which way? | A2.1 | Ask the way and say the directions back to check them |
+| 4 | Thursday at half past six | A2.1 | Catch a day and a clock time, and ask for a repeat |
+| 5 | Sorry, I can't come / Pass it on | A2.1 | Change an arrangement in writing, and pass an appointment to someone else |
+
+The starter ladder, each atom a prerequisite of the next, and the last one feeding `CRI-A1.2-SPK-03-01` (Meet Fatima) without being wired as its prerequisite, which would block existing learners:
+
+| Step | Atom | Band | Target |
+| --- | --- | --- | --- |
+| 1 | Hello, I'm Ana | PreA1.1 | Hello. I'm + name |
+| 2 | Two, please | PreA1.2 | A number, the thing, then please |
+| 3 | I'm from Spain | A1.1 | I'm about me, you're about the other person |
+
+## Outcomes
+
+| Outcome | Sub-level | Companion Volume scale and band | Note |
+| --- | --- | --- | --- |
+| OUT-A2.1-INT-08 Can make an appointment on the phone | A2.1 | Telephone and online conversation A2, "can make simple arrangements by phone" | In band. The scale is new to the product; the first week used Transactions only |
+| OUT-A2.1-GRM-09 Can compare two things | A2.1 | Grammatical accuracy A2, with Core Inventory comparative adjectives at A2 | In band. Grammar outcomes map to accuracy plus the Core Inventory, as in part one |
+| OUT-A2.1-SPK-10 Can ask the way and check I understood | A2.1 | Transactions to obtain goods and services A2, "can ask for and give directions referring to a map or plan" | In band. The checking-back half is Understanding an interlocutor A2, "can ask for repetition or clarification" |
+| OUT-A2.1-LST-11 Can catch the day and the time in a message | A2.1 | Understanding announcements and instructions A2 | In band, and distinct from OUT-A2.1-LST-03: that one is numbers in public announcements, this one is a day and a clock time addressed to the learner |
+| OUT-A2.1-WRT-12 Can write a message to change a time | A2.1 | Correspondence A2, "can write short simple notes and messages on matters of immediate need" | In band. The reason clause is what keeps it above the A1 bare question |
+| OUT-A2.1-MED-13 Can pass on an appointment to someone else | A2.1 | Relaying specific information in speech A2 | In band. Three facts from a written card, which is the written-to-spoken direction the gas bill already uses |
+| OUT-PreA1.1-SPK-14 Can say hello and give my name | PreA1.1 | Conversation Pre-A1, "can say hello and goodbye, can introduce him or herself" | In band |
+| OUT-PreA1.2-INT-15 Can ask for one thing in a shop | PreA1.2 | Transactions to obtain goods and services Pre-A1, "can ask people for things and give people things" | In band |
+| OUT-A1.1-GRM-16 Can say who I am and where I am from | A1.1 | Grammatical accuracy A1, with Core Inventory present of be and from at A1 | In band |
+
+## Criteria, and one decision that needs stating
+
+All nine new criteria carry `mastery_rule: "ai"`, including the two grammar ones. This is a change of practice from part one, where grammar, reading and listening criteria are `keyed`, and it is forced by two things that are both outside this file:
+
+1. `docs/learning-model.md` §1.7 makes **every delayed check a spoken say-it**. The new atoms are authored that way.
+2. `complete_session` in `store.tsx` builds a keyed sitting from today's first attempts and **skips every attempt whose modality is spoken**, and `updateCriterion` only passes a keyed sitting at `total >= 3`. A criterion whose production and check are spoken therefore needs three further non-spoken items in the same session before it can pass a single sitting.
+
+A keyed criterion authored to the new spine can never be mastered. The three available answers were: author four non-spoken scaffolds per atom, which contradicts §1.5's two; drop the spoken check, which contradicts §1.7; or record mastery from the AI-scored production, which is what the PRD asks for anyway ("grammar and vocabulary are enablers, mastery is inferred from correct use in communicative production"). The third is taken. Every new atom therefore carries **two** AI-scored items with different task ids, which is what the `ai` branch of `updateCriterion` needs (two days, two tasks).
+
+| Criterion | Band | Rule | AI evidence it masters from | Prerequisite |
+| --- | --- | --- | --- | --- |
+| CRI-A2.1-INT-08-01 | A2.1 | ai | ITM-INT-1201 dialogue_turn, ITM-INT-1204 roleplay | CRI-A2.1-INT-01-01 |
+| CRI-A2.1-GRM-09-01 | A2.1 | ai | ITM-GRM-1301 dialogue_turn, ITM-GRM-1305 open_response | CRI-A2.1-INT-08-01 |
+| CRI-A2.1-SPK-10-01 | A2.1 | ai | ITM-SPK-1401 dialogue_turn, ITM-SPK-1404 roleplay | CRI-A2.1-INT-08-01 |
+| CRI-A2.1-LST-11-01 | A2.1 | ai | ITM-LST-1501 dialogue_turn, ITM-LST-1505 roleplay | CRI-A2.1-LST-03-01 |
+| CRI-A2.1-WRT-12-01 | A2.1 | ai | ITM-WRT-1601 shadow, ITM-WRT-1605 short_production | CRI-A2.1-WRT-05-01 |
+| CRI-A2.1-MED-13-01 | A2.1 | ai | ITM-MED-1701 dialogue_turn, ITM-MED-1704 relay | CRI-A2.1-MED-06-01 |
+| CRI-PreA1.1-SPK-14-01 | PreA1.1 | ai | ITM-SPK-1801 dialogue_turn, ITM-SPK-1804 open_response | none |
+| CRI-PreA1.2-INT-15-01 | PreA1.2 | ai | ITM-INT-1901 dialogue_turn, ITM-INT-1904 roleplay | CRI-PreA1.1-SPK-14-01 |
+| CRI-A1.1-GRM-16-01 | A1.1 | ai | ITM-GRM-2001 shadow, ITM-GRM-2005 open_response | CRI-PreA1.2-INT-15-01 |
+
+The same arithmetic shows two criteria in part one that **cannot** master as they stand. Recorded as flag F7 rather than fixed, because fixing them means adding an item to a week-one atom and the Learning Designer's cut list is pending on those atoms.
+
+## Atoms
+
+Input band is the band of the language in the video or the word cards, which is what the learner meets first.
+
+| Atom | Sub-level | Type | Input band | Items | Target |
+| --- | --- | --- | --- | --- | --- |
+| ATM-A2-INT-0012 Monday at ten | A2.1 | video 50 s | A2.1 | 5 | Could I make an appointment, please? |
+| ATM-A2-GRM-0013 Earlier or later? | A2.1 | word tutorial 40 s | A2.1 | 6 | er plus than |
+| ATM-A2-SPK-0014 Which way? | A2.1 | video 50 s | A2.1 | 5 | Excuse me, how do I get to ...? |
+| ATM-A2-LST-0015 Thursday at half past six | A2.1 | video 45 s | A2.1 | 6 | on + day, at + time |
+| ATM-A2-WRT-0016 Sorry, I can't come | A2.1 | word tutorial 40 s | A1.2 to A2.1 | 6 | sorry, reason with because, new time |
+| ATM-A2-MED-0017 Pass it on | A2.1 | video 45 s | A2.1 | 5 | day, time and place in one sentence |
+| ATM-PA1-SPK-0018 Hello, I'm Ana | PreA1.1 | video 35 s | PreA1.1 | 5 | Hello. I'm + name |
+| ATM-PA1-INT-0019 Two, please | PreA1.2 | video 35 s | PreA1.1 | 5 | number, thing, please |
+| ATM-A1-GRM-0020 I'm from Spain | A1.1 | word tutorial 30 s | A1.1 | 6 | I'm, you're |
+| STO-A2-0004 The second left | A2.1 | story | A2.1 | 0 | Recycles week two at 98% known words |
+| STO-PA1-0005 Ana and Omar | PreA1.2 | story | PreA1.2 | 0 | Every word is taught in the three starter atoms |
+
+Two conventions were extended, both stated so they can be rejected: the atom id pattern gains `ATM-PA1-...` for Pre-A1 (part one has only `ATM-A1-` and `ATM-A2-`), and the story id pattern gains `STO-PA1-0005`.
+
+## Items
+
+`Actual` is the band recorded in `ITEM_CEFR`. Phase is the lesson-order step the item serves: **say it** is the first spoken turn, **scaffold** the controlled step, **use it** the whole exchange, **check** the delayed say-it.
+
+### ATM-A2-INT-0012 Monday at ten
+
+| Item | Type | Phase | Actual | Descriptor |
+| --- | --- | --- | --- | --- |
+| ITM-INT-1201 | dialogue_turn | say it | A2.1 | Telephone and online conversation A2: makes a simple arrangement on the phone |
+| ITM-INT-1202 | tap_order | scaffold | A2.1 | General linguistic range A2: modal request carrying a fixed A2 chunk |
+| ITM-INT-1203 | transform | scaffold | A2.1 | Sociolinguistic appropriateness A2: performs a basic function politely |
+| ITM-INT-1204 | roleplay | use it | A2.1 | Telephone conversation A2: makes an arrangement and takes a changed time |
+| ITM-INT-1205 | read_aloud | check | A2.1 | Phonological control A2: the whole request and the agreed time |
+
+"make an appointment" is A2 in the English Vocabulary Profile. The modal request is recycled from week one on purpose, so the only new element is the collocation and the arrangement that follows it.
+
+### ATM-A2-GRM-0013 Earlier or later?
+
+| Item | Type | Phase | Actual | Descriptor |
+| --- | --- | --- | --- | --- |
+| ITM-GRM-1301 | dialogue_turn | say it | A2.1 | Grammatical accuracy A2: comparative er plus than on real prices |
+| ITM-GRM-1302 | magnet_tiles | scaffold | A2.1 | Grammatical accuracy A2: comparative plus than in one sentence |
+| ITM-GRM-1303 | error_spot | scaffold | A2.1 | Grammatical accuracy A2: notices more with a short adjective |
+| ITM-GRM-1304 | tap_order | scaffold | A2.1 | Transactions A2: asks for an earlier time with a comparative |
+| ITM-GRM-1305 | open_response | use it | A2.1 | Describing experience A2: compares two options |
+| ITM-GRM-1306 | read_aloud | check | A2.1 | Grammatical accuracy A2: two comparatives joined with but |
+
+Only -er comparatives of one-syllable and two-syllable -y adjectives are taught, which is where the Core Inventory puts A2. "more expensive" is A2.2 and is deliberately absent: the error_spot item uses "more cheap" as the wrong form, so the learner meets the boundary without being asked to produce it. Irregular comparatives (better, worse) are not in this atom.
+
+### ATM-A2-SPK-0014 Which way?
+
+| Item | Type | Phase | Actual | Descriptor |
+| --- | --- | --- | --- | --- |
+| ITM-SPK-1401 | dialogue_turn | say it | A2.1 | Transactions A2: asks for and follows simple directions |
+| ITM-SPK-1402 | tap_order | scaffold | A2.1 | General linguistic range A2: question with do plus get to plus a place |
+| ITM-SPK-1403 | dictation | scaffold | A2.1 | Understanding instructions A2: writes down directions heard once |
+| ITM-SPK-1404 | roleplay | use it | A2.1 | Transactions A2: asks the way and says the directions back |
+| ITM-SPK-1405 | read_aloud | check | A2.1 | Phonological control A2: the whole question |
+
+"Go straight on", "take the second left" and "opposite" are the A2 direction set in the Core Inventory; ordinals are A1 as words and A2 in this use. The dictation is the one scaffold from outside the strand, which §1.7's cross-strand rule allows at one per chunk, and it is not mastery evidence.
+
+### ATM-A2-LST-0015 Thursday at half past six
+
+| Item | Type | Phase | Actual | Descriptor |
+| --- | --- | --- | --- | --- |
+| ITM-LST-1501 | dialogue_turn | say it | A2.1 | Understanding an interlocutor A2: catches a day and a time and says them back |
+| ITM-LST-1502 | dictation | scaffold | A2.1 | Understanding announcements A2: writes down a day and a clock time |
+| ITM-LST-1503 | detail_gap | scaffold | A2.1 | Understanding announcements A2: catches the day in a short message |
+| ITM-LST-1504 | dictation | scaffold | A2.2 | Understanding announcements A2: minutes to the hour, quarter to five as 4.45 |
+| ITM-LST-1505 | roleplay | use it | A2.1 | Understanding an interlocutor A2: asks for repetition, then confirms |
+| ITM-LST-1506 | read_aloud | check | A2.1 | Phonological control A2: the day and the time in one sentence |
+
+`ITM-LST-1504` is recorded a sub-level above its atom and is the only such item in the slice. "Half past" is A1 to A2; "quarter to" requires subtracting from the next hour and the Core Inventory puts the full clock at A2 late. It sits in the scaffold step, never in the check, which is the rule part one set.
+
+### ATM-A2-WRT-0016 Sorry, I can't come
+
+| Item | Type | Phase | Actual | Descriptor |
+| --- | --- | --- | --- | --- |
+| ITM-WRT-1601 | shadow | say it | A1.2 | Phonological control A1: repeats a model apology intelligibly |
+| ITM-WRT-1602 | tap_order | scaffold | A2.1 | Correspondence A2: asks for a new time politely |
+| ITM-WRT-1603 | correct_message | scaffold | A1.2 | Grammatical accuracy A1 to A2: can't before the verb |
+| ITM-WRT-1604 | dictation | scaffold | A2.1 | Grammatical accuracy A2: because links the reason to the sentence |
+| ITM-WRT-1605 | short_production | use it | A2.1 | Correspondence A2: short notes and messages on matters of immediate need |
+| ITM-WRT-1606 | read_aloud | check | A2.1 | Phonological control A2: sorry, reason and new time in one turn |
+
+Two items sit at A1.2 and both are deliberate: the first spoken turn recycles simple language so that the learner's first attempt is possible, and the word-order repair is the error that survives into A2. The band of the atom is carried by `because` and by the message in `ITM-WRT-1605`, which has `min_words: 12` so a one-line answer cannot pass. This atom also answers part one's flag F1 for its own strand: the input and the items are at the same band here, unlike ATM-A2-WRT-0007.
+
+### ATM-A2-MED-0017 Pass it on
+
+| Item | Type | Phase | Actual | Descriptor |
+| --- | --- | --- | --- | --- |
+| ITM-MED-1701 | dialogue_turn | say it | A2.1 | Relaying specific information in speech A2: gives the day from a written card |
+| ITM-MED-1702 | tfng | scaffold | A2.1 | Reading for orientation A2: reads 18.30 as half past six |
+| ITM-MED-1703 | tfng | scaffold | A2.2 | Reading for orientation A2: decides the card does not carry the information |
+| ITM-MED-1704 | relay | use it | A2.1 | Relaying specific information in speech A2: the full descriptor |
+| ITM-MED-1705 | read_aloud | check | A2.1 | Relaying specific information A2: day, time and place in one sentence |
+
+`ITM-MED-1703` is recorded at A2.2 for the same reason part one records `ITM-RDG-0603` there: deciding that a text does not carry something is the hardest of the three answers. Both tfng items read the same card, which is the mediation source, so the reading is never a separate text.
+
+### ATM-PA1-SPK-0018 Hello, I'm Ana
+
+| Item | Type | Phase | Actual | Descriptor |
+| --- | --- | --- | --- | --- |
+| ITM-SPK-1801 | dialogue_turn | say it | PreA1.1 | Conversation Pre-A1: basic greetings and introducing themselves |
+| ITM-SPK-1802 | tap_order | scaffold | PreA1.1 | Grammatical accuracy Pre-A1: I'm plus a name |
+| ITM-SPK-1803 | magnet_tiles | scaffold | PreA1.2 | Conversation Pre-A1: asks a memorised question about personal details |
+| ITM-SPK-1804 | open_response | use it | PreA1.1 | Conversation Pre-A1: greets and gives their name unprompted |
+| ITM-SPK-1805 | read_aloud | check | PreA1.1 | Phonological control Pre-A1: a memorised greeting said intelligibly |
+
+"What is your name?" is produced, not only understood, which is a half-level reach and is recorded as PreA1.2. The Companion Volume allows memorised chunks at Pre-A1 and the item is four tiles of a fixed question, so it is within the band's "fixed expressions" clause. It is a scaffold, never the check.
+
+### ATM-PA1-INT-0019 Two, please
+
+| Item | Type | Phase | Actual | Descriptor |
+| --- | --- | --- | --- | --- |
+| ITM-INT-1901 | dialogue_turn | say it | PreA1.2 | Transactions Pre-A1: can ask people for things |
+| ITM-INT-1902 | tap_order | scaffold | PreA1.1 | Vocabulary range Pre-A1: number plus noun plus please |
+| ITM-INT-1903 | magnet_tiles | scaffold | PreA1.2 | Grammatical accuracy Pre-A1: one plus a singular noun |
+| ITM-INT-1904 | roleplay | use it | A1.1 | Transactions A1: changes the order when the thing is not there |
+| ITM-INT-1905 | read_aloud | check | PreA1.2 | Phonological control Pre-A1: the whole request and thank you |
+
+`ITM-INT-1904` is the one item in the starter slice above its atom's band, because §1.2 requires the use-it step to carry one problem to repair and a refusal is A1, not Pre-A1. It passes at `need: 2` of 3 turns, so the two Pre-A1 turns carry the pass and the repair turn is a reach that does not gate anything.
+
+### ATM-A1-GRM-0020 I'm from Spain
+
+| Item | Type | Phase | Actual | Descriptor |
+| --- | --- | --- | --- | --- |
+| ITM-GRM-2001 | shadow | say it | PreA1.2 | Phonological control Pre-A1 to A1: repeats a two-sentence model |
+| ITM-GRM-2002 | tap_order | scaffold | A1.1 | Grammatical accuracy A1: I'm plus from plus country |
+| ITM-GRM-2003 | error_spot | scaffold | A1.1 | Grammatical accuracy A1: are with you, am with I |
+| ITM-GRM-2004 | magnet_tiles | scaffold | A1.1 | Grammatical accuracy A1: question with are before you |
+| ITM-GRM-2005 | open_response | use it | A1.1 | Describing experience A1: name, country and city |
+| ITM-GRM-2006 | read_aloud | check | A1.1 | Phonological control A1: three connected I sentences |
+
+Only `I'm` and `you're` are taught. He, she and they are A1.2 and belong with Meet Fatima, which already teaches third-person work; putting the whole paradigm here would be the second new thing in one lesson.
+
+## Cut lists, ready for `Atom.cuts`
+
+`Atom.cuts` does not exist in `types.ts` yet (learning-model §1.6, LP-30). Until it does, every learner gets the authored bank, so the banks are authored at the **standard** density of §1.5 (five or six items) rather than dense. These are the cut lists to paste in when the field lands, and they touch `controlled` items only, so no cut removes a say-it, a use-it or a check.
+
+| Atom | Bank | `cuts.standard` | `cuts.light` |
+| --- | --- | --- | --- |
+| ATM-A2-INT-0012 | 5 | none | ITM-INT-1203 |
+| ATM-A2-GRM-0013 | 6 | ITM-GRM-1304 | ITM-GRM-1304, ITM-GRM-1303 |
+| ATM-A2-SPK-0014 | 5 | none | ITM-SPK-1403 |
+| ATM-A2-LST-0015 | 6 | ITM-LST-1504 | ITM-LST-1504, ITM-LST-1503 |
+| ATM-A2-WRT-0016 | 6 | ITM-WRT-1604 | ITM-WRT-1604, ITM-WRT-1603 |
+| ATM-A2-MED-0017 | 5 | none | ITM-MED-1703 |
+| ATM-PA1-SPK-0018 | 5 | none | ITM-SPK-1803 |
+| ATM-PA1-INT-0019 | 5 | none | ITM-INT-1903 |
+| ATM-A1-GRM-0020 | 6 | ITM-GRM-2004 | ITM-GRM-2004, ITM-GRM-2003 |
+
+In every light list the dropped items are the ones furthest from the target: the harder clock form, the second tiles item, the extra dictation. The light learner keeps the say-it, the use-it and the delayed check, which §1.5 requires.
+
+## Item types used, against the LP-20 cut list
+
+Authored: `dialogue_turn`, `roleplay`, `relay`, `open_response`, `shadow`, `read_aloud`, `short_production`, `correct_message`, `transform`, `dictation`, `tap_order`, `magnet_tiles`, `error_spot`, `tfng`, `detail_gap`. Not authored, because `docs/exercises.md` cut them: `gap_fill`, `gist_mcq`, `inference_mcq`, `heading_match`, `time_slider`, `vote_see_revote`, `sentence_build`, `picture_describe`, `explain_chart`, `translate_gist`, and `pick_picture` with emoji. There is no emoji item anywhere in this slice, which is why the Pre-A1 atoms lean on tiles and the mic rather than pictures: the renderer has no real picture support, and emoji glyphs are the thing part one's flag F2 is about.
+
+## Flags for other owners
+
+Continuing the numbering of part one.
+
+| # | What | Who | Why it is not in this change |
+| --- | --- | --- | --- |
+| F7 | `CRI-A2.1-INT-01-02` and `CRI-A2.1-MED-06-01` are `ai` criteria whose only AI-scored item is a `roleplay` and a `relay`. Both record `task_id: item.item_id`, a constant, so `tasks.size` never reaches the 2 that `updateCriterion` requires. Neither criterion can ever reach `mastered`, which also means "We're out of oat milk" and "The gas bill" never leave the new-atom pool | Front-end Builder, with the Learning Designer | The fix is one more AI item on each criterion (an `open_response` or `shadow`, whose task id flips with day parity), or a one-line change in `items.tsx` to give roleplay and relay the same `:dayParity` suffix. Both are files this ticket does not own, and the week one atoms are under the pending cut list |
+| F8 | `scoreNewAtoms` has no level filter. With Pre-A1 content in the bank, an A2.1 learner with a strand deficit can be served "Hello, I'm Ana", because an unseen atom with no prerequisites scores near the top | Front-end Builder | `atomsForLevel(level)` is now exported from `content.ts` with the rule written out: at or below the learner's sub-level, and no more than one band below. Wiring it is one line in `engine.ts` |
+| F9 | The nine new atoms have no `SCENES` entry in `scenes.tsx` and no Remotion composition, so `VideoPhase` plays them as captions over an empty stage | UX Designer and the explainer owner | `scenes.tsx` and `components/learning-path/explainer/` belong to other agents. The nine storyboards in `docs/explainers/storyboards.md` part two are the brief, written in the existing format with beats, frames, L1 captions and interactive moments |
+| F10 | The new atoms are authored in the lesson order of learning-model §1.2 (input, noticing, free_use, controlled, free_use, check). The ten week-one atoms are still in the old order | Whoever takes LP-30, §1.4 row 6 | Reordering week one changes ten live lessons and is a separate ticket. Nothing breaks in the meantime: `AtomRun` walks whatever order it is given |
+| F11 | A `roleplay` or `relay` that passes at `need: 2` of 3 turns scores 0.667, which is below the 0.7 an AI sitting needs. The item is marked correct and the criterion sitting still fails | Front-end Builder, with me | Deliberate for now, and consistent with week one: the item is a pass, mastery needs a clean run. Worth a decision, because a learner can pass every item in an atom and never see the criterion move |
+| F12 | Pre-A1 needs rules the renderer cannot express yet: three words per caption line, the L1 line on by default below A1.2, 90 wpm narration, and no written word before it has been heard twice | Learning Designer | Instructions are i18n keys and the caption toggle is a learner setting. The rules are written into storyboards part two section 16 so they are at least in the brief |
+| F13 | Part one's conventions allow two new drawn characters across all storyboards. The starter slice adds a third, **ana** | UX Designer and the explainer owner | Every existing character already speaks at A1.2 or above in the atoms they carry. A Pre-A1 learner needs a peer who says three words and stops. Stated as an amendment at the top of storyboards part two, not assumed |
+
+## Verification
+
+`npx tsc --noEmit` clean after every change. A data check over the built arrays confirms: no duplicate item or atom ids; every criterion, outcome, prerequisite and phase item reference resolves; every phase item belongs to its atom's criterion and appears in `target_items`; every index key is inside its options array; every `tap_order` and `magnet_tiles` key is exactly the tiles it is given, so none of them is unanswerable; and `ITEM_CEFR` covers all 122 items (108 lesson items plus the 8 placement and 6 checkpoint items). This change edited nothing in part one: the week one items, atoms, criteria, outcomes, placement ladder, checkpoint and `placementLevel()` are untouched, and the new outcomes are appended rather than inserted so `pickWeekCanDo` still offers the week one outcomes first. The one exception, stated because it is in the same file: two items in the week two atoms were authored with "Elena" as the partner and were changed to "Sami" before the storyboards were written, so the drawn cast stays closed.

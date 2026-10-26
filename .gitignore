@@ -33,3 +33,7 @@ yarn-error.log*
 
 # Machine-local Claude Code settings written by Paperclip agent runs
 .claude/settings.local.json
+
+# Test Engineer run output (screenshots, logs, pids)
+scripts/lp/out/
+scripts/lp/.run/
