@@ -8,12 +8,17 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Player, type PlayerRef } from "@remotion/player";
 import { Captions, MoreHorizontal, Pause, Play, RotateCcw } from "lucide-react";
-import { CAFE_BEATS, CAFE_DURATION, CAFE_FPS, CAFE_H, CAFE_W, CafeExplainer } from "./Cafe";
+import { CAFE_BEATS, CAFE_DURATION, CAFE_FPS, CAFE_H, CAFE_L1, CAFE_W, CafeExplainer } from "./Cafe";
+import { EXPLAINER as SPK_0005 } from "./ATM_A1_SPK_0005";
+import { EXPLAINER as GRM_0002 } from "./ATM_A2_GRM_0002";
+import { EXPLAINER as GRM_0003 } from "./ATM_A2_GRM_0003";
 import { EXPLAINER as LST_0004 } from "./ATM_A2_LST_0004";
 import { EXPLAINER as RDG_0006 } from "./ATM_A2_RDG_0006";
-import { EXPLAINER as INT_0009 } from "./ATM_A2_INT_0009";
 import { EXPLAINER as WRT_0007 } from "./ATM_A2_WRT_0007";
-import { EXPLAINER as GRM_0003 } from "./ATM_A2_GRM_0003";
+// ATM_A2_MED_0008 is on disk but does not typecheck yet (LP-46 registers only
+// atoms that compile); add its import and its "ATM-A2-MED-0008" entry below
+// once its owner has fixed it.
+import { EXPLAINER as INT_0009 } from "./ATM_A2_INT_0009";
 import { EXPLAINER as INT_0010 } from "./ATM_A2_INT_0010";
 
 /** The beat contract every lesson explainer exports. */
@@ -67,23 +72,21 @@ import { Character, karaoke, wordIsTarget } from "./lib";
 import { scoreReadAloud, type SpeechScore } from "@/lib/learning-path/scoring";
 import { useLp } from "../ui";
 
+// Every delivered atom, keyed by its atom id in lib/learning-path/content.ts.
+// The cafe's L1 captions come from CAFE_L1 in ./Cafe, next to its beat list, so
+// the two cannot drift apart when a beat is added.
 export const EXPLAINERS: Record<string, ExplainerDef> = {
+  "ATM-A1-SPK-0005": SPK_0005,
+  "ATM-A2-GRM-0002": GRM_0002,
+  "ATM-A2-GRM-0003": GRM_0003,
   "ATM-A2-LST-0004": LST_0004,
   "ATM-A2-RDG-0006": RDG_0006,
-  "ATM-A2-INT-0009": INT_0009,
   "ATM-A2-WRT-0007": WRT_0007,
-  "ATM-A2-GRM-0003": GRM_0003,
+  "ATM-A2-INT-0009": INT_0009,
   "ATM-A2-INT-0010": INT_0010,
   "ATM-A2-INT-0001": {
     component: CafeExplainer, beats: CAFE_BEATS, duration: CAFE_DURATION, fps: CAFE_FPS, width: CAFE_W, height: CAFE_H,
-    l1: {
-      ar: { hook: "صباح الاثنين. شورديتش. القهوة أولًا.", n1: "أريد قهوة، من فضلك.", n2: "أريد قهوتين، من فضلك.", n3: "هل يمكنني الحصول على شاي؟", explain: "I'd like تعني أريد، لكن بأدب.", practise: "قلها معي.", recap: "I'd like ... please." },
-      es: { hook: "Lunes por la mañana. Shoreditch. Primero, café.", n1: "Quisiera un café, por favor.", n2: "Quisiera dos cafés, por favor.", n3: "¿Podría tomar un té?", explain: "I'd like significa quiero, pero con cortesía.", practise: "Dilo conmigo.", recap: "I'd like ... please." },
-      hi: { hook: "सोमवार की सुबह। शोरडिच। पहले कॉफ़ी।", n1: "मुझे एक कॉफ़ी चाहिए, कृपया।", n2: "मुझे दो कॉफ़ी चाहिए, कृपया।", n3: "क्या मुझे एक चाय मिल सकती है?", explain: "I'd like का मतलब I want है, पर विनम्रता से।", practise: "मेरे साथ बोलो।", recap: "I'd like ... please." },
-      ru: { hook: "Утро понедельника. Шордич. Сначала кофе.", n1: "Я бы хотел кофе, пожалуйста.", n2: "Я бы хотел два кофе, пожалуйста.", n3: "Можно мне чай?", explain: "I'd like значит «я хочу», но вежливо.", practise: "Скажи со мной.", recap: "I'd like ... please." },
-      tr: { hook: "Pazartesi sabahı. Shoreditch. Önce kahve.", n1: "Bir kahve istiyorum, lütfen.", n2: "İki kahve istiyorum, lütfen.", n3: "Bir çay alabilir miyim?", explain: "I'd like, istiyorum demektir ama nazikçe.", practise: "Benimle söyle.", recap: "I'd like ... please." },
-      zh: { hook: "星期一早晨。肖尔迪奇。先来杯咖啡。", n1: "我想要一杯咖啡，谢谢。", n2: "我想要两杯咖啡，谢谢。", n3: "可以给我一杯茶吗？", explain: "I'd like 的意思是我想要，但更礼貌。", practise: "跟我一起说。", recap: "I'd like ... please." },
-    },
+    l1: CAFE_L1,
   },
 };
 

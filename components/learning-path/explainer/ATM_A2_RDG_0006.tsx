@@ -19,21 +19,15 @@
 
 import { AbsoluteFill, useCurrentFrame } from "remotion";
 import type { CSSProperties } from "react";
+import type { Beat } from "./Cafe";
 import {
   ACCENT, BeatProgress, blink, CaptionBar, Character, EASE, Eyebrow, FAINT, FOG, FONT, hash, Highlight, INK,
   karaoke, PAPER, Parallax, Pulse, SAFFRON, SEA, springIn, Stage, STAGE_H, STAGE_W, Transition, tween,
 } from "./lib";
 
 // ---------------------------------------------------------------- beats
-export type Beat = {
-  id: string;
-  from: number;
-  to: number;
-  line: string;
-  target?: string[];
-  kind: "hook" | "word" | "practise" | "recap";
-  pauseAt?: number;
-};
+// The Beat type is the shared one from ./Cafe, which now carries the word
+// tutorial's "word" kind, so every atom is typed against one union.
 
 // Cut to the board's attention rule (26 Oct 2026): the player stops at every beat
 // with a target, so each teaching beat is 5 to 8 s, carries one sayable line, and

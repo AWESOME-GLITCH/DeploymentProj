@@ -19,7 +19,7 @@ export const CAFE_FPS = 30;
 export const CAFE_W = 1080;
 export const CAFE_H = 1440;
 
-export type Beat = { id: string; from: number; to: number; line: string; target?: string[]; kind: "hook" | "notice" | "explain" | "practise" | "recap"; pauseAt?: number };
+export type Beat = { id: string; from: number; to: number; line: string; target?: string[]; kind: "hook" | "notice" | "explain" | "practise" | "recap" | "word"; pauseAt?: number };
 
 // Beats are 5 to 7 seconds and every teaching beat ends on its stopping line,
 // so the learner acts before anything passive runs past 8 seconds (board rule,
