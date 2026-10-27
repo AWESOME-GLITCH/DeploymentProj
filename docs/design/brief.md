@@ -124,3 +124,54 @@ no wit in the line. Hand-coded characters are withdrawn as the primary art. From
   same family: a bold block colour, one oversized expressive character, black stickers with
   intent, a headline of 2 to 4 words in heavy type, one black pill button. Anything that reads as
   clip-art, a diagram, or a form is sent back.
+
+## Glass layer and motion polish (board request, 27 Oct)
+
+ST: "make it animated, their movement well done and more modern and glassy looking, and the paths
+should seem more intertwined, connected and easy to learn and understand from."
+
+### Glass layer
+The block-colour cards and the ink-outline cast stay. Everything that sits ON TOP of a card becomes
+glass: speech bubbles, score cards, the "You said" panel, instruction chips, the beat bar, the
+bottom action bar, tab bars and toggles.
+- Glass recipe: background rgba(255,255,255,0.58) light / rgba(18,18,18,0.55) dark;
+  backdrop-filter blur(16px) saturate(140%); 1.5 px border rgba(255,255,255,0.75) light /
+  rgba(255,255,255,0.18) dark; inner highlight 0 1px 0 rgba(255,255,255,0.6); shadow
+  0 12px 32px -16px rgba(18,18,18,0.35); radius 22 px. Fallback without backdrop-filter: solid cream.
+- Primary button: ink pill with a glass sheen (a soft top highlight gradient) and a 2 px lift on
+  press. Secondary: glass pill with ink text.
+- Progress: a glass track with an ink fill. Bars and knobs get the same sheen.
+- Stickers and outlines stay flat ink; glass never touches the characters.
+- Keep contrast: ink text on glass must stay at 4.5:1 (test on the sun, tangerine and sky cards).
+
+### Motion polish
+- Every entrance is a spring with follow-through: scale from 0.92 and 12 px below, overshoot 1.03,
+  settle, 420 ms, cubic-bezier(.2,1.4,.4,1); children stagger 50 ms.
+- Characters: squash and stretch on landings (scaleY 0.94 then 1.02), anticipation before a walk
+  (lean 6 degrees back, then go), follow-through on stops (one extra bob), blink every 3 to 5 s,
+  breathe 2.8 s loop, head turn towards the thing being talked about.
+- Walk: puppet walk with rock 4 degrees at 6 Hz, bob 10 px, arm and leg flicker, footsteps shown
+  as two faint ink ovals that fade.
+- Cards: a 2 degree parallax tilt following drag or the pointer on desktop; the character layer
+  moves 6 px against the background layer.
+- Feedback: a star sticker pops with a 40 ms burst of four ink dots; Blobert's gags keep their
+  timing (under 900 ms).
+- Scene transitions: the card slides and the next card springs in, 320 ms, never a hard cut.
+- Reduced motion: fades only, no loops.
+
+### The path: intertwined and easy to learn from
+The path is the learner's map of how skills connect, not a row of dots.
+- Draw it as four ribbons (speaking in tangerine, listening in sky, reading and writing in lilac,
+  grammar in mint) that braid into one cream road. Where ribbons cross there is a stop. The ribbon
+  colours show which skills a stop uses; a stop that uses two skills sits on their crossing.
+- Each stop is a landmark (home, shop, cafe, station, office, flag) with a glass label: the can-do
+  in plain words ("Order at a cafe"), a small cast face, and the three stops it unlocks ahead,
+  drawn as thin dotted connectors that light up when the stop is done.
+- The covered stretch is filled in sun with ticks; the next stop glows with a soft glass halo and
+  a "Next" tag; the far stretch is cream outline so the whole journey is visible at a glance.
+- "You" stands on the road as a full-body figure; pressing Start walks them to the next stop.
+- Tapping a stop opens a glass sheet: "You can now..." lines, what it unlocks, a Replay pill.
+- Levels (A1, A2, B1) are gates across the road, drawn as arches, so progress to the next level
+  is a visible place, not a number.
+- The whole path fits on one phone screen scrolled vertically, with the next stop always in view
+  on open.
