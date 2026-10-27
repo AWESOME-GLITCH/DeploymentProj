@@ -9,6 +9,7 @@ import { PLACEMENT, placementLevel } from "@/lib/learning-path/content";
 import { LANGUAGES } from "@/lib/learning-path/i18n";
 import { useStore } from "@/lib/learning-path/store";
 import type { L1, SubLevel } from "@/lib/learning-path/types";
+import { Doodle } from "./art/cast";
 import { Home } from "./Home";
 import { ItemRenderer, type ItemResult } from "./items";
 import { GlowButton, Ring, Say, useLp } from "./ui";
@@ -157,9 +158,17 @@ export function Reward({ onDone }: { onDone: () => void }) {
   const { dispatch } = useStore();
   const [asked, setAsked] = useState(false);
   return (
-    <div className="flex h-full flex-col items-center px-5 pb-5 pt-10 text-center">
-      <Ring fills={[1, 0, 0]} size={180} label={<div className="lp-head">1</div>} />
-      <div className="lp-lesson mt-6"><Say text={t("reward_coach")} size="lesson" auto /></div>
+    <div className="flex h-full flex-col items-center px-5 pb-5 pt-6 text-center">
+      {/* The one hero moment of the first run: a sun block with the figure
+          cropped into it at size, and the day's ring as the sticker on it. */}
+      <div className="relative w-full overflow-hidden" style={{ height: 232, background: "var(--lp-marker)", border: "var(--lp-border-w) solid #121212", borderRadius: "var(--lp-r-xl)", boxShadow: "var(--lp-card-shadow)" }}>
+        <Doodle doodle="jumping" fit="xMidYMax slice" style={{ position: "absolute", insetInlineEnd: "-8%", bottom: 0, width: "78%", height: "116%" }} />
+        {/* Sun is sun in both modes, so the ring takes the literal ink here. */}
+        <div className="absolute" style={{ insetInlineStart: 16, bottom: 16, "--lp-glow": "#121212", "--lp-track": "rgba(18, 18, 18, 0.18)" } as React.CSSProperties}>
+          <Ring fills={[1, 0, 0]} size={104} label={<div className="lp-head" style={{ color: "#121212" }}>1</div>} />
+        </div>
+      </div>
+      <div className="lp-lesson mt-5"><Say text={t("reward_coach")} size="lesson" auto /></div>
       {!asked ? (
         <div className="lp-glass mt-8 w-full p-4">
           <div className="lp-body">{t("notif_title")}</div>
