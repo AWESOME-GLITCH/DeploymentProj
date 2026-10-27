@@ -192,3 +192,54 @@ keeps me engaged." And: "the face is still there." So:
   character knocks with a two-minute challenge, a golden sticker), classmates visible in the world,
   a momentum meter instead of a streak flame, level gates as places, and "You can now..." ledgers
   that grow. Every screen must show at least two of these.
+
+# DIRECTION V3 (board, 27 Oct): glow glass clay. This replaces the flat ink style.
+
+ST was shown four kinds of modern and chose "a mix of these": liquid glass minimal (iOS 26 feel,
+floating translucent panels, depth, big clean type, calm), dark glow futuristic (dark base, aurora
+gradients, soft neon glow on icons and buttons, cyan and violet accents, like Linear or a premium
+fintech app), and soft 3D playful (rounded 3D-looking shapes, soft shadows and gradients, chunky
+buttons, bright but smooth, like Duolingo's newer screens or Headspace). The flat colour-block
+cards, the hand-drawn ink outlines and the black pill buttons are withdrawn.
+
+## Tokens (dark first; a light variant exists but dark is the default)
+- Base: `--bg0 #0B0D1A`, `--bg1 #14173A` (page gradient top to bottom), `--surface rgba(255,255,255,.06)`.
+- Aurora: `--cyan #5EE7FF`, `--violet #8B7CFF`, `--mint #7CF2C6`, `--sun #FFD166`, `--coral #FF7A6B`.
+  Two or three soft blurred blobs per screen, 40% opacity, drifting on a 12 s loop.
+- Text: `--ink #F5F7FF`, `--muted #A6ACD6`. Big clean type: Plus Jakarta Sans 800 at 34 to 40 px for
+  the headline, 600 at 16 px for body. Few words per screen.
+- Light variant: `--bg0 #F4F6FF`, `--bg1 #E9ECFF`, text `#0F1230`, panels white glass.
+
+## Liquid glass panels
+`backdrop-filter: blur(24px) saturate(180%)`; fill `linear-gradient(180deg, rgba(255,255,255,.14),
+rgba(255,255,255,.06))`; rim `1px solid rgba(255,255,255,.22)`; top highlight `inset 0 1px 0
+rgba(255,255,255,.35)`; specular streak on a pseudo element that slides once on entrance and
+follows tilt; shadow `0 24px 48px -24px rgba(0,0,0,.6)`; radius 24 px. Panels float at three depths
+(tab bar nearest, cards middle, world farthest) with a 2 degree tilt parallax.
+
+## Glow
+Icons, the active tab, the primary button and the next stop on the path carry a soft neon glow:
+`box-shadow: 0 0 24px color-mix(in srgb, var(--cyan) 45%, transparent)`, plus a 1 px brighter
+inner edge. Never more than three glowing things on a screen.
+
+## Soft 3D clay
+- Primary button: chunky, 56 px, a vertical gradient from the accent (lighter at the top) to a
+  deeper shade, `inset 0 2px 0 rgba(255,255,255,.35)` highlight, `inset 0 -4px 0 rgba(0,0,0,.28)`
+  underside, soft outer shadow; presses push it down 3 px.
+- Chips, knobs, progress fills, quest ticks and stickers are small clay shapes with the same
+  highlight and underside.
+- The path is a 3D tube road (gradient left-light, right-dark) with stops as clay spheres and
+  landmark buildings as soft rounded blocks with gradient shading; the covered stretch glows mint,
+  the next stop glows cyan, the far stretch is dim glass.
+- Characters are clay figures, not line drawings: rounded heads with radial-gradient skin, big
+  glossy eyes with two highlights, small smile, hair as soft gradient shapes, capsule bodies in
+  bright gradient colours, no ink outlines (a 1 px darker edge at most), a soft shadow underneath,
+  chibi proportions. Expressions by eyes and mouth. Maya cyan and sun, Leo coral, Fatima violet,
+  Sami mint, you sun. Blobert is a translucent jelly blob with an inner glow and a glossy highlight.
+- Everything animated with springs and follow-through; idle breathe and blink; a glow pulse on the
+  thing to tap next.
+
+## What stays from before
+The engagement model (world, episodes, quests, collection, choices, surprises, classmates,
+momentum), the exercise interactions, Blobert's job, the pedagogy, reduced motion, 44 px targets,
+contrast at 4.5:1, British English, the left-edge gallery tab.
