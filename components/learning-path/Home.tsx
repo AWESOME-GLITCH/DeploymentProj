@@ -13,6 +13,7 @@ import { ATOM_LOOKUP, checkpointAvailable, dayIndex, outcomeAchieved, outcomePro
 import { useNow, useStore } from "@/lib/learning-path/store";
 import { CEFR_LABEL, loc } from "@/lib/learning-path/i18n";
 import type { L1, Localised, Strand } from "@/lib/learning-path/types";
+import { Face } from "./art/cast";
 import { GlowButton, useLp } from "./ui";
 
 const LEVEL_WORD: Record<string, string> = { "Pre-A1": "Starter", A1: "Beginner", A2: "Elementary", B1: "Intermediate", B2: "Upper intermediate", C1: "Advanced", C2: "Proficient" };
@@ -183,20 +184,30 @@ export function Home({ onStart, onSecond, onCheckpoint }: { onStart: () => void;
         ) : null}
       </div>
 
-      {/* Today, the level, one line, one button */}
-      <div className="relative px-5 pb-3">
-        <div className="lp-small" style={{ color: "var(--lp-paper-faint)" }}>{[level, `${minutes} min`].filter(Boolean).join(" · ")}</div>
-        {lessonName ? <div className="lp-lesson mt-1" style={{ fontWeight: 600 }}>{lessonName}</div> : null}
-        <div className="lp-small mt-1" style={{ color: "var(--lp-paper-soft)" }}>{coach}</div>
-        <div className="mt-3">
+      {/* Today: one sun block, Maya in it at size, the lesson, one button. She
+          is cropped by the card rather than floating in it, so Today reads as
+          the coach asking rather than as a panel of facts. */}
+      <div className="relative mx-4 mb-3 overflow-hidden px-5 pb-4 pt-4" style={{ background: "var(--lp-marker)", border: "var(--lp-border-w) solid #121212", borderRadius: "var(--lp-r-xl)", boxShadow: "var(--lp-card-shadow)", color: "#121212" }}>
+        <Face
+          face={doneToday ? "happy" : missed >= 2 ? "wow" : "idle"}
+          title={t("coach_label")}
+          fit="xMidYMin slice"
+          style={{ position: "absolute", insetInlineEnd: -26, bottom: -14, width: 168, height: 168, pointerEvents: "none" }}
+        />
+        <div className="relative" style={{ maxWidth: "62%" }}>
+          <div className="lp-small" style={{ color: "#121212", opacity: 0.72 }}>{[level, `${minutes} min`].filter(Boolean).join(" · ")}</div>
+          {lessonName ? <div className="lp-lesson mt-1">{lessonName}</div> : null}
+          <div className="lp-small mt-1">{coach}</div>
+        </div>
+        <div className="relative mt-4">
           {!doneToday ? (
             <GlowButton onClick={onStart}>{cur ? t("continue") : t("start")}</GlowButton>
           ) : !secondDone ? (
-            <button type="button" onClick={onSecond} className="lp-small w-full text-center" style={{ minHeight: 56, color: "var(--lp-glow)", fontWeight: 600, background: "none", border: "none" }}>{t("more_today")}</button>
+            <button type="button" onClick={onSecond} className="lp-small w-full text-center" style={{ minHeight: 56, color: "#121212", fontWeight: 700, background: "none", border: "none", textDecoration: "underline" }}>{t("more_today")}</button>
           ) : (
-            <div className="lp-small text-center" style={{ minHeight: 56, lineHeight: "56px", color: "var(--lp-paper-faint)" }}>{t("coach_second")}</div>
+            <div className="lp-small text-center" style={{ minHeight: 56, lineHeight: "56px", color: "#121212", opacity: 0.72 }}>{t("coach_second")}</div>
           )}
-          {ckp && onCheckpoint ? <button type="button" onClick={onCheckpoint} className="lp-small mt-2 w-full text-center" style={{ minHeight: 40, color: "var(--lp-glow)", fontWeight: 600, background: "none", border: "none" }}>{t("checkpoint_ready")}</button> : null}
+          {ckp && onCheckpoint ? <button type="button" onClick={onCheckpoint} className="lp-small mt-2 w-full text-center" style={{ minHeight: 40, color: "#121212", fontWeight: 700, background: "none", border: "none", textDecoration: "underline" }}>{t("checkpoint_ready")}</button> : null}
         </div>
       </div>
     </div>

@@ -17,13 +17,15 @@
 // budget: her, the line she just said, one line of feedback in words, the mic.
 // No meters, no "you said", no dots, no chips, no second instruction line.
 //
-// The figure is the explainer kit character, so the tutor in a lesson and the
-// tutor in practice are the same person. Every pose is a pure function of the
-// frame and the turn state, so it is deterministic and stops dead when the
-// learner has asked for less motion.
+// The figure is Maya from the pre-rendered cast, the same face the prototypes
+// and the explainers use, so the tutor in a lesson and the tutor in practice
+// are the same person. Which expression shows is a pure function of the frame
+// and the turn state, so it is deterministic and stops dead when the learner
+// has asked for less motion.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Character, type Gesture, type Mood } from "../explainer/lib";
+import { type Gesture, type Mood } from "../explainer/lib";
+import { Face, type CastFace } from "../art/cast";
 import { Recorder, type ItemProps } from "../items";
 import { loc, makeT } from "@/lib/learning-path/i18n";
 import { classifyTurn, scoreOpenResponse, scoreReadAloud, scoreRelay, type SceneIntent, type SpeechScore } from "@/lib/learning-path/scoring";
@@ -37,7 +39,6 @@ export function isCoachItem(item: Item): boolean {
 }
 
 const FPS = 30;
-const SEED = 23;
 /** The coach never finishes a line before this, so her mouth is seen moving. */
 const MIN_TALK_MS = 900;
 /** One try and two retries before she offers the choice to carry on. */
@@ -562,41 +563,46 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
   );
 }
 
-/** The tutor on a lit stage: a 2D flat-vector figure framed from the waist. */
+/**
+ * Maya on a sun block, oversized and cropped by the card.
+ *
+ * The art is the pre-rendered cast (docs/design/brief.md, "Illustration
+ * source"), never redrawn: talking is a swap between the talk and idle faces on
+ * the syllable beat, listening is the listen face with a lean-in, and a
+ * response is one of the named reaction faces. Which face shows is a pure
+ * function of the frame and the turn, so it is deterministic and stops dead
+ * when the learner has asked for less motion.
+ */
 function CoachStage({ frame, talking, gesture, mood, bow, label, onTap, tapLabel }: {
   frame: number; talking: boolean; gesture: Gesture; mood: Mood; bow: number; label: string; onTap: () => void; tapLabel: string;
 }) {
-  const poseRef = useRef<{ g: Gesture; from: Gesture; at: number }>({ g: gesture, from: gesture, at: 0 });
-  if (poseRef.current.g !== gesture) poseRef.current = { g: gesture, from: poseRef.current.g, at: frame };
-  const pose = poseRef.current;
+  // 30 fps, so four frames is about the 125 ms beat the prototype speaks on.
+  const beat = Math.floor(frame / 4) % 2 === 0;
+  const face: CastFace = gesture === "listen" ? "listen"
+    : talking ? (beat ? "talk" : "idle")
+    : mood === "happy" ? "happy"
+    : gesture === "thumbs" ? "wow"
+    : gesture === "point" ? "oops"
+    : "idle";
+  const listening = gesture === "listen";
   return (
     <div className="lp-video flex min-h-0 flex-1 items-end justify-center" style={{ maxHeight: 330 }}>
-      <button type="button" onClick={onTap} aria-label={tapLabel} className="flex h-full w-full items-end justify-center" style={{ background: "none", border: "none", padding: 0, cursor: "pointer" }}>
-        <svg viewBox="0 54 420 308" role="img" aria-label={label} style={{ width: "100%", height: "100%", display: "block" }}>
-          <defs>
-            <radialGradient id="lp-coach-lamp" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" style={{ stopColor: "var(--lp-glow-2)", stopOpacity: 0.3 }} />
-              <stop offset="100%" style={{ stopColor: "var(--lp-glow)", stopOpacity: 0 }} />
-            </radialGradient>
-          </defs>
-          <circle cx="210" cy="200" r="165" fill="url(#lp-coach-lamp)" />
-          <g transform={`translate(0 ${bow})`}>
-            <Character
-              who="maya"
-              x={210}
-              y={500}
-              frame={frame}
-              scale={0.92}
-              legs={false}
-              seed={SEED}
-              talking={talking}
-              gesture={pose.g}
-              from={pose.from}
-              gestureAt={pose.at}
-              mood={mood}
-            />
-          </g>
-        </svg>
+      <button type="button" onClick={onTap} aria-label={tapLabel} className="relative flex h-full w-full items-end justify-center overflow-hidden" style={{ background: "none", border: "none", padding: 0, cursor: "pointer" }}>
+        <Face
+          face={face}
+          title={label}
+          fit="xMidYMin slice"
+          style={{
+            position: "absolute",
+            insetInlineStart: "50%",
+            bottom: listening ? -14 : 0,
+            width: "118%",
+            height: "128%",
+            transform: `translateX(-50%) translateY(${bow}px)${listening ? " scale(1.06) rotate(-2deg)" : ""}`,
+            transformOrigin: "50% 100%",
+            transition: "transform var(--lp-t-move) var(--lp-ease-emph), bottom var(--lp-t-move) var(--lp-ease-emph)",
+          }}
+        />
       </button>
     </div>
   );
