@@ -109,7 +109,7 @@ export function IsoStop({ x, y, w, h, colour, shade = true }: { x: number; y: nu
 export function StopTick({ x, y, size = 5.5 }: { x: number; y: number; size?: number }) {
   return (
     <polyline points={`${x - size},${y - size * 1.7} ${x - size * 0.3},${y - size} ${x + size},${y - size * 2.2}`}
-      fill="none" stroke="#fff" strokeWidth={size * 0.45} strokeLinecap="round" strokeLinejoin="round" />
+      fill="none" stroke="var(--lp-bg-0)" strokeWidth={size * 0.45} strokeLinecap="round" strokeLinejoin="round" />
   );
 }
 
