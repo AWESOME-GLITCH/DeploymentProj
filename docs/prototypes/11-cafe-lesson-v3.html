@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>At the cafe · v3 sample</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap">
+<style>
+/* Direction v3: glow glass clay. Dark first, light behind the toggle. */
+:root{
+  --bg0:#0B0D1A; --bg1:#161A40;
+  --cyan:#5EE7FF; --violet:#8B7CFF; --mint:#7CF2C6; --sun:#FFD166; --coral:#FF7A6B;
+  --ink:#F5F7FF; --muted:#A6ACD6; --dim:#6C729E;
+  --glass-a:rgba(255,255,255,.14); --glass-b:rgba(255,255,255,.05);
+  --rim:rgba(255,255,255,.20); --rim-top:rgba(255,255,255,.34);
+  --shadow:0 24px 48px -24px rgba(0,0,0,.65);
+  --wall-a:#2B2670; --wall-b:#17153D; --floor:#0F0F2A;
+  --aurora-alpha:.42;
+  --spring:cubic-bezier(.2,1.4,.4,1); --ease:cubic-bezier(.2,.8,.3,1);
+}
+[data-theme="light"]{
+  --bg0:#EEF1FF; --bg1:#DCE2FF;
+  --ink:#11143A; --muted:#545B8C; --dim:#8D93BE;
+  --glass-a:rgba(255,255,255,.72); --glass-b:rgba(255,255,255,.42);
+  --rim:rgba(255,255,255,.85); --rim-top:rgba(255,255,255,1);
+  --shadow:0 24px 44px -26px rgba(40,50,120,.45);
+  --wall-a:#D9D2FF; --wall-b:#BFB6FA; --floor:#A99FEA;
+  --aurora-alpha:.55;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{
+  font-family:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color:var(--ink); background:linear-gradient(180deg,var(--bg0),var(--bg1));
+  overflow:hidden; -webkit-font-smoothing:antialiased;
+}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
+button:focus-visible{outline:3px solid var(--cyan);outline-offset:3px}
+
+/* Aurora + grain */
+.aurora{position:fixed;inset:-20%;pointer-events:none;z-index:0;opacity:var(--aurora-alpha)}
+.aurora i{position:absolute;border-radius:50%;filter:blur(60px);animation:drift 12s ease-in-out infinite alternate}
+.aurora i:nth-child(1){width:60vmax;height:60vmax;left:-10%;top:-5%;background:var(--violet)}
+.aurora i:nth-child(2){width:50vmax;height:50vmax;right:-15%;top:25%;background:var(--cyan);animation-delay:-4s}
+.aurora i:nth-child(3){width:45vmax;height:45vmax;left:10%;bottom:-20%;background:var(--coral);opacity:.6;animation-delay:-8s}
+@keyframes drift{to{transform:translate(4%,-3%) scale(1.08)}}
+.grain{position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.05;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+
+.app{position:relative;z-index:2;height:100dvh;max-width:430px;margin:0 auto;padding:12px 16px 16px;display:flex;flex-direction:column;overflow:hidden}
+
+/* Liquid glass */
+.glass{
+  position:relative; border-radius:24px; overflow:hidden;
+  background:linear-gradient(180deg,var(--glass-a),var(--glass-b));
+  -webkit-backdrop-filter:blur(24px) saturate(180%); backdrop-filter:blur(24px) saturate(180%);
+  border:1px solid var(--rim); box-shadow:inset 0 1px 0 var(--rim-top), var(--shadow);
+}
+.glass::after{ /* specular streak */
+  content:"";position:absolute;inset:-40% -60%;pointer-events:none;
+  background:linear-gradient(115deg,transparent 42%,rgba(255,255,255,.22) 50%,transparent 58%);
+  transform:translateX(-60%);animation:streak 1.1s var(--ease) .25s both;
+}
+@keyframes streak{to{transform:translateX(60%)}}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .glass{background:#1C2050} [data-theme="light"] .glass{background:#F7F8FF}
+}
+
+/* Clay buttons */
+.clay{
+  height:58px;border-radius:20px;width:100%;font-weight:800;font-size:18px;letter-spacing:.2px;
+  color:#04263A;display:flex;align-items:center;justify-content:center;gap:10px;
+  background:linear-gradient(180deg,#9AF1FF 0%,#4FD3F5 55%,#2DB3DE 100%);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.65),inset 0 -5px 0 rgba(0,40,70,.28),0 0 28px rgba(94,231,255,.45),0 14px 24px -12px rgba(0,30,60,.7);
+  transition:transform .08s var(--ease),box-shadow .08s var(--ease);
+}
+.clay:active{transform:translateY(3px);box-shadow:inset 0 2px 0 rgba(255,255,255,.55),inset 0 -2px 0 rgba(0,40,70,.28),0 0 18px rgba(94,231,255,.35),0 8px 16px -10px rgba(0,30,60,.7)}
+.clay.mint{color:#053827;background:linear-gradient(180deg,#B9FFE6 0%,#7CF2C6 55%,#43D3A0 100%);box-shadow:inset 0 2px 0 rgba(255,255,255,.65),inset 0 -5px 0 rgba(0,60,40,.28),0 0 28px rgba(124,242,198,.45),0 14px 24px -12px rgba(0,30,20,.7)}
+.clay.sun{color:#3A2600;background:linear-gradient(180deg,#FFE7A6 0%,#FFD166 55%,#F2AE2E 100%);box-shadow:inset 0 2px 0 rgba(255,255,255,.65),inset 0 -5px 0 rgba(90,50,0,.28),0 0 26px rgba(255,209,102,.45),0 14px 24px -12px rgba(40,20,0,.7)}
+.clay.sm{height:40px;border-radius:14px;font-size:15px;width:auto;padding:0 16px}
+.ghost{height:48px;border-radius:16px;width:100%;font-weight:700;color:var(--muted)}
+
+/* Header */
+.top{display:flex;align-items:center;gap:10px;height:44px;flex:none}
+.round{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;flex:none}
+.round svg{width:20px;height:20px}
+.track{flex:1;height:14px;border-radius:99px;padding:3px}
+.track .fill{height:100%;width:0;border-radius:99px;background:linear-gradient(180deg,#B9FFE6,#43D3A0);box-shadow:0 0 14px rgba(124,242,198,.7),inset 0 1px 0 rgba(255,255,255,.7);transition:width .6s var(--spring)}
+.chip{height:34px;border-radius:99px;padding:0 12px;display:flex;align-items:center;gap:6px;font-weight:800;font-size:14px;flex:none}
+.chip .bolt{width:16px;height:16px}
+
+/* Screens */
+.stage{position:relative;flex:1;margin-top:12px}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;pointer-events:none}
+.screen.on{opacity:1;pointer-events:auto}
+.kicker{font-size:13px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--cyan)}
+[data-theme="light"] .kicker{color:#0A7FA6}
+h1{font-size:34px;line-height:1.05;letter-spacing:-.8px;margin:6px 0 4px;font-weight:800}
+.sub{font-size:16px;color:var(--muted);margin:0;font-weight:600}
+.k .w{display:inline-block;white-space:nowrap}.k .w span{display:inline-block;opacity:0;transform:translateY(14px) scale(.9);animation:kin .5s var(--spring) forwards}
+@keyframes kin{to{opacity:1;transform:none}}
+
+/* Scene */
+.scene{height:330px;flex:none;margin-top:14px;border-radius:28px}
+.scene.short{height:262px}
+.scene .bd{position:absolute;inset:0;width:100%;height:100%}
+.scene .layer{position:absolute;inset:0}
+.char{position:absolute;bottom:0}
+.char svg{display:block;width:100%;height:auto;overflow:visible}
+.leo{left:6%;width:150px;bottom:60px}
+.maya{right:3%;width:150px;bottom:-40px}
+.counter{position:absolute;left:0;right:0;bottom:0;height:86px}
+.bubble{position:absolute;top:14px;right:14px;max-width:62%;padding:12px 14px;border-radius:20px 20px 6px 20px;font-weight:700;font-size:16px;line-height:1.25}
+.bubble .hidden{letter-spacing:3px;color:var(--muted)}
+.bubble.left{left:14px;right:auto;border-radius:20px 20px 20px 6px}
+.cups{position:absolute;bottom:64px;left:34%;display:flex;gap:4px}
+.cups svg{width:46px;height:46px}
+
+/* Options */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.opt{height:124px;border-radius:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-weight:800;font-size:16px;transition:transform .12s var(--ease),box-shadow .3s}
+.opt svg{width:92px;height:62px}
+.opt:active{transform:scale(.97)}
+.opt.right{box-shadow:0 0 0 2px var(--mint),0 0 30px rgba(124,242,198,.55),var(--shadow)}
+.opt.gone{opacity:.28;pointer-events:none;filter:saturate(.3)}
+
+/* Build */
+.sentence{margin-top:14px;min-height:96px;padding:14px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start}
+.slot{height:38px;min-width:52px;border-radius:12px;border:1.5px dashed var(--dim);flex:none}
+.bank{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:22px;padding:0 6px}
+.tile{height:52px;padding:0 18px;border-radius:15px;font-weight:800;font-size:18px;
+  background:linear-gradient(180deg,rgba(255,255,255,.26),rgba(255,255,255,.08));
+  border:1px solid var(--rim);box-shadow:inset 0 1px 0 var(--rim-top),inset 0 -4px 0 rgba(0,0,0,.22),0 10px 18px -12px rgba(0,0,0,.7);
+  -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);transition:transform .1s var(--ease)}
+.tile:active{transform:translateY(2px)}
+.tile.placed{height:38px;padding:0 12px;font-size:17px;color:#053827;border:0;
+  background:linear-gradient(180deg,#C9FFEC,#7CF2C6);box-shadow:inset 0 2px 0 rgba(255,255,255,.7),inset 0 -3px 0 rgba(0,60,40,.25),0 0 16px rgba(124,242,198,.45)}
+.tile.used{visibility:hidden}
+
+/* Feedback sheet */
+.sheet{position:absolute;left:-4px;right:-4px;bottom:-4px;padding:18px 18px 18px;border-radius:28px;transform:translateY(120%);transition:transform .42s var(--spring);z-index:20}
+.sheet.glass{background:linear-gradient(180deg,rgba(40,46,104,.94),rgba(22,26,64,.96))}
+[data-theme="light"] .sheet.glass{background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(240,243,255,.96))}
+.sheet.up{transform:none}
+.sheet .row{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.sheet .medal{width:52px;height:52px;flex:none}
+.sheet b{font-size:22px;display:block}
+.sheet span{color:var(--muted);font-weight:600}
+
+/* Hint */
+.hint{margin-top:10px;font-weight:700;color:var(--sun);min-height:22px;text-align:center;opacity:0;transition:opacity .3s}
+.hint.on{opacity:1}
+.shelf{margin:10px auto 0;padding:8px 14px 8px 8px;border-radius:99px;display:flex;align-items:center;gap:10px;font-weight:700;width:max-content;opacity:0}
+.shelf.on{animation:popin .45s var(--spring) forwards}
+.shelf svg{width:34px;height:30px}
+
+/* Reward */
+.chestwrap{position:relative;height:250px;margin-top:10px;display:grid;place-items:center}
+.halo{position:absolute;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(255,209,102,.55),transparent 65%);filter:blur(8px);animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.08);opacity:.8}}
+.chest{position:relative;width:170px;cursor:pointer}
+.chest.shake{animation:shake 1.6s ease-in-out infinite}
+@keyframes shake{0%,70%,100%{transform:rotate(0)}74%{transform:rotate(-5deg)}78%{transform:rotate(5deg)}82%{transform:rotate(-3deg)}86%{transform:rotate(2deg)}}
+.lid{transform-box:fill-box;transform-origin:3% 100%;transition:transform .5s var(--spring)}
+.chest.open .lid{transform:rotate(-30deg)}
+.prize{position:absolute;width:96px;opacity:0;transform:translateY(30px) scale(.4)}
+.prize.up{animation:rise .9s var(--spring) forwards}
+@keyframes rise{to{opacity:1;transform:translateY(-118px) scale(1.05)}}
+.ledger{padding:14px 16px;margin-top:6px}
+.ledger div{display:flex;align-items:center;gap:10px;font-weight:700;padding:5px 0}
+.tick{width:24px;height:24px;border-radius:50%;flex:none;display:grid;place-items:center;background:linear-gradient(180deg,#C9FFEC,#43D3A0);box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 0 10px rgba(124,242,198,.5)}
+.tick svg{width:14px;height:14px}
+.momentum{display:flex;gap:6px;margin-top:10px;align-items:center;justify-content:center;color:var(--muted);font-weight:700;font-size:14px}
+.momentum i{width:22px;height:8px;border-radius:9px;background:var(--glass-a);border:1px solid var(--rim)}
+.momentum i.on{background:linear-gradient(180deg,#FFE7A6,#F2AE2E);border:0;box-shadow:0 0 10px rgba(255,209,102,.6)}
+.steps{padding:6px 14px;margin-top:14px}
+.steps div{display:flex;align-items:center;gap:12px;height:46px;font-weight:700}
+.steps div+div{border-top:1px solid var(--rim)}
+.dot{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;font-size:15px;font-weight:800;color:#04263A;background:linear-gradient(180deg,#9AF1FF,#2DB3DE);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),inset 0 -3px 0 rgba(0,40,70,.25)}
+.spacer{flex:1}
+
+/* Characters: idle life */
+.breathe{animation:breathe 2.8s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 100%}
+@keyframes breathe{50%{transform:scaleY(1.018) translateY(-1px)}}
+.eyes{animation:blink 4.6s infinite;transform-box:fill-box;transform-origin:center}
+@keyframes blink{0%,95%,100%{transform:scaleY(1)}97%{transform:scaleY(.08)}}
+.wave{animation:wave 1.2s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 92%}
+@keyframes wave{50%{transform:rotate(-22deg)}}
+.m-open,.m-grin,.e-happy{display:none}
+.talk .m-smile{display:none}.talk .m-open{display:inline}
+.happy .m-smile,.happy .m-open{display:none}.happy .m-grin{display:inline}
+.happy .e-open{display:none}.happy .e-happy{display:inline}
+.pop{animation:popin .45s var(--spring)}
+@keyframes popin{0%{transform:scale(.92) translateY(10px);opacity:0}100%{transform:none;opacity:1}}
+
+/* Blobert and bursts */
+#blob{position:fixed;width:120px;z-index:50;pointer-events:none;left:0;top:0;opacity:0}
+#blob svg{width:100%;overflow:visible}
+.swish{position:fixed;z-index:51;padding:6px 12px;border-radius:99px;font-weight:800;font-size:14px;pointer-events:none}
+.bit{position:fixed;z-index:60;pointer-events:none;border-radius:50%}
+
+/* Gallery back tab */
+.lp-gallery-back{position:fixed;left:0;top:46%;z-index:2147483000;writing-mode:vertical-rl;transform:rotate(180deg);background:#121212;color:#fff;font:700 12px 'Plus Jakarta Sans',system-ui,sans-serif;letter-spacing:.6px;padding:12px 7px;border-radius:12px 0 0 12px;text-decoration:none;opacity:.92;box-shadow:0 2px 8px rgba(0,0,0,.25);line-height:1}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.001s!important;animation-iteration-count:1!important;transition-duration:.15s!important}
+  .aurora i{animation:none}
+}
+</style>
+</head>
+<body>
+<div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+<div class="grain" aria-hidden="true"></div>
+
+<main class="app">
+  <header class="top">
+    <button class="round glass" id="close" aria-label="Back to all prototypes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <div class="track glass" aria-label="Lesson progress"><div class="fill" id="fill"></div></div>
+    <div class="chip glass" title="Momentum: days in a row">
+      <svg class="bolt" viewBox="0 0 24 24"><defs><linearGradient id="bg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFE7A6"/><stop offset="1" stop-color="#F2AE2E"/></linearGradient></defs><path d="M13 2L4 14h7l-1 8 9-12h-7z" fill="url(#bg1)"/></svg>
+      <span id="xp">40</span>
+    </div>
+    <button class="round glass" id="theme" aria-label="Switch light or dark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z"/></svg>
+    </button>
+  </header>
+
+  <div class="stage">
+    <!-- 0 · Intro -->
+    <section class="screen on" id="s0" aria-label="Lesson start">
+      <div class="kicker">Lesson 3 · 3 minutes</div>
+      <h1 class="k" data-k="At the cafe"></h1>
+      <p class="sub">Order two coffees. Ask for the bill.</p>
+      <div class="scene glass" id="scene0"></div>
+      <div class="steps glass">
+        <div><span class="dot">1</span>Listen and pick</div>
+        <div><span class="dot">2</span>Build the sentence</div>
+        <div><span class="dot" style="background:linear-gradient(180deg,#FFE7A6,#F2AE2E);color:#3A2600">★</span>Open your reward</div>
+      </div>
+      <div class="spacer"></div>
+      <button class="clay" id="start">Start <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </section>
+
+    <!-- 1 · Listen and pick -->
+    <section class="screen" id="s1" aria-label="Listen and pick">
+      <div class="kicker">Listen and pick</div>
+      <h1 class="k" data-k="What does Maya order?"></h1>
+      <div class="scene glass short" id="scene1"></div>
+      <div class="grid" id="opts"></div>
+      <div class="hint" id="hint1">Listen again: how many cups?</div>
+    </section>
+
+    <!-- 2 · Build -->
+    <section class="screen" id="s2" aria-label="Build the sentence">
+      <div class="kicker">Build the sentence</div>
+      <h1 class="k" data-k="Ask for the bill"></h1>
+      <div class="scene glass short" id="scene2"></div>
+      <div class="sentence glass" id="slots" aria-live="polite"></div>
+      <div class="bank" id="bank"></div>
+    </section>
+
+    <!-- 3 · Reward -->
+    <section class="screen" id="s3" aria-label="Reward">
+      <div class="kicker">Lesson complete</div>
+      <h1 class="k" data-k="You can now order at a cafe"></h1>
+      <div class="chestwrap">
+        <div class="halo"></div>
+        <svg class="prize" id="prize" viewBox="0 0 100 100" aria-hidden="true"></svg>
+        <button class="chest shake" id="chest" aria-label="Open your reward"></button>
+      </div>
+      <div class="shelf glass" id="shelf"><span id="shelfIcon"></span>New on your shelf: the coffee cup</div>
+      <div class="ledger glass">
+        <div><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="#053827" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></span>Understand an order</div>
+        <div><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="#053827" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></span>Ask for the bill politely</div>
+      </div>
+      <div class="momentum" aria-label="Four days in a row"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on" id="today"></i><i></i><i></i><i></i>&nbsp; Day 4</div>
+      <div class="spacer"></div>
+      <button class="clay mint" id="again" style="display:none">Back to all prototypes</button>
+      <button class="ghost" id="replay" style="display:none">Play again</button>
+    </section>
+
+    <!-- Feedback sheet -->
+    <div class="sheet glass" id="sheet" role="status">
+      <div class="row">
+        <svg class="medal" viewBox="0 0 60 60" aria-hidden="true"><defs><radialGradient id="md" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#FFF3C4"/><stop offset=".55" stop-color="#FFD166"/><stop offset="1" stop-color="#E39A1E"/></radialGradient></defs><circle cx="30" cy="30" r="26" fill="url(#md)"/><path d="M30 15l4.4 9 9.9 1.4-7.2 7 1.7 9.8L30 37.6l-8.8 4.6 1.7-9.8-7.2-7 9.9-1.4z" fill="#FFF8DD" opacity=".95"/><ellipse cx="22" cy="17" rx="8" ry="4" fill="#fff" opacity=".55" transform="rotate(-25 22 17)"/></svg>
+        <div><b id="sheetT">Spot on</b><span id="sheetS">+10 · Two coffees, please.</span></div>
+      </div>
+      <button class="clay mint" id="next">Continue</button>
+    </div>
+  </div>
+</main>
+
+<div id="blob" aria-hidden="true"></div>
+
+<!-- gallery-back -->
+<a class="lp-gallery-back" href="index.html" aria-label="Back to all prototypes">‹ All</a>
+
+<script>
+(() => {
+const $ = (s, r = document) => r.querySelector(s);
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let uid = 0;
+
+/* ---------- Clay characters ---------- */
+const CAST = {
+  leo:  { skin:["#FFE3CC","#E9A57D"], hair:["#5A3B33","#26171A"], top:["#FFA394","#E4534A"], style:"leo" },
+  maya: { skin:["#E9AE84","#B36E47"], hair:["#45335C","#1D1430"], top:["#FFE7A0","#F0B23A"], style:"maya" }
+};
+function clay(name, opts = {}) {
+  const c = CAST[name], id = "c" + (++uid);
+  const hair = c.style === "leo"
+    ? `<path d="M40 96 C34 52 66 28 104 28 C142 28 168 56 162 96 C156 82 146 72 132 68 C134 76 129 83 122 85 C116 73 102 67 86 69 C68 71 52 81 40 96 Z" fill="url(#${id}h)"/>
+       <path d="M70 46 C84 36 104 34 120 38" stroke="#fff" stroke-opacity=".25" stroke-width="5" stroke-linecap="round" fill="none"/>`
+    : `<path d="M38 104 C32 56 66 32 100 32 C138 32 168 58 162 104 C158 86 150 74 138 68 C120 76 92 78 70 70 C56 76 44 88 38 104 Z" fill="url(#${id}h)"/>
+       <path d="M46 84 C72 62 128 62 154 84" stroke="#5EE7FF" stroke-width="9" stroke-linecap="round" fill="none"/>
+       <path d="M60 74 C80 64 104 63 122 66" stroke="#fff" stroke-opacity=".55" stroke-width="3" stroke-linecap="round" fill="none"/>`;
+  const back = c.style === "maya" ? `<circle cx="100" cy="30" r="24" fill="url(#${id}h)"/><ellipse cx="92" cy="22" rx="8" ry="4" fill="#fff" opacity=".2"/>` : "";
+  const outfit = c.style === "leo"
+    ? `<path d="M70 178 h60 v58 a16 16 0 0 1 -16 16 h-28 a16 16 0 0 1 -16 -16z" fill="url(#${id}a)"/>
+       <circle cx="100" cy="206" r="10" fill="#7CF2C6"/><path d="M95 203 h10 v6 a4 4 0 0 1 -4 4 h-2 a4 4 0 0 1 -4 -4z" fill="#0B5E46" opacity=".75"/>`
+    : `<path d="M78 156 Q100 176 122 156" stroke="#5EE7FF" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="100" cy="172" r="6" fill="#5EE7FF"/>`;
+  const armR = opts.wave ? "wave" : "";
+  return `<svg viewBox="0 0 200 270" class="${opts.cls || ""}" role="img" aria-label="${name}">
+  <defs>
+    <radialGradient id="${id}s" cx=".38" cy=".32" r=".78"><stop offset="0" stop-color="${c.skin[0]}"/><stop offset="1" stop-color="${c.skin[1]}"/></radialGradient>
+    <linearGradient id="${id}t" x1="0" y1="0" x2=".3" y2="1"><stop offset="0" stop-color="${c.top[0]}"/><stop offset="1" stop-color="${c.top[1]}"/></linearGradient>
+    <linearGradient id="${id}h" x1="0" y1="0" x2=".4" y2="1"><stop offset="0" stop-color="${c.hair[0]}"/><stop offset="1" stop-color="${c.hair[1]}"/></linearGradient>
+    <linearGradient id="${id}a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF8EE"/><stop offset="1" stop-color="#E6D6C2"/></linearGradient>
+    <filter id="${id}b" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5"/></filter>
+  </defs>
+  <ellipse cx="100" cy="262" rx="60" ry="9" fill="#000" opacity=".35" filter="url(#${id}b)"/>
+  <g class="breathe">
+    <g><rect x="34" y="160" width="26" height="72" rx="13" fill="url(#${id}t)"/><circle cx="47" cy="232" r="13" fill="url(#${id}s)"/></g>
+    <g class="${armR}"><rect x="140" y="160" width="26" height="72" rx="13" fill="url(#${id}t)"/><circle cx="153" cy="232" r="13" fill="url(#${id}s)"/></g>
+    <rect x="52" y="148" width="96" height="114" rx="44" fill="url(#${id}t)"/>
+    <rect x="64" y="156" width="38" height="16" rx="8" fill="#fff" opacity=".28"/>
+    ${outfit}
+    <rect x="88" y="138" width="24" height="22" rx="10" fill="url(#${id}s)"/>
+    <g>
+      ${back}
+      <circle cx="40" cy="110" r="13" fill="url(#${id}s)"/><circle cx="160" cy="110" r="13" fill="url(#${id}s)"/>
+      <circle cx="100" cy="100" r="62" fill="url(#${id}s)"/>
+      <ellipse cx="70" cy="128" rx="11" ry="7" fill="#FF7A6B" opacity=".45" filter="url(#${id}b)"/>
+      <ellipse cx="130" cy="128" rx="11" ry="7" fill="#FF7A6B" opacity=".45" filter="url(#${id}b)"/>
+      <g class="eyes e-open">
+        <ellipse cx="78" cy="108" rx="10" ry="12.5" fill="#1A1433"/><ellipse cx="122" cy="108" rx="10" ry="12.5" fill="#1A1433"/>
+        <circle cx="82" cy="103" r="4" fill="#fff"/><circle cx="126" cy="103" r="4" fill="#fff"/>
+        <circle cx="75" cy="113" r="1.8" fill="#fff" opacity=".8"/><circle cx="119" cy="113" r="1.8" fill="#fff" opacity=".8"/>
+      </g>
+      <g class="e-happy" stroke="#1A1433" stroke-width="5" stroke-linecap="round" fill="none"><path d="M68 112 Q78 99 88 112"/><path d="M112 112 Q122 99 132 112"/></g>
+      <path d="M66 88 Q78 82 90 86" stroke="${c.hair[1]}" stroke-width="5" stroke-linecap="round" fill="none"/>
+      <path d="M110 86 Q122 82 134 88" stroke="${c.hair[1]}" stroke-width="5" stroke-linecap="round" fill="none"/>
+      <path class="m-smile" d="M88 132 Q100 143 112 132" stroke="#5A2433" stroke-width="5" stroke-linecap="round" fill="none"/>
+      <g class="m-open"><path d="M87 129 Q100 152 113 129 Z" fill="#5A2433"/><path d="M93 140 Q100 148 107 140 Z" fill="#FF8FA0"/></g>
+      <g class="m-grin"><path d="M82 127 Q100 158 118 127 Z" fill="#5A2433"/><path d="M86 129 h28 l-2 6 h-24z" fill="#fff"/></g>
+      ${hair}
+      <ellipse cx="78" cy="62" rx="20" ry="9" fill="#fff" opacity=".22" transform="rotate(-22 78 62)"/>
+    </g>
+  </g>
+</svg>`;
+}
+
+/* ---------- Props ---------- */
+function cupSVG(kind = "coffee") {
+  const id = "p" + (++uid);
+  const liquid = kind === "tea" ? ["#F4B860", "#C47A22"] : ["#9A5B3A", "#4E2A1A"];
+  const tag = kind === "tea" ? `<path d="M58 16 C62 28 58 30 56 34" stroke="#E8E2FF" stroke-width="2" fill="none"/><rect x="50" y="32" width="12" height="10" rx="3" fill="#FFD166"/>` : "";
+  return `<svg viewBox="0 0 90 76"><defs>
+    <linearGradient id="${id}c" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#C9D0FF"/></linearGradient>
+    <radialGradient id="${id}l" cx=".4" cy=".4" r=".7"><stop offset="0" stop-color="${liquid[0]}"/><stop offset="1" stop-color="${liquid[1]}"/></radialGradient></defs>
+    <ellipse cx="42" cy="68" rx="32" ry="6" fill="url(#${id}c)"/>
+    <path d="M18 30 h48 l-5 28 a10 10 0 0 1 -10 8 h-18 a10 10 0 0 1 -10 -8 z" fill="url(#${id}c)"/>
+    <path d="M64 36 c14 -2 16 18 0 18" stroke="url(#${id}c)" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <ellipse cx="42" cy="31" rx="24" ry="6" fill="url(#${id}l)"/>
+    <rect x="23" y="38" width="7" height="18" rx="3.5" fill="#fff" opacity=".55"/>
+    <path d="M34 22 c-4 -6 4 -8 0 -14" stroke="#B9C2FF" stroke-width="3" fill="none" stroke-linecap="round" opacity=".8"><animate attributeName="opacity" values=".2;.9;.2" dur="2.4s" repeatCount="indefinite"/></path>
+    <path d="M48 22 c-4 -6 4 -8 0 -14" stroke="#B9C2FF" stroke-width="3" fill="none" stroke-linecap="round" opacity=".6"><animate attributeName="opacity" values=".9;.2;.9" dur="2.4s" repeatCount="indefinite"/></path>${tag}</svg>`;
+}
+function twoCupsSVG(){ return `<svg viewBox="0 0 130 76"><g transform="translate(-6 0)">${cupSVG().replace(/^<svg[^>]*>|<\/svg>$/g,"")}</g><g transform="translate(40 4) scale(.94)">${cupSVG().replace(/^<svg[^>]*>|<\/svg>$/g,"")}</g></svg>`; }
+function billSVG() {
+  const id = "p" + (++uid);
+  return `<svg viewBox="0 0 90 76"><defs><linearGradient id="${id}r" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#D7DCFF"/></linearGradient></defs>
+    <path d="M24 4 h42 v62 l-7 -5 -7 5 -7 -5 -7 5 -7 -5 -7 5z" fill="url(#${id}r)"/>
+    <rect x="32" y="16" width="26" height="5" rx="2.5" fill="#8B7CFF" opacity=".7"/>
+    <rect x="32" y="27" width="20" height="5" rx="2.5" fill="#8B7CFF" opacity=".45"/>
+    <rect x="32" y="38" width="24" height="5" rx="2.5" fill="#8B7CFF" opacity=".45"/>
+    <rect x="44" y="50" width="16" height="6" rx="3" fill="#FF7A6B"/>
+    <rect x="27" y="8" width="6" height="40" rx="3" fill="#fff" opacity=".6"/></svg>`;
+}
+function sceneHTML(id, { maya = true, wave = false, bubble = "" } = {}) {
+  return `
+  <svg class="bd" viewBox="0 0 360 290" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+    <defs>
+      <linearGradient id="w${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--wall-a)"/><stop offset="1" style="stop-color:var(--wall-b)"/></linearGradient>
+      <linearGradient id="win${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9AF1FF" stop-opacity=".9"/><stop offset="1" stop-color="#8B7CFF" stop-opacity=".55"/></linearGradient>
+      <radialGradient id="lamp${id}" cx=".5" cy=".3" r=".7"><stop offset="0" stop-color="#FFF3C4"/><stop offset="1" stop-color="#F2AE2E"/></radialGradient>
+      <filter id="gl${id}" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="14"/></filter>
+    </defs>
+    <rect width="360" height="290" fill="url(#w${id})"/>
+    <rect x="222" y="30" width="112" height="92" rx="22" fill="url(#win${id})" opacity=".85"/>
+    <path d="M278 30 v92 M222 76 h112" stroke="#fff" stroke-opacity=".35" stroke-width="3"/>
+    <rect x="232" y="38" width="30" height="8" rx="4" fill="#fff" opacity=".5"/>
+    <rect x="22" y="40" width="120" height="10" rx="5" fill="#fff" opacity=".12"/>
+    <g>
+      <rect x="30" y="16" width="26" height="24" rx="9" fill="#5EE7FF"/><rect x="34" y="20" width="6" height="12" rx="3" fill="#fff" opacity=".6"/>
+      <rect x="64" y="10" width="28" height="30" rx="10" fill="#FF7A6B"/><rect x="68" y="14" width="6" height="14" rx="3" fill="#fff" opacity=".55"/>
+      <rect x="100" y="18" width="24" height="22" rx="9" fill="#7CF2C6"/><rect x="104" y="22" width="5" height="10" rx="2.5" fill="#fff" opacity=".6"/>
+    </g>
+    <path d="M180 0 v40" stroke="#fff" stroke-opacity=".3" stroke-width="2"/>
+    <circle cx="180" cy="62" r="38" fill="#FFD166" opacity=".55" filter="url(#gl${id})"/>
+    <path d="M156 58 a24 18 0 0 1 48 0 z" fill="url(#lamp${id})"/>
+    <ellipse cx="170" cy="48" rx="7" ry="3" fill="#fff" opacity=".6"/>
+  </svg>
+  <div class="layer">
+    <div class="char leo">${clay("leo", { wave })}</div>
+  </div>
+  <svg class="counter" viewBox="0 0 360 86" preserveAspectRatio="none" aria-hidden="true">
+    <defs><linearGradient id="ct${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFB38A"/><stop offset="1" stop-color="#B85A3C"/></linearGradient></defs>
+    <rect x="-10" y="0" width="380" height="96" rx="22" fill="url(#ct${id})"/>
+    <rect x="-10" y="0" width="380" height="12" rx="6" fill="#FFE1CC" opacity=".9"/>
+    <rect x="20" y="22" width="120" height="8" rx="4" fill="#fff" opacity=".18"/>
+  </svg>
+  <div class="cups" id="cups${id}"></div>
+  ${maya ? `<div class="char maya">${clay("maya")}</div>` : ""}
+  ${bubble ? `<div class="bubble glass" id="bub${id}">${bubble}</div>` : ""}`;
+}
+
+/* ---------- Kinetic headings ---------- */
+function kinetic(el) {
+  const t = el.dataset.k, words = t.split(" "); el.innerHTML = ""; let i = 0;
+  words.forEach((word, wi) => {
+    const w = document.createElement("span"); w.className = "w";
+    [...word].forEach(ch => { const s = document.createElement("span"); s.textContent = ch; s.style.animationDelay = (i++ * 22) + "ms"; w.appendChild(s); });
+    el.appendChild(w); if (wi < words.length - 1) { el.appendChild(document.createTextNode(" ")); i++; }
+  });
+}
+
+/* ---------- Audio and speech ---------- */
+let actx;
+function tone(freqs, dur = .12, type = "sine", gain = .06) {
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    freqs.forEach((f, i) => {
+      const o = actx.createOscillator(), g = actx.createGain(), t = actx.currentTime + i * dur * .8;
+      o.type = type; o.frequency.value = f; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(gain, t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+      o.connect(g).connect(actx.destination); o.start(t); o.stop(t + dur + .02);
+    });
+  } catch (e) {}
+}
+const good = () => tone([660, 880, 1320], .11, "triangle", .05);
+const pop = () => tone([520], .06, "sine", .04);
+const soft = () => tone([330, 262], .12, "sine", .04);
+function say(text, el, rate = .95) {
+  return new Promise(res => {
+    const svg = el && el.querySelector("svg");
+    let flip; if (svg) { flip = setInterval(() => svg.classList.toggle("talk"), 120); }
+    const done = () => { if (flip) { clearInterval(flip); svg.classList.remove("talk"); } res(); };
+    const est = Math.max(1100, text.split(" ").length * 380 / rate);
+    if (!("speechSynthesis" in window)) { setTimeout(done, est); return; }
+    try {
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text); u.lang = "en-GB"; u.rate = rate;
+      const v = speechSynthesis.getVoices().find(v => /en-GB/.test(v.lang)) || speechSynthesis.getVoices().find(v => /^en/.test(v.lang)); if (v) u.voice = v;
+      let ended = false; u.onend = () => { if (!ended) { ended = true; done(); } };
+      setTimeout(() => { if (!ended) { ended = true; done(); } }, est + 1500);
+      speechSynthesis.speak(u);
+    } catch (e) { setTimeout(done, est); }
+  });
+}
+
+/* ---------- Bursts and Blobert ---------- */
+function burst(x, y) {
+  if (reduce) return;
+  const cols = ["#5EE7FF", "#7CF2C6", "#FFD166", "#FF7A6B", "#8B7CFF"];
+  for (let i = 0; i < 14; i++) {
+    const b = document.createElement("i"); b.className = "bit"; const s = 6 + Math.random() * 8;
+    b.style.cssText = `width:${s}px;height:${s}px;left:${x}px;top:${y}px;background:radial-gradient(circle at 35% 30%,#fff,${cols[i % 5]} 55%);box-shadow:0 0 10px ${cols[i % 5]}`;
+    document.body.appendChild(b);
+    const a = Math.random() * Math.PI * 2, d = 50 + Math.random() * 70;
+    b.animate([{ transform: "translate(-50%,-50%) scale(.4)", opacity: 1 }, { transform: `translate(calc(-50% + ${Math.cos(a) * d}px), calc(-50% + ${Math.sin(a) * d}px)) scale(1)`, opacity: 0 }], { duration: 700 + Math.random() * 300, easing: "cubic-bezier(.2,.8,.3,1)" }).onfinish = () => b.remove();
+  }
+}
+const blob = $("#blob");
+blob.innerHTML = `<svg viewBox="0 0 160 150"><defs>
+  <radialGradient id="jel" cx=".4" cy=".35" r=".75"><stop offset="0" stop-color="#E4DEFF" stop-opacity=".95"/><stop offset=".55" stop-color="#8B7CFF" stop-opacity=".82"/><stop offset="1" stop-color="#5EE7FF" stop-opacity=".6"/></radialGradient>
+  <filter id="jg" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="8"/></filter></defs>
+  <ellipse cx="80" cy="140" rx="48" ry="7" fill="#000" opacity=".3" filter="url(#jg)"/>
+  <path d="M20 96 C12 58 44 22 82 22 C122 22 150 56 142 96 C136 130 106 140 80 140 C50 140 26 130 20 96Z" fill="#8B7CFF" opacity=".55" filter="url(#jg)"/>
+  <path d="M20 96 C12 58 44 22 82 22 C122 22 150 56 142 96 C136 130 106 140 80 140 C50 140 26 130 20 96Z" fill="url(#jel)" stroke="#fff" stroke-opacity=".55" stroke-width="1.5"/>
+  <ellipse cx="56" cy="48" rx="18" ry="8" fill="#fff" opacity=".7" transform="rotate(-25 56 48)"/><circle cx="82" cy="38" r="4" fill="#fff" opacity=".6"/>
+  <g class="eyes"><ellipse cx="66" cy="80" rx="8" ry="10" fill="#1A1433"/><ellipse cx="100" cy="80" rx="8" ry="10" fill="#1A1433"/><circle cx="69" cy="76" r="3" fill="#fff"/><circle cx="103" cy="76" r="3" fill="#fff"/></g>
+  <path d="M70 100 Q83 112 96 100" stroke="#1A1433" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+  <g id="sponge"><rect x="128" y="74" width="30" height="22" rx="8" fill="#FFD166"/><rect x="132" y="78" width="10" height="5" rx="2.5" fill="#fff" opacity=".6"/></g>
+</svg>`;
+const GAGS = ["swish!", "wipe!", "gone!"]; let lastGag = -1;
+function blobert(target) {
+  return new Promise(res => {
+    const r = target.getBoundingClientRect();
+    const y = r.top + r.height / 2 - 60, xIn = Math.min(innerWidth - 130, r.right - 10), xOut = innerWidth + 40;
+    let g; do { g = Math.floor(Math.random() * GAGS.length); } while (g === lastGag); lastGag = g;
+    blob.style.opacity = 1;
+    const tag = document.createElement("div"); tag.className = "swish glass"; tag.textContent = GAGS[g];
+    tag.style.left = (xIn - 10) + "px"; tag.style.top = (y - 20) + "px"; tag.style.opacity = 0; document.body.appendChild(tag);
+    const D = reduce ? 300 : 1150;
+    blob.animate([
+      { transform: `translate(${xOut}px,${y}px) scale(1,1)`, easing: "cubic-bezier(.2,1.3,.4,1)" },
+      { transform: `translate(${xIn}px,${y}px) scale(1.14,.88)`, offset: .26, easing: "ease-out" },
+      { transform: `translate(${xIn}px,${y}px) scale(1,1)`, offset: .34, easing: "ease-in-out" },
+      { transform: `translate(${xIn - 10}px,${y}px) scale(.95,1.06) rotate(-10deg)`, offset: .46, easing: "ease-in-out" },
+      { transform: `translate(${xIn - 4}px,${y}px) scale(1,1) rotate(8deg)`, offset: .58, easing: "ease-in-out" },
+      { transform: `translate(${xIn}px,${y - 6}px) scale(1,1) rotate(0deg)`, offset: .72, easing: "cubic-bezier(.5,0,.8,.4)" },
+      { transform: `translate(${xOut}px,${y - 14}px) scale(1,1)` }
+    ], { duration: D, easing: "linear" }).onfinish = () => { blob.style.opacity = 0; tag.remove(); res(); };
+    tag.animate([{ opacity: 0, transform: "scale(.6)" }, { opacity: 1, transform: "scale(1)", offset: .3 }, { opacity: 1, offset: .72 }, { opacity: 0, transform: "translateY(-12px)" }], { duration: D });
+    setTimeout(() => { soft(); target.animate([{ transform: "none" }, { transform: "translateX(90px) rotate(12deg)", opacity: .2, offset: .45 }, { transform: "none", opacity: 1 }], { duration: reduce ? 200 : 640, easing: "cubic-bezier(.3,.9,.3,1)" }); }, D * .38);
+  });
+}
+
+/* ---------- Flow ---------- */
+const screens = [...document.querySelectorAll(".screen")];
+const fill = $("#fill"), sheet = $("#sheet"), xpEl = $("#xp");
+let step = 0, xp = 40, busy = false;
+function go(n) {
+  const from = screens[step], to = screens[n];
+  sheet.classList.remove("up");
+  from.animate([{ opacity: 1, transform: "none" }, { opacity: 0, transform: "translateX(-28px) scale(.98)" }], { duration: 260, easing: "ease-in", fill: "forwards" }).onfinish = () => { from.classList.remove("on"); from.getAnimations().forEach(a => a.cancel()); };
+  to.classList.add("on");
+  to.animate([{ opacity: 0, transform: "translateX(36px) scale(.97)" }, { opacity: 1, transform: "none" }], { duration: 420, easing: "cubic-bezier(.2,1.4,.4,1)", delay: 120, fill: "backwards" });
+  const k = to.querySelector(".k"); if (k) kinetic(k);
+  [...to.querySelectorAll(".glass,.opt,.tile,.steps div")].forEach((el, i) => el.animate([{ opacity: 0, transform: "translateY(12px) scale(.94)" }, { opacity: 1, transform: "none" }], { duration: 420, delay: 160 + i * 50, easing: "cubic-bezier(.2,1.4,.4,1)", fill: "backwards" }));
+  step = n; fill.style.width = [6, 34, 67, 100][n] + "%";
+  if (n === 1) setTimeout(playOrder, 650);
+  if (n === 3) setTimeout(() => $("#chest").focus({ preventScroll: true }), 600);
+}
+function addXP(n) { const start = xp; xp += n; const t0 = performance.now(); const tick = t => { const p = Math.min(1, (t - t0) / 600); xpEl.textContent = Math.round(start + n * p); if (p < 1) requestAnimationFrame(tick); }; requestAnimationFrame(tick); $(".chip").animate([{ transform: "scale(1)" }, { transform: "scale(1.15)" }, { transform: "scale(1)" }], { duration: 420, easing: "cubic-bezier(.2,1.4,.4,1)" }); }
+function showSheet(t, s, label = "Continue") { document.querySelectorAll(".hint").forEach(h => h.classList.remove("on")); $("#sheetT").textContent = t; $("#sheetS").textContent = s; $("#next").textContent = label; sheet.classList.add("up"); setTimeout(() => $("#next").focus({ preventScroll: true }), 300); }
+
+/* Screen 0 */
+$("#scene0").innerHTML = sceneHTML("0", { wave: true, bubble: "Hi! Welcome in." });
+kinetic($("#s0 .k"));
+$("#start").onclick = () => { pop(); go(1); };
+
+/* Screen 1: listen and pick */
+$("#scene1").innerHTML = sceneHTML("1", { bubble: `<span class="hidden">• • • • •</span><div style="margin-top:8px"><button class="clay sm" id="hear"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>Hear it</button></div>` });
+const ORDER = "Two coffees, please.";
+const OPTS = [{ k: "a coffee", s: () => cupSVG() }, { k: "two coffees", s: twoCupsSVG, ok: true }, { k: "a tea", s: () => cupSVG("tea") }, { k: "the bill", s: billSVG }];
+const opts = $("#opts");
+OPTS.forEach(o => { const b = document.createElement("button"); b.className = "opt glass"; b.innerHTML = o.s() + `<span>${o.k}</span>`; b.setAttribute("aria-label", o.k); b.onclick = () => pick(b, o); opts.appendChild(b); });
+let rate1 = .95;
+function playOrder() { return say(ORDER, $("#scene1 .maya"), rate1); }
+$("#hear").onclick = () => { pop(); playOrder(); };
+async function pick(btn, o) {
+  if (busy) return; busy = true;
+  if (o.ok) {
+    btn.classList.add("right"); good();
+    const r = btn.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2);
+    $("#scene1 .leo svg").classList.add("happy"); $("#scene1 .maya svg").classList.add("happy");
+    const cups = $("#cups1"); cups.innerHTML = cupSVG() + cupSVG();
+    [...cups.children].forEach((c, i) => c.animate([{ transform: "translateY(-40px) scale(.6)", opacity: 0 }, { transform: "none", opacity: 1 }], { duration: 520, delay: i * 90, easing: "cubic-bezier(.2,1.4,.4,1)", fill: "backwards" }));
+    $("#bub1").innerHTML = "Two coffees, please.";
+    addXP(10);
+    setTimeout(() => showSheet("Spot on", "+10 · Two coffees, please."), 650);
+  } else {
+    await blobert(btn); btn.classList.add("gone");
+    $("#hint1").classList.add("on"); rate1 = .7; await playOrder(); rate1 = .95;
+  }
+  busy = false;
+}
+
+/* Screen 2: build */
+$("#scene2").innerHTML = sceneHTML("2", { bubble: "…" });
+$("#bub2").classList.add("left"); $("#bub2").style.left = "auto"; $("#bub2").style.right = "14px";
+const WORDS = ["Could", "I", "have", "the", "bill,", "please?"];
+const BANK = ["the", "please?", "Could", "want", "bill,", "I", "have"];
+const slotsEl = $("#slots"), bankEl = $("#bank");
+let placed = 0;
+function buildReset() {
+  placed = 0; slotsEl.innerHTML = ""; bankEl.innerHTML = "";
+  WORDS.forEach(() => { const s = document.createElement("span"); s.className = "slot"; slotsEl.appendChild(s); });
+  BANK.forEach(w => { const b = document.createElement("button"); b.className = "tile"; b.textContent = w; b.onclick = () => tap(b); bankEl.appendChild(b); });
+}
+buildReset();
+async function tap(tile) {
+  if (busy || tile.classList.contains("used")) return;
+  const w = tile.textContent;
+  if (w === WORDS[placed]) {
+    pop(); busy = true;
+    const slot = slotsEl.children[placed];
+    const from = tile.getBoundingClientRect();
+    const chip = document.createElement("span"); chip.className = "tile placed"; chip.textContent = w;
+    slot.replaceWith(chip); tile.classList.add("used");
+    const to = chip.getBoundingClientRect();
+    chip.animate([{ transform: `translate(${from.left - to.left}px,${from.top - to.top}px) scale(1.1)` }, { transform: "none" }], { duration: reduce ? 120 : 420, easing: "cubic-bezier(.2,1.4,.4,1)" });
+    placed++; busy = false;
+    if (placed === WORDS.length) done2();
+  } else {
+    busy = true; await blobert(tile); busy = false;
+    const want = [...bankEl.children].find(b => b.textContent === WORDS[placed] && !b.classList.contains("used"));
+    if (want) want.animate([{ transform: "scale(1)" }, { transform: "scale(1.12)", boxShadow: "0 0 0 2px #FFD166, 0 0 24px rgba(255,209,102,.6)" }, { transform: "scale(1)" }], { duration: 900, iterations: 2 });
+  }
+}
+async function done2() {
+  good(); const r = slotsEl.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2);
+  $("#bub2").textContent = "Could I have the bill, please?";
+  $("#scene2 .maya svg").classList.add("happy");
+  const cups = $("#cups2"); cups.innerHTML = billSVG();
+  cups.firstChild.animate([{ transform: "translateX(-60px) rotate(-12deg)", opacity: 0 }, { transform: "none", opacity: 1 }], { duration: 560, easing: "cubic-bezier(.2,1.4,.4,1)" });
+  addXP(10);
+  setTimeout(() => { $("#scene2 .leo svg").classList.add("happy"); }, 500);
+  say("Could I have the bill, please?", $("#scene2 .maya"));
+  setTimeout(() => showSheet("Lovely", "+10 · Polite and clear."), 900);
+}
+
+/* Screen 3: reward */
+const chest = $("#chest");
+chest.innerHTML = `<svg viewBox="0 0 170 150" aria-hidden="true"><defs>
+  <linearGradient id="cb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B7A9FF"/><stop offset="1" stop-color="#5B48D6"/></linearGradient>
+  <linearGradient id="cl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D2C8FF"/><stop offset="1" stop-color="#7C6BF0"/></linearGradient>
+  <linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFE7A6"/><stop offset="1" stop-color="#F2AE2E"/></linearGradient>
+  <filter id="cs" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter></defs>
+  <ellipse cx="85" cy="142" rx="66" ry="8" fill="#000" opacity=".4" filter="url(#cs)"/>
+  <rect x="18" y="62" width="134" height="76" rx="22" fill="url(#cb)"/>
+  <rect x="28" y="70" width="40" height="10" rx="5" fill="#fff" opacity=".3"/>
+  <rect x="74" y="62" width="22" height="76" fill="url(#cg)"/>
+  <rect x="70" y="86" width="30" height="28" rx="9" fill="url(#cg)"/><circle cx="85" cy="100" r="5" fill="#7A4B00" opacity=".6"/>
+  <g class="lid"><path d="M14 66 C14 30 42 18 85 18 C128 18 156 30 156 66 Z" fill="url(#cl)"/><rect x="74" y="18" width="22" height="48" fill="url(#cg)"/><ellipse cx="54" cy="34" rx="20" ry="7" fill="#fff" opacity=".35" transform="rotate(-12 54 34)"/></g>
+</svg>`;
+$("#prize").innerHTML = cupSVG().replace(/^<svg[^>]*>|<\/svg>$/g, "");
+$("#prize").setAttribute("viewBox", "0 0 90 76");
+chest.onclick = () => {
+  if (chest.classList.contains("open")) return;
+  chest.classList.remove("shake"); chest.classList.add("open"); good();
+  const r = chest.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + 30); setTimeout(() => burst(r.left + r.width / 2, r.top - 40), 300);
+  $("#prize").classList.add("up"); addXP(20);
+  $("#shelfIcon").innerHTML = cupSVG(); setTimeout(() => $("#shelf").classList.add("on"), 650);
+  $("#today").animate([{ transform: "scaleX(.2)" }, { transform: "scaleX(1)" }], { duration: 600, easing: "cubic-bezier(.2,1.4,.4,1)" });
+  setTimeout(() => { $("#again").style.display = "flex"; $("#replay").style.display = "block"; $("#again").animate([{ opacity: 0, transform: "translateY(14px)" }, { opacity: 1, transform: "none" }], { duration: 420, easing: "cubic-bezier(.2,1.4,.4,1)" }); $("#again").focus({ preventScroll: true }); }, 700);
+};
+$("#again").onclick = () => { location.href = "index.html"; };
+$("#replay").onclick = () => location.reload();
+
+/* Sheet */
+$("#next").onclick = () => { pop(); go(step + 1); };
+
+/* Header */
+$("#close").onclick = () => { location.href = "index.html"; };
+$("#theme").onclick = () => { const r = document.documentElement; r.dataset.theme = r.dataset.theme === "dark" ? "light" : "dark"; };
+
+/* Gentle tilt on the scene cards */
+if (!reduce) addEventListener("pointermove", e => {
+  const s = screens[step].querySelector(".scene"); if (!s) return;
+  const x = (e.clientX / innerWidth - .5), y = (e.clientY / innerHeight - .5);
+  s.style.transform = `perspective(900px) rotateY(${x * 4}deg) rotateX(${-y * 4}deg)`;
+  const c = s.querySelector(".layer"); if (c) c.style.transform = `translate(${x * 8}px,${y * 6}px)`;
+});
+
+/* Tester hook */
+addEventListener("lp:auto", e => {
+  const ok = !e.detail || e.detail.correct !== false;
+  if (sheet.classList.contains("up")) return $("#next").click();
+  if (step === 0) return $("#start").click();
+  if (step === 1) { const b = [...opts.children]; return ok ? b[1].click() : b.find((x, i) => i !== 1 && !x.classList.contains("gone")).click(); }
+  if (step === 2) { const want = [...bankEl.children].find(b => !b.classList.contains("used") && (ok ? b.textContent === WORDS[placed] : b.textContent === "want")); if (want) want.click(); return; }
+  if (step === 3) chest.click();
+});
+window.__lesson = { get step() { return step; }, go };
+})();
+</script>
+</body>
+</html>
