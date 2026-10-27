@@ -140,21 +140,17 @@ h1{
 .slots.nudge{animation:nudge .36s var(--ease) both}
 @keyframes nudge{0%,100%{transform:translateX(0)}30%{transform:translateX(-5px)}65%{transform:translateX(4px)}}
 
-/* stage: the coach and her stickers */
-/* the coach is sized from the card width and sits on the bottom edge;
-   the room left over goes to the sentence above her */
-.stage{position:relative;flex:0 0 auto;display:grid;place-items:end center}
+/* stage: the coach and her stickers.
+   The sentence takes the room it needs; everything left over is the coach,
+   so she stands on the floor of the card at any phone height. */
+.stage{position:relative;flex:1 1 auto;min-height:120px;margin:0 -6px -10px}
 .coach{
-  width:82%;height:auto;display:block;
+  position:absolute;inset:0;width:100%;height:100%;
   cursor:pointer;background:none;border:0;padding:0;
-  transition:width .4s var(--spring);
+  display:block;
 }
 /* once the words are gone the coach steps forward and the line is the hero */
-.card.open .coach{width:96%}
 .card.open .slot{font-size:24px;height:48px}
-.coach svg{width:100%;height:auto;display:block;overflow:visible}
-.breathe{animation:breathe 3s ease-in-out infinite}
-@keyframes breathe{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-5px) rotate(-1deg)}}
 
 /* speech bubble for what the learner said */
 .bubble{
@@ -260,22 +256,26 @@ h1{
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 @media (prefers-reduced-motion:reduce){
-  .tw,.breathe,.slot.next::after,.btn .dots i{animation:none!important}
+  .tw,.cast.sway,.slot.next::after,.btn .dots i{animation:none!important}
   *{animation-duration:.01ms!important}
 }
 
-/* ---------- Maya: moods swap groups in and out ---------- */
-.v{display:none}
-svg[data-mood="idle"] .v-idle,
-svg[data-mood="lean"] .v-lean,
-svg[data-mood="listen"] .v-listen,
-svg[data-mood="cheer"] .v-cheer{display:block}
-/* she leans in when she is listening or when a word does not fit */
-.fig{transition:transform .34s var(--spring);transform-origin:110px 236px}
-svg[data-mood="lean"] .fig{transform:rotate(4deg)}
-svg[data-mood="listen"] .fig{transform:rotate(4deg)}
-.blink{animation:blink 5s steps(1,end) infinite}
-@keyframes blink{0%,96%{transform:scaleY(1)}97%,99%{transform:scaleY(.1)}100%{transform:scaleY(1)}}
+/* ---------- Maya: the same character kit as Talk with Maya ----------
+   One SVG per pose, cut between (a crossfade would ghost two figures),
+   with the kit's own idle sway on the wrapper. */
+.cast{
+  position:relative;display:block;width:100%;height:100%;
+  transform-origin:50% 100%;
+  transition:transform .34s var(--spring);
+}
+.cast .pose{position:absolute;inset:0;opacity:0}
+.cast .pose.on{opacity:1}
+.cast svg{width:100%;height:100%;display:block}
+.cast.sway{animation:sway 3s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:rotate(-1.1deg)}50%{transform:rotate(1.1deg) translateY(-3px)}}
+/* she leans in when she is listening or when a word does not fit yet */
+.cast[data-mood="lean"],.cast[data-mood="listen"]{transform:translateY(3px) scale(1.04)}
+.cast[data-mood="cheer"]{transform:translateY(-7px) scale(1.05)}
 </style>
 </head>
 <body>

@@ -104,6 +104,70 @@ small, always outside the figure, never on top of the face.
 - `prefers-reduced-motion: reduce` stops the idle sway and the twinkle, and cuts the pop to nothing.
   The kit does this for you; do not add motion outside it.
 
+## Blobert, the blob who clears mistakes
+
+Board request, 26 October 2026 (`docs/design/brief.md`, section "Blobert"). He is the only thing in
+the app that handles an error, so a mistake is never red, never a loss, always a small laugh. One
+gag per miss, never the same twice in a row. Code: `Blobert` in the same kit file.
+
+**Drawing.** A soft wobbly blob, 100 units across and 86 tall, in the same 3 px ink line and flat
+fill as the cast. Two dot eyes, radius 5.4, set wide. One big mouth: a smile at rest, a filled ink
+oval for a small sound, a filled wide open mouth for a swallow or a sneeze. Two stubby arms with
+circle hands, no legs, no hair, no face beyond eyes and mouth. He has happy arc eyes for the wave,
+the same arcs the cast uses for `celebrate`. He never has a hat, a badge or a prop other than his
+one tool.
+
+**Colour.** His fill is the screen's one block colour, passed in with `fill`; the default is sun. On
+a card that is already a block colour, fill him cream or white instead, never the card's own colour.
+Tools are cream on the ink line. He is never two colours at once.
+
+**Size and placement.** His viewBox is 300 x 200: Blobert stands in the left third, x 26 to 126, and
+the gag happens in the right two thirds. Place him so that right-hand area sits over the tile or
+word being cleared; his own `word` tile is centred at x 184 on the baseline, y 168. Default render
+height is 170 px.
+
+**Poses.** `in` (pops in from the edge), `look` (leans at the wrong word, the held frame), `gag`,
+`wave`, `out` (slides off). `pose="gag"` plays the whole scripted miss by default; pass
+`scripted={false}` for the 360 ms gag core alone when the host already has him on screen.
+
+**The six gags.** Each one is the whole miss in 880 ms, under the brief's 900:
+
+| Gag | Tool | What happens |
+| --- | --- | --- |
+| `sweep` | broom | sweeps the wrong word off the screen |
+| `eat` | none | eats it and burps a four-point star |
+| `mop` | mop | mops it into a puddle that dries away |
+| `bin` | bin | flicks it in and the lid claps |
+| `vacuum` | vacuum hose | sucks it up, then sneezes and recoils |
+| `crane` | tiny crane | hooks it and lifts it out of frame |
+
+**Timing.** One table of keyframes drives both playback paths, so the browser and the videos cannot
+drift: `in` 0 to 200 ms, `look` 200 to 320, the gag 320 to 680, the wave 560 to 720, `out` 720 to
+880. The wave overlaps the tail of the gag by 120 ms, which is what brings the total under 900.
+`BLOBERT_SEQUENCE`, `BLOBERT_GAG_MS` and `BLOBERT_CORE_MS` export those numbers; read them, never
+retype them.
+
+**Driving him.** `play` runs the timeline once on mount. `progress` (0 to 1) draws one exact frame
+and runs no CSS, which is what the Remotion compositions use. `seed` re-rolls the line wobble and is
+deterministic, so keep it fixed for a shot. `nextBlobertGag(last)` picks the next gag and never
+repeats the one you pass it.
+
+**Sound and captions.** He never speaks a sentence. Tiny sounds only, captioned as a sticker, so a
+learner at any level reads him.
+
+**Reduced motion.** Every timeline is dropped for one 360 ms sequence: he fades in, the wrong word
+fades out, he fades out. No travel, no bounce, no wobble. The kit does this; the caller does
+nothing.
+
+**Where he appears.** Every exercise type, the explainer's practice pause, Talk with Maya (he tidies
+a mispronounced word out of the bubble), and Welcome back (he has dusted the path). Never on Today
+and never on the session-end card. After the gag, show the right answer and replay the line at 0.75
+speed, calm.
+
+**Do not.** Do not give him a second tool in one gag, a sentence of speech, red anything, a sad
+face, or a gag over 900 ms. Do not use him for anything that is not a learner mistake: he is not a
+loader, not a mascot and not a decoration.
+
 ## Videos
 
 The same components are used in the explainer compositions, so the lesson and the video are one

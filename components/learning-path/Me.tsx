@@ -19,11 +19,13 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   );
 }
 
+// One segmented control, not a row of tinted pills (board, 26 Oct): a single
+// bordered group, the chosen segment filled with the ink.
 function Seg<T extends string | number>({ value, options, onChange }: { value: T; options: { v: T; label: string }[]; onChange: (v: T) => void }) {
   return (
-    <div className="flex gap-1">
+    <div className="lp-seg">
       {options.map((o) => (
-        <button key={String(o.v)} type="button" onClick={() => onChange(o.v)} className="lp-pill" style={{ minHeight: 40, padding: "0 12px", fontSize: 13, ...(o.v === value ? { color: "var(--lp-glow)", borderColor: "var(--lp-glow-line)", background: "var(--lp-glow-tint)" } : {}) }}>{o.label}</button>
+        <button key={String(o.v)} type="button" onClick={() => onChange(o.v)} data-on={o.v === value}>{o.label}</button>
       ))}
     </div>
   );
@@ -48,14 +50,18 @@ export function Me() {
   const level = l.confirmed_sublevel ?? l.provisional_sublevel;
   return (
     <div className="h-full overflow-y-auto px-5 pb-5 pt-4">
-      <div className="lp-eyebrow">{t("me")}</div>
-      <div className="flex items-end justify-between">
-        <div className="lp-head">{level ? CEFR_LABEL[level] : t("settings")}</div>
-        <DotRow days={week} today={weekDay(state, dayIndex(state, now)) - 1} />
+      {/* The level large, what it is in regular weight under it, and the week
+          as the one visual. Nothing else is bold on this screen. */}
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <div className="lp-head">{level ? CEFR_LABEL[level] : t("settings")}</div>
+          <div className="lp-small mt-1" style={{ color: "var(--lp-paper-faint)" }}>{level ? t("level_estimate") : ""}</div>
+        </div>
+        <div className="pt-2"><DotRow days={week} today={weekDay(state, dayIndex(state, now)) - 1} /></div>
       </div>
-      <div className="mt-3" />
+      <div className="mt-5" />
       <Row label={t("language")}>
-        <select className="lp-input" style={{ minHeight: 40, padding: "4px 10px", fontSize: 15, width: 150 }} value={l.l1} onChange={(e) => patch({ l1: e.target.value as L1 })}>
+        <select className="lp-input" style={{ minHeight: 44, padding: "4px 10px", fontSize: 15, width: 150 }} value={l.l1} onChange={(e) => patch({ l1: e.target.value as L1 })}>
           {LANGUAGES.map((x) => <option key={x.code} value={x.code}>{x.flag} {x.native}</option>)}
         </select>
       </Row>

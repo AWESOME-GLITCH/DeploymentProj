@@ -386,19 +386,23 @@ export function composeSession(state: LearnerState, at: number, opts: { second?:
   else reasons.push("recall echo: nothing due yet");
 
   if (warm_restart) {
-    if (recallPhase) phases.push(recallPhase);
-    reasons.push(`${missed} days missed: warm restart (review and a story), welcome-back story unlock`);
+    // Welcome back opens on the story, which is the scene here, so the way back
+    // in is something to read and enjoy, never a quiz on what was forgotten.
+    reasons.push(`${missed} days missed: warm restart (a story, then the review), welcome-back story unlock`);
     const story = pickStory(state);
     if (story) phases.push({ kind: "story", atom_id: story.atom_id });
+    if (recallPhase) phases.push(recallPhase);
     phases.push({ kind: "close", check_items: [], can_do });
     return { id: `S-${day}-warm`, day, second: false, warm_restart: true, new_allowed, due_count: due.length, phases, reasons };
   }
 
   if (opts.second) {
-    reasons.push("second session: review and fluency only, no new atom");
-    if (recallPhase) phases.push(recallPhase);
+    // The second session has no new atom, so its scene is the use task: the
+    // learner speaks first, then the older material comes back.
+    reasons.push("second session: a use task first, then review and fluency, no new atom");
     const useItem = pickUseItem(state, at, null);
     if (useItem) phases.push({ kind: "atom", atom_id: `USE:${useItem}`, role: "use" });
+    if (recallPhase) phases.push(recallPhase);
     phases.push({ kind: "atom", atom_id: "ATM-A2-FLU-0001", role: "fluency" });
     phases.push({ kind: "close", check_items: [], can_do });
     return { id: `S-${day}-second`, day, second: true, warm_restart: false, new_allowed, due_count: due.length, phases, reasons };

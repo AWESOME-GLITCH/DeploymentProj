@@ -915,19 +915,22 @@ const BODY_SCRIPT: Key[] = [
   { t: 880, x: -176, y: 6, r: 0, s: 0.9, o: 0 },
 ];
 
+// Dot eyes swap for happy arcs on the wave. The swap is a cut, not a
+// cross-fade: two ink faces at half opacity read as a grey smudge, and
+// ink is never see-through in this kit.
 const EYES_SCRIPT: Key[] = [
   { t: 0, x: 0, o: 1 },
   { t: 200, x: 0, o: 1 },
   { t: 320, x: 5, o: 1 },
-  { t: 548, x: 5, o: 1 },
-  { t: 572, x: 5, o: 0 },
+  { t: 560, x: 5, o: 1 },
+  { t: 561, x: 5, o: 0 },
   { t: 880, x: 5, o: 0 },
 ];
 
 const HAPPY_SCRIPT: Key[] = [
   { t: 0, x: 5, o: 0 },
-  { t: 548, x: 5, o: 0 },
-  { t: 572, x: 5, o: 1 },
+  { t: 560, x: 5, o: 0 },
+  { t: 561, x: 5, o: 1 },
   { t: 760, x: 0, o: 1 },
   { t: 880, x: 0, o: 1 },
 ];
@@ -949,22 +952,24 @@ function bodyWith(extra: Key[]): Key[] {
   return [...BODY_SCRIPT, ...extra].sort((a, b) => a.t - b.t);
 }
 
-/** Swap the resting smile for one open mouth between two times. */
+/** Swap the resting smile for one open mouth between two times. Both
+ *  swaps are cuts for the same reason as the eyes: a cross-fade puts two
+ *  ink mouths on top of each other and the face goes muddy. */
 function mouth(variant: "mO" | "mWide", from: number, to: number): Tracks {
   return {
     mSmile: [
       { t: 0, o: 1 },
-      { t: from - 40, o: 1 },
+      { t: from - 1, o: 1 },
       { t: from, o: 0 },
       { t: to, o: 0 },
-      { t: to + 56, o: 1 },
+      { t: to + 1, o: 1 },
     ],
     [variant]: [
       { t: 0, o: 0 },
-      { t: from - 40, o: 0 },
+      { t: from - 1, o: 0 },
       { t: from, o: 1 },
       { t: to, o: 1 },
-      { t: to + 56, o: 0 },
+      { t: to + 1, o: 0 },
     ],
   };
 }

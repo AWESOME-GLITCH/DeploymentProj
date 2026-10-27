@@ -32,12 +32,12 @@ export function Onboarding({ onPlaced }: { onPlaced: () => void }) {
     // that used to sit above each headline was neither the thing to understand
     // nor a signal of progress, so it has gone and the headline leads.
     <div className="relative flex h-full flex-col overflow-hidden px-5 pb-5 pt-4">
-      <div className="relative mb-6 flex gap-1.5">{order.slice(0, 5).map((s, i) => <span key={s} className="h-1.5 flex-1 rounded-full" style={{ background: i <= Math.min(idx, 4) ? "var(--lp-accent)" : "var(--lp-track)" }} />)}</div>
+      <div className="relative mb-6 flex gap-1.5">{order.slice(0, 5).map((s, i) => <span key={s} className="h-1.5 flex-1 rounded-full" style={{ background: i <= Math.min(idx, 4) ? "var(--lp-glow)" : "var(--lp-track)" }} />)}</div>
       {step === "language" ? (
         <>
           <div className="flex-1" />
           <div className="lp-head mb-1">{t("choose_language")}</div>
-          <div className="lp-small mb-5" style={{ color: "var(--lp-paper-faint)" }}>Learning Path · English</div>
+          <div className="lp-body mb-6" style={{ color: "var(--lp-paper-soft)" }}>Learning Path · English</div>
           <div className="grid grid-cols-2 gap-3">
             {LANGUAGES.map((l) => (
               <button key={l.code} type="button" onClick={() => dispatch({ type: "learner", patch: { l1: l.code as L1 } })} className={`lp-choice ${state.learner.l1 === l.code ? "lp-choice-selected" : ""}`} style={{ minHeight: 64 }}>
@@ -68,11 +68,15 @@ export function Onboarding({ onPlaced }: { onPlaced: () => void }) {
         <>
           <div className="flex-1" />
           <div className="lp-head mb-2">{t("time_title")}</div>
-          <div className="lp-small mb-4" style={{ color: "var(--lp-paper-faint)" }}>{t("time_hint")}</div>
-          <div className="mb-5 flex justify-center"><Ring fills={[state.learner.daily_minutes / 15, state.learner.daily_minutes / 15, state.learner.daily_minutes / 15]} size={160} label={<><div className="lp-head">{state.learner.daily_minutes}</div><div className="lp-small" style={{ color: "var(--lp-paper-faint)" }}>{t("minutes")}</div></>} /></div>
-          <div className="flex gap-2">
+          <div className="lp-body mb-6" style={{ color: "var(--lp-paper-soft)" }}>{t("time_hint")}</div>
+          {/* The ring that used to sit here only repeated the number on the
+              button below it, so it has gone: the choice is the visual, and
+              the step bar at the top is this screen's progress signal. */}
+          <div className="flex gap-3">
             {([5, 10, 15] as const).map((m) => (
-              <button key={m} type="button" onClick={() => dispatch({ type: "learner", patch: { daily_minutes: m } })} className={`lp-choice justify-center ${state.learner.daily_minutes === m ? "lp-choice-selected" : ""}`}>{m}</button>
+              <button key={m} type="button" onClick={() => dispatch({ type: "learner", patch: { daily_minutes: m } })} className={`lp-choice flex-col justify-center gap-0 text-center ${state.learner.daily_minutes === m ? "lp-choice-selected" : ""}`} style={{ minHeight: 104 }}>
+                <span className="lp-head">{m}</span><span className="lp-small" style={{ color: "var(--lp-paper-faint)" }}>{t("minutes")}</span>
+              </button>
             ))}
           </div>
           <div className="flex-1" />
@@ -83,14 +87,14 @@ export function Onboarding({ onPlaced }: { onPlaced: () => void }) {
         <>
           <div className="flex-1" />
           <div className="lp-head mb-2">{t("plan_title")}</div>
-          <div className="lp-small mb-4" style={{ color: "var(--lp-paper-faint)" }}>{t("plan_hint")}</div>
-          <div className="lp-eyebrow mb-2">{t("plan_after")}</div>
-          <div className="mb-4 grid grid-cols-2 gap-2">
+          <div className="lp-body mb-6" style={{ color: "var(--lp-paper-soft)" }}>{t("plan_hint")}</div>
+          <div className="lp-small mb-2" style={{ color: "var(--lp-paper-faint)" }}>{t("plan_after")}</div>
+          <div className="mb-5 grid grid-cols-2 gap-2">
             {(["breakfast", "commute", "lunch", "dinner"] as const).map((c) => (
               <button key={c} type="button" onClick={() => setPlan((p) => ({ ...p, cue: c }))} className={`lp-choice justify-center ${plan.cue === c ? "lp-choice-selected" : ""}`} style={{ fontSize: "calc(17px * var(--lp-scale))" }}>{t(`plan_cue_${c}`)}</button>
             ))}
           </div>
-          <div className="lp-eyebrow mb-2">{t("plan_at")}</div>
+          <div className="lp-small mb-2" style={{ color: "var(--lp-paper-faint)" }}>{t("plan_at")}</div>
           <input type="time" className="lp-input" value={plan.time} onChange={(e) => setPlan((p) => ({ ...p, time: e.target.value }))} />
           <div className="flex-1" />
           <div><GlowButton onClick={() => { dispatch({ type: "learner", patch: { plan } }); dispatch({ type: "event", name: "plan_set", data: plan }); setStep("placement"); }}>{t("continue")}</GlowButton></div>
@@ -139,8 +143,8 @@ function Placement({ onDone }: { onDone: (level: SubLevel) => void }) {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="lp-head mb-1">{t("find_start_title")}</div>
-      <div className="lp-small mb-4" style={{ color: "var(--lp-paper-faint)" }}>{t("find_start_sub")}</div>
+      <div className="lp-head mb-2">{t("find_start_title")}</div>
+      <div className="lp-body mb-5" style={{ color: "var(--lp-paper-soft)" }}>{t("find_start_sub")}</div>
       <div className="min-h-0 flex-1">
         <ItemRenderer key={item.id} item={item.item} onAnswer={onAnswer} onNext={onNext} mode="placement" />
       </div>

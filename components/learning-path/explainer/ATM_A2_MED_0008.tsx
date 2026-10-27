@@ -1,14 +1,17 @@
 "use client";
 
 // "The gas bill" (ATM-A2-MED-0008): a 2D flat-vector motion-graphics explainer
-// built as a Remotion composition (3:4, 1080x1440, 30 fps, 57 s).
+// built as a Remotion composition (3:4, 1080x1440, 30 fps, 40 s).
 //
-// Ten beats from docs/explainers/storyboards.md section 3, re-cut to the
-// board's attention rule of 26 October the way ATM-A2-INT-0009 was: hook, four
-// notices, two explain beats, two say-asks, recap. Every scene note, beat id,
-// narration line and target from the storyboard is kept; only the frame ranges
-// moved, so nothing passive runs longer than eight seconds and every beat that
-// teaches something ends on an ask.
+// Eight beats from docs/explainers/storyboards.md section 3, on that file's
+// 26 October re-cut to "the attention law": hook, notice, predict, two more
+// notices, explain, practise, recap. Every beat id, from, to, narration line,
+// target and pauseAt is taken from the storyboard table exactly as given; the
+// old "This is your gas bill." beat is folded into the hook, where the
+// letter's header resolves to GAS BILL, which is what pays for the predict
+// beat. Rung 5 ("say it changed") is deliberately absent: for a mediation
+// atom that is telling somebody else, which is the relay item ITM-MED-0804
+// straight after this video.
 //
 // Single target: "Pay by [date]" (on or before), carried into the three-point
 // relay: when, how, the number. Cast: sami (has the letter) and you (reads it
@@ -27,38 +30,54 @@ import {
   FONT, hash, Highlight, INK, karaoke, KineticText, PAPER, SAFFRON, SEA, SpeechBubble, springIn,
   Stage, TapCue, Transition, tween, WOOD, WOOD_DARK, WOOD_LIGHT,
 } from "./lib";
-import type { Beat } from "./Cafe";
 
 export const MED8_FPS = 30;
 export const MED8_W = 1080;
 export const MED8_H = 1440;
 
-// Re-cut to the board's attention rule of 26 October, as ATM-A2-INT-0009 was.
-// The storyboard's own cut (eight beats, an eleven-second explain beat, one
-// stop in the whole video) predates that ruling: it is kept here beat for beat
-// in ids, lines, targets and scene notes, but the ranges are re-timed so no
-// beat runs longer than eight seconds and every teaching beat ends on an ask.
-// The explain beat splits in two (the three things, then what "pay by" means)
-// and the say-ask grows: the relay line first, then the reference number on
-// top of it, which is the third point item ITM-MED-0804 asks for.
+// The storyboard gives this atom a `predict` beat, which is not a member of the
+// Beat kind union in Cafe.tsx. That union and the matching `asksFor` branch are
+// LP-46's to add, not mine, so the kind is widened locally instead (the same
+// shape ATM-A2-RDG-0006 uses for its "word" beats). The registration contract
+// in ExplainerPlayer takes `kind: string`, so this still registers unchanged.
+export type Beat = {
+  id: string;
+  from: number;
+  to: number;
+  line: string;
+  target?: string[];
+  kind: "hook" | "notice" | "predict" | "explain" | "practise" | "recap";
+  pauseAt?: number;
+};
+
+// Straight from the storyboard's re-cut table: eight beats, 1200 frames.
 //
 // The player derives the stops from this table (`asksFor` in ExplainerPlayer),
 // so the pauseAt frames are the contract: each one is a settled frame with
-// nothing mid-move and the whole caption lit. The first say-ask sits at 78% of
-// the duration, inside the 80%-watched window.
+// nothing mid-move and the whole caption lit. asksFor skips any beat without a
+// target, which gives exactly the storyboard's five growing asks: tap the key
+// words at 258, say "online" at 528, say "reference number" at 678, tap the
+// three stickers at 858, say the whole line at 1068.
+//
+// The `predict` beat carries no target on purpose. Its ask is one tap on the
+// phone, the shop or the stamped envelope (two of the three are right), which
+// needs the predict ask kind from LP-46; until that lands, a target here would
+// make asksFor stop and ask the learner to *say* words that are not in the
+// line, and would leak the answer the beat exists to withhold. Its pauseAt is
+// kept so the stop is live the moment LP-46 adds the branch. Cost of leaving it
+// unwired: the passive stretch from 258 to 528 is 9.0 s rather than the
+// storyboard's 8.6 s.
 export const MED8_BEATS: Beat[] = [
-  { id: "hook", kind: "hook", from: 0, to: 132, line: "Sami has a letter. He cannot read it." },
-  { id: "n1", kind: "notice", from: 132, to: 282, line: "This is your gas bill.", target: ["gas bill"], pauseAt: 258 },
-  { id: "n2", kind: "notice", from: 282, to: 456, line: "Please pay by thirty May.", target: ["pay by"], pauseAt: 432 },
-  { id: "n3", kind: "notice", from: 456, to: 630, line: "You can pay online or at the shop.", target: ["online", "at the shop"], pauseAt: 606 },
-  { id: "n4", kind: "notice", from: 630, to: 804, line: "Use reference number four four seven one.", target: ["reference number"], pauseAt: 780 },
-  { id: "explain", kind: "explain", from: 804, to: 972, line: "Three things: when, how, and the number.", target: ["when", "how", "the number"], pauseAt: 948 },
-  { id: "explain2", kind: "explain", from: 972, to: 1140, line: "Pay by means on or before.", target: ["on or before"], pauseAt: 1116 },
-  { id: "practise", kind: "practise", from: 1140, to: 1374, line: "Say it with me. Pay by thirty May, online or at the shop.", target: ["Pay by", "online", "at the shop"], pauseAt: 1338 },
-  { id: "again", kind: "practise", from: 1374, to: 1572, line: "Use reference number four four seven one.", target: ["reference number"], pauseAt: 1536 },
-  { id: "recap", kind: "recap", from: 1572, to: 1716, line: "You can read the letter and tell him. Again tomorrow.", target: ["tell him"] },
+  { id: "hook", kind: "hook", from: 0, to: 120, line: "Sami has a letter. He cannot read it." },
+  { id: "n1", kind: "notice", from: 120, to: 270, line: "Please pay by thirty May.", target: ["pay by"], pauseAt: 258 },
+  { id: "predict", kind: "predict", from: 270, to: 390, line: "How can he pay?", pauseAt: 378 },
+  { id: "n2", kind: "notice", from: 390, to: 540, line: "You can pay online or at the shop.", target: ["online", "at the shop"], pauseAt: 528 },
+  { id: "n3", kind: "notice", from: 540, to: 690, line: "Use reference number four four seven one.", target: ["reference number"], pauseAt: 678 },
+  { id: "explain", kind: "explain", from: 690, to: 870, line: "Three things: when, how, and the number.", target: ["when", "how", "the number"], pauseAt: 858 },
+  { id: "practise", kind: "practise", from: 870, to: 1080, line: "Say it with me. Pay by thirty May, online or at the shop.", target: ["Pay by", "online", "at the shop"], pauseAt: 1068 },
+  { id: "recap", kind: "recap", from: 1080, to: 1200, line: "You can pass on the three things. Again tomorrow." },
 ];
-export const MED8_DURATION = 1716;
+export const MED8_DURATION = 1200;
 
 function beatAt(frame: number): Beat {
   return MED8_BEATS.find((b) => frame >= b.from && frame < b.to) ?? MED8_BEATS[MED8_BEATS.length - 1];
@@ -591,6 +610,59 @@ function CornerYou({ frame, from, x = 140, y = 1020, r = 88, talking }: { frame:
   );
 }
 
+/** An envelope with a stamp: the third, wrong way to pay in the predict beat. */
+function StampedEnvelope({ frame, from, x, y, w = 150, slideOut = 0 }: { frame: number; from: number; x: number; y: number; w?: number; slideOut?: number }) {
+  const s = springIn(frame, from, { damping: 10, stiffness: 170 });
+  const h = w * 0.68;
+  // when the learner taps it, it slides away gently rather than being marked wrong
+  const go = slideOut > 0 ? tween(frame, slideOut, slideOut + 26, 0, 1, EASE.inOut) : 0;
+  return (
+    <g transform={`translate(${x + go * 150} ${y + go * 40}) scale(${s})`} opacity={1 - go}>
+      <rect x={-w / 2} y={-h / 2} width={w} height={h} rx="8" fill={ENVELOPE} stroke={INK} strokeWidth="5" />
+      <path d={`M${-w / 2} ${-h / 2} L0 ${h * 0.08} L${w / 2} ${-h / 2}`} fill="none" stroke={INK} strokeWidth="5" strokeLinejoin="round" />
+      <rect x={w / 2 - 44} y={-h / 2 + 10} width="32" height="26" rx="3" fill={PAPER} stroke={INK} strokeWidth="4" />
+      <circle cx={w / 2 - 28} cy={-h / 2 + 23} r="7" fill={PINK} />
+    </g>
+  );
+}
+
+/**
+ * The prediction moment: a thought cloud over `you` holding the three ways the
+ * bill might be paid. Nothing here is spoken in English, so the cloud has to
+ * carry the question on its own; the caption asks it in the learner's language.
+ */
+function ThoughtCloud({ frame, from, cx, cy, w, h, tail }: { frame: number; from: number; cx: number; cy: number; w: number; h: number; tail: { x: number; y: number }[] }) {
+  const s = springIn(frame, from, { damping: 12, stiffness: 140 });
+  const puff = (i: number, px: number, py: number, r: number) => {
+    const wob = Math.sin(frame / 22 + i) * 3;
+    return <circle key={`p${i}`} cx={px} cy={py + wob} r={r} fill="#fff" stroke={INK} strokeWidth="5" />;
+  };
+  return (
+    <g transform={`translate(${cx} ${cy}) scale(${s}) translate(${-cx} ${-cy})`}>
+      {/* the tail, smallest bubble nearest the head */}
+      {tail.map((t, i) => (
+        <circle
+          key={`t${i}`} cx={t.x} cy={t.y + Math.sin(frame / 20 + i) * 3}
+          r={14 + i * 9} fill="#fff" stroke={INK} strokeWidth="5"
+          opacity={tween(frame, from + 4 + i * 4, from + 14 + i * 4, 0, 1, EASE.out)}
+        />
+      ))}
+      {/* the cloud itself: one rounded body with puffs around the rim, so the
+          outline stays a single clean shape at 1080 wide */}
+      <g>
+        {puff(0, cx - w / 2 + 40, cy - h / 2 + 50, 78)}
+        {puff(1, cx - w / 4, cy - h / 2 + 18, 86)}
+        {puff(2, cx + w / 6, cy - h / 2 + 10, 82)}
+        {puff(3, cx + w / 2 - 44, cy - h / 2 + 54, 74)}
+        {puff(4, cx + w / 2 - 30, cy + h / 2 - 54, 70)}
+        {puff(5, cx - w / 2 + 34, cy + h / 2 - 50, 72)}
+        <rect x={cx - w / 2} y={cy - h / 2 + 30} width={w} height={h - 60} rx="60" fill="#fff" stroke={INK} strokeWidth="5" />
+        <rect x={cx - w / 2 + 6} y={cy - h / 2 + 36} width={w - 12} height={h - 72} rx="54" fill="#fff" />
+      </g>
+    </g>
+  );
+}
+
 // ---------------------------------------------------------------- the kitchen
 
 function KitchenWall({ frame }: { frame: number }) {
@@ -675,40 +747,43 @@ function Layer({ zoom, depth, children }: { zoom: number; depth: number; childre
  * cut into n1 and then creeps slowly, so the four notices read as one scene.
  */
 function KitchenScene({ frame }: { frame: number }) {
-  // the push-in belongs to the hook; the notices sit at a steady, gentle crawl
-  // so nothing on the right of the frame (the calendar, the shop) is cropped
-  const zoom = 1 + tween(frame, 0, 130, 0, 0.1, EASE.inOut) - tween(frame, 130, 132, 0, 0.055) + tween(frame, 140, 804, 0, 0.03, EASE.inOut);
+  // One continuous take, so the hook's push-in runs straight into the notices:
+  // it settles at 108 (the storyboard's "settled by 108") and then the camera
+  // creeps very slightly to 690 so nothing on the right is cropped.
+  const zoom = 1 + tween(frame, 0, 108, 0, 0.1, EASE.inOut) + tween(frame, 120, 690, 0, 0.03, EASE.inOut);
 
-  const hook = frame < 132;
-  const n1 = frame >= 132 && frame < 282;
-  const n2 = frame >= 282 && frame < 456;
-  const n3 = frame >= 456 && frame < 630;
-  const n4 = frame >= 630;
+  const hook = frame < 120;
+  const n1 = frame >= 120 && frame < 270;
+  const predict = frame >= 270 && frame < 390;
+  const n2 = frame >= 390 && frame < 540;
+  const n3 = frame >= 540;
 
   // `you` walks in from the right with the mugs, puts them down, and takes the
   // letter. sami is at the far side of the table, so the path never crosses
-  // him. All of it lands before the cut at 132.
-  const youX = tween(frame, 14, 86, 1240, 884, EASE.inOut);
+  // him. All of it lands before the header resolves at 90.
+  const youX = tween(frame, 14, 80, 1240, 884, EASE.inOut);
   const youFacing: 1 | -1 = -1;
-  const youWalking = frame >= 14 && frame < 84;
+  const youWalking = frame >= 14 && frame < 78;
   const youArm = hook
     ? { g: "cup" as const, at: 10 }
     : n1
-      ? { g: "raise" as const, at: 142 }
-      : { g: "point" as const, at: n2 ? 292 : n3 ? 466 : 640 };
+      ? { g: "raise" as const, at: 130 }
+      : predict
+        ? { g: "think" as const, at: 278 }
+        : { g: "point" as const, at: n2 ? 400 : 550 };
   const youTalks =
-    (frame > 142 && frame < 230) || (frame > 292 && frame < 400) ||
-    (frame > 466 && frame < 578) || (frame > 640 && frame < 752);
+    (frame > 130 && frame < 224) || (frame > 276 && frame < 330) ||
+    (frame > 400 && frame < 494) || (frame > 550 && frame < 644);
 
-  // the letter is in sami's hands in the hook, tilted; `you` straightens it on
-  // the cut into n1
+  // the letter is in sami's hands in the hook, tilted; `you` straightens it as
+  // the header resolves
   const tilt = hook ? -5 : 0;
   const lift = hook ? 36 : 0;
 
   // sami's thought mark: big "?" in the hook, smaller as each line is read,
-  // then a "!" once the number lands
-  const markSize = frame >= 724 ? 0.9 : frame >= 466 ? 0.62 : frame >= 196 ? 0.74 : 0.9;
-  const markGlyph: "?" | "!" = frame >= 724 ? "!" : "?";
+  // then half a "!" once the number lands
+  const markSize = frame >= 600 ? 0.9 : frame >= 390 ? 0.62 : frame >= 180 ? 0.74 : 0.9;
+  const markGlyph: "?" | "!" = frame >= 600 ? "!" : "?";
 
   return (
     <AbsoluteFill style={{ background: WALL }}>
@@ -716,27 +791,58 @@ function KitchenScene({ frame }: { frame: number }) {
         <KitchenWall frame={frame} />
       </Layer>
 
-      {/* the wall calendar beside the fridge: n2 only, one new thing at a time */}
-      {n2 ? (
+      {/* the wall calendar beside the fridge: n1 only, one new thing at a time.
+          The green fill finishes at 238 so the tap at 258 holds a still frame. */}
+      {n1 ? (
         <Layer zoom={zoom} depth={0.15}>
           <Stage>
-            <g transform={`translate(26 342) scale(${springIn(frame, 292, { damping: 11, stiffness: 150 })}) translate(-26 -342)`}>
-              <Calendar frame={frame} x={26} y={342} w={228} flipAt={316} ringAt={346} fillFrom={360} fillTo={414} />
+            <g transform={`translate(26 342) scale(${springIn(frame, 128, { damping: 11, stiffness: 150 })}) translate(-26 -342)`}>
+              <Calendar frame={frame} x={26} y={342} w={228} flipAt={150} ringAt={180} fillFrom={196} fillTo={238} />
             </g>
           </Stage>
         </Layer>
       ) : null}
 
-      {/* n3: the two ways to pay pop above the table and take a coin each */}
-      {n3 ? (
+      {/* predict: the three ways it might be paid, in a cloud over `you`. Two
+          of the three are right, which is the honest shape of this scene. */}
+      {predict ? (
+        <Layer zoom={zoom} depth={0.15}>
+          <Stage>
+            <ThoughtCloud
+              frame={frame} from={278} cx={600} cy={300} w={620} h={300}
+              tail={[{ x: 880, y: 760 }, { x: 912, y: 650 }, { x: 918, y: 530 }]}
+            />
+            <PhoneIcon frame={frame} from={300} x={400} y={300} />
+            <ShopIcon frame={frame} from={316} x={600} y={312} />
+            <StampedEnvelope frame={frame} from={332} x={822} y={300} />
+          </Stage>
+        </Layer>
+      ) : null}
+
+      {/* n2: the two right ways lift out of the cloud, settle above the table
+          and take a coin each */}
+      {n2 ? (
         <Layer zoom={zoom} depth={0.15}>
           <Stage>
             {/* stacked, because the only clear band left of the letter is
                 narrower than the two icons side by side */}
-            <PhoneIcon frame={frame} from={486} x={152} y={316} />
-            <ShopIcon frame={frame} from={504} x={152} y={512} />
-            <Coin frame={frame} from={510} x0={330} y0={800} x1={152} y1={408} />
-            <Coin frame={frame} from={544} x0={330} y0={820} x1={152} y1={598} />
+            <PhoneIcon frame={frame} from={404} x={152} y={316} />
+            <ShopIcon frame={frame} from={420} x={152} y={512} />
+            <Tick frame={frame} from={446} x={186} y={300} size={0.42} />
+            <Coin frame={frame} from={434} x0={330} y0={800} x1={152} y1={408} />
+            <Coin frame={frame} from={468} x0={330} y0={820} x1={152} y1={598} />
+          </Stage>
+        </Layer>
+      ) : null}
+
+      {/* n3: the luggage label, big enough to read above the ask panel, with
+          the four digits thumping in one per 12 frames and settled by 636 */}
+      {n3 ? (
+        <Layer zoom={zoom} depth={0.15}>
+          <Stage>
+            <g transform={`translate(150 352) scale(${springIn(frame, 552, { damping: 11, stiffness: 150 })}) translate(-150 -352)`}>
+              <RefTag frame={frame} from={552} x={-10} y={300} w={360} stampFrom={588} stampEvery={12} />
+            </g>
           </Stage>
         </Layer>
       ) : null}

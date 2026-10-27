@@ -113,11 +113,26 @@ const GAG_SAYS = {
   crane: "Lifts it away with the tiny crane.",
 };
 
+// He stands in the left half of a 300 x 200 box, so a pose cell is cropped
+// to that half: the caption then sits under the drawing, not under the empty
+// gag area. `out` is sampled early, before he is half off the box and the
+// viewBox cuts him in two.
+const BLOB_POSE_PX = 128;
+const half = (svg, size) =>
+  `<div class="art half" style="width:${Math.round((size * 150) / 200)}px">${svg}</div>`;
+
 const blobPoses = ["in", "look", "wave", "out"]
   .map((pose, i) => {
     const fill = [ART.sun, ART.tangerine, ART.sky, ART.mint][i];
-    const art = blob({ pose, fill, size: 128, seed: 3, title: `Blobert ${pose}` });
-    return `<figure class="cell"><div class="art">${art}</div><figcaption>${pose}</figcaption></figure>`;
+    const art = blob({
+      pose,
+      fill,
+      size: BLOB_POSE_PX,
+      seed: 3,
+      progress: pose === "out" ? 0.12 : undefined,
+      title: `Blobert ${pose}`,
+    });
+    return `<figure class="cell">${half(art, BLOB_POSE_PX)}<figcaption>${pose}</figcaption></figure>`;
   })
   .join("");
 
@@ -134,7 +149,10 @@ const blobGags = BLOBERT_GAGS.map((gag) => {
   </figure>`;
 }).join("");
 
-const FRAMES = [0.08, 0.26, 0.42, 0.56, 0.7, 0.86];
+// Sampled inside the on-stage window. Before about 140 ms and after about
+// 770 ms he is travelling through the edge of his own box, so the viewBox
+// clips him and a still of that frame reads as a drawing error, not a move.
+const FRAMES = [0.16, 0.3, 0.44, 0.58, 0.72, 0.86];
 const blobStrips = BLOBERT_GAGS.map(
   (gag) => `
   <div class="strip" style="--block:var(--cream)">
@@ -159,9 +177,9 @@ const blobOnBlocks = BLOCKS.map(
   ([bname, bval]) => `
   <div class="strip" style="--block:${bval}">
     <span class="tag">${bname}</span>
-    <div class="row tight">
-      <div class="art">${blob({ pose: "look", fill: ART.cream, size: 112, seed: 4, title: `Blobert in cream on ${bname}` })}</div>
-      <div class="art">${blob({ pose: "wave", fill: ART.paper, size: 112, seed: 6, title: `Blobert in white on ${bname}` })}</div>
+    <div class="row tight pair">
+      ${half(blob({ pose: "look", fill: ART.cream, size: 112, seed: 4, title: `Blobert in cream on ${bname}` }), 112)}
+      ${half(blob({ pose: "wave", fill: ART.paper, size: 112, seed: 6, title: `Blobert in white on ${bname}` }), 112)}
     </div>
   </div>`,
 ).join("");
@@ -203,6 +221,9 @@ const html = `<!doctype html>
   .cell { margin: 0; text-align: center; }
   .cell figcaption { font-size: 13px; font-weight: 700; padding: 6px 0 12px; }
   .art { display: flex; align-items: flex-end; justify-content: center; }
+  .art.half { justify-content: flex-start; overflow: hidden; }
+  .art.half > svg { flex: 0 0 auto; }
+  .row.pair { justify-content: center; gap: 48px; padding: 6px 0 10px; }
   .strip {
     background: var(--block); border: 3px solid var(--ink); border-radius: 28px;
     padding: 12px 16px 4px; margin: 0 0 14px; position: relative;
@@ -290,6 +311,51 @@ const html = `<!doctype html>
     </ul>
   </div>
 </div>
+<script>
+// Replay without a framework: each gag card ships the resting frame in the
+// stage and the animated copy in a <template>. Playing swaps the template in,
+// which starts the generated CSS from zero, then puts the resting frame back.
+(function () {
+  var MS = ${BLOBERT_GAG_MS};
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // Reduced motion replaces every timeline with one 360 ms fade, so hold the
+  // animated copy for that long instead of the full gag.
+  var hold = reduced ? 420 : MS + 80;
+
+  var plays = [].slice.call(document.querySelectorAll(".gag")).map(function (fig) {
+    var stage = fig.querySelector(".stage");
+    var tpl = fig.querySelector("template");
+    var still = stage.innerHTML;
+    var button = fig.querySelector("button");
+    var timer = null;
+
+    function play(then) {
+      if (timer) window.clearTimeout(timer);
+      stage.innerHTML = tpl.innerHTML;
+      button.disabled = true;
+      timer = window.setTimeout(function () {
+        stage.innerHTML = still;
+        button.disabled = false;
+        timer = null;
+        if (then) then();
+      }, hold);
+    }
+
+    button.addEventListener("click", function () { play(); });
+    return play;
+  });
+
+  var all = document.getElementById("playall");
+  all.addEventListener("click", function () {
+    all.disabled = true;
+    var i = 0;
+    (function step() {
+      if (i >= plays.length) { all.disabled = false; return; }
+      plays[i++](function () { window.setTimeout(step, 160); });
+    })();
+  });
+})();
+</script>
 </body>
 </html>
 `;

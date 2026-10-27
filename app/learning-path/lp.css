@@ -322,6 +322,14 @@
 .lp-pill-glow { color: var(--lp-accent); border-color: var(--lp-accent-line); background: var(--lp-accent-tint); }
 .lp-pill-good { color: var(--lp-sea-deep); border-color: var(--lp-sea-line); background: var(--lp-sea-tint); }
 
+/* Segmented control: one bordered group on the settings rows, in place of a
+   row of tinted pills. The chosen segment is filled with the ink, so the state
+   reads without colour. */
+.lp-seg { display: inline-flex; border: var(--lp-border-w) solid var(--lp-line-strong); border-radius: var(--lp-r-sm); overflow: hidden; background: var(--lp-surface); }
+.lp-seg button { min-height: 44px; padding: 0 12px; font-size: calc(13.5px * var(--lp-scale)); font-weight: 500; background: none; border: none; border-inline-start: var(--lp-border-w) solid var(--lp-line); color: var(--lp-paper-soft); cursor: pointer; }
+.lp-seg button:first-child { border-inline-start: none; }
+.lp-seg button[data-on="true"] { background: var(--lp-paper); color: var(--lp-bg-0); font-weight: 600; }
+
 .lp-avatar { width: 56px; height: 56px; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: 28px; background: var(--lp-glass-strong); border: var(--lp-border-w) solid var(--lp-line); }
 .lp-avatar-online { box-shadow: 0 0 0 2px var(--lp-sea-line); }
 

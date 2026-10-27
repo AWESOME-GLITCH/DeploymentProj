@@ -76,16 +76,18 @@ body{
   position:absolute; left:18px; right:18px; top:18px; z-index:4;
   background:var(--paper); color:var(--ink);
   border:3px solid var(--ink); border-radius:24px;
-  padding:30px 16px 16px;
+  padding:30px 14px 16px;
   box-shadow:4px 5px 0 var(--ink);
   animation:pop 320ms var(--spring) both;
 }
-.line{margin:0; font-size:21px; line-height:1.66; font-weight:700; letter-spacing:-.2px}
+.line{margin:0; font-size:20px; line-height:1.66; font-weight:700; letter-spacing:-.2px}
 .w{opacity:.32; transition:opacity 140ms ease}
 .w.said{opacity:1}
+/* the pill borrows the space either side of the word, so the highlight never
+   rewraps the line and nothing below it has to move */
 .w.now{
   opacity:1; transition:none; background:var(--ink); color:var(--cream);
-  border-radius:8px; padding:2px 5px; margin:0 -3px;
+  border-radius:8px; padding:2px 5px; margin:0 -5px;
   animation:wordPop 240ms var(--spring) both;
 }
 .w.fix{opacity:1; box-shadow:0 3px 0 var(--ink); border-radius:3px}
@@ -103,11 +105,11 @@ body{
 @keyframes hop{0%{margin-top:0}45%{margin-top:-9px}100%{margin-top:0}}
 
 /* ---------- the two ink waveforms ---------- */
-.waves{position:absolute; left:20px; right:20px; z-index:3; display:grid; gap:14px}
+.waves{position:absolute; left:20px; right:20px; z-index:3; display:grid; gap:20px}
 .wave-row{display:grid; gap:3px; animation:pop 320ms var(--spring) both}
 .wave-row:nth-child(2){animation-delay:60ms}
 .wave-label{font-size:13px; font-weight:800; letter-spacing:.3px; opacity:.72}
-.wave{position:relative; height:50px}
+.wave{position:relative; height:62px}
 .wave svg{position:absolute; inset:0; width:100%; height:100%; display:block; overflow:visible}
 .wave path{fill:none; stroke:var(--ink); stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round}
 .wave .flat{stroke-width:2.6; stroke-dasharray:3 7; opacity:.45}
@@ -120,7 +122,7 @@ body{
 .head.on{opacity:.55}
 
 /* ---------- three ink bars ---------- */
-.bars{position:absolute; left:20px; right:20px; z-index:4; display:grid; gap:12px}
+.bars{position:absolute; left:20px; right:20px; z-index:4; display:grid; gap:18px}
 .bar-row{display:grid; gap:5px; animation:pop 300ms var(--spring) both}
 .bar-row:nth-child(2){animation-delay:60ms}
 .bar-row:nth-child(3){animation-delay:120ms}
@@ -133,18 +135,19 @@ body{
 .sticker svg{display:block}
 .twinkle{animation:twinkle 4s ease-in-out infinite}
 @keyframes twinkle{0%,100%{transform:scale(1) rotate(0)}45%{transform:scale(1.18) rotate(10deg)}70%{transform:scale(.94) rotate(-4deg)}}
-.s-star{top:44%; right:22px}
+/* the stickers live in the band under the bars, clear of every panel */
+.s-star{top:56%; right:26px}
 .s-squiggle{bottom:26px; right:30px; animation-delay:1.2s}
-.s-win{display:none; top:34%; right:62px}
+.s-win{display:none; top:62%; right:34px}
 .card.done .s-win{display:block}
 .card.done .s-star,.card.done .s-squiggle{display:none}
-.burst{top:40%; left:50%; margin-left:-36px; opacity:0; z-index:7}
+.burst{top:55%; left:50%; margin-left:-32px; opacity:0; z-index:7}
 .burst.go{animation:burst 420ms var(--spring) both}
 @keyframes burst{0%{opacity:0; transform:scale(.3) rotate(-24deg)}60%{opacity:1; transform:scale(1.14) rotate(8deg)}100%{opacity:1; transform:scale(1) rotate(0)}}
 
 /* ---------- Maya ---------- */
-.stage{position:absolute; left:4px; bottom:-6px; width:158px; height:218px; z-index:2}
-.card.done .stage{left:50%; margin-left:-104px; width:208px; height:286px; bottom:-28px}
+.stage{position:absolute; left:4px; bottom:6px; width:158px; height:218px; z-index:2}
+.card.done .stage{left:50%; margin-left:-104px; width:208px; height:286px; bottom:-4px}
 .cast{position:relative; width:100%; height:100%; transition:transform 320ms var(--spring)}
 .cast .pose{position:absolute; inset:0; opacity:0; transition:opacity 160ms ease}
 .cast .pose.on{opacity:1}
@@ -248,7 +251,9 @@ body{
 }
 [data-theme="dark"] .typed button{background:var(--cream); color:var(--ink)}
 
-:focus-visible{outline:3px solid var(--tangerine); outline-offset:3px; border-radius:99px}
+/* ink focus ring, cream in the dark: never a red or an orange flash */
+:focus-visible{outline:3px solid var(--on-page); outline-offset:3px; border-radius:99px}
+.card :focus-visible{outline-color:var(--ink)}
 .hidden{display:none !important}
 .sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
 
@@ -518,6 +523,7 @@ body{
     const step = () => {
       spans.forEach((s,k) => { s.classList.toggle("now", k === i); if (k < i) s.classList.add("said"); });
       if (i >= spans.length){ end(); return; }
+      layout();            /* a long line may wrap: keep the waves under the panel */
       moveDot(spans[i]);
       if (withHead){
         head.classList.add("on");
@@ -764,12 +770,15 @@ body{
     const gag = pickGag();
     blobert.dataset.gag = gag;
     blobert.classList.remove("hidden","in","look","act","wave","out");
-    /* he stands just right of the word he is clearing */
-    const box = target.getBoundingClientRect(), pb = panel.getBoundingClientRect();
+    /* he stands under the bars, on the side of the word he is clearing, and
+       always whole: his tools reach the right edge of his own 150px box */
+    const box = target.getBoundingClientRect();
     const cardBox = card.getBoundingClientRect();
-    const left = Math.min(cardBox.width - 118, Math.max(cardBox.width - 168, box.right - cardBox.left - 16));
+    const under = bars.classList.contains("hidden") ? panel : bars;
+    const left = Math.min(cardBox.width - 152, Math.max(cardBox.width * .45, box.right - cardBox.left - 70));
+    const below = under.offsetTop + under.offsetHeight + 14;
     blobert.style.left = left + "px";
-    blobert.style.top = Math.min(cardBox.height - 140, pb.bottom - cardBox.top - 44) + "px";
+    blobert.style.top = Math.max(0, Math.min(cardBox.height - 138, below)) + "px";
 
     if (reduced){
       blobert.style.opacity = "1";
@@ -854,8 +863,8 @@ body{
   /* ---------------- where the waveforms and the bars sit ---------------- */
   function layout(){
     const top = card.classList.contains("done")
-      ? 190
-      : (panel.classList.contains("hidden") ? 150 : panel.offsetTop + panel.offsetHeight + 24);
+      ? 182
+      : (panel.classList.contains("hidden") ? 150 : panel.offsetTop + panel.offsetHeight + 34);
     waves.style.top = top + "px";
     bars.style.top = top + "px";
   }

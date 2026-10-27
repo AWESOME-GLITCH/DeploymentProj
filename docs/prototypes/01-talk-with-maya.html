@@ -1,615 +1,556 @@
 <!doctype html>
-<html lang="en-GB" data-theme="light">
+<!--
+  Talk with Maya - Learning Path prototype 01.
+  Standalone: open this file in a phone browser. Built from docs/prototypes/src/01-talk-with-maya.html
+  by `node docs/prototypes/src/build.mjs 01-talk-with-maya`, which inlines the pre-rendered cast.
+  Cast art: Open Peeps by Pablo Stanley (CC0), pre-rendered in the palette by scripts/lp/cast.mjs.
+-->
+<html lang="en" data-theme="light">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FFF7E8">
 <title>Talk with Maya</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
-/* Talk with Maya: prototype 1. Board look of 26 Oct: flat colour blocks, ink
-   outlines, black pill buttons, springy motion under 400 ms. One block colour
-   per screen plus ink and cream. */
-
 :root{
-  --sun:#FFD93D; --lilac:#CDB8FF; --tangerine:#FF5A2D; --mint:#A8F0C6;
-  --sky:#BFE3FF; --ink:#121212; --cream:#FFF7E8; --paper:#FFFFFF;
-  --skin:#F7C9A3; --page:var(--cream); --on-page:var(--ink);
-  --bubble:var(--paper);
-  --spring:cubic-bezier(.34,1.56,.64,1);
+  --sun:#FFD93D; --sky:#BFE3FF; --mint:#A8F0C6; --tangerine:#FF5A2D;
+  --ink:#121212; --cream:#FFF7E8; --paper:#FFFFFF;
+  --page:var(--cream); --on-page:var(--ink);
+  --pill:var(--ink); --on-pill:var(--cream);
+  --block:var(--sun);
+  --spring:cubic-bezier(.22,.9,.3,1.12);
 }
-[data-theme="dark"]{
-  --page:#121212; --on-page:var(--cream); --bubble:#1E1E1E;
+html[data-theme="dark"]{
+  --page:#121212; --on-page:var(--cream);
+  --pill:var(--cream); --on-pill:var(--ink);
 }
-
-*{box-sizing:border-box}
-html,body{height:100%}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+html,body{height:100%; overflow:hidden}
 body{
   margin:0; background:var(--page); color:var(--on-page);
-  font-family:"Plus Jakarta Sans",system-ui,sans-serif; font-weight:600;
-  -webkit-font-smoothing:antialiased; overflow:hidden;
-  transition:background 300ms ease,color 300ms ease;
+  font-family:"Plus Jakarta Sans",system-ui,-apple-system,sans-serif; font-weight:600;
+  display:flex; align-items:center; justify-content:center;
+  transition:background .34s ease, color .34s ease;
 }
-
-/* 390 x 844, no page scroll */
-.app{
-  position:fixed; inset:0; width:100%; max-width:430px; margin:0 auto;
-  display:flex; flex-direction:column; gap:12px;
-  padding:14px 16px calc(16px + env(safe-area-inset-bottom));
-}
-
-/* ---------- top row: turn pips and the mode switch ---------- */
-.top{display:flex; align-items:center; justify-content:space-between; height:34px; flex:0 0 auto}
-.pips{display:flex; gap:7px; align-items:center}
-.pip{
-  width:30px; height:7px; border-radius:99px; background:var(--on-page); opacity:.18;
-  transition:opacity 220ms ease,width 260ms var(--spring);
-}
-.pip.live{opacity:1; width:44px}
-.pip.done{opacity:1}
-.switch{
-  width:44px; height:44px; border:none; border-radius:99px; background:transparent;
-  color:var(--on-page); display:grid; place-items:center; cursor:pointer; padding:0;
-}
-.switch svg{width:22px; height:22px; display:block}
-.switch:active{transform:scale(.92)}
-
-/* ---------- the block card ---------- */
-.card{
-  position:relative; flex:1 1 auto; min-height:0;
-  border-radius:28px; background:var(--sun); color:var(--ink);
-  overflow:hidden; transition:background 340ms ease;
-  animation:cardIn 360ms var(--spring) both;
-}
-.card[data-tone="mint"]{background:var(--mint)}
-@keyframes cardIn{from{opacity:0; transform:translateY(14px) scale(.96)} to{opacity:1; transform:none}}
-
-.card-top{position:absolute; inset:18px 18px auto 18px; z-index:3}
-.headline{font-weight:800; font-size:34px; line-height:1.05; letter-spacing:-.6px; margin:0}
-.sub{margin:8px 0 0; font-size:15px; font-weight:600; opacity:.78; max-width:21ch}
-
-/* Maya sits on the floor of the card */
-.stage{position:absolute; inset:0; padding:66px 12px 10px}
-/* on the final card she steps back to make room for the bars */
-.card[data-tone="mint"] .stage{padding:116px 56px 128px}
-
-.card[data-tone="mint"] .s-squiggle,.card[data-tone="mint"] .s-heart{display:none}
-
-/* ---------- speech bubble with word-by-word highlight ---------- */
-.bubble{
-  position:absolute; left:18px; right:18px; top:16px; z-index:4;
-  background:var(--paper); color:var(--ink);
-  border:3px solid var(--ink); border-radius:24px; padding:14px 16px 15px;
-  font-size:19px; line-height:1.3; font-weight:700;
-  box-shadow:4px 5px 0 var(--ink);
-  animation:pop 320ms var(--spring) both;
-}
-.bubble.me{
-  background:var(--ink); color:var(--cream); border-color:var(--ink);
-  top:auto; bottom:22px; left:auto; right:18px; max-width:76%; width:max-content;
-  text-align:right; font-weight:600; font-size:17px; box-shadow:none;
-}
-.bubble .tail{
-  position:absolute; left:34px; bottom:-15px; width:22px; height:16px;
-  background:inherit; border:3px solid var(--ink); border-top:none;
-  clip-path:polygon(0 0,100% 0,18% 100%);
-}
-.bubble.me .tail{left:auto; right:34px; bottom:-14px; clip-path:polygon(0 0,100% 0,82% 100%)}
-.w{opacity:.3; transition:opacity 140ms ease}
-.w.said{opacity:1}
-.w.now{
-  opacity:1; transition:none; background:var(--ink); color:var(--cream);
-  border-radius:8px; padding:1px 4px; margin:0 -2px;
-  animation:wordPop 240ms var(--spring) both;
-}
-@keyframes wordPop{from{transform:scale(.88)} to{transform:scale(1)}}
-@keyframes pop{from{opacity:0; transform:translateY(-8px) scale(.94)} to{opacity:1; transform:none}}
-
-/* ---------- stickers ---------- */
-.sticker{position:absolute; z-index:5; color:var(--ink); pointer-events:none}
-.sticker svg{display:block}
-.twinkle{animation:twinkle 4s ease-in-out infinite}
-@keyframes twinkle{0%,100%{transform:scale(1) rotate(0)}45%{transform:scale(1.18) rotate(10deg)}70%{transform:scale(.94) rotate(-4deg)}}
-.s-star1{top:96px; right:22px}
-.s-squiggle{bottom:120px; left:14px}
-.s-heart{top:150px; left:18px; animation-delay:1.4s}
-.s-win{display:none; top:40%; right:74px}
-.card.done .s-win{display:block}
-.burst{top:16%; left:50%; margin-left:-36px; opacity:0}
-.burst.go{animation:burst 420ms var(--spring) both}
-@keyframes burst{0%{opacity:0; transform:scale(.3) rotate(-24deg)}60%{opacity:1; transform:scale(1.14) rotate(8deg)}100%{opacity:1; transform:scale(1) rotate(0)}}
-
-/* ---------- score bars on the final card ---------- */
-.bars{position:absolute; left:18px; right:18px; bottom:18px; z-index:4; display:grid; gap:11px}
-.bar-row{display:grid; gap:5px}
-.bar-label{font-size:14px; font-weight:700; letter-spacing:.2px}
-.track{height:14px; border-radius:99px; border:3px solid var(--ink); background:transparent; overflow:hidden}
-.fill{display:block; height:100%; width:0; background:var(--ink); border-radius:99px; transition:width 420ms var(--spring)}
-
-/* ---------- dock ---------- */
-.dock{flex:0 0 auto; display:grid; gap:10px}
-.say{
-  font-size:15px; font-weight:700; text-align:center; min-height:22px;
-  color:var(--on-page); opacity:.75;
-}
-.say b{font-weight:800; opacity:1}
-.btn{
-  position:relative; width:100%; height:56px; border:none; border-radius:99px;
-  background:var(--ink); color:#fff; font:inherit; font-weight:700; font-size:18px;
-  display:flex; align-items:center; justify-content:center; gap:10px;
-  cursor:pointer; transition:transform 180ms var(--spring); -webkit-tap-highlight-color:transparent;
-}
-[data-theme="dark"] .btn{background:var(--cream); color:var(--ink)}
-.btn:active{transform:scale(.97)}
-.btn.waiting{opacity:.45}
-.btn .go{position:absolute; right:22px; font-size:20px; font-weight:800}
-.btn.live::before{
-  content:""; position:absolute; inset:-6px; border-radius:99px;
-  border:3px solid var(--ink); opacity:.3; animation:ring 1.4s ease-out infinite;
-}
-[data-theme="dark"] .btn.live::before{border-color:var(--cream)}
-@keyframes ring{0%{transform:scale(.97); opacity:.35}100%{transform:scale(1.07); opacity:0}}
-.minor{
-  background:none; border:none; font:inherit; font-size:15px; font-weight:700; min-height:44px;
-  color:var(--on-page); text-decoration:underline; text-underline-offset:3px;
-  padding:8px; cursor:pointer; justify-self:center; opacity:.8;
-}
-.typed{display:none; gap:8px; grid-template-columns:1fr auto}
-.typed.on{display:grid}
-.typed input{
-  height:52px; border:3px solid var(--ink); border-radius:99px; background:var(--bubble);
-  color:var(--on-page); font:inherit; font-weight:700; font-size:16px; padding:0 18px; min-width:0;
-}
-[data-theme="dark"] .typed input{border-color:var(--cream)}
-.typed input::placeholder{color:var(--on-page); opacity:.45}
-.typed button{
-  height:52px; padding:0 20px; border:none; border-radius:99px; background:var(--ink);
-  color:#fff; font:inherit; font-weight:700; font-size:16px; cursor:pointer;
-}
-[data-theme="dark"] .typed button{background:var(--cream); color:var(--ink)}
-
-:focus-visible{outline:3px solid var(--tangerine); outline-offset:3px; border-radius:99px}
-.hidden{display:none !important}
+button{font:inherit; color:inherit; border:0; background:none; cursor:pointer}
+:focus-visible{outline:3px solid var(--on-page); outline-offset:3px; border-radius:6px}
 .sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
 
-/* Maya comes from the character kit (components/learning-path/art/characters.tsx):
-   one SVG per pose, cut between, with the kit's own idle sway on the wrapper. */
-.cast{position:relative; width:100%; height:100%; transition:transform 320ms var(--spring)}
-.cast .pose{position:absolute; inset:0; opacity:0}  /* a cut, not a crossfade: two figures at once ghost */
-.cast .pose.on{opacity:1}
-.cast svg{width:100%; height:100%; display:block}
-.sway{animation:sway 3s ease-in-out infinite; transform-origin:50% 100%}
-@keyframes sway{0%,100%{transform:rotate(-1.1deg) translateY(0)}50%{transform:rotate(1.1deg) translateY(-2px)}}
-.listening .cast{transform:translateY(4px) scale(1.04)}
-.card.lean .cast{transform:translateY(4px) scale(1.04)}
-.reacting .cast{transform:translateY(-6px) scale(1.03)}
+/* ---------- shell ---------- */
+.phone{
+  width:min(100vw,430px); height:100dvh; max-height:100dvh;
+  display:flex; flex-direction:column; gap:10px;
+  padding:calc(10px + env(safe-area-inset-top)) 16px calc(14px + env(safe-area-inset-bottom));
+}
+
+/* ---------- top strip: turn progress + theme ---------- */
+.top{display:flex; align-items:center; gap:14px; height:28px; flex:none}
+.prog{display:flex; gap:6px; flex:1}
+.seg{
+  height:10px; flex:1; border-radius:99px; border:2.5px solid var(--on-page); background:transparent;
+  transition:background .3s var(--spring);
+}
+.seg.on{background:var(--on-page)}
+.theme{
+  width:34px; height:34px; margin-right:-4px; border-radius:99px;
+  border:2.5px solid var(--on-page); display:grid; place-items:center; flex:none;
+}
+.theme svg{width:17px; height:17px; display:block}
+.theme .moon{display:block} .theme .sun{display:none}
+html[data-theme="dark"] .theme .moon{display:none}
+html[data-theme="dark"] .theme .sun{display:block}
+
+/* ---------- the card ---------- */
+.card{
+  position:relative; flex:1; min-height:0; overflow:hidden;
+  border:3px solid var(--ink); border-radius:28px; background:var(--block); color:var(--ink);
+  transition:background .42s ease;
+  animation:cardIn .5s var(--spring) both;
+}
+@keyframes cardIn{from{opacity:0; transform:translateY(16px) scale(.97)} to{opacity:1; transform:none}}
+.card[data-state="listen"]{--block:var(--sky)}
+.card[data-state="good"]{--block:var(--mint)}
+
+.head{position:relative; z-index:3; padding:22px 22px 0}
+h1{
+  margin:0; font-weight:800; font-size:35px; line-height:1.04; letter-spacing:-.02em;
+  animation:rise .36s var(--spring) both;
+}
+.lede{margin:10px 0 0; font-size:16px; line-height:1.35; max-width:16em; animation:rise .36s var(--spring) .05s both}
+@keyframes rise{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none}}
+
+/* speech bubble */
+.bubble{
+  position:relative; margin:14px 0 0; padding:13px 16px 14px;
+  background:var(--cream); border:3px solid var(--ink); border-radius:22px;
+  box-shadow:5px 5px 0 var(--ink);
+  font-size:20px; font-weight:700; line-height:1.28; letter-spacing:-.01em;
+  animation:bubbleIn .34s var(--spring) both;
+}
+@keyframes bubbleIn{from{opacity:0; transform:translateY(10px) scale(.95)} to{opacity:1; transform:none}}
+.bubble:after,.bubble:before{content:""; position:absolute; width:0; height:0; border-style:solid}
+.bubble:before{left:30px; bottom:-19px; border-width:19px 15px 0 0; border-color:var(--ink) transparent transparent transparent}
+.bubble:after{left:34px; bottom:-13px; border-width:13px 10px 0 0; border-color:var(--cream) transparent transparent transparent}
+.bubble.mine{background:var(--paper)}
+.bubble.mine:after{border-top-color:var(--paper)}
+.w{opacity:.32; transition:opacity .12s linear; display:inline-block}
+.w.said{opacity:1}
+.w.now{opacity:1; animation:wordPop .22s var(--spring); text-decoration:underline; text-decoration-thickness:4px; text-underline-offset:4px}
+@keyframes wordPop{from{transform:scale(.9)} 60%{transform:scale(1.07)} to{transform:scale(1)}}
+.card[data-state="listen"] .w,.card[data-state="done"] .w{opacity:1}
+
+/* ---------- Maya ---------- */
+.scene{
+  position:absolute; z-index:1; left:50%; bottom:-38px; width:600px; height:600px;
+  margin-left:-300px; pointer-events:none;
+  transform-origin:50% 85%;
+  transition:transform .42s var(--spring);
+  animation:popIn .55s var(--spring) both;
+}
+@keyframes popIn{from{opacity:0; transform:translateY(34px) scale(.9)} to{opacity:1; transform:none}}
+.card[data-state="listen"] .scene{transform:translateY(16px) scale(1.07) rotate(-2.5deg)}
+.card[data-state="good"] .scene{transform:translateY(-6px) scale(1.04)}
+.card[data-state="miss"] .scene{transform:translateY(10px) scale(1.05) rotate(2deg)}
+/* the spotlight disc sits behind her head and holds the lean-in with her */
+.disc{
+  position:absolute; z-index:0; left:50%; width:352px; height:352px; margin-left:-176px; top:100px;
+  border-radius:50%; background:var(--cream); border:3px solid var(--ink);
+}
+.sway{width:100%; height:100%; animation:sway 3.4s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:rotate(-1.1deg) translateY(0)} 50%{transform:rotate(1.1deg) translateY(-5px)}}
+.face{position:absolute; inset:0; opacity:0}
+.face.on{opacity:1}
+.art{width:100%; height:100%; display:block}
+
+/* ---------- stickers ---------- */
+.stick{position:absolute; z-index:2; color:var(--ink); pointer-events:none}
+.stick svg{display:block}
+.tw{animation:twinkle 4s ease-in-out infinite}
+@keyframes twinkle{0%,100%{transform:scale(1) rotate(0)} 42%{transform:scale(1.2) rotate(11deg)} 68%{transform:scale(.93) rotate(-5deg)}}
+.s-star{top:96px; right:20px}
+.s-squiggle{top:170px; left:14px; animation-delay:.9s}
+.s-heart{bottom:26px; right:24px; animation-delay:1.8s}
+.s-ear{top:214px; right:30px; opacity:0; transform:scale(.5); transition:opacity .26s, transform .34s var(--spring)}
+.card[data-state="listen"] .s-ear{opacity:1; transform:none}
+.s-note{top:150px; right:46px; opacity:0; transform:scale(.5)}
+.card[data-state="speak"] .s-note{opacity:1; transform:none; animation:note 1.5s ease-in-out infinite}
+@keyframes note{0%{opacity:0; transform:translate(0,6px) scale(.7)} 30%{opacity:1} 100%{opacity:0; transform:translate(16px,-26px) scale(1.05)}}
+.burst{
+  position:absolute; z-index:4; top:120px; left:50%; margin-left:-64px; width:128px; height:128px;
+  opacity:0; pointer-events:none;
+}
+.burst.go{animation:burst .72s var(--spring) both}
+@keyframes burst{0%{opacity:0; transform:scale(.3) rotate(-30deg)} 55%{opacity:1; transform:scale(1.16) rotate(10deg)} 100%{opacity:0; transform:scale(1.3) rotate(16deg)}}
+
+/* ---------- score bars (end card) ---------- */
+.bars{
+  position:absolute; z-index:4; left:14px; right:14px; bottom:14px; padding:16px 18px 18px;
+  background:var(--cream); border:3px solid var(--ink); border-radius:22px;
+  box-shadow:5px 5px 0 var(--ink); display:none;
+  animation:bubbleIn .4s var(--spring) .1s both;
+}
+.card[data-state="done"] .bars{display:block}
+.bar + .bar{margin-top:12px}
+.bar b{display:block; font-size:13px; font-weight:800; letter-spacing:.09em; text-transform:uppercase; margin-bottom:5px}
+.track{height:18px; border:3px solid var(--ink); border-radius:99px; background:var(--paper); overflow:hidden}
+.fill{display:block; height:100%; width:0; background:var(--ink); border-radius:99px; transition:width .85s var(--spring)}
+
+/* ---------- dock ---------- */
+.dock{flex:none; display:flex; flex-direction:column; align-items:center; gap:8px}
+.pill{
+  position:relative; width:100%; height:58px; border-radius:99px;
+  background:var(--pill); color:var(--on-pill);
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  font-size:19px; font-weight:800; letter-spacing:-.01em;
+  transition:transform .14s var(--spring), opacity .2s;
+}
+.pill:active{transform:translateY(2px) scale(.985)}
+.pill[disabled]{opacity:.42; cursor:default}
+.pill .chev{font-size:22px; line-height:1; margin-top:-2px}
+.pill svg{width:22px; height:22px; display:block}
+.pill .ring{
+  position:absolute; inset:-3px; border-radius:99px; border:3px solid var(--pill); opacity:0; pointer-events:none;
+}
+.pill.live .ring{animation:ring 1.5s ease-out infinite}
+.pill.live .ring.b{animation-delay:.75s}
+@keyframes ring{0%{opacity:.5; transform:scale(1)} 100%{opacity:0; transform:scale(1.14)}}
+.minor{height:26px; font-size:15px; font-weight:700; text-decoration:underline; text-underline-offset:4px; opacity:.85}
+.typed{display:none; width:100%; gap:8px}
+.typed.show{display:flex}
+.typed input{
+  flex:1; min-width:0; height:50px; padding:0 16px; border-radius:99px;
+  border:3px solid var(--on-page); background:var(--paper); color:var(--ink);
+  font:inherit; font-size:17px; font-weight:700;
+}
+.typed button{
+  height:50px; padding:0 20px; border-radius:99px; background:var(--pill); color:var(--on-pill);
+  font-size:16px; font-weight:800; flex:none;
+}
+.hide{display:none !important}
 
 @media (prefers-reduced-motion:reduce){
-  *,*::before{animation:none !important}
-  .cast,.btn,.fill{transition-duration:120ms}
+  .sway,.tw,.pill.live .ring,.card[data-state="speak"] .s-note{animation:none !important}
+  *{animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.12s !important}
 }
-@media (max-height:720px){
-  .headline{font-size:28px}
-  .stage{padding-top:64px}
+@media (max-height:700px){
+  h1{font-size:30px} .bubble{font-size:18px} .scene{bottom:-78px}
 }
 </style>
 </head>
 <body>
 
-<div class="app" id="app">
-  <div class="top">
-    <div class="pips" id="pips" role="group" aria-label="Turn 1 of 3">
-      <span class="pip live"></span><span class="pip"></span><span class="pip"></span>
+<div class="phone">
+  <header class="top">
+    <div class="prog" id="prog" role="img" aria-label="Turn 1 of 3">
+      <i class="seg on"></i><i class="seg"></i><i class="seg"></i>
     </div>
-    <button class="switch" id="switch" aria-label="Switch to dark mode">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
-        <circle cx="12" cy="12" r="4.6"/><path d="M12 2.4v2M12 19.6v2M2.4 12h2M19.6 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4"/>
-      </svg>
+    <button class="theme" id="theme" aria-pressed="false">
+      <span class="sr">Dark mode</span>
+      <svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.6A8.6 8.6 0 0 1 9.4 3.5a8.6 8.6 0 1 0 11.1 11.1Z" fill="currentColor"/></svg>
+      <svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="4.4" fill="currentColor"/><path d="M12 1.8v2.4M12 19.8v2.4M1.8 12h2.4M19.8 12h2.4M4.8 4.8l1.7 1.7M17.5 17.5l1.7 1.7M19.2 4.8l-1.7 1.7M6.5 17.5l-1.7 1.7"/></g></svg>
     </button>
-  </div>
+  </header>
 
-  <section class="card" id="card">
-    <div class="card-top" id="cardTop">
-      <h1 class="headline" id="headline">Talk with Maya</h1>
-      <p class="sub" id="sub">Three short turns at a cafe. Say your answer out loud.</p>
+  <main class="card" id="card" data-state="intro">
+    <div class="head">
+      <h1 id="headline">Talk with Maya</h1>
+      <p class="lede" id="lede">Three short turns at a cafe. Say your answer out loud.</p>
+      <div class="bubble hide" id="bubble" aria-live="polite" aria-atomic="true"><span id="bubbleText"></span></div>
     </div>
 
-    <div class="bubble hidden" id="bubble" aria-live="polite" aria-atomic="true"><span id="bubbleText"></span><span class="tail"></span></div>
-    <div class="bubble me hidden" id="meBubble" aria-live="polite" aria-atomic="true"><span id="meText"></span><span class="tail"></span></div>
-
-    <div class="bars hidden" id="bars"></div>
-
-    <span class="sticker s-star1 twinkle" aria-hidden="true"><svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><g><path d="M12.48 0.87 L14.44 9.47 L22.88 12.09 L15.09 14.25 L12.37 23.47 L9.71 15.01 L1.13 11.98 L9.19 9.70 Z" fill="#121212"></path></g></svg></span>
-    <span class="sticker s-squiggle twinkle" aria-hidden="true" style="animation-delay:.8s"><svg viewBox="0 0 24 24" width="44" height="44" aria-hidden="true"><g><path d="M2.31 15.75 C5.50 5.33 9.88 20.60 13.26 11.50 C14.96 6.92 18.76 10.45 22.47 7.11" fill="none" stroke="#121212" stroke-width="3" stroke-linecap="round"></path></g></svg></span>
-    <span class="sticker s-heart twinkle" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><g><path d="M11.70 21.60 C1.55 13.37 3.13 3.90 12.04 7.91 C20.23 3.07 22.74 13.47 12.42 21.99 Z" fill="#121212"></path></g></svg></span>
-    <span class="sticker s-win twinkle" aria-hidden="true"><svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true"><g><path d="M10.76 3.02 L12.25 9.79 L19.09 10.99 L12.00 12.67 L10.87 18.73 L10.03 12.41 L2.94 11.20 L9.58 9.64 Z" fill="#121212"></path><circle cx="19.5" cy="18.5" r="2.1" fill="#121212"></circle><circle cx="4.5" cy="20" r="1.4" fill="#121212"></circle></g></svg></span>
-    <span class="sticker burst" id="burst" aria-hidden="true"></span>
-
-    <div class="stage">
-      <div class="cast" id="cast">
-        <div class="pose on" data-pose="idle"><svg viewBox="0 0 200 280" preserveAspectRatio="xMidYMax meet" aria-hidden="true"><defs><style>
-.lpc-pop{animation:lpc-pop 350ms cubic-bezier(.34,1.56,.64,1) both}
-.lpc-idle{transform-box:fill-box;transform-origin:50% 100%;animation:lpc-sway 3s ease-in-out infinite}
-.lpc-tw{transform-box:fill-box;transform-origin:50% 50%;animation:lpc-tw 4s ease-in-out infinite}
-@keyframes lpc-pop{0%{transform:scale(.86)}60%{transform:scale(1.04)}100%{transform:scale(1)}}
-@keyframes lpc-sway{0%,100%{transform:rotate(-1.1deg) translateY(0)}50%{transform:rotate(1.1deg) translateY(-2px)}}
-@keyframes lpc-tw{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.18);opacity:.72}}
-@media (prefers-reduced-motion: reduce){.lpc-idle,.lpc-tw{animation:none}.lpc-pop{animation-duration:1ms}}
-</style></defs><g><g><g transform="translate(0 0) rotate(0 100 256)"><path d="M86.29 182.11 Q80.70 218.45 83.70 250.28" fill="none" stroke="#121212" stroke-width="19" stroke-linecap="round"></path><path d="M86.29 182.11 Q80.70 218.45 83.70 250.28" fill="none" stroke="#121212" stroke-width="13" stroke-linecap="round"></path><path d="M113.27 182.00 Q119.34 217.46 115.51 249.37" fill="none" stroke="#121212" stroke-width="19" stroke-linecap="round"></path><path d="M113.27 182.00 Q119.34 217.46 115.51 249.37" fill="none" stroke="#121212" stroke-width="13" stroke-linecap="round"></path><path d="M94.51 251.67 Q94.74 253.52 93.51 255.59 Q92.27 257.91 89.10 259.42 Q86.38 261.25 81.75 261.70 Q78.06 262.55 74.00 261.57 Q69.71 260.41 67.54 258.30 Q65.61 256.37 66.15 253.85 Q65.63 251.62 68.43 250.34 Q70.82 248.70 74.46 246.75 Q77.57 245.58 81.68 246.74 Q86.10 246.95 90.22 247.70 Q93.62 249.55 94.03 251.75 Z" fill="#121212" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M134.47 251.96 Q135.65 254.05 134.16 255.99 Q133.66 258.45 129.96 259.63 Q126.71 261.96 122.61 261.42 Q117.82 261.79 113.53 260.90 Q110.28 260.09 107.49 258.35 Q105.65 256.25 105.56 254.23 Q106.39 252.07 108.39 249.37 Q109.36 247.65 114.18 247.46 Q117.75 246.24 121.82 246.52 Q125.38 246.78 128.80 248.54 Q133.13 249.29 134.35 251.74 Z" fill="#121212" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M67.46 258.51 L92.78 258.93" fill="none" stroke="#FFF7E8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M106.71 258.38 L132.85 258.59" fill="none" stroke="#FFF7E8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M99.25 88.05 L100.33 112.74" fill="none" stroke="#121212" stroke-width="22" stroke-linecap="round"></path><path d="M99.25 88.05 L100.33 112.74" fill="none" stroke="#D99A6C" stroke-width="16" stroke-linecap="round"></path><path d="M66.92 119.70 C65.19 104.28 78.90 99.46 100.39 100.70 C122.82 100.82 134.22 104.37 134.31 120.76 L131.61 185.39 C130.71 192.91 68.53 192.61 68.43 186.91 Z" fill="#FFF7E8" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M71.58 108.89 C84.66 99.34 116.66 98.75 127.56 108.57 C116.08 122.51 83.80 121.74 71.70 109.70 Z" fill="#FFD93D" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M110.42 117.21 L124.83 146.56 L103.33 141.53 Z" fill="#FFD93D" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M70.59 120.74 Q57.02 149.30 60.23 174.53" fill="none" stroke="#121212" stroke-width="17" stroke-linecap="round"></path><path d="M70.59 120.74 Q57.02 149.30 60.23 174.53" fill="none" stroke="#FFF7E8" stroke-width="11" stroke-linecap="round"></path><path d="M129.96 119.55 Q143.63 149.31 139.48 174.37" fill="none" stroke="#121212" stroke-width="17" stroke-linecap="round"></path><path d="M129.96 119.55 Q143.63 149.31 139.48 174.37" fill="none" stroke="#FFF7E8" stroke-width="11" stroke-linecap="round"></path><path d="M66.99 174.96 Q67.07 176.80 67.47 179.39 Q67.02 181.66 65.18 182.47 Q63.32 184.11 61.21 184.81 Q58.40 185.41 56.76 184.75 Q53.91 184.01 53.04 181.09 Q52.41 179.09 52.11 176.84 Q51.76 174.92 53.40 172.39 Q54.25 170.54 56.41 169.28 Q58.64 168.48 61.38 169.58 Q63.51 169.38 64.83 171.21 Q66.20 172.58 66.61 175.37 Z" fill="#D99A6C" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M148.44 174.79 Q148.22 176.75 147.75 179.42 Q146.71 181.38 145.18 182.80 Q142.92 183.75 141.40 184.92 Q139.19 184.85 137.22 183.90 Q134.71 183.06 134.23 181.11 Q132.79 179.33 132.66 176.63 Q132.18 174.84 132.98 172.35 Q134.47 170.46 136.43 169.64 Q138.68 168.60 141.07 169.53 Q143.71 169.99 145.76 171.18 Q147.99 172.44 148.13 174.64 Z" fill="#D99A6C" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><g transform="rotate(0 100 94)"><path d="M140.80 30.24 Q142.43 34.28 140.53 38.03 Q139.18 41.55 135.88 43.50 Q132.40 45.73 128.60 47.40 Q124.93 49.28 121.29 46.60 Q118.23 44.35 115.82 40.97 Q113.10 38.30 113.10 34.38 Q113.55 30.14 115.74 26.46 Q117.27 22.81 120.97 22.13 Q125.03 20.47 128.84 20.12 Q133.51 20.05 136.47 23.02 Q139.30 25.73 140.91 29.53 Z" fill="#121212" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M131.20 48.44 Q134.28 58.41 131.98 67.69 Q128.21 76.53 121.95 83.98 Q115.36 91.49 105.18 92.08 Q94.66 93.22 86.38 89.15 Q77.57 84.20 72.25 76.31 Q65.63 68.26 66.72 58.33 Q67.32 48.19 71.93 39.73 Q76.97 30.83 86.24 26.13 Q95.32 21.82 104.79 22.55 Q115.03 23.88 121.46 31.72 Q129.24 38.91 131.94 48.08 Z" fill="#121212" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M129.93 52.20 Q131.06 62.13 129.05 71.12 Q126.80 79.97 119.68 85.93 Q112.76 92.32 104.77 93.21 Q95.77 94.59 87.37 91.59 Q79.28 87.53 74.22 79.57 Q69.88 71.19 69.93 61.97 Q69.65 52.84 73.59 44.68 Q78.74 35.59 87.27 32.56 Q95.41 28.97 104.09 29.25 Q113.28 30.23 120.68 36.84 Q128.12 42.94 129.52 52.59 Z" fill="#D99A6C" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M65.99 61.64 C63.92 24.49 136.13 23.45 133.54 63.95 C126.70 43.70 109.92 38.20 100.36 37.66 C84.53 37.35 70.73 43.83 66.01 62.11 Z" fill="#121212" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M72.07 72.45 Q72.76 73.89 71.72 74.82 Q71.49 75.99 70.41 77.34 Q70.07 78.50 68.95 78.21 Q67.42 78.56 66.28 77.93 Q64.93 77.67 64.50 76.42 Q64.17 75.45 63.84 73.61 Q63.21 72.42 63.92 71.79 Q64.88 70.51 66.31 70.38 Q67.46 69.64 68.56 70.15 Q69.45 69.95 71.06 70.72 Q71.89 71.26 72.11 72.71 Z" fill="#FFD93D" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M136.73 72.73 Q137.27 74.09 136.76 75.05 Q136.15 76.97 135.40 77.42 Q133.94 78.74 132.94 78.26 Q131.59 78.22 130.40 77.75 Q129.10 77.42 128.64 76.31 Q127.63 75.34 128.05 74.11 Q127.98 72.83 128.37 71.48 Q128.87 70.59 130.36 70.00 Q131.01 69.08 132.22 69.87 Q133.55 70.41 135.13 71.15 Q136.12 71.15 136.25 72.65 Z" fill="#FFD93D" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><circle cx="87.87041573622264" cy="61" r="4.1" fill="#121212"></circle><circle cx="112.23464361904189" cy="61" r="4.1" fill="#121212"></circle><path d="M90.20 74.34 Q100.57 85.37 110.48 75.13" fill="none" stroke="#121212" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"></path></g></g></g></g></svg></div>
-        <div class="pose" data-pose="talk"><svg viewBox="0 0 200 280" preserveAspectRatio="xMidYMax meet" aria-hidden="true"><g><g><g transform="translate(0 0) rotate(0 100 256)"><path d="M86.29 182.11 Q80.70 218.45 83.70 250.28" fill="none" stroke="#121212" stroke-width="19" stroke-linecap="round"></path><path d="M86.29 182.11 Q80.70 218.45 83.70 250.28" fill="none" stroke="#121212" stroke-width="13" stroke-linecap="round"></path><path d="M113.27 182.00 Q119.34 217.46 115.51 249.37" fill="none" stroke="#121212" stroke-width="19" stroke-linecap="round"></path><path d="M113.27 182.00 Q119.34 217.46 115.51 249.37" fill="none" stroke="#121212" stroke-width="13" stroke-linecap="round"></path><path d="M94.51 251.67 Q94.74 253.52 93.51 255.59 Q92.27 257.91 89.10 259.42 Q86.38 261.25 81.75 261.70 Q78.06 262.55 74.00 261.57 Q69.71 260.41 67.54 258.30 Q65.61 256.37 66.15 253.85 Q65.63 251.62 68.43 250.34 Q70.82 248.70 74.46 246.75 Q77.57 245.58 81.68 246.74 Q86.10 246.95 90.22 247.70 Q93.62 249.55 94.03 251.75 Z" fill="#121212" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M134.47 251.96 Q135.65 254.05 134.16 255.99 Q133.66 258.45 129.96 259.63 Q126.71 261.96 122.61 261.42 Q117.82 261.79 113.53 260.90 Q110.28 260.09 107.49 258.35 Q105.65 256.25 105.56 254.23 Q106.39 252.07 108.39 249.37 Q109.36 247.65 114.18 247.46 Q117.75 246.24 121.82 246.52 Q125.38 246.78 128.80 248.54 Q133.13 249.29 134.35 251.74 Z" fill="#121212" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M67.46 258.51 L92.78 258.93" fill="none" stroke="#FFF7E8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M106.71 258.38 L132.85 258.59" fill="none" stroke="#FFF7E8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M99.25 88.05 L100.33 112.74" fill="none" stroke="#121212" stroke-width="22" stroke-linecap="round"></path><path d="M99.25 88.05 L100.33 112.74" fill="none" stroke="#D99A6C" stroke-width="16" stroke-linecap="round"></path><path d="M66.92 119.70 C65.19 104.28 78.90 99.46 100.39 100.70 C122.82 100.82 134.22 104.37 134.31 120.76 L131.61 185.39 C130.71 192.91 68.53 192.61 68.43 186.91 Z" fill="#FFF7E8" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M71.58 108.89 C84.66 99.34 116.66 98.75 127.56 108.57 C116.08 122.51 83.80 121.74 71.70 109.70 Z" fill="#FFD93D" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M110.42 117.21 L124.83 146.56 L103.33 141.53 Z" fill="#FFD93D" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M70.59 120.74 Q57.02 149.30 60.23 174.53" fill="none" stroke="#121212" stroke-width="17" stroke-linecap="round"></path><path d="M70.59 120.74 Q57.02 149.30 60.23 174.53" fill="none" stroke="#FFF7E8" stroke-width="11" stroke-linecap="round"></path><path d="M129.96 119.55 Q158.63 130.31 155.48 102.37" fill="none" stroke="#121212" stroke-width="17" stroke-linecap="round"></path><path d="M129.96 119.55 Q158.63 130.31 155.48 102.37" fill="none" stroke="#FFF7E8" stroke-width="11" stroke-linecap="round"></path><path d="M66.99 174.96 Q67.07 176.80 67.47 179.39 Q67.02 181.66 65.18 182.47 Q63.32 184.11 61.21 184.81 Q58.40 185.41 56.76 184.75 Q53.91 184.01 53.04 181.09 Q52.41 179.09 52.11 176.84 Q51.76 174.92 53.40 172.39 Q54.25 170.54 56.41 169.28 Q58.64 168.48 61.38 169.58 Q63.51 169.38 64.83 171.21 Q66.20 172.58 66.61 175.37 Z" fill="#D99A6C" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M163.44 94.79 Q163.22 96.75 162.75 99.42 Q161.71 101.38 160.18 102.80 Q157.92 103.75 156.40 104.92 Q154.19 104.85 152.22 103.90 Q149.71 103.06 149.23 101.11 Q147.79 99.33 147.66 96.63 Q147.18 94.84 147.98 92.35 Q149.47 90.46 151.43 89.64 Q153.68 88.60 156.07 89.53 Q158.71 89.99 160.76 91.18 Q162.99 92.44 163.13 94.64 Z" fill="#D99A6C" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><g transform="rotate(-3 100 94)"><path d="M140.80 30.24 Q142.43 34.28 140.53 38.03 Q139.18 41.55 135.88 43.50 Q132.40 45.73 128.60 47.40 Q124.93 49.28 121.29 46.60 Q118.23 44.35 115.82 40.97 Q113.10 38.30 113.10 34.38 Q113.55 30.14 115.74 26.46 Q117.27 22.81 120.97 22.13 Q125.03 20.47 128.84 20.12 Q133.51 20.05 136.47 23.02 Q139.30 25.73 140.91 29.53 Z" fill="#121212" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M131.20 48.44 Q134.28 58.41 131.98 67.69 Q128.21 76.53 121.95 83.98 Q115.36 91.49 105.18 92.08 Q94.66 93.22 86.38 89.15 Q77.57 84.20 72.25 76.31 Q65.63 68.26 66.72 58.33 Q67.32 48.19 71.93 39.73 Q76.97 30.83 86.24 26.13 Q95.32 21.82 104.79 22.55 Q115.03 23.88 121.46 31.72 Q129.24 38.91 131.94 48.08 Z" fill="#121212" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M129.93 52.20 Q131.06 62.13 129.05 71.12 Q126.80 79.97 119.68 85.93 Q112.76 92.32 104.77 93.21 Q95.77 94.59 87.37 91.59 Q79.28 87.53 74.22 79.57 Q69.88 71.19 69.93 61.97 Q69.65 52.84 73.59 44.68 Q78.74 35.59 87.27 32.56 Q95.41 28.97 104.09 29.25 Q113.28 30.23 120.68 36.84 Q128.12 42.94 129.52 52.59 Z" fill="#D99A6C" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M65.99 61.64 C63.92 24.49 136.13 23.45 133.54 63.95 C126.70 43.70 109.92 38.20 100.36 37.66 C84.53 37.35 70.73 43.83 66.01 62.11 Z" fill="#121212" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M72.07 72.45 Q72.76 73.89 71.72 74.82 Q71.49 75.99 70.41 77.34 Q70.07 78.50 68.95 78.21 Q67.42 78.56 66.28 77.93 Q64.93 77.67 64.50 76.42 Q64.17 75.45 63.84 73.61 Q63.21 72.42 63.92 71.79 Q64.88 70.51 66.31 70.38 Q67.46 69.64 68.56 70.15 Q69.45 69.95 71.06 70.72 Q71.89 71.26 72.11 72.71 Z" fill="#FFD93D" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M136.73 72.73 Q137.27 74.09 136.76 75.05 Q136.15 76.97 135.40 77.42 Q133.94 78.74 132.94 78.26 Q131.59 78.22 130.40 77.75 Q129.10 77.42 128.64 76.31 Q127.63 75.34 128.05 74.11 Q127.98 72.83 128.37 71.48 Q128.87 70.59 130.36 70.00 Q131.01 69.08 132.22 69.87 Q133.55 70.41 135.13 71.15 Q136.12 71.15 136.25 72.65 Z" fill="#FFD93D" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M104.89 47.56 Q112.68 43.77 119.48 47.30" fill="none" stroke="#121212" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="87.87041573622264" cy="61" r="4.1" fill="#121212"></circle><circle cx="112.23464361904189" cy="61" r="4.1" fill="#121212"></circle><path d="M106.70 77.17 Q107.55 78.97 106.78 81.05 Q105.99 83.41 104.45 85.57 Q103.05 86.98 101.24 87.01 Q98.95 87.13 97.03 86.10 Q94.97 85.90 94.22 83.62 Q93.45 81.22 93.76 79.00 Q93.61 76.50 94.28 74.78 Q95.57 72.62 97.46 71.32 Q99.13 70.73 100.69 71.20 Q102.81 71.40 103.95 73.29 Q105.32 74.83 106.44 76.88 Z" fill="#121212" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path></g></g></g></g></svg></div>
-        <div class="pose" data-pose="listen"><svg viewBox="0 0 200 280" preserveAspectRatio="xMidYMax meet" aria-hidden="true"><g><g><g transform="translate(0 0) rotate(-4 100 256)"><path d="M86.29 182.11 Q80.70 218.45 83.70 250.28" fill="none" stroke="#121212" stroke-width="19" stroke-linecap="round"></path><path d="M86.29 182.11 Q80.70 218.45 83.70 250.28" fill="none" stroke="#121212" stroke-width="13" stroke-linecap="round"></path><path d="M113.27 182.00 Q119.34 217.46 115.51 249.37" fill="none" stroke="#121212" stroke-width="19" stroke-linecap="round"></path><path d="M113.27 182.00 Q119.34 217.46 115.51 249.37" fill="none" stroke="#121212" stroke-width="13" stroke-linecap="round"></path><path d="M94.51 251.67 Q94.74 253.52 93.51 255.59 Q92.27 257.91 89.10 259.42 Q86.38 261.25 81.75 261.70 Q78.06 262.55 74.00 261.57 Q69.71 260.41 67.54 258.30 Q65.61 256.37 66.15 253.85 Q65.63 251.62 68.43 250.34 Q70.82 248.70 74.46 246.75 Q77.57 245.58 81.68 246.74 Q86.10 246.95 90.22 247.70 Q93.62 249.55 94.03 251.75 Z" fill="#121212" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M134.47 251.96 Q135.65 254.05 134.16 255.99 Q133.66 258.45 129.96 259.63 Q126.71 261.96 122.61 261.42 Q117.82 261.79 113.53 260.90 Q110.28 260.09 107.49 258.35 Q105.65 256.25 105.56 254.23 Q106.39 252.07 108.39 249.37 Q109.36 247.65 114.18 247.46 Q117.75 246.24 121.82 246.52 Q125.38 246.78 128.80 248.54 Q133.13 249.29 134.35 251.74 Z" fill="#121212" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M67.46 258.51 L92.78 258.93" fill="none" stroke="#FFF7E8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M106.71 258.38 L132.85 258.59" fill="none" stroke="#FFF7E8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M99.25 88.05 L100.33 112.74" fill="none" stroke="#121212" stroke-width="22" stroke-linecap="round"></path><path d="M99.25 88.05 L100.33 112.74" fill="none" stroke="#D99A6C" stroke-width="16" stroke-linecap="round"></path><path d="M66.92 119.70 C65.19 104.28 78.90 99.46 100.39 100.70 C122.82 100.82 134.22 104.37 134.31 120.76 L131.61 185.39 C130.71 192.91 68.53 192.61 68.43 186.91 Z" fill="#FFF7E8" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M71.58 108.89 C84.66 99.34 116.66 98.75 127.56 108.57 C116.08 122.51 83.80 121.74 71.70 109.70 Z" fill="#FFD93D" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M110.42 117.21 L124.83 146.56 L103.33 141.53 Z" fill="#FFD93D" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M70.59 120.74 Q57.02 149.30 60.23 174.53" fill="none" stroke="#121212" stroke-width="17" stroke-linecap="round"></path><path d="M70.59 120.74 Q57.02 149.30 60.23 174.53" fill="none" stroke="#FFF7E8" stroke-width="11" stroke-linecap="round"></path><path d="M129.96 119.55 Q158.63 116.31 143.48 88.37" fill="none" stroke="#121212" stroke-width="17" stroke-linecap="round"></path><path d="M129.96 119.55 Q158.63 116.31 143.48 88.37" fill="none" stroke="#FFF7E8" stroke-width="11" stroke-linecap="round"></path><path d="M66.99 174.96 Q67.07 176.80 67.47 179.39 Q67.02 181.66 65.18 182.47 Q63.32 184.11 61.21 184.81 Q58.40 185.41 56.76 184.75 Q53.91 184.01 53.04 181.09 Q52.41 179.09 52.11 176.84 Q51.76 174.92 53.40 172.39 Q54.25 170.54 56.41 169.28 Q58.64 168.48 61.38 169.58 Q63.51 169.38 64.83 171.21 Q66.20 172.58 66.61 175.37 Z" fill="#D99A6C" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M146.44 75.79 Q146.22 77.75 145.75 80.42 Q144.71 82.38 143.18 83.80 Q140.92 84.75 139.40 85.92 Q137.19 85.85 135.22 84.90 Q132.71 84.06 132.23 82.11 Q130.79 80.33 130.66 77.63 Q130.18 75.84 130.98 73.35 Q132.47 71.46 134.43 70.64 Q136.68 69.60 139.07 70.53 Q141.71 70.99 143.76 72.18 Q145.99 73.44 146.13 75.64 Z" fill="#D99A6C" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><g transform="rotate(-7 100 94)"><path d="M140.80 30.24 Q142.43 34.28 140.53 38.03 Q139.18 41.55 135.88 43.50 Q132.40 45.73 128.60 47.40 Q124.93 49.28 121.29 46.60 Q118.23 44.35 115.82 40.97 Q113.10 38.30 113.10 34.38 Q113.55 30.14 115.74 26.46 Q117.27 22.81 120.97 22.13 Q125.03 20.47 128.84 20.12 Q133.51 20.05 136.47 23.02 Q139.30 25.73 140.91 29.53 Z" fill="#121212" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M131.20 48.44 Q134.28 58.41 131.98 67.69 Q128.21 76.53 121.95 83.98 Q115.36 91.49 105.18 92.08 Q94.66 93.22 86.38 89.15 Q77.57 84.20 72.25 76.31 Q65.63 68.26 66.72 58.33 Q67.32 48.19 71.93 39.73 Q76.97 30.83 86.24 26.13 Q95.32 21.82 104.79 22.55 Q115.03 23.88 121.46 31.72 Q129.24 38.91 131.94 48.08 Z" fill="#121212" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M129.93 52.20 Q131.06 62.13 129.05 71.12 Q126.80 79.97 119.68 85.93 Q112.76 92.32 104.77 93.21 Q95.77 94.59 87.37 91.59 Q79.28 87.53 74.22 79.57 Q69.88 71.19 69.93 61.97 Q69.65 52.84 73.59 44.68 Q78.74 35.59 87.27 32.56 Q95.41 28.97 104.09 29.25 Q113.28 30.23 120.68 36.84 Q128.12 42.94 129.52 52.59 Z" fill="#D99A6C" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M65.99 61.64 C63.92 24.49 136.13 23.45 133.54 63.95 C126.70 43.70 109.92 38.20 100.36 37.66 C84.53 37.35 70.73 43.83 66.01 62.11 Z" fill="#121212" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M72.07 72.45 Q72.76 73.89 71.72 74.82 Q71.49 75.99 70.41 77.34 Q70.07 78.50 68.95 78.21 Q67.42 78.56 66.28 77.93 Q64.93 77.67 64.50 76.42 Q64.17 75.45 63.84 73.61 Q63.21 72.42 63.92 71.79 Q64.88 70.51 66.31 70.38 Q67.46 69.64 68.56 70.15 Q69.45 69.95 71.06 70.72 Q71.89 71.26 72.11 72.71 Z" fill="#FFD93D" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M136.73 72.73 Q137.27 74.09 136.76 75.05 Q136.15 76.97 135.40 77.42 Q133.94 78.74 132.94 78.26 Q131.59 78.22 130.40 77.75 Q129.10 77.42 128.64 76.31 Q127.63 75.34 128.05 74.11 Q127.98 72.83 128.37 71.48 Q128.87 70.59 130.36 70.00 Q131.01 69.08 132.22 69.87 Q133.55 70.41 135.13 71.15 Q136.12 71.15 136.25 72.65 Z" fill="#FFD93D" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M81.63 46.72 Q88.62 41.50 95.48 47.07" fill="none" stroke="#121212" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"></path><path d="M105.46 46.73 Q112.00 41.40 119.04 46.48" fill="none" stroke="#121212" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="87.87041573622264" cy="61" r="4.1" fill="#121212"></circle><circle cx="112.23464361904189" cy="61" r="4.1" fill="#121212"></circle><path d="M93.22 76.63 Q99.42 81.32 106.42 76.69" fill="none" stroke="#121212" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"></path></g></g></g></g></svg></div>
-        <div class="pose" data-pose="celebrate"><svg viewBox="0 0 200 280" preserveAspectRatio="xMidYMax meet" aria-hidden="true"><g><g><g transform="translate(0 -5) rotate(0 100 256)"><path d="M86.29 182.11 Q74.70 216.45 68.70 246.28" fill="none" stroke="#121212" stroke-width="19" stroke-linecap="round"></path><path d="M86.29 182.11 Q74.70 216.45 68.70 246.28" fill="none" stroke="#121212" stroke-width="13" stroke-linecap="round"></path><path d="M113.27 182.00 Q125.34 215.46 130.51 245.37" fill="none" stroke="#121212" stroke-width="19" stroke-linecap="round"></path><path d="M113.27 182.00 Q125.34 215.46 130.51 245.37" fill="none" stroke="#121212" stroke-width="13" stroke-linecap="round"></path><path d="M79.51 247.67 Q79.74 249.52 78.51 251.59 Q77.27 253.91 74.10 255.42 Q71.38 257.25 66.75 257.70 Q63.06 258.55 59.00 257.57 Q54.71 256.41 52.54 254.30 Q50.61 252.37 51.15 249.85 Q50.63 247.62 53.43 246.34 Q55.82 244.70 59.46 242.75 Q62.57 241.58 66.68 242.74 Q71.10 242.95 75.22 243.70 Q78.62 245.55 79.03 247.75 Z" fill="#121212" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M149.47 247.96 Q150.65 250.05 149.16 251.99 Q148.66 254.45 144.96 255.63 Q141.71 257.96 137.61 257.42 Q132.82 257.79 128.53 256.90 Q125.28 256.09 122.49 254.35 Q120.65 252.25 120.56 250.23 Q121.39 248.07 123.39 245.37 Q124.36 243.65 129.18 243.46 Q132.75 242.24 136.82 242.52 Q140.38 242.78 143.80 244.54 Q148.13 245.29 149.35 247.74 Z" fill="#121212" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M52.46 254.51 L77.78 254.93" fill="none" stroke="#FFF7E8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M121.71 254.38 L147.85 254.59" fill="none" stroke="#FFF7E8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M99.25 88.05 L100.33 112.74" fill="none" stroke="#121212" stroke-width="22" stroke-linecap="round"></path><path d="M99.25 88.05 L100.33 112.74" fill="none" stroke="#D99A6C" stroke-width="16" stroke-linecap="round"></path><path d="M66.92 119.70 C65.19 104.28 78.90 99.46 100.39 100.70 C122.82 100.82 134.22 104.37 134.31 120.76 L131.61 185.39 C130.71 192.91 68.53 192.61 68.43 186.91 Z" fill="#FFF7E8" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M71.58 108.89 C84.66 99.34 116.66 98.75 127.56 108.57 C116.08 122.51 83.80 121.74 71.70 109.70 Z" fill="#FFD93D" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M110.42 117.21 L124.83 146.56 L103.33 141.53 Z" fill="#FFD93D" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M70.59 118.74 Q46.02 97.30 48.23 68.53" fill="none" stroke="#121212" stroke-width="17" stroke-linecap="round"></path><path d="M70.59 118.74 Q46.02 97.30 48.23 68.53" fill="none" stroke="#FFF7E8" stroke-width="11" stroke-linecap="round"></path><path d="M129.96 117.55 Q154.63 97.31 151.48 68.37" fill="none" stroke="#121212" stroke-width="17" stroke-linecap="round"></path><path d="M129.96 117.55 Q154.63 97.31 151.48 68.37" fill="none" stroke="#FFF7E8" stroke-width="11" stroke-linecap="round"></path><path d="M54.99 60.96 Q55.07 62.80 55.47 65.39 Q55.02 67.66 53.18 68.47 Q51.32 70.11 49.21 70.81 Q46.40 71.41 44.76 70.75 Q41.91 70.01 41.04 67.09 Q40.41 65.09 40.11 62.84 Q39.76 60.92 41.40 58.39 Q42.25 56.54 44.41 55.28 Q46.64 54.48 49.38 55.58 Q51.51 55.38 52.83 57.21 Q54.20 58.58 54.61 61.37 Z" fill="#D99A6C" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M160.44 60.79 Q160.22 62.75 159.75 65.42 Q158.71 67.38 157.18 68.80 Q154.92 69.75 153.40 70.92 Q151.19 70.85 149.22 69.90 Q146.71 69.06 146.23 67.11 Q144.79 65.33 144.66 62.63 Q144.18 60.84 144.98 58.35 Q146.47 56.46 148.43 55.64 Q150.68 54.60 153.07 55.53 Q155.71 55.99 157.76 57.18 Q159.99 58.44 160.13 60.64 Z" fill="#D99A6C" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><g transform="rotate(0 100 94)"><path d="M140.80 30.24 Q142.43 34.28 140.53 38.03 Q139.18 41.55 135.88 43.50 Q132.40 45.73 128.60 47.40 Q124.93 49.28 121.29 46.60 Q118.23 44.35 115.82 40.97 Q113.10 38.30 113.10 34.38 Q113.55 30.14 115.74 26.46 Q117.27 22.81 120.97 22.13 Q125.03 20.47 128.84 20.12 Q133.51 20.05 136.47 23.02 Q139.30 25.73 140.91 29.53 Z" fill="#121212" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M131.20 48.44 Q134.28 58.41 131.98 67.69 Q128.21 76.53 121.95 83.98 Q115.36 91.49 105.18 92.08 Q94.66 93.22 86.38 89.15 Q77.57 84.20 72.25 76.31 Q65.63 68.26 66.72 58.33 Q67.32 48.19 71.93 39.73 Q76.97 30.83 86.24 26.13 Q95.32 21.82 104.79 22.55 Q115.03 23.88 121.46 31.72 Q129.24 38.91 131.94 48.08 Z" fill="#121212" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M129.93 52.20 Q131.06 62.13 129.05 71.12 Q126.80 79.97 119.68 85.93 Q112.76 92.32 104.77 93.21 Q95.77 94.59 87.37 91.59 Q79.28 87.53 74.22 79.57 Q69.88 71.19 69.93 61.97 Q69.65 52.84 73.59 44.68 Q78.74 35.59 87.27 32.56 Q95.41 28.97 104.09 29.25 Q113.28 30.23 120.68 36.84 Q128.12 42.94 129.52 52.59 Z" fill="#D99A6C" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M65.99 61.64 C63.92 24.49 136.13 23.45 133.54 63.95 C126.70 43.70 109.92 38.20 100.36 37.66 C84.53 37.35 70.73 43.83 66.01 62.11 Z" fill="#121212" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M72.07 72.45 Q72.76 73.89 71.72 74.82 Q71.49 75.99 70.41 77.34 Q70.07 78.50 68.95 78.21 Q67.42 78.56 66.28 77.93 Q64.93 77.67 64.50 76.42 Q64.17 75.45 63.84 73.61 Q63.21 72.42 63.92 71.79 Q64.88 70.51 66.31 70.38 Q67.46 69.64 68.56 70.15 Q69.45 69.95 71.06 70.72 Q71.89 71.26 72.11 72.71 Z" fill="#FFD93D" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M136.73 72.73 Q137.27 74.09 136.76 75.05 Q136.15 76.97 135.40 77.42 Q133.94 78.74 132.94 78.26 Q131.59 78.22 130.40 77.75 Q129.10 77.42 128.64 76.31 Q127.63 75.34 128.05 74.11 Q127.98 72.83 128.37 71.48 Q128.87 70.59 130.36 70.00 Q131.01 69.08 132.22 69.87 Q133.55 70.41 135.13 71.15 Q136.12 71.15 136.25 72.65 Z" fill="#FFD93D" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M81.72 60.61 Q87.94 52.67 94.39 59.75" fill="none" stroke="#121212" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M105.64 60.67 Q111.80 53.47 117.31 60.29" fill="none" stroke="#121212" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M85.81 72.88 Q100.29 93.56 113.48 73.45 Z" fill="#121212" stroke="#121212" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path></g></g></g></g></svg></div>
+    <div class="scene" id="scene">
+      <span class="disc" aria-hidden="true"></span>
+      <div class="sway" id="sway">
+        <div class="face on" data-face="idle"><svg class="art" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 704 704" fill="none" shape-rendering="auto"><mask id="viewboxMask-1"><rect width="704" height="704" rx="0" ry="0" x="0" y="0" fill="#fff" /></mask><g mask="url(#viewboxMask-1)"><g fill-rule="evenodd" clip-rule="evenodd"><path d="M705.3 1074a2351.1 2351.1 0 0 1-15.6-101c-1-7.7-2.5-16.4 2.7-22 7.3-8 14-14.8 14.8-26.2.8-10.7-2.8-22.4-5-32.8a809.4 809.4 0 0 0-17.3-64.7c-6.6-21.7-13.9-43.2-21.3-64.6-6.9-20-13.5-40.3-22.5-59.5-17-36.5-46-63.5-81.6-81.6-9-4.5-27-20.5-36.3-24-8.5-3.4-8.5 6.3-16.9 2.6-6.7-2.9-13-6.7-16.7-13.2-4-7-14.3-16.9-15.9-25-3.3-17.4.3-32.2-12-45.3a90 90 0 0 0-41.1-23.8c-33.7-9.3-78.5-2.8-98.8 28.5-9.7 14.9-13 33-26.2 45.1-11.4 10.7-8.8 18-23.6 23.4-.9.3-23.6-4.5-24.4-4.2-16.2-3.5-31.7 6.2-46.5 11.8a325.4 325.4 0 0 0-63 32.3 399.2 399.2 0 0 0-102.3 98.5 482.5 482.5 0 0 0-76.4 161c-1.7 6.4-3.5 13-1.5 19.4 1.7 5.3 5.4 9.2 9.8 12.4 6 4.3 18 7 17.7 15.7-.1 6.6-2.4 13.5-3.5 20-1.3 7.7-2.3 15.5-3.4 23.2-4.8 35.4-8.6 71-10.3 106.6a920 920 0 0 0-.5 106c.1 2.3.8 4.5 2 6.2-1 .4-1.2 2.4.1 2.7l2.7.5a12 12 0 0 0 7 2.4l5.5.2c19.3 4 38.6 7.9 58.1 10.8 23.8 3.5 47.6 6.3 71.5 8.7 49.2 4.8 98 3.2 147.1.6a1877 1877 0 0 1 147.4-2c49.2 1.4 98.4 3.5 147.6 4.4 55 1 110-.5 164.8-5 7.5-.5 12.2-6.5 10.7-14-8.9-44.7-19-89.1-27-134Z" fill="#d08b5b"/><path d="m201 597.5 1.2-.4c14.5-5.7 29.6-14.8 45.4-11.4.5-.2 10.8 1.9 17.9 3.2l-6.7 7L247 598c40.7 67.1 88.8 100.7 144.3 100.7 55.5 0 97.7-33.6 126.4-100.7l4-1c.4 0 1 .2 1.5.4 9.3 3.6 27.4 19.6 36.3 24.1 35.6 18 64.5 45 81.6 81.6 8.7 18.6 15.2 38 21.8 57.5l.7 2c7.4 21.4 14.7 43 21.3 64.6 6.3 20.4 12 41 16.6 61.8l.7 2.9c2.2 10.4 5.8 22 5 32.8a29 29 0 0 1-3 10.7l-80.4 29 38.4 261.3c-35.1 1.5-70.3 2-105.5 1.3-49.2-.9-98.4-3-147.6-4.3-47.7-1.2-95.3-.7-143 1.7l-12 .6a946.3 946.3 0 0 1-139.5-1l-3.1-.3v-38.3l16.3-212.9-83-15.6-81.3-39.5a21.7 21.7 0 0 1-5.6-8.8c-1.9-6-.5-12 1-18l.5-1.3a492.8 492.8 0 0 1 76.4-161A399.3 399.3 0 0 1 138 629.7c19.8-13 40.9-23.9 63-32.3Z" fill="#ffd93d"/><path d="M232.2 584.6c5.1-.3 10.3.6 15.4 1 .4.1.6.8 0 .9-9 1.9-18 4.5-26.9 7.1l-3.8 1.2c-10 3-19.8 6-29.6 10-19.4 7.9-37.8 18.5-54.8 30.8C67.2 682.8 20 754.3-9.9 828.3a526 526 0 0 0-24.3 77c-.4 1.6-2 5.4-1 7 .7 1.3 3.6 2.1 5 2.9l4.5 2.3 25.2 12.9 2.3 1.1c38 18.6 78.4 34.4 121 35.5l.4-3.7a342 342 0 0 1 9.9-60c.3-1 1.6-.6 1.7.3 3 23.1 2 46.4 1 69.7-1.8 41-4.3 82.2-6.5 123.3-1.2 20.6-2.6 41-3.9 61.7-1.3 20.5-1.7 41.6-4.7 62-.6 4.6-6 7-10 6.6-4.4-.5-7.9-4.5-8-9 0-11.9 1.5-24 2.4-35.8l2.5-33.8c3.1-41.1 6.8-82.2 10.2-123.3a4771 4771 0 0 1 3.8-43.7C76.4 979.8 34.2 963-6.1 943.5c-.6 13.2-2 26.5-3.4 39.6-3.8 36.8-7.1 73.6-9.6 110.5a2254.2 2254.2 0 0 0-4.2 92.7l-.2 7c0 4.4-.5 8.5-4.3 11.7-3.7 3.3-8.9 3.5-12.6 0-5-4.6-4.2-10.9-4-17.1a1675.6 1675.6 0 0 1 1.8-47.2 1321 1321 0 0 1 10.5-109.5l2-14c3.5-26 7.5-52.7 15.5-77.9-3.1-1.5-6.2-3-9.3-4.7-5.5-2.7-11.2-5.4-16.6-8.4-4.2-2.5-7.9-5.8-9-10.8-1.4-5.5.6-11.5 2-16.9v-.4a502 502 0 0 1 26.6-80 523.2 523.2 0 0 1 67.8-117 353.8 353.8 0 0 1 88.7-83.3 239 239 0 0 1 53.8-25.7 142.6 142.6 0 0 1 42.8-7.5Zm90.1-66c6-6.5 18.1.2 15.2 8.8a108.2 108.2 0 0 1-34.7 52A79.4 79.4 0 0 1 247 598l1.7 2.4a321.1 321.1 0 0 0 46.1 52.6c36 31.2 84.8 48 132 36 37.1-9.4 69.8-38.8 79.4-76.2-1.3.6-3 .9-4.8.5-7.7-1.7-15.3-9.8-20.3-15.6-5.3-6.3-9.5-13-12.6-20.7-5.6-14-7.4-32.1.3-45.7 1-1.7 3-.7 3.3 1l.3 2.5c1.5 12.7 3.3 25 9.3 36.6a76 76 0 0 0 18.2 23.1c2.6 2 5.8 3.6 8.1 6l.5.4c.6-5 4.1-7.3 7.6-7.2 3.3.2 7.3 1.6 8.8 2.3l.1.1a341 341 0 0 1 65.1 42 259 259 0 0 1 88.4 129c7.5 25.3 11.8 51.4 16.3 77.4l2.8 16c4.2 23.9 8.9 48.4 18.4 70.7 2.5 5.7.6 11.1-5.5 13.4A1493 1493 0 0 1 688 953c3.7 16 6 32.5 8.7 48.5 6 34.1 13.2 68 19.4 102 3.2 17.5 6.1 35 9.3 52.3l4.7 25.2 2.4 13.6.1.7c.5 2.4 1 4.9.4 7.3-.8 2.7-2.9 4.6-4.8 6.6-1.6 1.6-3.8 1.6-5.7.7l-.7-.3c-3.4-1.6-6-3.2-7.3-7-.7-2.5-1-5.2-1.5-7.7a3535.6 3535.6 0 0 1-7.8-43.6l-1.6-9.1c-5.2-31.4-10.2-62.9-12.8-94.5-1-14-2.3-28.1-3.5-42.2l-.9-10.5c-1.1-13.3-2.5-27-2.7-40.5l-4.5 1.6L657 964c-5.5 2-12.5 6-18.4 5.2-2.9-.3-5-1.2-6.8-2.9 2 28.8 4.8 57.4 8.5 86a1965.7 1965.7 0 0 0 22 135c.6 3.2 1.4 6.4 1.9 9.6.5 3.7-.5 5.9-2.5 9-1.7 2.4-5 3.7-7.8 2-3.6-2.3-5.5-4.3-6.5-8.4-1-3.7-1.6-7.6-2.3-11.4a1654.2 1654.2 0 0 1-11.4-65.2c-7.8-52-12.7-104.4-15.2-156.8a1388 1388 0 0 1-1.4-77.8c0-13.3.5-26.6 1.4-39.9 1-13.4 3-26.5 4.8-39.8 0-.5.7-.5.7 0 .8 14.9 2.1 29.8 2.8 44.7.6 14.3.9 28.5 1.4 42.8.6 18.7 1.5 37.5 2.7 56.2a9.6 9.6 0 0 1 8.5-3.1c4.7-1 9.7-3.4 14.1-5l16.8-5.5 26.4-8.7a679 679 0 0 1-18-80.8l-2-12.3c-4-24.2-8.5-48.5-15.8-72a229.8 229.8 0 0 0-34.8-68.2 370.2 370.2 0 0 0-52.7-55.3C557 627 539.7 614 523 600c.1.9.2 2 0 3-3.5 25.9-17 50-35.8 67.9-37.7 36-93.6 43.4-142 26.5-46.7-16.3-88-55-102.6-102.8-.3-.8.8-1 1.3-.5l2.4 3.3c0-.4.2-.9.7-1a129 129 0 0 0 46.6-29.2 100.2 100.2 0 0 0 21.3-33.3l.4-1c1.7-5 3.2-10.2 7-14.2Z" fill="#000"/></g><g transform="matrix(.99789 0 0 1 156 62)"><g fill-rule="evenodd" clip-rule="evenodd"><path d="M120.4 26.5c63-3.4 118.9-21.1 163.2 18.5 0 0 71.8-53.6 83.8-33.2 8 13.7-3.1 32-.2 49 19.5 33 18.4 89.2 19.5 102.4 2.8 33.1 20.2 157.9 20.2 187.5 0 15.1-12.4 54.7-20.2 76.8-17.3 49-50.3 74-104.4 74-54 0-142.4-45.2-170.7-85.3-2.5-3.5-18.5 6.7-35.3-11C58 385.7 48 349 48 327c0-27.8-18-47.1-15.9-82.8 4.7-79.5 21-214 88.3-217.8Z" fill="#d08b5b"/><path d="M367.4 11.6c8 13.7-3 32 0 49 7.4 12.7 11.9 29 14.6 44.8l-14.8 7.8-5.4.8c-88.2 13-144.6 24.7-169 35.1-24.6 10.5-54.5 47.5-89.7 110.8l-1 2-7 47.2-32 9.8-15 7.1c-.4-27.3-18-46.6-16-81.9 4.7-79.5 21-214 88.4-217.8 63-3.4 118.8-21.1 163.2 18.5C331.5 9.1 359.4-2 367.4 11.6Z" fill="#ffd93d"/><path d="M113.4-66h2.5l2.7.4a22 22 0 0 1 12 6.8l.2.3a31 31 0 0 1 4.1 3.7l.7-.6 2-1.6c3-2.6 6.6-4.5 10.4-5.6l.5-.1h.3c2.7-1 5.6-1.4 8.4-1.4 3.5-.1 6.9.4 10 1.7 3.9 1.6 7.2 4 10 7 1.8 1.6 3.4 3.2 5 5a37.5 37.5 0 0 1 8.6 14.9 170.7 170.7 0 0 1 27-1.3 132.3 132.3 0 0 1 45.9 9.9c3.6 1.4 7.1 3.3 10.4 5.5l2.8 1.7 4.1 2.5c3.2 2 6.3 4.4 9.2 7A99.8 99.8 0 0 1 301.1 0c6.3 3.4 12 7.8 17.2 13a128.4 128.4 0 0 1 28.2-11.9 98.6 98.6 0 0 1 18.8-3.5l4.1-.3 1.8-.2h1.5c.4-.1 1 .9 1 1.3l.1.3.9 1h.8c.7 0 1.6 1.3 2.1 1.9l.4.4a4 4 0 0 1 1 2c.6 4.1 1 8.3 1.5 12.5.1 3.1 0 6.2-.5 9.3l-1.2 9-2 6.3-.7 2.4c-1.6 5.3-3.5 10.4-5.7 15.4 1.6 1.8 3.1 3.6 4.5 5.6l1 1 .4-.3c.5-.2.8 0 1.1.4 3.2 3 5.4 6.6 6.9 10.6l.8 2 .5 1.1a73.7 73.7 0 0 1 4.1 16.9 312 312 0 0 1 5.5 22 5 5 0 0 1-.2 3l.9 1 1.6 1.5c2.7 2.7 5.5 5.6 7.5 8.8 2 3.3 3.6 6.9 5.3 10.4l.3.8.8 1.5a37 37 0 0 1 4 14.6 30.3 30.3 0 0 1-1.9 15.6c-1 4.6-3.5 8.8-7.3 11.5-.9.8-1.7 1.5-2.7 2a8.4 8.4 0 0 1-6.8.9h-.3l-.8-.3c.4.3.6.7 0 1a5 5 0 0 1-1.6.5c.2.3.2.6-.2.8-1 .5-1.8.7-2.6.5l.2 1.4c1.3 10.5 2.5 12.6 3.5 24 .7 11.5 1.8 23 3.3 34.5l.5 4.2a444.4 444.4 0 0 0 10 56.8c1.5 4.4 2.5 8.8 3 13.4a133 133 0 0 1 1.8 14.1c1.1 3 1.7 6.1 1.7 9.3.1 4.2 0 8.4-.5 12.6-.2 4.4-.8 8.7-1.8 13a73.5 73.5 0 0 1-4.6 17 164.8 164.8 0 0 1-20.2 44c-5 7.8-10.3 15.4-16.4 22.4A153.4 153.4 0 0 1 304 504a99.8 99.8 0 0 1-47 2.8 96 96 0 0 1-19.5-4.7c-5.2-1.8-10-4-15-6.3a80 80 0 0 1-21.4-15.7c-.5-.4-.2-1 .4-1.2h.2l-.7-.7-.2-.1-.3-.3c-.4-.4 0-1.1.3-1.3h.5v-.2l-.1-.2h-.2c-.5-.5-.2-1.2.4-1.4h1.3l.2.1-.4-.3c-.6-.5-.4-1 .3-1.3.6 0 1.1.2 1.7.3h.4l.6.3-1-1c-.4-.2 0-1 .3-1.2.4-.3 1.2 0 1.6.3.9.1 2 .5 2.5.9l3.7 3.3c.8.3 1.5.6 2.1 1 1.4 1.5 3 2.8 4.5 4l1.1.8.6.4 6.6 3.9 24 8.1 1.2.3 7.7 1c5.2.5 10.3.5 15.4 0a106 106 0 0 0 30.1-6 141.3 141.3 0 0 0 29.3-15.4 181.4 181.4 0 0 0 19.8-17.5l.9-.8 5.3-6.3 1.6-1.9c6.6-8.1 12.5-17 17.7-26 5.2-9 9.5-18.5 13-28.3 1-3.5 2-7 2.8-10.6a58.3 58.3 0 0 0 3.3-15.8v-1.4l.1-.7a85.7 85.7 0 0 0 .6-8.4v-8.7l-.1-.8-.3-2-1.3-11.8-.6-4.5-.4-2.6-.2-1.5a99 99 0 0 0-1.7-8l-.3-1.1-1.8-8.8-2-8.6a681.6 681.6 0 0 1-9.8-73.1c-.7-8.6-1-17.3-1.2-26 0-.4.2-.7.6-.9v-1.6c-.1-1.5-.1.3-.2-1.4v-5.3c-5.3.4-8.9 0-14-.2h-1c-4.7-.3-9.4-.8-14-1.6 0 .3-.2.4-.5.5h-1.4l.2.7c0 .3-.1.5-.5.6h-1.3a30.2 30.2 0 0 1-10-1l-3-.8-7.5-2.4c-2.6-.6-5.3-.8-8-.1-3 .7-5.4 2-8.5 1.2l-1.8-.7h-.8c-3.2-.5-6-2.5-9-3.6a5 5 0 0 0-3.2.2l-.3.2-1 .7-1.2 1.5-.6.7a15 15 0 0 1-3.6 3.4 9.1 9.1 0 0 1-6.2 2.6c-1.3 0-2.7-.3-4-.7-5 1.6-10.3 1.9-15.3.4a22.1 22.1 0 0 1-8.3-3c-3.5 1.4-6.9 3.4-10.2 5l-.8.5A22.7 22.7 0 0 1 234 197a139.8 139.8 0 0 1-14.8-1.8l-.7-.1-2.4-.4-2-.4-1 .4c-8 3-16.7 5.4-24.8 3.3a22 22 0 0 1-10-3.9l-1.3-.8h-.1l-.1-.1a11 11 0 0 1-6.5-11.2c-.3-1.5-.3-3 0-4.6l-4.3 5a334.7 334.7 0 0 0-15.7 20.1l-1 1.6c-2.8 3.8-5.3 7.8-7.6 11.8l-7.3 12c-3.2 3.5-6.3 7.2-9.4 11l-1.2 1.5-4.4 5.7a116.5 116.5 0 0 0-13.4 24.3 97.3 97.3 0 0 0-5.2 20.7v1a60 60 0 0 0-.3 3.5l.7.5.7.3.6.1c1 .3 2.5 1 2.1 1.6l-1.9 3.7c.2.2.3.5.2.7l-4 7.4v.2l3.1 1.7c2 1.2 3.5 2.6 4.9 4.2 1.4.9 2.8 1.8 4 2.9a30.5 30.5 0 0 1 6.8 11.3c.3 1 .5 2.1.5 3.3-1.2 8.5-11 2.7-11.2 2a26 26 0 0 0-6.3-12.3l-.1-.1c-2-.9-4-1.8-6-2.4l-1 .1c.3.5.1 1-.6 1.1-3.1.6-6.3.8-9.5.5l-4.9-.7c-2 .8-4 1.8-5.7 3l-.6.4h-.1A38.8 38.8 0 0 0 60.7 341l-.3.7A55.7 55.7 0 0 0 66 380 316 316 0 0 0 76 395.2l3.4 4.5a172 172 0 0 1 6.9 6.8l3.1 1.7 1.3.4c2 1 4.1 1.5 6.4 1.6 3 .2 5.8-.2 8.6-1l.6-.3.4-.1c1.5-1 3-2.2 4.3-3.6.3-.3.8-.3 1.5-.2l1-1.1c.2-.3.6-.3.9 0 1-.2 3.5 1.3 2.8 2l-.3.6 1.3.7c2 .6 5.2 2.7 5 3.3h-.1c-.5 1-1.1 1.8-2 2.4l-.2.2-.6.4c.9.5 1.6 1.1 1.2 1.5l-.5 1 5 6.2c1.7 3.7 3.8 7 6.3 10.2 2 3.5 4.5 6.5 7.5 9.3l.7.7 6.7 4.5 1 .6c.5.3 1.4.7 1 1.5l-.2.2c1.5 1 3 1.9 4.6 2.7h.1c.6.5 1.4 1.2.6 1.7-.7.5-2.6-.8-3.5-1.4l-.6-.1.9.5.4.2c.4.3 2.1 1.4 1 1.9-.7 0-1.2-.1-1.7-.5l-1.8-.9c.2.3.2.6-.3.8a3 3 0 0 1-.5 0c1.2.8 2.4 1.5 3.7 2.1l.2.1c.5.4 1.3 1 .7 1.6-.7.6-2.6-.7-3-1l-1.5-.9a1 1 0 0 1-.4.1l1.3.8.6.4c.8.4 1.9 1 1.5 1.8-.4.7-1.6.1-2.3-.3l-.8-.5-.1-.1v.1c-.5.7-1.4.3-2 0l-.6-.4-2.6-1.6-1.3-.8a82.6 82.6 0 0 1-19.3-15.5c-4.1-4.7-7.3-10.1-10.3-15.6l.2-.6-1-2a29.6 29.6 0 0 1-14.7 0 37.3 37.3 0 0 1-15-6.1l-.7-.6c-1.9-1-3.6-2.2-5.2-3.6a87 87 0 0 1-14.8-16.1l-5.5-7.7a66 66 0 0 1-9.7-26.6 53.5 53.5 0 0 1 0-18.1l-1-.9c0 .3-.2.5-.3.4l-2.3-2.3a53.3 53.3 0 0 1-14-32.6c-.7-5.2 0-10.2.7-15.3 0-.3.2-.5.5-.7l.1-1.2a35.2 35.2 0 0 1-11-25.7c.2-3.2.8-6.4 2-9.3l.2-.3c-5.5-.9-9.9-4.8-13.2-9.6l-.8-.7c-6-5-10-12.2-12.8-19.7a46 46 0 0 1-3.9-13.9v-1a89 89 0 0 1-1.2-23 114.8 114.8 0 0 1-4-21.5v-.5l-.2-1v-.6a139 139 0 0 1 11-62.3l2.2-5.3.7-1.9c8-12.8 20-23.2 30-34.1 3.5-3.8-2.1-9.5-5.6-5.7C16 61.6 8.8 68.6 2.4 76a28.1 28.1 0 0 1-9.3-.8c-4.7-.7-9-2.6-12.8-5.4-5.2-2.4-9.7-7-10.1-13v-1.7c-.5-3 0-6 1.2-8.8a15.2 15.2 0 0 1 5.4-8l.1-.2.7-.6 1-.9a54.8 54.8 0 0 1-3.6-6.9 28.4 28.4 0 0 1-2.2-11.5l-.1-1.5c-.3-4 .2-8.1 1.7-11.8l.3-.9 1-2.5c1.5-3.1 3.6-5.8 6.2-8a25.6 25.6 0 0 1 8-5.3c2.2-1.2 5-2.2 7.2-2.3h.8c.2-5.7 1-12 3.2-17.2 1.3-3.7 3.3-7 6.3-9.5C9-42.6 11.2-44 13.9-45l.5-.2h.1a17 17 0 0 1 7.7-1.6A17.3 17.3 0 0 1 32.8-44l1.5-2.6c2-3.1 4.2-5.8 7-8.3l1-.8 4-3.3c3.2-2.1 6.6-3.8 10.2-4.8 4.1-1.5 8.5-2.2 12.8-2h1.5a38.6 38.6 0 0 1 23.8 10c.8-1 1.7-2 2.8-3l1-.8.7-.7c1.2-1 2.5-2 3.9-2.8 1.5-.9 3.2-1.5 5-1.9 1.7-.6 3.5-1 5.4-1ZM92.8 346.3c.2 0 9.5 3.4 14 5.7h.3c5.3 2.7 8 4.6 12.7 8 .3.3.6.6.6 1 0 4.9-1.2 11-5.3 8.2l-1.8-1-1-.6c-9-5.6-18.5-9.9-28.6-13-.7-.2 4.4-8 5.8-7.5-.8-.3 3.2-.8 3.3-.8Zm95-218.1a4591.5 4591.5 0 0 1-29.5 3 81.9 81.9 0 0 1-23.3-1.4c-1.4 1-2.8 2-4.2 2.8l-15.9 12.1c-10.6 8.4-21 17.3-30.4 27a176.8 176.8 0 0 0-38.2 59.4c-.7.4-1.3 1.2-1.5 2.4-1.5 9-5.8 17.4-7.4 26.4-1.5 9 .5 16.5 6.1 23.6 1.2 1.5 3.7 1.4 5.2.4.3.7 1.8.6 2.4-2.4 2.5-2.7 4.6-5.5 6-9 1-2.6-.7-4.4-2.9-4.7a136.8 136.8 0 0 1 16.2-36.6 151.8 151.8 0 0 1 16.5-20.5l1.2-1.4c.2-.2.5-.2 1 0l1-1.3c.4-.4.8-.2 1 0 .7 0 1.8.6 2.2.8.6.4.8.9.3 1.5l-.3.3c.7.2 1.4.6 1.9 1 1.8.4 4.4 2.1 4 2.7l-2.8 3c.8.5 1.3 1 1.1 1.3A122.8 122.8 0 0 0 64.3 290v.7c-.3 3.5-.3 13-.7 15.3A49.6 49.6 0 0 0 72 309l.8-.3a28.1 28.1 0 0 1 11.6-2h.6l2.1.1v-1.2c-.3 0-.4-.3-.4-.5a66.2 66.2 0 0 1 2.3-26.2 107 107 0 0 1 5.1-15.6c6-14.4 14.6-27.4 23.2-40.4 6.3-9.4 12.2-19 18.8-28.4 5.5-7.9 11.3-15.7 17.5-23a235 235 0 0 1 23.3-24.2c6.7-6 14-11 21.6-15.8.3-.2.8 0 1.2.4l1.2-.8.6-.3c.2-.1.4 0 .6.2l1.5-.8 1.2-.9c-5.7-.2-11.3-.7-16.9-1.2Zm70.5-66.7c-4.5-.9-9-1-13.7-.3-1.9.2-3.8.6-5.7 1 4.3 3.7 7.8 8.5 10 14 2.4 6-7.2 8.6-9.6 2.7-2.3-5.7-6.7-10-12-12.6l-3.3 2a36.4 36.4 0 0 0-10.6 14.3 41.4 41.4 0 0 0-1.5 8c-1 10.3 2 20.4 7 29.3h.3c4.5-2.5 9.3-4.6 14.2-6.3a132.6 132.6 0 0 1 40.1-18l1.2-.3 6.9-1.6 1.4-.2-.2-1.5a43.6 43.6 0 0 0-15.3-27v-.1c-1.7-1-3.5-1.8-5.3-2.4l-.7-.3-3.2-.7Zm-121.9-8.9a161.3 161.3 0 0 0-58.9 5.5l2.3 4.6c3.8 7.7 7.7 15.3 12.3 22.5a108.3 108.3 0 0 0 15.9 19.6c2 1.8 4.3 3.3 6.8 4.6 2 1.4 4 2.7 6.1 3.8l.8.4 7.5 2.9 1.2.3.6.2 1.2.2.8-.5.5-.2c.2-.1.4.1.4.3v.3l1-.6a31.3 31.3 0 0 0 9 2.2h.1v.1h1.1c7.5.8 15.1-.2 22.6-1.5 10.5-1 21-2.3 31.6-3.4.2 0 .3.1.3.3l.7-.1c1-.1 2 1.5 1.3 2l1.5 1.2h.3a43.5 43.5 0 0 1-3.4-8.9l-1-5.2a47.3 47.3 0 0 1-.6-8.5v-2.2l-6-2.1-17.6-2.2a249.4 249.4 0 0 0-22.4 2.1c-.3 0-1-.4-1.4-1l-1.7.2c-.9.1-1.8-1.6-.6-2l1.2-.5.7-.2h-.8c-1 0-2 .2-2.8.3-1.2.1-1-1.4-.1-1.8h.4c-.7-.5-1.3-1.7-.5-2l.2-.1 1.1-.5v-.3l-1.6.2c-.1 0 .6-1 1-1.3l.8-.2c0-.4.7-1.1 1-1.2a102.8 102.8 0 0 1 14.2-3.7c0-.2.2-.3.3-.3a68.4 68.4 0 0 1 32.6 3.7l1 .4 2.8 1.1a40.3 40.3 0 0 1 2.1-6l-1-.5c-.1.4-.6.7-.8.5-7-4.7-14.3-8.6-22-11.7a112.8 112.8 0 0 0-23.8-7.6c-6-1.6-12-2.7-18.3-3.2Zm229 16-2.6 4.2c-4.5 7-10 13.4-16.1 19.1a50 50 0 0 1 12.8 1.6c.2-.2.4-.3.6-.2l.7.5a52.6 52.6 0 0 1 15.5 7v-4.6a82 82 0 0 0-6.3-20.5v-.5c-1.3-2.3-2.9-4.6-4.6-6.7Zm1.3-56.8-6.2 1.5c-3.9.6-7.6 1.6-11.2 3a188 188 0 0 0-14.7 6c-9.3 4.3-18.1 9.7-26.1 16.1l-1.5 1.2a79.2 79.2 0 0 0-5.2 4.9l-5.2 5.6c-2.1 2.3-4.5 4.3-6.5 6.7l-1 1.5 1.1.4c1 .4.8 2.1-.1 1.9l-1-.3c.2.1.3.3.3.4 0 .5-.3 1.2-1 1l-.7-.3-.2 1h.2c.7.2 2 1.3 2 2 .2.5-.2 1-.8 1l-1.3-.6c.3.3.5.6.5.8 0 .5-.4 1.1-1 1a7 7 0 0 1-2.4-1.3c-.2.3-.5.5-.7.4l-.4-.1.3.3.2.2c2.7 3 5.1 6.2 7 9.8l.4-.3 2.8-2.2.3-.3.2-.2-2 .7c.1-.3.6-1 .8-1.1 3-2.6 6-4.8 9.5-6.6a141.6 141.6 0 0 1 24.5-10.2l2.7-.9c.2 0 .3 0 .3.2l.4-.1c.9-.3 2.3 1.2 1.7 1.9l1 .9.2.2h.3c.7-.3 1.9.8 2.6 1.6l.6.6c.4.5 1.3 1.4.2 1.8l-1.2.4c0 .3-.1.5-.5.7l-1.3.4.7.7.4.4c.5.5 1.5 1.5.6 2h-.1l-1.2.4c.1.4 0 .7-.5 1-7.1 2.4-14.2 5.2-21 8.5-5.1 2.8-10.6 5-16.3 6.3-.4.2-1.5-.5-1.9-1.2l-.8.2-.5.1a44 44 0 0 1 2.3 9.8l3.4-.2c7.7-.4 15.6-.2 23.3.7a93 93 0 0 0 11.7-8.2 100.3 100.3 0 0 0 24-31 78 78 0 0 0 8.6-34.8V17.4l-.6-5.7Zm-73.2 67-.8.2.4 1 1-.8c-.2 0-.4-.2-.6-.4Zm71.8-81.2c1.8-.6 3.2-.8 4.1-.3-1.4 0-2.7.2-4 .3Z" fill="#000"/></g></g><g transform="translate(315 248)"><path fill-rule="evenodd" clip-rule="evenodd" d="M146.6 241a40.7 40.7 0 0 1-17.1-13.2c-1.5-2-2-4.2-1.6-6.2a8.9 8.9 0 0 1 9.6-7.2c1.9.3 3.7 1.3 5.2 3.5l.3.4a27 27 0 0 0 10 8.3c3.6 1.8 7.8 2.6 12.1 2.1 8.3-1 14-5.4 20-11.4l2.2-2.3c.5-.8 1.1-1.2 1.9-1.5a4 4 0 0 1 4.6 1.6c.4.7.7 1.5.6 2.5a25.7 25.7 0 0 1-8.5 16.2c-5.1 4.9-12 8.2-18.4 9.4-7.1 1.3-14.4.4-21-2.3Zm24.2-96.6c7.6 4.6 19 15.3 11 26.6-9.6 10-23.4-1.4-30.2-6.6-6.3-4-13.3 6.3-7.5 11 49 36.3 69-29.8 30.5-36.4-4.2-.8-5.8 4-3.8 5.4ZM83 102c.8-10.3 16.6-12.7 18.1-2.4a42 42 0 0 1-4.3 25.9c-4 7.9-14 4.2-14.7-3-1-9.7.3-14 .9-20.5Zm120-4.5c2.2-3 5.4-4.9 9.2-3.8 11.9 3.5 8.4 20.4 4.2 28.6-2.3 4.4-9.6 5.6-12.9 1.6-5.4-6.4-8-19.1-1.1-25.5l.6-1ZM96.6 56.8l1.9-.3c5.8-1 13-2 17.1 2.7 2.2 2.5 3 7 0 9.4-5.1 4.2-10.8 2.6-17 3-5.1.2-10 1-14.9 2.5C73 77 64.2 82.8 55 88.9c-1.2.8-2.4-.7-1.9-1.8a59.3 59.3 0 0 1 26-24.1 64 64 0 0 1 17.5-6.2Zm95.6-4.6 1.4.3c15.7 3.2 36 9.8 43.4 25.1.3 2.2 0 2.7-.3 3-.2.3-.4.7-1.4 1A36 36 0 0 1 226 78l-2.8-1.4a77.7 77.7 0 0 0-10.1-4.3c-7.5-2.4-15.1-4.1-23-5a9.4 9.4 0 0 1-4.5-1.8 7 7 0 0 1-2.6-4 7 7 0 0 1 .8-5.8 7.4 7.4 0 0 1 3.6-3.1c1.5-.6 3.2-.8 4.9-.4Z" fill="#000"/></g><g transform="translate(279 400)"></g><g transform="translate(179 343)"></g><g transform="translate(203 303)"></g></g></svg></div>
+        <div class="face" data-face="talk"><svg class="art" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 704 704" fill="none" shape-rendering="auto"><mask id="viewboxMask-2"><rect width="704" height="704" rx="0" ry="0" x="0" y="0" fill="#fff" /></mask><g mask="url(#viewboxMask-2)"><g fill-rule="evenodd" clip-rule="evenodd"><path d="M705.3 1074a2351.1 2351.1 0 0 1-15.6-101c-1-7.7-2.5-16.4 2.7-22 7.3-8 14-14.8 14.8-26.2.8-10.7-2.8-22.4-5-32.8a809.4 809.4 0 0 0-17.3-64.7c-6.6-21.7-13.9-43.2-21.3-64.6-6.9-20-13.5-40.3-22.5-59.5-17-36.5-46-63.5-81.6-81.6-9-4.5-27-20.5-36.3-24-8.5-3.4-8.5 6.3-16.9 2.6-6.7-2.9-13-6.7-16.7-13.2-4-7-14.3-16.9-15.9-25-3.3-17.4.3-32.2-12-45.3a90 90 0 0 0-41.1-23.8c-33.7-9.3-78.5-2.8-98.8 28.5-9.7 14.9-13 33-26.2 45.1-11.4 10.7-8.8 18-23.6 23.4-.9.3-23.6-4.5-24.4-4.2-16.2-3.5-31.7 6.2-46.5 11.8a325.4 325.4 0 0 0-63 32.3 399.2 399.2 0 0 0-102.3 98.5 482.5 482.5 0 0 0-76.4 161c-1.7 6.4-3.5 13-1.5 19.4 1.7 5.3 5.4 9.2 9.8 12.4 6 4.3 18 7 17.7 15.7-.1 6.6-2.4 13.5-3.5 20-1.3 7.7-2.3 15.5-3.4 23.2-4.8 35.4-8.6 71-10.3 106.6a920 920 0 0 0-.5 106c.1 2.3.8 4.5 2 6.2-1 .4-1.2 2.4.1 2.7l2.7.5a12 12 0 0 0 7 2.4l5.5.2c19.3 4 38.6 7.9 58.1 10.8 23.8 3.5 47.6 6.3 71.5 8.7 49.2 4.8 98 3.2 147.1.6a1877 1877 0 0 1 147.4-2c49.2 1.4 98.4 3.5 147.6 4.4 55 1 110-.5 164.8-5 7.5-.5 12.2-6.5 10.7-14-8.9-44.7-19-89.1-27-134Z" fill="#d08b5b"/><path d="m201 597.5 1.2-.4c14.5-5.7 29.6-14.8 45.4-11.4.5-.2 10.8 1.9 17.9 3.2l-6.7 7L247 598c40.7 67.1 88.8 100.7 144.3 100.7 55.5 0 97.7-33.6 126.4-100.7l4-1c.4 0 1 .2 1.5.4 9.3 3.6 27.4 19.6 36.3 24.1 35.6 18 64.5 45 81.6 81.6 8.7 18.6 15.2 38 21.8 57.5l.7 2c7.4 21.4 14.7 43 21.3 64.6 6.3 20.4 12 41 16.6 61.8l.7 2.9c2.2 10.4 5.8 22 5 32.8a29 29 0 0 1-3 10.7l-80.4 29 38.4 261.3c-35.1 1.5-70.3 2-105.5 1.3-49.2-.9-98.4-3-147.6-4.3-47.7-1.2-95.3-.7-143 1.7l-12 .6a946.3 946.3 0 0 1-139.5-1l-3.1-.3v-38.3l16.3-212.9-83-15.6-81.3-39.5a21.7 21.7 0 0 1-5.6-8.8c-1.9-6-.5-12 1-18l.5-1.3a492.8 492.8 0 0 1 76.4-161A399.3 399.3 0 0 1 138 629.7c19.8-13 40.9-23.9 63-32.3Z" fill="#ffd93d"/><path d="M232.2 584.6c5.1-.3 10.3.6 15.4 1 .4.1.6.8 0 .9-9 1.9-18 4.5-26.9 7.1l-3.8 1.2c-10 3-19.8 6-29.6 10-19.4 7.9-37.8 18.5-54.8 30.8C67.2 682.8 20 754.3-9.9 828.3a526 526 0 0 0-24.3 77c-.4 1.6-2 5.4-1 7 .7 1.3 3.6 2.1 5 2.9l4.5 2.3 25.2 12.9 2.3 1.1c38 18.6 78.4 34.4 121 35.5l.4-3.7a342 342 0 0 1 9.9-60c.3-1 1.6-.6 1.7.3 3 23.1 2 46.4 1 69.7-1.8 41-4.3 82.2-6.5 123.3-1.2 20.6-2.6 41-3.9 61.7-1.3 20.5-1.7 41.6-4.7 62-.6 4.6-6 7-10 6.6-4.4-.5-7.9-4.5-8-9 0-11.9 1.5-24 2.4-35.8l2.5-33.8c3.1-41.1 6.8-82.2 10.2-123.3a4771 4771 0 0 1 3.8-43.7C76.4 979.8 34.2 963-6.1 943.5c-.6 13.2-2 26.5-3.4 39.6-3.8 36.8-7.1 73.6-9.6 110.5a2254.2 2254.2 0 0 0-4.2 92.7l-.2 7c0 4.4-.5 8.5-4.3 11.7-3.7 3.3-8.9 3.5-12.6 0-5-4.6-4.2-10.9-4-17.1a1675.6 1675.6 0 0 1 1.8-47.2 1321 1321 0 0 1 10.5-109.5l2-14c3.5-26 7.5-52.7 15.5-77.9-3.1-1.5-6.2-3-9.3-4.7-5.5-2.7-11.2-5.4-16.6-8.4-4.2-2.5-7.9-5.8-9-10.8-1.4-5.5.6-11.5 2-16.9v-.4a502 502 0 0 1 26.6-80 523.2 523.2 0 0 1 67.8-117 353.8 353.8 0 0 1 88.7-83.3 239 239 0 0 1 53.8-25.7 142.6 142.6 0 0 1 42.8-7.5Zm90.1-66c6-6.5 18.1.2 15.2 8.8a108.2 108.2 0 0 1-34.7 52A79.4 79.4 0 0 1 247 598l1.7 2.4a321.1 321.1 0 0 0 46.1 52.6c36 31.2 84.8 48 132 36 37.1-9.4 69.8-38.8 79.4-76.2-1.3.6-3 .9-4.8.5-7.7-1.7-15.3-9.8-20.3-15.6-5.3-6.3-9.5-13-12.6-20.7-5.6-14-7.4-32.1.3-45.7 1-1.7 3-.7 3.3 1l.3 2.5c1.5 12.7 3.3 25 9.3 36.6a76 76 0 0 0 18.2 23.1c2.6 2 5.8 3.6 8.1 6l.5.4c.6-5 4.1-7.3 7.6-7.2 3.3.2 7.3 1.6 8.8 2.3l.1.1a341 341 0 0 1 65.1 42 259 259 0 0 1 88.4 129c7.5 25.3 11.8 51.4 16.3 77.4l2.8 16c4.2 23.9 8.9 48.4 18.4 70.7 2.5 5.7.6 11.1-5.5 13.4A1493 1493 0 0 1 688 953c3.7 16 6 32.5 8.7 48.5 6 34.1 13.2 68 19.4 102 3.2 17.5 6.1 35 9.3 52.3l4.7 25.2 2.4 13.6.1.7c.5 2.4 1 4.9.4 7.3-.8 2.7-2.9 4.6-4.8 6.6-1.6 1.6-3.8 1.6-5.7.7l-.7-.3c-3.4-1.6-6-3.2-7.3-7-.7-2.5-1-5.2-1.5-7.7a3535.6 3535.6 0 0 1-7.8-43.6l-1.6-9.1c-5.2-31.4-10.2-62.9-12.8-94.5-1-14-2.3-28.1-3.5-42.2l-.9-10.5c-1.1-13.3-2.5-27-2.7-40.5l-4.5 1.6L657 964c-5.5 2-12.5 6-18.4 5.2-2.9-.3-5-1.2-6.8-2.9 2 28.8 4.8 57.4 8.5 86a1965.7 1965.7 0 0 0 22 135c.6 3.2 1.4 6.4 1.9 9.6.5 3.7-.5 5.9-2.5 9-1.7 2.4-5 3.7-7.8 2-3.6-2.3-5.5-4.3-6.5-8.4-1-3.7-1.6-7.6-2.3-11.4a1654.2 1654.2 0 0 1-11.4-65.2c-7.8-52-12.7-104.4-15.2-156.8a1388 1388 0 0 1-1.4-77.8c0-13.3.5-26.6 1.4-39.9 1-13.4 3-26.5 4.8-39.8 0-.5.7-.5.7 0 .8 14.9 2.1 29.8 2.8 44.7.6 14.3.9 28.5 1.4 42.8.6 18.7 1.5 37.5 2.7 56.2a9.6 9.6 0 0 1 8.5-3.1c4.7-1 9.7-3.4 14.1-5l16.8-5.5 26.4-8.7a679 679 0 0 1-18-80.8l-2-12.3c-4-24.2-8.5-48.5-15.8-72a229.8 229.8 0 0 0-34.8-68.2 370.2 370.2 0 0 0-52.7-55.3C557 627 539.7 614 523 600c.1.9.2 2 0 3-3.5 25.9-17 50-35.8 67.9-37.7 36-93.6 43.4-142 26.5-46.7-16.3-88-55-102.6-102.8-.3-.8.8-1 1.3-.5l2.4 3.3c0-.4.2-.9.7-1a129 129 0 0 0 46.6-29.2 100.2 100.2 0 0 0 21.3-33.3l.4-1c1.7-5 3.2-10.2 7-14.2Z" fill="#000"/></g><g transform="matrix(.99789 0 0 1 156 62)"><g fill-rule="evenodd" clip-rule="evenodd"><path d="M120.4 26.5c63-3.4 118.9-21.1 163.2 18.5 0 0 71.8-53.6 83.8-33.2 8 13.7-3.1 32-.2 49 19.5 33 18.4 89.2 19.5 102.4 2.8 33.1 20.2 157.9 20.2 187.5 0 15.1-12.4 54.7-20.2 76.8-17.3 49-50.3 74-104.4 74-54 0-142.4-45.2-170.7-85.3-2.5-3.5-18.5 6.7-35.3-11C58 385.7 48 349 48 327c0-27.8-18-47.1-15.9-82.8 4.7-79.5 21-214 88.3-217.8Z" fill="#d08b5b"/><path d="M367.4 11.6c8 13.7-3 32 0 49 7.4 12.7 11.9 29 14.6 44.8l-14.8 7.8-5.4.8c-88.2 13-144.6 24.7-169 35.1-24.6 10.5-54.5 47.5-89.7 110.8l-1 2-7 47.2-32 9.8-15 7.1c-.4-27.3-18-46.6-16-81.9 4.7-79.5 21-214 88.4-217.8 63-3.4 118.8-21.1 163.2 18.5C331.5 9.1 359.4-2 367.4 11.6Z" fill="#ffd93d"/><path d="M113.4-66h2.5l2.7.4a22 22 0 0 1 12 6.8l.2.3a31 31 0 0 1 4.1 3.7l.7-.6 2-1.6c3-2.6 6.6-4.5 10.4-5.6l.5-.1h.3c2.7-1 5.6-1.4 8.4-1.4 3.5-.1 6.9.4 10 1.7 3.9 1.6 7.2 4 10 7 1.8 1.6 3.4 3.2 5 5a37.5 37.5 0 0 1 8.6 14.9 170.7 170.7 0 0 1 27-1.3 132.3 132.3 0 0 1 45.9 9.9c3.6 1.4 7.1 3.3 10.4 5.5l2.8 1.7 4.1 2.5c3.2 2 6.3 4.4 9.2 7A99.8 99.8 0 0 1 301.1 0c6.3 3.4 12 7.8 17.2 13a128.4 128.4 0 0 1 28.2-11.9 98.6 98.6 0 0 1 18.8-3.5l4.1-.3 1.8-.2h1.5c.4-.1 1 .9 1 1.3l.1.3.9 1h.8c.7 0 1.6 1.3 2.1 1.9l.4.4a4 4 0 0 1 1 2c.6 4.1 1 8.3 1.5 12.5.1 3.1 0 6.2-.5 9.3l-1.2 9-2 6.3-.7 2.4c-1.6 5.3-3.5 10.4-5.7 15.4 1.6 1.8 3.1 3.6 4.5 5.6l1 1 .4-.3c.5-.2.8 0 1.1.4 3.2 3 5.4 6.6 6.9 10.6l.8 2 .5 1.1a73.7 73.7 0 0 1 4.1 16.9 312 312 0 0 1 5.5 22 5 5 0 0 1-.2 3l.9 1 1.6 1.5c2.7 2.7 5.5 5.6 7.5 8.8 2 3.3 3.6 6.9 5.3 10.4l.3.8.8 1.5a37 37 0 0 1 4 14.6 30.3 30.3 0 0 1-1.9 15.6c-1 4.6-3.5 8.8-7.3 11.5-.9.8-1.7 1.5-2.7 2a8.4 8.4 0 0 1-6.8.9h-.3l-.8-.3c.4.3.6.7 0 1a5 5 0 0 1-1.6.5c.2.3.2.6-.2.8-1 .5-1.8.7-2.6.5l.2 1.4c1.3 10.5 2.5 12.6 3.5 24 .7 11.5 1.8 23 3.3 34.5l.5 4.2a444.4 444.4 0 0 0 10 56.8c1.5 4.4 2.5 8.8 3 13.4a133 133 0 0 1 1.8 14.1c1.1 3 1.7 6.1 1.7 9.3.1 4.2 0 8.4-.5 12.6-.2 4.4-.8 8.7-1.8 13a73.5 73.5 0 0 1-4.6 17 164.8 164.8 0 0 1-20.2 44c-5 7.8-10.3 15.4-16.4 22.4A153.4 153.4 0 0 1 304 504a99.8 99.8 0 0 1-47 2.8 96 96 0 0 1-19.5-4.7c-5.2-1.8-10-4-15-6.3a80 80 0 0 1-21.4-15.7c-.5-.4-.2-1 .4-1.2h.2l-.7-.7-.2-.1-.3-.3c-.4-.4 0-1.1.3-1.3h.5v-.2l-.1-.2h-.2c-.5-.5-.2-1.2.4-1.4h1.3l.2.1-.4-.3c-.6-.5-.4-1 .3-1.3.6 0 1.1.2 1.7.3h.4l.6.3-1-1c-.4-.2 0-1 .3-1.2.4-.3 1.2 0 1.6.3.9.1 2 .5 2.5.9l3.7 3.3c.8.3 1.5.6 2.1 1 1.4 1.5 3 2.8 4.5 4l1.1.8.6.4 6.6 3.9 24 8.1 1.2.3 7.7 1c5.2.5 10.3.5 15.4 0a106 106 0 0 0 30.1-6 141.3 141.3 0 0 0 29.3-15.4 181.4 181.4 0 0 0 19.8-17.5l.9-.8 5.3-6.3 1.6-1.9c6.6-8.1 12.5-17 17.7-26 5.2-9 9.5-18.5 13-28.3 1-3.5 2-7 2.8-10.6a58.3 58.3 0 0 0 3.3-15.8v-1.4l.1-.7a85.7 85.7 0 0 0 .6-8.4v-8.7l-.1-.8-.3-2-1.3-11.8-.6-4.5-.4-2.6-.2-1.5a99 99 0 0 0-1.7-8l-.3-1.1-1.8-8.8-2-8.6a681.6 681.6 0 0 1-9.8-73.1c-.7-8.6-1-17.3-1.2-26 0-.4.2-.7.6-.9v-1.6c-.1-1.5-.1.3-.2-1.4v-5.3c-5.3.4-8.9 0-14-.2h-1c-4.7-.3-9.4-.8-14-1.6 0 .3-.2.4-.5.5h-1.4l.2.7c0 .3-.1.5-.5.6h-1.3a30.2 30.2 0 0 1-10-1l-3-.8-7.5-2.4c-2.6-.6-5.3-.8-8-.1-3 .7-5.4 2-8.5 1.2l-1.8-.7h-.8c-3.2-.5-6-2.5-9-3.6a5 5 0 0 0-3.2.2l-.3.2-1 .7-1.2 1.5-.6.7a15 15 0 0 1-3.6 3.4 9.1 9.1 0 0 1-6.2 2.6c-1.3 0-2.7-.3-4-.7-5 1.6-10.3 1.9-15.3.4a22.1 22.1 0 0 1-8.3-3c-3.5 1.4-6.9 3.4-10.2 5l-.8.5A22.7 22.7 0 0 1 234 197a139.8 139.8 0 0 1-14.8-1.8l-.7-.1-2.4-.4-2-.4-1 .4c-8 3-16.7 5.4-24.8 3.3a22 22 0 0 1-10-3.9l-1.3-.8h-.1l-.1-.1a11 11 0 0 1-6.5-11.2c-.3-1.5-.3-3 0-4.6l-4.3 5a334.7 334.7 0 0 0-15.7 20.1l-1 1.6c-2.8 3.8-5.3 7.8-7.6 11.8l-7.3 12c-3.2 3.5-6.3 7.2-9.4 11l-1.2 1.5-4.4 5.7a116.5 116.5 0 0 0-13.4 24.3 97.3 97.3 0 0 0-5.2 20.7v1a60 60 0 0 0-.3 3.5l.7.5.7.3.6.1c1 .3 2.5 1 2.1 1.6l-1.9 3.7c.2.2.3.5.2.7l-4 7.4v.2l3.1 1.7c2 1.2 3.5 2.6 4.9 4.2 1.4.9 2.8 1.8 4 2.9a30.5 30.5 0 0 1 6.8 11.3c.3 1 .5 2.1.5 3.3-1.2 8.5-11 2.7-11.2 2a26 26 0 0 0-6.3-12.3l-.1-.1c-2-.9-4-1.8-6-2.4l-1 .1c.3.5.1 1-.6 1.1-3.1.6-6.3.8-9.5.5l-4.9-.7c-2 .8-4 1.8-5.7 3l-.6.4h-.1A38.8 38.8 0 0 0 60.7 341l-.3.7A55.7 55.7 0 0 0 66 380 316 316 0 0 0 76 395.2l3.4 4.5a172 172 0 0 1 6.9 6.8l3.1 1.7 1.3.4c2 1 4.1 1.5 6.4 1.6 3 .2 5.8-.2 8.6-1l.6-.3.4-.1c1.5-1 3-2.2 4.3-3.6.3-.3.8-.3 1.5-.2l1-1.1c.2-.3.6-.3.9 0 1-.2 3.5 1.3 2.8 2l-.3.6 1.3.7c2 .6 5.2 2.7 5 3.3h-.1c-.5 1-1.1 1.8-2 2.4l-.2.2-.6.4c.9.5 1.6 1.1 1.2 1.5l-.5 1 5 6.2c1.7 3.7 3.8 7 6.3 10.2 2 3.5 4.5 6.5 7.5 9.3l.7.7 6.7 4.5 1 .6c.5.3 1.4.7 1 1.5l-.2.2c1.5 1 3 1.9 4.6 2.7h.1c.6.5 1.4 1.2.6 1.7-.7.5-2.6-.8-3.5-1.4l-.6-.1.9.5.4.2c.4.3 2.1 1.4 1 1.9-.7 0-1.2-.1-1.7-.5l-1.8-.9c.2.3.2.6-.3.8a3 3 0 0 1-.5 0c1.2.8 2.4 1.5 3.7 2.1l.2.1c.5.4 1.3 1 .7 1.6-.7.6-2.6-.7-3-1l-1.5-.9a1 1 0 0 1-.4.1l1.3.8.6.4c.8.4 1.9 1 1.5 1.8-.4.7-1.6.1-2.3-.3l-.8-.5-.1-.1v.1c-.5.7-1.4.3-2 0l-.6-.4-2.6-1.6-1.3-.8a82.6 82.6 0 0 1-19.3-15.5c-4.1-4.7-7.3-10.1-10.3-15.6l.2-.6-1-2a29.6 29.6 0 0 1-14.7 0 37.3 37.3 0 0 1-15-6.1l-.7-.6c-1.9-1-3.6-2.2-5.2-3.6a87 87 0 0 1-14.8-16.1l-5.5-7.7a66 66 0 0 1-9.7-26.6 53.5 53.5 0 0 1 0-18.1l-1-.9c0 .3-.2.5-.3.4l-2.3-2.3a53.3 53.3 0 0 1-14-32.6c-.7-5.2 0-10.2.7-15.3 0-.3.2-.5.5-.7l.1-1.2a35.2 35.2 0 0 1-11-25.7c.2-3.2.8-6.4 2-9.3l.2-.3c-5.5-.9-9.9-4.8-13.2-9.6l-.8-.7c-6-5-10-12.2-12.8-19.7a46 46 0 0 1-3.9-13.9v-1a89 89 0 0 1-1.2-23 114.8 114.8 0 0 1-4-21.5v-.5l-.2-1v-.6a139 139 0 0 1 11-62.3l2.2-5.3.7-1.9c8-12.8 20-23.2 30-34.1 3.5-3.8-2.1-9.5-5.6-5.7C16 61.6 8.8 68.6 2.4 76a28.1 28.1 0 0 1-9.3-.8c-4.7-.7-9-2.6-12.8-5.4-5.2-2.4-9.7-7-10.1-13v-1.7c-.5-3 0-6 1.2-8.8a15.2 15.2 0 0 1 5.4-8l.1-.2.7-.6 1-.9a54.8 54.8 0 0 1-3.6-6.9 28.4 28.4 0 0 1-2.2-11.5l-.1-1.5c-.3-4 .2-8.1 1.7-11.8l.3-.9 1-2.5c1.5-3.1 3.6-5.8 6.2-8a25.6 25.6 0 0 1 8-5.3c2.2-1.2 5-2.2 7.2-2.3h.8c.2-5.7 1-12 3.2-17.2 1.3-3.7 3.3-7 6.3-9.5C9-42.6 11.2-44 13.9-45l.5-.2h.1a17 17 0 0 1 7.7-1.6A17.3 17.3 0 0 1 32.8-44l1.5-2.6c2-3.1 4.2-5.8 7-8.3l1-.8 4-3.3c3.2-2.1 6.6-3.8 10.2-4.8 4.1-1.5 8.5-2.2 12.8-2h1.5a38.6 38.6 0 0 1 23.8 10c.8-1 1.7-2 2.8-3l1-.8.7-.7c1.2-1 2.5-2 3.9-2.8 1.5-.9 3.2-1.5 5-1.9 1.7-.6 3.5-1 5.4-1ZM92.8 346.3c.2 0 9.5 3.4 14 5.7h.3c5.3 2.7 8 4.6 12.7 8 .3.3.6.6.6 1 0 4.9-1.2 11-5.3 8.2l-1.8-1-1-.6c-9-5.6-18.5-9.9-28.6-13-.7-.2 4.4-8 5.8-7.5-.8-.3 3.2-.8 3.3-.8Zm95-218.1a4591.5 4591.5 0 0 1-29.5 3 81.9 81.9 0 0 1-23.3-1.4c-1.4 1-2.8 2-4.2 2.8l-15.9 12.1c-10.6 8.4-21 17.3-30.4 27a176.8 176.8 0 0 0-38.2 59.4c-.7.4-1.3 1.2-1.5 2.4-1.5 9-5.8 17.4-7.4 26.4-1.5 9 .5 16.5 6.1 23.6 1.2 1.5 3.7 1.4 5.2.4.3.7 1.8.6 2.4-2.4 2.5-2.7 4.6-5.5 6-9 1-2.6-.7-4.4-2.9-4.7a136.8 136.8 0 0 1 16.2-36.6 151.8 151.8 0 0 1 16.5-20.5l1.2-1.4c.2-.2.5-.2 1 0l1-1.3c.4-.4.8-.2 1 0 .7 0 1.8.6 2.2.8.6.4.8.9.3 1.5l-.3.3c.7.2 1.4.6 1.9 1 1.8.4 4.4 2.1 4 2.7l-2.8 3c.8.5 1.3 1 1.1 1.3A122.8 122.8 0 0 0 64.3 290v.7c-.3 3.5-.3 13-.7 15.3A49.6 49.6 0 0 0 72 309l.8-.3a28.1 28.1 0 0 1 11.6-2h.6l2.1.1v-1.2c-.3 0-.4-.3-.4-.5a66.2 66.2 0 0 1 2.3-26.2 107 107 0 0 1 5.1-15.6c6-14.4 14.6-27.4 23.2-40.4 6.3-9.4 12.2-19 18.8-28.4 5.5-7.9 11.3-15.7 17.5-23a235 235 0 0 1 23.3-24.2c6.7-6 14-11 21.6-15.8.3-.2.8 0 1.2.4l1.2-.8.6-.3c.2-.1.4 0 .6.2l1.5-.8 1.2-.9c-5.7-.2-11.3-.7-16.9-1.2Zm70.5-66.7c-4.5-.9-9-1-13.7-.3-1.9.2-3.8.6-5.7 1 4.3 3.7 7.8 8.5 10 14 2.4 6-7.2 8.6-9.6 2.7-2.3-5.7-6.7-10-12-12.6l-3.3 2a36.4 36.4 0 0 0-10.6 14.3 41.4 41.4 0 0 0-1.5 8c-1 10.3 2 20.4 7 29.3h.3c4.5-2.5 9.3-4.6 14.2-6.3a132.6 132.6 0 0 1 40.1-18l1.2-.3 6.9-1.6 1.4-.2-.2-1.5a43.6 43.6 0 0 0-15.3-27v-.1c-1.7-1-3.5-1.8-5.3-2.4l-.7-.3-3.2-.7Zm-121.9-8.9a161.3 161.3 0 0 0-58.9 5.5l2.3 4.6c3.8 7.7 7.7 15.3 12.3 22.5a108.3 108.3 0 0 0 15.9 19.6c2 1.8 4.3 3.3 6.8 4.6 2 1.4 4 2.7 6.1 3.8l.8.4 7.5 2.9 1.2.3.6.2 1.2.2.8-.5.5-.2c.2-.1.4.1.4.3v.3l1-.6a31.3 31.3 0 0 0 9 2.2h.1v.1h1.1c7.5.8 15.1-.2 22.6-1.5 10.5-1 21-2.3 31.6-3.4.2 0 .3.1.3.3l.7-.1c1-.1 2 1.5 1.3 2l1.5 1.2h.3a43.5 43.5 0 0 1-3.4-8.9l-1-5.2a47.3 47.3 0 0 1-.6-8.5v-2.2l-6-2.1-17.6-2.2a249.4 249.4 0 0 0-22.4 2.1c-.3 0-1-.4-1.4-1l-1.7.2c-.9.1-1.8-1.6-.6-2l1.2-.5.7-.2h-.8c-1 0-2 .2-2.8.3-1.2.1-1-1.4-.1-1.8h.4c-.7-.5-1.3-1.7-.5-2l.2-.1 1.1-.5v-.3l-1.6.2c-.1 0 .6-1 1-1.3l.8-.2c0-.4.7-1.1 1-1.2a102.8 102.8 0 0 1 14.2-3.7c0-.2.2-.3.3-.3a68.4 68.4 0 0 1 32.6 3.7l1 .4 2.8 1.1a40.3 40.3 0 0 1 2.1-6l-1-.5c-.1.4-.6.7-.8.5-7-4.7-14.3-8.6-22-11.7a112.8 112.8 0 0 0-23.8-7.6c-6-1.6-12-2.7-18.3-3.2Zm229 16-2.6 4.2c-4.5 7-10 13.4-16.1 19.1a50 50 0 0 1 12.8 1.6c.2-.2.4-.3.6-.2l.7.5a52.6 52.6 0 0 1 15.5 7v-4.6a82 82 0 0 0-6.3-20.5v-.5c-1.3-2.3-2.9-4.6-4.6-6.7Zm1.3-56.8-6.2 1.5c-3.9.6-7.6 1.6-11.2 3a188 188 0 0 0-14.7 6c-9.3 4.3-18.1 9.7-26.1 16.1l-1.5 1.2a79.2 79.2 0 0 0-5.2 4.9l-5.2 5.6c-2.1 2.3-4.5 4.3-6.5 6.7l-1 1.5 1.1.4c1 .4.8 2.1-.1 1.9l-1-.3c.2.1.3.3.3.4 0 .5-.3 1.2-1 1l-.7-.3-.2 1h.2c.7.2 2 1.3 2 2 .2.5-.2 1-.8 1l-1.3-.6c.3.3.5.6.5.8 0 .5-.4 1.1-1 1a7 7 0 0 1-2.4-1.3c-.2.3-.5.5-.7.4l-.4-.1.3.3.2.2c2.7 3 5.1 6.2 7 9.8l.4-.3 2.8-2.2.3-.3.2-.2-2 .7c.1-.3.6-1 .8-1.1 3-2.6 6-4.8 9.5-6.6a141.6 141.6 0 0 1 24.5-10.2l2.7-.9c.2 0 .3 0 .3.2l.4-.1c.9-.3 2.3 1.2 1.7 1.9l1 .9.2.2h.3c.7-.3 1.9.8 2.6 1.6l.6.6c.4.5 1.3 1.4.2 1.8l-1.2.4c0 .3-.1.5-.5.7l-1.3.4.7.7.4.4c.5.5 1.5 1.5.6 2h-.1l-1.2.4c.1.4 0 .7-.5 1-7.1 2.4-14.2 5.2-21 8.5-5.1 2.8-10.6 5-16.3 6.3-.4.2-1.5-.5-1.9-1.2l-.8.2-.5.1a44 44 0 0 1 2.3 9.8l3.4-.2c7.7-.4 15.6-.2 23.3.7a93 93 0 0 0 11.7-8.2 100.3 100.3 0 0 0 24-31 78 78 0 0 0 8.6-34.8V17.4l-.6-5.7Zm-73.2 67-.8.2.4 1 1-.8c-.2 0-.4-.2-.6-.4Zm71.8-81.2c1.8-.6 3.2-.8 4.1-.3-1.4 0-2.7.2-4 .3Z" fill="#000"/></g></g><g transform="translate(315 248)"><g fill-rule="evenodd" clip-rule="evenodd"><path d="M93.8 224.8c8-16 81.4-8.9 81.4-8.9l6.2 51s-35.4 11.3-56.5 9c-21-2.5-39-35.1-31-51.1Z" fill="#fff"/><path d="M99 251.5c-2.5-5.5 50-20.2 66.2-10.1 16.2 10 11.1 23.9 11.1 23.9S108 280.8 99 251.5Z" fill="#FF8181"/><path d="M89.3 215.3c12.2-14.2 32.9-15.2 50-11.7 11 2.3 21.6 6.1 32.7 7.5 5.2.7 10.5.9 15.7.8 5.2-.1 10.3-1.1 15.4-1 .8 0 1.1 1.1.4 1.5-7 4.4-16.5 5.7-24.8 6.6a93 93 0 0 1 .7 5.8l1.3 9.2c.8 6 1 12.3 2.5 18.2l.3 1a9 9 0 0 1 .3 3.4l.3-.1 1.1-.5.7-.4c2.6-1.2 5-2 8-1.7 2.3.2 4.2 1.7 4.2 4.2 0 11-14.7 14.5-23.1 16.6l-2.5.6c-10.8 2.6-21.7 4.9-32.8 5.4-17.7 1-37.7-4-49.3-18.4-10.8-13.4-12.8-33.4-1.1-47Zm80.6 46c-2-16.5-22.2-17.4-28-7-2.6-14.5-40.9-1.2-37.9 1.7 11.4 11 28.6 12 43.4 10 7.5-1 15-2.8 22.5-4.7Zm-22.5-43.2-5.1-.7-2-.3c-12.7-1.7-26.9-2.6-37.3 5.5a18 18 0 0 0-6.7 11A552 552 0 0 1 126 230l2.7-.3 18.6-1.7 4.3-.5 4.4-.4c1.6-.2 12-.7 14-.4.2-1.7.4-5.5.9-7.3-7.4.3-14.8-.3-22.1-1.2l-1.3-.2Zm23.4-73.7c7.6 4.6 19 15.3 11 26.6-9.6 10-23.4-1.4-30.2-6.6-6.3-4-13.3 6.3-7.5 11 49 36.3 69-29.8 30.5-36.4-4.2-.8-5.8 4-3.8 5.4Zm13.5 19.3.4-.2h.1c.2-.2 0-.2-.4 0l-.4.1v.3l.3-.2ZM87.6 123v-.2c0-6.4 3.7-21 13-21 5.7 0 9.1 10 9.7 20.2v.4c.3 6.4-1.4 20.2-9.8 20.2S87.7 129.4 87.6 123Zm135.2-2v-.2c0-6.4-3.8-21-13-21-5.5 0-9 9.5-9.7 19.4v.8c-.4 6.1 1.2 20.6 9.8 20.6 8.4 0 12.8-13.1 12.9-19.6Zm-130-62.6c7.5-1.2 17.5 1 21 8.6 1.5 3.4-.3 7.2-4.2 7.4-9.5.4-18-1.7-26.4 4.5a42 42 0 0 0-9 10l-1 1.4-.8 1.1c-1.7 2.5-3.4 5.3-3.1 8.3 0 1-.9 1.8-1.7 1.7-5.5-.2-6-7-5.4-11.1 1.4-7.7 5-14.8 10.2-20.6 5.4-6 12.4-10 20.5-11.3ZM196 67.5a29.3 29.3 0 0 1 17.9-4c12 .9 32 11 29.3 25.6-.8 4.5-7 6.9-10.8 4.4-4-2.7-4.9-6.9-7.8-10.4a28.5 28.5 0 0 0-8.6-6.5 28.3 28.3 0 0 0-10.3-3.1h-.6c-2.2-.3-13-.2-11.4 3.8.3.8-.9 1.5-1.4.9-3.4-3.7.4-8.5 3.7-10.7Z" fill="#000"/></g></g><g transform="translate(279 400)"></g><g transform="translate(179 343)"></g><g transform="translate(203 303)"></g></g></svg></div>
+        <div class="face" data-face="listen"><svg class="art" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 704 704" fill="none" shape-rendering="auto"><mask id="viewboxMask-3"><rect width="704" height="704" rx="0" ry="0" x="0" y="0" fill="#fff" /></mask><g mask="url(#viewboxMask-3)"><g fill-rule="evenodd" clip-rule="evenodd"><path d="M705.3 1074a2351.1 2351.1 0 0 1-15.6-101c-1-7.7-2.5-16.4 2.7-22 7.3-8 14-14.8 14.8-26.2.8-10.7-2.8-22.4-5-32.8a809.4 809.4 0 0 0-17.3-64.7c-6.6-21.7-13.9-43.2-21.3-64.6-6.9-20-13.5-40.3-22.5-59.5-17-36.5-46-63.5-81.6-81.6-9-4.5-27-20.5-36.3-24-8.5-3.4-8.5 6.3-16.9 2.6-6.7-2.9-13-6.7-16.7-13.2-4-7-14.3-16.9-15.9-25-3.3-17.4.3-32.2-12-45.3a90 90 0 0 0-41.1-23.8c-33.7-9.3-78.5-2.8-98.8 28.5-9.7 14.9-13 33-26.2 45.1-11.4 10.7-8.8 18-23.6 23.4-.9.3-23.6-4.5-24.4-4.2-16.2-3.5-31.7 6.2-46.5 11.8a325.4 325.4 0 0 0-63 32.3 399.2 399.2 0 0 0-102.3 98.5 482.5 482.5 0 0 0-76.4 161c-1.7 6.4-3.5 13-1.5 19.4 1.7 5.3 5.4 9.2 9.8 12.4 6 4.3 18 7 17.7 15.7-.1 6.6-2.4 13.5-3.5 20-1.3 7.7-2.3 15.5-3.4 23.2-4.8 35.4-8.6 71-10.3 106.6a920 920 0 0 0-.5 106c.1 2.3.8 4.5 2 6.2-1 .4-1.2 2.4.1 2.7l2.7.5a12 12 0 0 0 7 2.4l5.5.2c19.3 4 38.6 7.9 58.1 10.8 23.8 3.5 47.6 6.3 71.5 8.7 49.2 4.8 98 3.2 147.1.6a1877 1877 0 0 1 147.4-2c49.2 1.4 98.4 3.5 147.6 4.4 55 1 110-.5 164.8-5 7.5-.5 12.2-6.5 10.7-14-8.9-44.7-19-89.1-27-134Z" fill="#d08b5b"/><path d="m201 597.5 1.2-.4c14.5-5.7 29.6-14.8 45.4-11.4.5-.2 10.8 1.9 17.9 3.2l-6.7 7L247 598c40.7 67.1 88.8 100.7 144.3 100.7 55.5 0 97.7-33.6 126.4-100.7l4-1c.4 0 1 .2 1.5.4 9.3 3.6 27.4 19.6 36.3 24.1 35.6 18 64.5 45 81.6 81.6 8.7 18.6 15.2 38 21.8 57.5l.7 2c7.4 21.4 14.7 43 21.3 64.6 6.3 20.4 12 41 16.6 61.8l.7 2.9c2.2 10.4 5.8 22 5 32.8a29 29 0 0 1-3 10.7l-80.4 29 38.4 261.3c-35.1 1.5-70.3 2-105.5 1.3-49.2-.9-98.4-3-147.6-4.3-47.7-1.2-95.3-.7-143 1.7l-12 .6a946.3 946.3 0 0 1-139.5-1l-3.1-.3v-38.3l16.3-212.9-83-15.6-81.3-39.5a21.7 21.7 0 0 1-5.6-8.8c-1.9-6-.5-12 1-18l.5-1.3a492.8 492.8 0 0 1 76.4-161A399.3 399.3 0 0 1 138 629.7c19.8-13 40.9-23.9 63-32.3Z" fill="#ffd93d"/><path d="M232.2 584.6c5.1-.3 10.3.6 15.4 1 .4.1.6.8 0 .9-9 1.9-18 4.5-26.9 7.1l-3.8 1.2c-10 3-19.8 6-29.6 10-19.4 7.9-37.8 18.5-54.8 30.8C67.2 682.8 20 754.3-9.9 828.3a526 526 0 0 0-24.3 77c-.4 1.6-2 5.4-1 7 .7 1.3 3.6 2.1 5 2.9l4.5 2.3 25.2 12.9 2.3 1.1c38 18.6 78.4 34.4 121 35.5l.4-3.7a342 342 0 0 1 9.9-60c.3-1 1.6-.6 1.7.3 3 23.1 2 46.4 1 69.7-1.8 41-4.3 82.2-6.5 123.3-1.2 20.6-2.6 41-3.9 61.7-1.3 20.5-1.7 41.6-4.7 62-.6 4.6-6 7-10 6.6-4.4-.5-7.9-4.5-8-9 0-11.9 1.5-24 2.4-35.8l2.5-33.8c3.1-41.1 6.8-82.2 10.2-123.3a4771 4771 0 0 1 3.8-43.7C76.4 979.8 34.2 963-6.1 943.5c-.6 13.2-2 26.5-3.4 39.6-3.8 36.8-7.1 73.6-9.6 110.5a2254.2 2254.2 0 0 0-4.2 92.7l-.2 7c0 4.4-.5 8.5-4.3 11.7-3.7 3.3-8.9 3.5-12.6 0-5-4.6-4.2-10.9-4-17.1a1675.6 1675.6 0 0 1 1.8-47.2 1321 1321 0 0 1 10.5-109.5l2-14c3.5-26 7.5-52.7 15.5-77.9-3.1-1.5-6.2-3-9.3-4.7-5.5-2.7-11.2-5.4-16.6-8.4-4.2-2.5-7.9-5.8-9-10.8-1.4-5.5.6-11.5 2-16.9v-.4a502 502 0 0 1 26.6-80 523.2 523.2 0 0 1 67.8-117 353.8 353.8 0 0 1 88.7-83.3 239 239 0 0 1 53.8-25.7 142.6 142.6 0 0 1 42.8-7.5Zm90.1-66c6-6.5 18.1.2 15.2 8.8a108.2 108.2 0 0 1-34.7 52A79.4 79.4 0 0 1 247 598l1.7 2.4a321.1 321.1 0 0 0 46.1 52.6c36 31.2 84.8 48 132 36 37.1-9.4 69.8-38.8 79.4-76.2-1.3.6-3 .9-4.8.5-7.7-1.7-15.3-9.8-20.3-15.6-5.3-6.3-9.5-13-12.6-20.7-5.6-14-7.4-32.1.3-45.7 1-1.7 3-.7 3.3 1l.3 2.5c1.5 12.7 3.3 25 9.3 36.6a76 76 0 0 0 18.2 23.1c2.6 2 5.8 3.6 8.1 6l.5.4c.6-5 4.1-7.3 7.6-7.2 3.3.2 7.3 1.6 8.8 2.3l.1.1a341 341 0 0 1 65.1 42 259 259 0 0 1 88.4 129c7.5 25.3 11.8 51.4 16.3 77.4l2.8 16c4.2 23.9 8.9 48.4 18.4 70.7 2.5 5.7.6 11.1-5.5 13.4A1493 1493 0 0 1 688 953c3.7 16 6 32.5 8.7 48.5 6 34.1 13.2 68 19.4 102 3.2 17.5 6.1 35 9.3 52.3l4.7 25.2 2.4 13.6.1.7c.5 2.4 1 4.9.4 7.3-.8 2.7-2.9 4.6-4.8 6.6-1.6 1.6-3.8 1.6-5.7.7l-.7-.3c-3.4-1.6-6-3.2-7.3-7-.7-2.5-1-5.2-1.5-7.7a3535.6 3535.6 0 0 1-7.8-43.6l-1.6-9.1c-5.2-31.4-10.2-62.9-12.8-94.5-1-14-2.3-28.1-3.5-42.2l-.9-10.5c-1.1-13.3-2.5-27-2.7-40.5l-4.5 1.6L657 964c-5.5 2-12.5 6-18.4 5.2-2.9-.3-5-1.2-6.8-2.9 2 28.8 4.8 57.4 8.5 86a1965.7 1965.7 0 0 0 22 135c.6 3.2 1.4 6.4 1.9 9.6.5 3.7-.5 5.9-2.5 9-1.7 2.4-5 3.7-7.8 2-3.6-2.3-5.5-4.3-6.5-8.4-1-3.7-1.6-7.6-2.3-11.4a1654.2 1654.2 0 0 1-11.4-65.2c-7.8-52-12.7-104.4-15.2-156.8a1388 1388 0 0 1-1.4-77.8c0-13.3.5-26.6 1.4-39.9 1-13.4 3-26.5 4.8-39.8 0-.5.7-.5.7 0 .8 14.9 2.1 29.8 2.8 44.7.6 14.3.9 28.5 1.4 42.8.6 18.7 1.5 37.5 2.7 56.2a9.6 9.6 0 0 1 8.5-3.1c4.7-1 9.7-3.4 14.1-5l16.8-5.5 26.4-8.7a679 679 0 0 1-18-80.8l-2-12.3c-4-24.2-8.5-48.5-15.8-72a229.8 229.8 0 0 0-34.8-68.2 370.2 370.2 0 0 0-52.7-55.3C557 627 539.7 614 523 600c.1.9.2 2 0 3-3.5 25.9-17 50-35.8 67.9-37.7 36-93.6 43.4-142 26.5-46.7-16.3-88-55-102.6-102.8-.3-.8.8-1 1.3-.5l2.4 3.3c0-.4.2-.9.7-1a129 129 0 0 0 46.6-29.2 100.2 100.2 0 0 0 21.3-33.3l.4-1c1.7-5 3.2-10.2 7-14.2Z" fill="#000"/></g><g transform="matrix(.99789 0 0 1 156 62)"><g fill-rule="evenodd" clip-rule="evenodd"><path d="M120.4 26.5c63-3.4 118.9-21.1 163.2 18.5 0 0 71.8-53.6 83.8-33.2 8 13.7-3.1 32-.2 49 19.5 33 18.4 89.2 19.5 102.4 2.8 33.1 20.2 157.9 20.2 187.5 0 15.1-12.4 54.7-20.2 76.8-17.3 49-50.3 74-104.4 74-54 0-142.4-45.2-170.7-85.3-2.5-3.5-18.5 6.7-35.3-11C58 385.7 48 349 48 327c0-27.8-18-47.1-15.9-82.8 4.7-79.5 21-214 88.3-217.8Z" fill="#d08b5b"/><path d="M367.4 11.6c8 13.7-3 32 0 49 7.4 12.7 11.9 29 14.6 44.8l-14.8 7.8-5.4.8c-88.2 13-144.6 24.7-169 35.1-24.6 10.5-54.5 47.5-89.7 110.8l-1 2-7 47.2-32 9.8-15 7.1c-.4-27.3-18-46.6-16-81.9 4.7-79.5 21-214 88.4-217.8 63-3.4 118.8-21.1 163.2 18.5C331.5 9.1 359.4-2 367.4 11.6Z" fill="#ffd93d"/><path d="M113.4-66h2.5l2.7.4a22 22 0 0 1 12 6.8l.2.3a31 31 0 0 1 4.1 3.7l.7-.6 2-1.6c3-2.6 6.6-4.5 10.4-5.6l.5-.1h.3c2.7-1 5.6-1.4 8.4-1.4 3.5-.1 6.9.4 10 1.7 3.9 1.6 7.2 4 10 7 1.8 1.6 3.4 3.2 5 5a37.5 37.5 0 0 1 8.6 14.9 170.7 170.7 0 0 1 27-1.3 132.3 132.3 0 0 1 45.9 9.9c3.6 1.4 7.1 3.3 10.4 5.5l2.8 1.7 4.1 2.5c3.2 2 6.3 4.4 9.2 7A99.8 99.8 0 0 1 301.1 0c6.3 3.4 12 7.8 17.2 13a128.4 128.4 0 0 1 28.2-11.9 98.6 98.6 0 0 1 18.8-3.5l4.1-.3 1.8-.2h1.5c.4-.1 1 .9 1 1.3l.1.3.9 1h.8c.7 0 1.6 1.3 2.1 1.9l.4.4a4 4 0 0 1 1 2c.6 4.1 1 8.3 1.5 12.5.1 3.1 0 6.2-.5 9.3l-1.2 9-2 6.3-.7 2.4c-1.6 5.3-3.5 10.4-5.7 15.4 1.6 1.8 3.1 3.6 4.5 5.6l1 1 .4-.3c.5-.2.8 0 1.1.4 3.2 3 5.4 6.6 6.9 10.6l.8 2 .5 1.1a73.7 73.7 0 0 1 4.1 16.9 312 312 0 0 1 5.5 22 5 5 0 0 1-.2 3l.9 1 1.6 1.5c2.7 2.7 5.5 5.6 7.5 8.8 2 3.3 3.6 6.9 5.3 10.4l.3.8.8 1.5a37 37 0 0 1 4 14.6 30.3 30.3 0 0 1-1.9 15.6c-1 4.6-3.5 8.8-7.3 11.5-.9.8-1.7 1.5-2.7 2a8.4 8.4 0 0 1-6.8.9h-.3l-.8-.3c.4.3.6.7 0 1a5 5 0 0 1-1.6.5c.2.3.2.6-.2.8-1 .5-1.8.7-2.6.5l.2 1.4c1.3 10.5 2.5 12.6 3.5 24 .7 11.5 1.8 23 3.3 34.5l.5 4.2a444.4 444.4 0 0 0 10 56.8c1.5 4.4 2.5 8.8 3 13.4a133 133 0 0 1 1.8 14.1c1.1 3 1.7 6.1 1.7 9.3.1 4.2 0 8.4-.5 12.6-.2 4.4-.8 8.7-1.8 13a73.5 73.5 0 0 1-4.6 17 164.8 164.8 0 0 1-20.2 44c-5 7.8-10.3 15.4-16.4 22.4A153.4 153.4 0 0 1 304 504a99.8 99.8 0 0 1-47 2.8 96 96 0 0 1-19.5-4.7c-5.2-1.8-10-4-15-6.3a80 80 0 0 1-21.4-15.7c-.5-.4-.2-1 .4-1.2h.2l-.7-.7-.2-.1-.3-.3c-.4-.4 0-1.1.3-1.3h.5v-.2l-.1-.2h-.2c-.5-.5-.2-1.2.4-1.4h1.3l.2.1-.4-.3c-.6-.5-.4-1 .3-1.3.6 0 1.1.2 1.7.3h.4l.6.3-1-1c-.4-.2 0-1 .3-1.2.4-.3 1.2 0 1.6.3.9.1 2 .5 2.5.9l3.7 3.3c.8.3 1.5.6 2.1 1 1.4 1.5 3 2.8 4.5 4l1.1.8.6.4 6.6 3.9 24 8.1 1.2.3 7.7 1c5.2.5 10.3.5 15.4 0a106 106 0 0 0 30.1-6 141.3 141.3 0 0 0 29.3-15.4 181.4 181.4 0 0 0 19.8-17.5l.9-.8 5.3-6.3 1.6-1.9c6.6-8.1 12.5-17 17.7-26 5.2-9 9.5-18.5 13-28.3 1-3.5 2-7 2.8-10.6a58.3 58.3 0 0 0 3.3-15.8v-1.4l.1-.7a85.7 85.7 0 0 0 .6-8.4v-8.7l-.1-.8-.3-2-1.3-11.8-.6-4.5-.4-2.6-.2-1.5a99 99 0 0 0-1.7-8l-.3-1.1-1.8-8.8-2-8.6a681.6 681.6 0 0 1-9.8-73.1c-.7-8.6-1-17.3-1.2-26 0-.4.2-.7.6-.9v-1.6c-.1-1.5-.1.3-.2-1.4v-5.3c-5.3.4-8.9 0-14-.2h-1c-4.7-.3-9.4-.8-14-1.6 0 .3-.2.4-.5.5h-1.4l.2.7c0 .3-.1.5-.5.6h-1.3a30.2 30.2 0 0 1-10-1l-3-.8-7.5-2.4c-2.6-.6-5.3-.8-8-.1-3 .7-5.4 2-8.5 1.2l-1.8-.7h-.8c-3.2-.5-6-2.5-9-3.6a5 5 0 0 0-3.2.2l-.3.2-1 .7-1.2 1.5-.6.7a15 15 0 0 1-3.6 3.4 9.1 9.1 0 0 1-6.2 2.6c-1.3 0-2.7-.3-4-.7-5 1.6-10.3 1.9-15.3.4a22.1 22.1 0 0 1-8.3-3c-3.5 1.4-6.9 3.4-10.2 5l-.8.5A22.7 22.7 0 0 1 234 197a139.8 139.8 0 0 1-14.8-1.8l-.7-.1-2.4-.4-2-.4-1 .4c-8 3-16.7 5.4-24.8 3.3a22 22 0 0 1-10-3.9l-1.3-.8h-.1l-.1-.1a11 11 0 0 1-6.5-11.2c-.3-1.5-.3-3 0-4.6l-4.3 5a334.7 334.7 0 0 0-15.7 20.1l-1 1.6c-2.8 3.8-5.3 7.8-7.6 11.8l-7.3 12c-3.2 3.5-6.3 7.2-9.4 11l-1.2 1.5-4.4 5.7a116.5 116.5 0 0 0-13.4 24.3 97.3 97.3 0 0 0-5.2 20.7v1a60 60 0 0 0-.3 3.5l.7.5.7.3.6.1c1 .3 2.5 1 2.1 1.6l-1.9 3.7c.2.2.3.5.2.7l-4 7.4v.2l3.1 1.7c2 1.2 3.5 2.6 4.9 4.2 1.4.9 2.8 1.8 4 2.9a30.5 30.5 0 0 1 6.8 11.3c.3 1 .5 2.1.5 3.3-1.2 8.5-11 2.7-11.2 2a26 26 0 0 0-6.3-12.3l-.1-.1c-2-.9-4-1.8-6-2.4l-1 .1c.3.5.1 1-.6 1.1-3.1.6-6.3.8-9.5.5l-4.9-.7c-2 .8-4 1.8-5.7 3l-.6.4h-.1A38.8 38.8 0 0 0 60.7 341l-.3.7A55.7 55.7 0 0 0 66 380 316 316 0 0 0 76 395.2l3.4 4.5a172 172 0 0 1 6.9 6.8l3.1 1.7 1.3.4c2 1 4.1 1.5 6.4 1.6 3 .2 5.8-.2 8.6-1l.6-.3.4-.1c1.5-1 3-2.2 4.3-3.6.3-.3.8-.3 1.5-.2l1-1.1c.2-.3.6-.3.9 0 1-.2 3.5 1.3 2.8 2l-.3.6 1.3.7c2 .6 5.2 2.7 5 3.3h-.1c-.5 1-1.1 1.8-2 2.4l-.2.2-.6.4c.9.5 1.6 1.1 1.2 1.5l-.5 1 5 6.2c1.7 3.7 3.8 7 6.3 10.2 2 3.5 4.5 6.5 7.5 9.3l.7.7 6.7 4.5 1 .6c.5.3 1.4.7 1 1.5l-.2.2c1.5 1 3 1.9 4.6 2.7h.1c.6.5 1.4 1.2.6 1.7-.7.5-2.6-.8-3.5-1.4l-.6-.1.9.5.4.2c.4.3 2.1 1.4 1 1.9-.7 0-1.2-.1-1.7-.5l-1.8-.9c.2.3.2.6-.3.8a3 3 0 0 1-.5 0c1.2.8 2.4 1.5 3.7 2.1l.2.1c.5.4 1.3 1 .7 1.6-.7.6-2.6-.7-3-1l-1.5-.9a1 1 0 0 1-.4.1l1.3.8.6.4c.8.4 1.9 1 1.5 1.8-.4.7-1.6.1-2.3-.3l-.8-.5-.1-.1v.1c-.5.7-1.4.3-2 0l-.6-.4-2.6-1.6-1.3-.8a82.6 82.6 0 0 1-19.3-15.5c-4.1-4.7-7.3-10.1-10.3-15.6l.2-.6-1-2a29.6 29.6 0 0 1-14.7 0 37.3 37.3 0 0 1-15-6.1l-.7-.6c-1.9-1-3.6-2.2-5.2-3.6a87 87 0 0 1-14.8-16.1l-5.5-7.7a66 66 0 0 1-9.7-26.6 53.5 53.5 0 0 1 0-18.1l-1-.9c0 .3-.2.5-.3.4l-2.3-2.3a53.3 53.3 0 0 1-14-32.6c-.7-5.2 0-10.2.7-15.3 0-.3.2-.5.5-.7l.1-1.2a35.2 35.2 0 0 1-11-25.7c.2-3.2.8-6.4 2-9.3l.2-.3c-5.5-.9-9.9-4.8-13.2-9.6l-.8-.7c-6-5-10-12.2-12.8-19.7a46 46 0 0 1-3.9-13.9v-1a89 89 0 0 1-1.2-23 114.8 114.8 0 0 1-4-21.5v-.5l-.2-1v-.6a139 139 0 0 1 11-62.3l2.2-5.3.7-1.9c8-12.8 20-23.2 30-34.1 3.5-3.8-2.1-9.5-5.6-5.7C16 61.6 8.8 68.6 2.4 76a28.1 28.1 0 0 1-9.3-.8c-4.7-.7-9-2.6-12.8-5.4-5.2-2.4-9.7-7-10.1-13v-1.7c-.5-3 0-6 1.2-8.8a15.2 15.2 0 0 1 5.4-8l.1-.2.7-.6 1-.9a54.8 54.8 0 0 1-3.6-6.9 28.4 28.4 0 0 1-2.2-11.5l-.1-1.5c-.3-4 .2-8.1 1.7-11.8l.3-.9 1-2.5c1.5-3.1 3.6-5.8 6.2-8a25.6 25.6 0 0 1 8-5.3c2.2-1.2 5-2.2 7.2-2.3h.8c.2-5.7 1-12 3.2-17.2 1.3-3.7 3.3-7 6.3-9.5C9-42.6 11.2-44 13.9-45l.5-.2h.1a17 17 0 0 1 7.7-1.6A17.3 17.3 0 0 1 32.8-44l1.5-2.6c2-3.1 4.2-5.8 7-8.3l1-.8 4-3.3c3.2-2.1 6.6-3.8 10.2-4.8 4.1-1.5 8.5-2.2 12.8-2h1.5a38.6 38.6 0 0 1 23.8 10c.8-1 1.7-2 2.8-3l1-.8.7-.7c1.2-1 2.5-2 3.9-2.8 1.5-.9 3.2-1.5 5-1.9 1.7-.6 3.5-1 5.4-1ZM92.8 346.3c.2 0 9.5 3.4 14 5.7h.3c5.3 2.7 8 4.6 12.7 8 .3.3.6.6.6 1 0 4.9-1.2 11-5.3 8.2l-1.8-1-1-.6c-9-5.6-18.5-9.9-28.6-13-.7-.2 4.4-8 5.8-7.5-.8-.3 3.2-.8 3.3-.8Zm95-218.1a4591.5 4591.5 0 0 1-29.5 3 81.9 81.9 0 0 1-23.3-1.4c-1.4 1-2.8 2-4.2 2.8l-15.9 12.1c-10.6 8.4-21 17.3-30.4 27a176.8 176.8 0 0 0-38.2 59.4c-.7.4-1.3 1.2-1.5 2.4-1.5 9-5.8 17.4-7.4 26.4-1.5 9 .5 16.5 6.1 23.6 1.2 1.5 3.7 1.4 5.2.4.3.7 1.8.6 2.4-2.4 2.5-2.7 4.6-5.5 6-9 1-2.6-.7-4.4-2.9-4.7a136.8 136.8 0 0 1 16.2-36.6 151.8 151.8 0 0 1 16.5-20.5l1.2-1.4c.2-.2.5-.2 1 0l1-1.3c.4-.4.8-.2 1 0 .7 0 1.8.6 2.2.8.6.4.8.9.3 1.5l-.3.3c.7.2 1.4.6 1.9 1 1.8.4 4.4 2.1 4 2.7l-2.8 3c.8.5 1.3 1 1.1 1.3A122.8 122.8 0 0 0 64.3 290v.7c-.3 3.5-.3 13-.7 15.3A49.6 49.6 0 0 0 72 309l.8-.3a28.1 28.1 0 0 1 11.6-2h.6l2.1.1v-1.2c-.3 0-.4-.3-.4-.5a66.2 66.2 0 0 1 2.3-26.2 107 107 0 0 1 5.1-15.6c6-14.4 14.6-27.4 23.2-40.4 6.3-9.4 12.2-19 18.8-28.4 5.5-7.9 11.3-15.7 17.5-23a235 235 0 0 1 23.3-24.2c6.7-6 14-11 21.6-15.8.3-.2.8 0 1.2.4l1.2-.8.6-.3c.2-.1.4 0 .6.2l1.5-.8 1.2-.9c-5.7-.2-11.3-.7-16.9-1.2Zm70.5-66.7c-4.5-.9-9-1-13.7-.3-1.9.2-3.8.6-5.7 1 4.3 3.7 7.8 8.5 10 14 2.4 6-7.2 8.6-9.6 2.7-2.3-5.7-6.7-10-12-12.6l-3.3 2a36.4 36.4 0 0 0-10.6 14.3 41.4 41.4 0 0 0-1.5 8c-1 10.3 2 20.4 7 29.3h.3c4.5-2.5 9.3-4.6 14.2-6.3a132.6 132.6 0 0 1 40.1-18l1.2-.3 6.9-1.6 1.4-.2-.2-1.5a43.6 43.6 0 0 0-15.3-27v-.1c-1.7-1-3.5-1.8-5.3-2.4l-.7-.3-3.2-.7Zm-121.9-8.9a161.3 161.3 0 0 0-58.9 5.5l2.3 4.6c3.8 7.7 7.7 15.3 12.3 22.5a108.3 108.3 0 0 0 15.9 19.6c2 1.8 4.3 3.3 6.8 4.6 2 1.4 4 2.7 6.1 3.8l.8.4 7.5 2.9 1.2.3.6.2 1.2.2.8-.5.5-.2c.2-.1.4.1.4.3v.3l1-.6a31.3 31.3 0 0 0 9 2.2h.1v.1h1.1c7.5.8 15.1-.2 22.6-1.5 10.5-1 21-2.3 31.6-3.4.2 0 .3.1.3.3l.7-.1c1-.1 2 1.5 1.3 2l1.5 1.2h.3a43.5 43.5 0 0 1-3.4-8.9l-1-5.2a47.3 47.3 0 0 1-.6-8.5v-2.2l-6-2.1-17.6-2.2a249.4 249.4 0 0 0-22.4 2.1c-.3 0-1-.4-1.4-1l-1.7.2c-.9.1-1.8-1.6-.6-2l1.2-.5.7-.2h-.8c-1 0-2 .2-2.8.3-1.2.1-1-1.4-.1-1.8h.4c-.7-.5-1.3-1.7-.5-2l.2-.1 1.1-.5v-.3l-1.6.2c-.1 0 .6-1 1-1.3l.8-.2c0-.4.7-1.1 1-1.2a102.8 102.8 0 0 1 14.2-3.7c0-.2.2-.3.3-.3a68.4 68.4 0 0 1 32.6 3.7l1 .4 2.8 1.1a40.3 40.3 0 0 1 2.1-6l-1-.5c-.1.4-.6.7-.8.5-7-4.7-14.3-8.6-22-11.7a112.8 112.8 0 0 0-23.8-7.6c-6-1.6-12-2.7-18.3-3.2Zm229 16-2.6 4.2c-4.5 7-10 13.4-16.1 19.1a50 50 0 0 1 12.8 1.6c.2-.2.4-.3.6-.2l.7.5a52.6 52.6 0 0 1 15.5 7v-4.6a82 82 0 0 0-6.3-20.5v-.5c-1.3-2.3-2.9-4.6-4.6-6.7Zm1.3-56.8-6.2 1.5c-3.9.6-7.6 1.6-11.2 3a188 188 0 0 0-14.7 6c-9.3 4.3-18.1 9.7-26.1 16.1l-1.5 1.2a79.2 79.2 0 0 0-5.2 4.9l-5.2 5.6c-2.1 2.3-4.5 4.3-6.5 6.7l-1 1.5 1.1.4c1 .4.8 2.1-.1 1.9l-1-.3c.2.1.3.3.3.4 0 .5-.3 1.2-1 1l-.7-.3-.2 1h.2c.7.2 2 1.3 2 2 .2.5-.2 1-.8 1l-1.3-.6c.3.3.5.6.5.8 0 .5-.4 1.1-1 1a7 7 0 0 1-2.4-1.3c-.2.3-.5.5-.7.4l-.4-.1.3.3.2.2c2.7 3 5.1 6.2 7 9.8l.4-.3 2.8-2.2.3-.3.2-.2-2 .7c.1-.3.6-1 .8-1.1 3-2.6 6-4.8 9.5-6.6a141.6 141.6 0 0 1 24.5-10.2l2.7-.9c.2 0 .3 0 .3.2l.4-.1c.9-.3 2.3 1.2 1.7 1.9l1 .9.2.2h.3c.7-.3 1.9.8 2.6 1.6l.6.6c.4.5 1.3 1.4.2 1.8l-1.2.4c0 .3-.1.5-.5.7l-1.3.4.7.7.4.4c.5.5 1.5 1.5.6 2h-.1l-1.2.4c.1.4 0 .7-.5 1-7.1 2.4-14.2 5.2-21 8.5-5.1 2.8-10.6 5-16.3 6.3-.4.2-1.5-.5-1.9-1.2l-.8.2-.5.1a44 44 0 0 1 2.3 9.8l3.4-.2c7.7-.4 15.6-.2 23.3.7a93 93 0 0 0 11.7-8.2 100.3 100.3 0 0 0 24-31 78 78 0 0 0 8.6-34.8V17.4l-.6-5.7Zm-73.2 67-.8.2.4 1 1-.8c-.2 0-.4-.2-.6-.4Zm71.8-81.2c1.8-.6 3.2-.8 4.1-.3-1.4 0-2.7.2-4 .3Z" fill="#000"/></g></g><g transform="translate(315 248)"><path fill-rule="evenodd" clip-rule="evenodd" d="M171 240.2a40.7 40.7 0 0 1-22.7 0c-6.9-2-13.8-6.3-18.9-12.1a27.4 27.4 0 0 1-7.2-18.2c0-.8.3-1.4.7-2a3.3 3.3 0 0 1 3.9-.8 174.4 174.4 0 0 0 3.7 4.3c6.1 7.7 12.1 13.4 21.4 15.4 5 1.2 10.1.7 14.8-1 5-1.8 9.4-5 13-9.1a7 7 0 0 1 5.2-2.6c2 0 4.1 1 5.7 2.4a8.8 8.8 0 0 1 2.6 5.8c0 1.9-.5 3.8-2.2 5.6a44.3 44.3 0 0 1-20 12.3Zm-.2-95.8c7.6 4.6 19 15.3 11 26.6-9.6 10-23.4-1.4-30.2-6.6-6.3-4-13.3 6.3-7.5 11 49 36.3 69-29.8 30.5-36.4-4.2-.8-5.8 4-3.8 5.4Zm-70.6-20.2a8.4 8.4 0 0 0-8.5-.7 27.5 27.5 0 0 0-9.8 9.8c-2 3.4-3.5 7.4-3.2 11.5 0 1-.3 1.6-.9 2.2-.4.4-1 .7-1.8.8-.6 0-1.3 0-2-.2-1-.4-1.6-1-1.8-1.6a23.8 23.8 0 0 1 1.2-17.6c3.2-7.6 9-14 12.8-16a21.4 21.4 0 0 1 20.7-.1c5.5 3 9 8 12.4 13l2.2 3.2c1.6 2 1.7 4.1 1.1 5.9-.6 2-2.3 3.6-4.3 4.5-2 .8-4.2 1-6.1 0-1.7-.6-3.2-2-4.1-4.3a23.1 23.1 0 0 0-8-10.4Zm123.2 8.6c-1.6.9-3 1.1-4.8.6-1-.3-2-1-2.8-1.7a5.6 5.6 0 0 1-1.5-2.8c-.6-2.7-2-5.2-4.1-6.8a8.2 8.2 0 0 0-6.5-1.7c-2.7.4-5.3 2.2-7 4.2-.6.7-1 1.4-1.5 2.2-.9 1.4-1.7 2.8-3 3.8-.4.4-1 .7-1.7.7l-.8-.1c-2.7-2.7-3.2-4.8-3.1-6.8 0-2 1-4.2 2.2-6.2 3.2-4.7 9.2-8.5 13.2-9.4 5.6-1.2 11 .2 15.5 3.3a22 22 0 0 1 9 13.7c.2 1.4 0 2.8-.4 4a5.6 5.6 0 0 1-2.7 3Zm-111-58.5c-3.3 3.2-7.3 3.7-11.2 4.1a53 53 0 0 0-37 20.4 74.6 74.6 0 0 0-3.2 4 28 28 0 0 1-1.5 2.7c-.5.9-.8 1.1-1 1.3l-1.3.2a2 2 0 0 1-1-.5c-1.7-1.5-2.2-3.8-2.2-6.3 0-3.9 1.5-8 2.8-10.7 3-6 7.2-12.3 12.2-16.8 5.7-5.1 12-9 19.2-11.7a39 39 0 0 1 14.6-3c3.5.2 6.8 1.2 9.6 3.8A8.4 8.4 0 0 1 115 68c0 2.3-.8 4.6-2.5 6.3Zm117.8 29.6c-.2.4-.5.6-.8.7a2 2 0 0 1-2-.3c-.4-.2-.6-.6-.7-1-2.2-9.7-6.4-16.9-15.6-21.5a66 66 0 0 0-14.6-5l-4.4-.7c-4.8-.7-9.5-1.5-12.6-5.3a10.2 10.2 0 0 1-2.2-8c.4-2.5 1.9-4.9 4.6-6.3 6.7-3.5 15 0 21.9 2.9l1.4.6A51 51 0 0 1 223 71.8c4 4.2 7.7 10.4 9.1 16.8 1.3 5.3 1 10.8-1.8 15.3Z" fill="#000"/></g><g transform="translate(279 400)"></g><g transform="translate(179 343)"></g><g transform="translate(203 303)"></g></g></svg></div>
+        <div class="face" data-face="happy"><svg class="art" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 704 704" fill="none" shape-rendering="auto"><mask id="viewboxMask-4"><rect width="704" height="704" rx="0" ry="0" x="0" y="0" fill="#fff" /></mask><g mask="url(#viewboxMask-4)"><g fill-rule="evenodd" clip-rule="evenodd"><path d="M705.3 1074a2351.1 2351.1 0 0 1-15.6-101c-1-7.7-2.5-16.4 2.7-22 7.3-8 14-14.8 14.8-26.2.8-10.7-2.8-22.4-5-32.8a809.4 809.4 0 0 0-17.3-64.7c-6.6-21.7-13.9-43.2-21.3-64.6-6.9-20-13.5-40.3-22.5-59.5-17-36.5-46-63.5-81.6-81.6-9-4.5-27-20.5-36.3-24-8.5-3.4-8.5 6.3-16.9 2.6-6.7-2.9-13-6.7-16.7-13.2-4-7-14.3-16.9-15.9-25-3.3-17.4.3-32.2-12-45.3a90 90 0 0 0-41.1-23.8c-33.7-9.3-78.5-2.8-98.8 28.5-9.7 14.9-13 33-26.2 45.1-11.4 10.7-8.8 18-23.6 23.4-.9.3-23.6-4.5-24.4-4.2-16.2-3.5-31.7 6.2-46.5 11.8a325.4 325.4 0 0 0-63 32.3 399.2 399.2 0 0 0-102.3 98.5 482.5 482.5 0 0 0-76.4 161c-1.7 6.4-3.5 13-1.5 19.4 1.7 5.3 5.4 9.2 9.8 12.4 6 4.3 18 7 17.7 15.7-.1 6.6-2.4 13.5-3.5 20-1.3 7.7-2.3 15.5-3.4 23.2-4.8 35.4-8.6 71-10.3 106.6a920 920 0 0 0-.5 106c.1 2.3.8 4.5 2 6.2-1 .4-1.2 2.4.1 2.7l2.7.5a12 12 0 0 0 7 2.4l5.5.2c19.3 4 38.6 7.9 58.1 10.8 23.8 3.5 47.6 6.3 71.5 8.7 49.2 4.8 98 3.2 147.1.6a1877 1877 0 0 1 147.4-2c49.2 1.4 98.4 3.5 147.6 4.4 55 1 110-.5 164.8-5 7.5-.5 12.2-6.5 10.7-14-8.9-44.7-19-89.1-27-134Z" fill="#d08b5b"/><path d="m201 597.5 1.2-.4c14.5-5.7 29.6-14.8 45.4-11.4.5-.2 10.8 1.9 17.9 3.2l-6.7 7L247 598c40.7 67.1 88.8 100.7 144.3 100.7 55.5 0 97.7-33.6 126.4-100.7l4-1c.4 0 1 .2 1.5.4 9.3 3.6 27.4 19.6 36.3 24.1 35.6 18 64.5 45 81.6 81.6 8.7 18.6 15.2 38 21.8 57.5l.7 2c7.4 21.4 14.7 43 21.3 64.6 6.3 20.4 12 41 16.6 61.8l.7 2.9c2.2 10.4 5.8 22 5 32.8a29 29 0 0 1-3 10.7l-80.4 29 38.4 261.3c-35.1 1.5-70.3 2-105.5 1.3-49.2-.9-98.4-3-147.6-4.3-47.7-1.2-95.3-.7-143 1.7l-12 .6a946.3 946.3 0 0 1-139.5-1l-3.1-.3v-38.3l16.3-212.9-83-15.6-81.3-39.5a21.7 21.7 0 0 1-5.6-8.8c-1.9-6-.5-12 1-18l.5-1.3a492.8 492.8 0 0 1 76.4-161A399.3 399.3 0 0 1 138 629.7c19.8-13 40.9-23.9 63-32.3Z" fill="#ffd93d"/><path d="M232.2 584.6c5.1-.3 10.3.6 15.4 1 .4.1.6.8 0 .9-9 1.9-18 4.5-26.9 7.1l-3.8 1.2c-10 3-19.8 6-29.6 10-19.4 7.9-37.8 18.5-54.8 30.8C67.2 682.8 20 754.3-9.9 828.3a526 526 0 0 0-24.3 77c-.4 1.6-2 5.4-1 7 .7 1.3 3.6 2.1 5 2.9l4.5 2.3 25.2 12.9 2.3 1.1c38 18.6 78.4 34.4 121 35.5l.4-3.7a342 342 0 0 1 9.9-60c.3-1 1.6-.6 1.7.3 3 23.1 2 46.4 1 69.7-1.8 41-4.3 82.2-6.5 123.3-1.2 20.6-2.6 41-3.9 61.7-1.3 20.5-1.7 41.6-4.7 62-.6 4.6-6 7-10 6.6-4.4-.5-7.9-4.5-8-9 0-11.9 1.5-24 2.4-35.8l2.5-33.8c3.1-41.1 6.8-82.2 10.2-123.3a4771 4771 0 0 1 3.8-43.7C76.4 979.8 34.2 963-6.1 943.5c-.6 13.2-2 26.5-3.4 39.6-3.8 36.8-7.1 73.6-9.6 110.5a2254.2 2254.2 0 0 0-4.2 92.7l-.2 7c0 4.4-.5 8.5-4.3 11.7-3.7 3.3-8.9 3.5-12.6 0-5-4.6-4.2-10.9-4-17.1a1675.6 1675.6 0 0 1 1.8-47.2 1321 1321 0 0 1 10.5-109.5l2-14c3.5-26 7.5-52.7 15.5-77.9-3.1-1.5-6.2-3-9.3-4.7-5.5-2.7-11.2-5.4-16.6-8.4-4.2-2.5-7.9-5.8-9-10.8-1.4-5.5.6-11.5 2-16.9v-.4a502 502 0 0 1 26.6-80 523.2 523.2 0 0 1 67.8-117 353.8 353.8 0 0 1 88.7-83.3 239 239 0 0 1 53.8-25.7 142.6 142.6 0 0 1 42.8-7.5Zm90.1-66c6-6.5 18.1.2 15.2 8.8a108.2 108.2 0 0 1-34.7 52A79.4 79.4 0 0 1 247 598l1.7 2.4a321.1 321.1 0 0 0 46.1 52.6c36 31.2 84.8 48 132 36 37.1-9.4 69.8-38.8 79.4-76.2-1.3.6-3 .9-4.8.5-7.7-1.7-15.3-9.8-20.3-15.6-5.3-6.3-9.5-13-12.6-20.7-5.6-14-7.4-32.1.3-45.7 1-1.7 3-.7 3.3 1l.3 2.5c1.5 12.7 3.3 25 9.3 36.6a76 76 0 0 0 18.2 23.1c2.6 2 5.8 3.6 8.1 6l.5.4c.6-5 4.1-7.3 7.6-7.2 3.3.2 7.3 1.6 8.8 2.3l.1.1a341 341 0 0 1 65.1 42 259 259 0 0 1 88.4 129c7.5 25.3 11.8 51.4 16.3 77.4l2.8 16c4.2 23.9 8.9 48.4 18.4 70.7 2.5 5.7.6 11.1-5.5 13.4A1493 1493 0 0 1 688 953c3.7 16 6 32.5 8.7 48.5 6 34.1 13.2 68 19.4 102 3.2 17.5 6.1 35 9.3 52.3l4.7 25.2 2.4 13.6.1.7c.5 2.4 1 4.9.4 7.3-.8 2.7-2.9 4.6-4.8 6.6-1.6 1.6-3.8 1.6-5.7.7l-.7-.3c-3.4-1.6-6-3.2-7.3-7-.7-2.5-1-5.2-1.5-7.7a3535.6 3535.6 0 0 1-7.8-43.6l-1.6-9.1c-5.2-31.4-10.2-62.9-12.8-94.5-1-14-2.3-28.1-3.5-42.2l-.9-10.5c-1.1-13.3-2.5-27-2.7-40.5l-4.5 1.6L657 964c-5.5 2-12.5 6-18.4 5.2-2.9-.3-5-1.2-6.8-2.9 2 28.8 4.8 57.4 8.5 86a1965.7 1965.7 0 0 0 22 135c.6 3.2 1.4 6.4 1.9 9.6.5 3.7-.5 5.9-2.5 9-1.7 2.4-5 3.7-7.8 2-3.6-2.3-5.5-4.3-6.5-8.4-1-3.7-1.6-7.6-2.3-11.4a1654.2 1654.2 0 0 1-11.4-65.2c-7.8-52-12.7-104.4-15.2-156.8a1388 1388 0 0 1-1.4-77.8c0-13.3.5-26.6 1.4-39.9 1-13.4 3-26.5 4.8-39.8 0-.5.7-.5.7 0 .8 14.9 2.1 29.8 2.8 44.7.6 14.3.9 28.5 1.4 42.8.6 18.7 1.5 37.5 2.7 56.2a9.6 9.6 0 0 1 8.5-3.1c4.7-1 9.7-3.4 14.1-5l16.8-5.5 26.4-8.7a679 679 0 0 1-18-80.8l-2-12.3c-4-24.2-8.5-48.5-15.8-72a229.8 229.8 0 0 0-34.8-68.2 370.2 370.2 0 0 0-52.7-55.3C557 627 539.7 614 523 600c.1.9.2 2 0 3-3.5 25.9-17 50-35.8 67.9-37.7 36-93.6 43.4-142 26.5-46.7-16.3-88-55-102.6-102.8-.3-.8.8-1 1.3-.5l2.4 3.3c0-.4.2-.9.7-1a129 129 0 0 0 46.6-29.2 100.2 100.2 0 0 0 21.3-33.3l.4-1c1.7-5 3.2-10.2 7-14.2Z" fill="#000"/></g><g transform="matrix(.99789 0 0 1 156 62)"><g fill-rule="evenodd" clip-rule="evenodd"><path d="M120.4 26.5c63-3.4 118.9-21.1 163.2 18.5 0 0 71.8-53.6 83.8-33.2 8 13.7-3.1 32-.2 49 19.5 33 18.4 89.2 19.5 102.4 2.8 33.1 20.2 157.9 20.2 187.5 0 15.1-12.4 54.7-20.2 76.8-17.3 49-50.3 74-104.4 74-54 0-142.4-45.2-170.7-85.3-2.5-3.5-18.5 6.7-35.3-11C58 385.7 48 349 48 327c0-27.8-18-47.1-15.9-82.8 4.7-79.5 21-214 88.3-217.8Z" fill="#d08b5b"/><path d="M367.4 11.6c8 13.7-3 32 0 49 7.4 12.7 11.9 29 14.6 44.8l-14.8 7.8-5.4.8c-88.2 13-144.6 24.7-169 35.1-24.6 10.5-54.5 47.5-89.7 110.8l-1 2-7 47.2-32 9.8-15 7.1c-.4-27.3-18-46.6-16-81.9 4.7-79.5 21-214 88.4-217.8 63-3.4 118.8-21.1 163.2 18.5C331.5 9.1 359.4-2 367.4 11.6Z" fill="#ffd93d"/><path d="M113.4-66h2.5l2.7.4a22 22 0 0 1 12 6.8l.2.3a31 31 0 0 1 4.1 3.7l.7-.6 2-1.6c3-2.6 6.6-4.5 10.4-5.6l.5-.1h.3c2.7-1 5.6-1.4 8.4-1.4 3.5-.1 6.9.4 10 1.7 3.9 1.6 7.2 4 10 7 1.8 1.6 3.4 3.2 5 5a37.5 37.5 0 0 1 8.6 14.9 170.7 170.7 0 0 1 27-1.3 132.3 132.3 0 0 1 45.9 9.9c3.6 1.4 7.1 3.3 10.4 5.5l2.8 1.7 4.1 2.5c3.2 2 6.3 4.4 9.2 7A99.8 99.8 0 0 1 301.1 0c6.3 3.4 12 7.8 17.2 13a128.4 128.4 0 0 1 28.2-11.9 98.6 98.6 0 0 1 18.8-3.5l4.1-.3 1.8-.2h1.5c.4-.1 1 .9 1 1.3l.1.3.9 1h.8c.7 0 1.6 1.3 2.1 1.9l.4.4a4 4 0 0 1 1 2c.6 4.1 1 8.3 1.5 12.5.1 3.1 0 6.2-.5 9.3l-1.2 9-2 6.3-.7 2.4c-1.6 5.3-3.5 10.4-5.7 15.4 1.6 1.8 3.1 3.6 4.5 5.6l1 1 .4-.3c.5-.2.8 0 1.1.4 3.2 3 5.4 6.6 6.9 10.6l.8 2 .5 1.1a73.7 73.7 0 0 1 4.1 16.9 312 312 0 0 1 5.5 22 5 5 0 0 1-.2 3l.9 1 1.6 1.5c2.7 2.7 5.5 5.6 7.5 8.8 2 3.3 3.6 6.9 5.3 10.4l.3.8.8 1.5a37 37 0 0 1 4 14.6 30.3 30.3 0 0 1-1.9 15.6c-1 4.6-3.5 8.8-7.3 11.5-.9.8-1.7 1.5-2.7 2a8.4 8.4 0 0 1-6.8.9h-.3l-.8-.3c.4.3.6.7 0 1a5 5 0 0 1-1.6.5c.2.3.2.6-.2.8-1 .5-1.8.7-2.6.5l.2 1.4c1.3 10.5 2.5 12.6 3.5 24 .7 11.5 1.8 23 3.3 34.5l.5 4.2a444.4 444.4 0 0 0 10 56.8c1.5 4.4 2.5 8.8 3 13.4a133 133 0 0 1 1.8 14.1c1.1 3 1.7 6.1 1.7 9.3.1 4.2 0 8.4-.5 12.6-.2 4.4-.8 8.7-1.8 13a73.5 73.5 0 0 1-4.6 17 164.8 164.8 0 0 1-20.2 44c-5 7.8-10.3 15.4-16.4 22.4A153.4 153.4 0 0 1 304 504a99.8 99.8 0 0 1-47 2.8 96 96 0 0 1-19.5-4.7c-5.2-1.8-10-4-15-6.3a80 80 0 0 1-21.4-15.7c-.5-.4-.2-1 .4-1.2h.2l-.7-.7-.2-.1-.3-.3c-.4-.4 0-1.1.3-1.3h.5v-.2l-.1-.2h-.2c-.5-.5-.2-1.2.4-1.4h1.3l.2.1-.4-.3c-.6-.5-.4-1 .3-1.3.6 0 1.1.2 1.7.3h.4l.6.3-1-1c-.4-.2 0-1 .3-1.2.4-.3 1.2 0 1.6.3.9.1 2 .5 2.5.9l3.7 3.3c.8.3 1.5.6 2.1 1 1.4 1.5 3 2.8 4.5 4l1.1.8.6.4 6.6 3.9 24 8.1 1.2.3 7.7 1c5.2.5 10.3.5 15.4 0a106 106 0 0 0 30.1-6 141.3 141.3 0 0 0 29.3-15.4 181.4 181.4 0 0 0 19.8-17.5l.9-.8 5.3-6.3 1.6-1.9c6.6-8.1 12.5-17 17.7-26 5.2-9 9.5-18.5 13-28.3 1-3.5 2-7 2.8-10.6a58.3 58.3 0 0 0 3.3-15.8v-1.4l.1-.7a85.7 85.7 0 0 0 .6-8.4v-8.7l-.1-.8-.3-2-1.3-11.8-.6-4.5-.4-2.6-.2-1.5a99 99 0 0 0-1.7-8l-.3-1.1-1.8-8.8-2-8.6a681.6 681.6 0 0 1-9.8-73.1c-.7-8.6-1-17.3-1.2-26 0-.4.2-.7.6-.9v-1.6c-.1-1.5-.1.3-.2-1.4v-5.3c-5.3.4-8.9 0-14-.2h-1c-4.7-.3-9.4-.8-14-1.6 0 .3-.2.4-.5.5h-1.4l.2.7c0 .3-.1.5-.5.6h-1.3a30.2 30.2 0 0 1-10-1l-3-.8-7.5-2.4c-2.6-.6-5.3-.8-8-.1-3 .7-5.4 2-8.5 1.2l-1.8-.7h-.8c-3.2-.5-6-2.5-9-3.6a5 5 0 0 0-3.2.2l-.3.2-1 .7-1.2 1.5-.6.7a15 15 0 0 1-3.6 3.4 9.1 9.1 0 0 1-6.2 2.6c-1.3 0-2.7-.3-4-.7-5 1.6-10.3 1.9-15.3.4a22.1 22.1 0 0 1-8.3-3c-3.5 1.4-6.9 3.4-10.2 5l-.8.5A22.7 22.7 0 0 1 234 197a139.8 139.8 0 0 1-14.8-1.8l-.7-.1-2.4-.4-2-.4-1 .4c-8 3-16.7 5.4-24.8 3.3a22 22 0 0 1-10-3.9l-1.3-.8h-.1l-.1-.1a11 11 0 0 1-6.5-11.2c-.3-1.5-.3-3 0-4.6l-4.3 5a334.7 334.7 0 0 0-15.7 20.1l-1 1.6c-2.8 3.8-5.3 7.8-7.6 11.8l-7.3 12c-3.2 3.5-6.3 7.2-9.4 11l-1.2 1.5-4.4 5.7a116.5 116.5 0 0 0-13.4 24.3 97.3 97.3 0 0 0-5.2 20.7v1a60 60 0 0 0-.3 3.5l.7.5.7.3.6.1c1 .3 2.5 1 2.1 1.6l-1.9 3.7c.2.2.3.5.2.7l-4 7.4v.2l3.1 1.7c2 1.2 3.5 2.6 4.9 4.2 1.4.9 2.8 1.8 4 2.9a30.5 30.5 0 0 1 6.8 11.3c.3 1 .5 2.1.5 3.3-1.2 8.5-11 2.7-11.2 2a26 26 0 0 0-6.3-12.3l-.1-.1c-2-.9-4-1.8-6-2.4l-1 .1c.3.5.1 1-.6 1.1-3.1.6-6.3.8-9.5.5l-4.9-.7c-2 .8-4 1.8-5.7 3l-.6.4h-.1A38.8 38.8 0 0 0 60.7 341l-.3.7A55.7 55.7 0 0 0 66 380 316 316 0 0 0 76 395.2l3.4 4.5a172 172 0 0 1 6.9 6.8l3.1 1.7 1.3.4c2 1 4.1 1.5 6.4 1.6 3 .2 5.8-.2 8.6-1l.6-.3.4-.1c1.5-1 3-2.2 4.3-3.6.3-.3.8-.3 1.5-.2l1-1.1c.2-.3.6-.3.9 0 1-.2 3.5 1.3 2.8 2l-.3.6 1.3.7c2 .6 5.2 2.7 5 3.3h-.1c-.5 1-1.1 1.8-2 2.4l-.2.2-.6.4c.9.5 1.6 1.1 1.2 1.5l-.5 1 5 6.2c1.7 3.7 3.8 7 6.3 10.2 2 3.5 4.5 6.5 7.5 9.3l.7.7 6.7 4.5 1 .6c.5.3 1.4.7 1 1.5l-.2.2c1.5 1 3 1.9 4.6 2.7h.1c.6.5 1.4 1.2.6 1.7-.7.5-2.6-.8-3.5-1.4l-.6-.1.9.5.4.2c.4.3 2.1 1.4 1 1.9-.7 0-1.2-.1-1.7-.5l-1.8-.9c.2.3.2.6-.3.8a3 3 0 0 1-.5 0c1.2.8 2.4 1.5 3.7 2.1l.2.1c.5.4 1.3 1 .7 1.6-.7.6-2.6-.7-3-1l-1.5-.9a1 1 0 0 1-.4.1l1.3.8.6.4c.8.4 1.9 1 1.5 1.8-.4.7-1.6.1-2.3-.3l-.8-.5-.1-.1v.1c-.5.7-1.4.3-2 0l-.6-.4-2.6-1.6-1.3-.8a82.6 82.6 0 0 1-19.3-15.5c-4.1-4.7-7.3-10.1-10.3-15.6l.2-.6-1-2a29.6 29.6 0 0 1-14.7 0 37.3 37.3 0 0 1-15-6.1l-.7-.6c-1.9-1-3.6-2.2-5.2-3.6a87 87 0 0 1-14.8-16.1l-5.5-7.7a66 66 0 0 1-9.7-26.6 53.5 53.5 0 0 1 0-18.1l-1-.9c0 .3-.2.5-.3.4l-2.3-2.3a53.3 53.3 0 0 1-14-32.6c-.7-5.2 0-10.2.7-15.3 0-.3.2-.5.5-.7l.1-1.2a35.2 35.2 0 0 1-11-25.7c.2-3.2.8-6.4 2-9.3l.2-.3c-5.5-.9-9.9-4.8-13.2-9.6l-.8-.7c-6-5-10-12.2-12.8-19.7a46 46 0 0 1-3.9-13.9v-1a89 89 0 0 1-1.2-23 114.8 114.8 0 0 1-4-21.5v-.5l-.2-1v-.6a139 139 0 0 1 11-62.3l2.2-5.3.7-1.9c8-12.8 20-23.2 30-34.1 3.5-3.8-2.1-9.5-5.6-5.7C16 61.6 8.8 68.6 2.4 76a28.1 28.1 0 0 1-9.3-.8c-4.7-.7-9-2.6-12.8-5.4-5.2-2.4-9.7-7-10.1-13v-1.7c-.5-3 0-6 1.2-8.8a15.2 15.2 0 0 1 5.4-8l.1-.2.7-.6 1-.9a54.8 54.8 0 0 1-3.6-6.9 28.4 28.4 0 0 1-2.2-11.5l-.1-1.5c-.3-4 .2-8.1 1.7-11.8l.3-.9 1-2.5c1.5-3.1 3.6-5.8 6.2-8a25.6 25.6 0 0 1 8-5.3c2.2-1.2 5-2.2 7.2-2.3h.8c.2-5.7 1-12 3.2-17.2 1.3-3.7 3.3-7 6.3-9.5C9-42.6 11.2-44 13.9-45l.5-.2h.1a17 17 0 0 1 7.7-1.6A17.3 17.3 0 0 1 32.8-44l1.5-2.6c2-3.1 4.2-5.8 7-8.3l1-.8 4-3.3c3.2-2.1 6.6-3.8 10.2-4.8 4.1-1.5 8.5-2.2 12.8-2h1.5a38.6 38.6 0 0 1 23.8 10c.8-1 1.7-2 2.8-3l1-.8.7-.7c1.2-1 2.5-2 3.9-2.8 1.5-.9 3.2-1.5 5-1.9 1.7-.6 3.5-1 5.4-1ZM92.8 346.3c.2 0 9.5 3.4 14 5.7h.3c5.3 2.7 8 4.6 12.7 8 .3.3.6.6.6 1 0 4.9-1.2 11-5.3 8.2l-1.8-1-1-.6c-9-5.6-18.5-9.9-28.6-13-.7-.2 4.4-8 5.8-7.5-.8-.3 3.2-.8 3.3-.8Zm95-218.1a4591.5 4591.5 0 0 1-29.5 3 81.9 81.9 0 0 1-23.3-1.4c-1.4 1-2.8 2-4.2 2.8l-15.9 12.1c-10.6 8.4-21 17.3-30.4 27a176.8 176.8 0 0 0-38.2 59.4c-.7.4-1.3 1.2-1.5 2.4-1.5 9-5.8 17.4-7.4 26.4-1.5 9 .5 16.5 6.1 23.6 1.2 1.5 3.7 1.4 5.2.4.3.7 1.8.6 2.4-2.4 2.5-2.7 4.6-5.5 6-9 1-2.6-.7-4.4-2.9-4.7a136.8 136.8 0 0 1 16.2-36.6 151.8 151.8 0 0 1 16.5-20.5l1.2-1.4c.2-.2.5-.2 1 0l1-1.3c.4-.4.8-.2 1 0 .7 0 1.8.6 2.2.8.6.4.8.9.3 1.5l-.3.3c.7.2 1.4.6 1.9 1 1.8.4 4.4 2.1 4 2.7l-2.8 3c.8.5 1.3 1 1.1 1.3A122.8 122.8 0 0 0 64.3 290v.7c-.3 3.5-.3 13-.7 15.3A49.6 49.6 0 0 0 72 309l.8-.3a28.1 28.1 0 0 1 11.6-2h.6l2.1.1v-1.2c-.3 0-.4-.3-.4-.5a66.2 66.2 0 0 1 2.3-26.2 107 107 0 0 1 5.1-15.6c6-14.4 14.6-27.4 23.2-40.4 6.3-9.4 12.2-19 18.8-28.4 5.5-7.9 11.3-15.7 17.5-23a235 235 0 0 1 23.3-24.2c6.7-6 14-11 21.6-15.8.3-.2.8 0 1.2.4l1.2-.8.6-.3c.2-.1.4 0 .6.2l1.5-.8 1.2-.9c-5.7-.2-11.3-.7-16.9-1.2Zm70.5-66.7c-4.5-.9-9-1-13.7-.3-1.9.2-3.8.6-5.7 1 4.3 3.7 7.8 8.5 10 14 2.4 6-7.2 8.6-9.6 2.7-2.3-5.7-6.7-10-12-12.6l-3.3 2a36.4 36.4 0 0 0-10.6 14.3 41.4 41.4 0 0 0-1.5 8c-1 10.3 2 20.4 7 29.3h.3c4.5-2.5 9.3-4.6 14.2-6.3a132.6 132.6 0 0 1 40.1-18l1.2-.3 6.9-1.6 1.4-.2-.2-1.5a43.6 43.6 0 0 0-15.3-27v-.1c-1.7-1-3.5-1.8-5.3-2.4l-.7-.3-3.2-.7Zm-121.9-8.9a161.3 161.3 0 0 0-58.9 5.5l2.3 4.6c3.8 7.7 7.7 15.3 12.3 22.5a108.3 108.3 0 0 0 15.9 19.6c2 1.8 4.3 3.3 6.8 4.6 2 1.4 4 2.7 6.1 3.8l.8.4 7.5 2.9 1.2.3.6.2 1.2.2.8-.5.5-.2c.2-.1.4.1.4.3v.3l1-.6a31.3 31.3 0 0 0 9 2.2h.1v.1h1.1c7.5.8 15.1-.2 22.6-1.5 10.5-1 21-2.3 31.6-3.4.2 0 .3.1.3.3l.7-.1c1-.1 2 1.5 1.3 2l1.5 1.2h.3a43.5 43.5 0 0 1-3.4-8.9l-1-5.2a47.3 47.3 0 0 1-.6-8.5v-2.2l-6-2.1-17.6-2.2a249.4 249.4 0 0 0-22.4 2.1c-.3 0-1-.4-1.4-1l-1.7.2c-.9.1-1.8-1.6-.6-2l1.2-.5.7-.2h-.8c-1 0-2 .2-2.8.3-1.2.1-1-1.4-.1-1.8h.4c-.7-.5-1.3-1.7-.5-2l.2-.1 1.1-.5v-.3l-1.6.2c-.1 0 .6-1 1-1.3l.8-.2c0-.4.7-1.1 1-1.2a102.8 102.8 0 0 1 14.2-3.7c0-.2.2-.3.3-.3a68.4 68.4 0 0 1 32.6 3.7l1 .4 2.8 1.1a40.3 40.3 0 0 1 2.1-6l-1-.5c-.1.4-.6.7-.8.5-7-4.7-14.3-8.6-22-11.7a112.8 112.8 0 0 0-23.8-7.6c-6-1.6-12-2.7-18.3-3.2Zm229 16-2.6 4.2c-4.5 7-10 13.4-16.1 19.1a50 50 0 0 1 12.8 1.6c.2-.2.4-.3.6-.2l.7.5a52.6 52.6 0 0 1 15.5 7v-4.6a82 82 0 0 0-6.3-20.5v-.5c-1.3-2.3-2.9-4.6-4.6-6.7Zm1.3-56.8-6.2 1.5c-3.9.6-7.6 1.6-11.2 3a188 188 0 0 0-14.7 6c-9.3 4.3-18.1 9.7-26.1 16.1l-1.5 1.2a79.2 79.2 0 0 0-5.2 4.9l-5.2 5.6c-2.1 2.3-4.5 4.3-6.5 6.7l-1 1.5 1.1.4c1 .4.8 2.1-.1 1.9l-1-.3c.2.1.3.3.3.4 0 .5-.3 1.2-1 1l-.7-.3-.2 1h.2c.7.2 2 1.3 2 2 .2.5-.2 1-.8 1l-1.3-.6c.3.3.5.6.5.8 0 .5-.4 1.1-1 1a7 7 0 0 1-2.4-1.3c-.2.3-.5.5-.7.4l-.4-.1.3.3.2.2c2.7 3 5.1 6.2 7 9.8l.4-.3 2.8-2.2.3-.3.2-.2-2 .7c.1-.3.6-1 .8-1.1 3-2.6 6-4.8 9.5-6.6a141.6 141.6 0 0 1 24.5-10.2l2.7-.9c.2 0 .3 0 .3.2l.4-.1c.9-.3 2.3 1.2 1.7 1.9l1 .9.2.2h.3c.7-.3 1.9.8 2.6 1.6l.6.6c.4.5 1.3 1.4.2 1.8l-1.2.4c0 .3-.1.5-.5.7l-1.3.4.7.7.4.4c.5.5 1.5 1.5.6 2h-.1l-1.2.4c.1.4 0 .7-.5 1-7.1 2.4-14.2 5.2-21 8.5-5.1 2.8-10.6 5-16.3 6.3-.4.2-1.5-.5-1.9-1.2l-.8.2-.5.1a44 44 0 0 1 2.3 9.8l3.4-.2c7.7-.4 15.6-.2 23.3.7a93 93 0 0 0 11.7-8.2 100.3 100.3 0 0 0 24-31 78 78 0 0 0 8.6-34.8V17.4l-.6-5.7Zm-73.2 67-.8.2.4 1 1-.8c-.2 0-.4-.2-.6-.4Zm71.8-81.2c1.8-.6 3.2-.8 4.1-.3-1.4 0-2.7.2-4 .3Z" fill="#000"/></g></g><g transform="translate(315 248)"><g fill-rule="evenodd" clip-rule="evenodd"><path d="M79.2 197.8c11-6.6 51.7-1.8 83.8 0 25.5 1.4 43.7-1.4 49.5 2.5 13.1 8.9 6.8 51.7-16 57.6-22.6 5.8-106.6 14-121 0-14.6-14-15.9-48.3 3.7-60.1Z" fill="#fff"/><path d="M93.3 186.5c17.2-2.1 33.8 3.1 50.6 5.8a236.6 236.6 0 0 0 32 3c.2-1.6 1-3 3-4 4-1.7 7.1-2.5 11.4-2.4 4 .2 8 .6 11.9 1.3a37 37 0 0 1 19.4 9.4c12 11.8 10.1 30.9.9 43.8-19.2 26.7-54.1 28-84 27.6h-2.8c-27.3-.5-66.3 3.6-78.7-27.4a43.6 43.6 0 0 1 1.7-35.6c6.6-13 20.6-19.8 34.6-21.5Zm85.2 44.4h-.2c-12.6.5-25.2.8-37.8 1a500.6 500.6 0 0 0 2.3 17.3c.2 1.1.8 2.8.6 3.8v.4a3.8 3.8 0 0 1 2 2.2c9.8 0 20.3-.1 30.2-1.9v-.2c.2-1.3.8-2.1 1.5-2.7.7-4 .6-8.4.9-12.4l.5-7.5Zm-47.6 1.2c-9 .2-18 .3-27.1.2h-4.2c1 4.6 1.9 9.2 2.6 14 .9 4.8-3.4 8-7.2 7.8l1.3.2c11.6 1.6 23.7 1.2 35.5 1.2-.6-3.7-.4-8-.5-11v-.5l-.4-11.9Zm-61.5-.8c.3 2.4 1 4.8 1.8 7 4 9.3 12.8 13.6 22.2 15.5-1.7-.6-3-2-3.3-4.2A128 128 0 0 1 89 232c-6.6 0-13.1-.2-19.6-.8Zm143.2-2c-4.7 1-10 .6-14.6.8l-12.9.5.6 8.8c.3 3.7.3 7.7 1 11.5 8.7-3 16.4-7.7 22.2-15.2 1.4-1.9 2.7-4 3.7-6.4ZM91.4 201.8c-7.8 1.8-15 5.7-19 12.8a27 27 0 0 0-3.2 14c6.5-.7 13.2-1 19.8-1.2l.1-3.6.1-3c.2-5.9.3-13.2 2.2-19Zm40 .7-3.3-.4c-9.5-1-19-2.2-28.4-1.6l-4.2.5c1.7 6 1.5 13.1 2.2 19.1l1 6.9h1.7c10.1-.6 20.3-1 30.5-1.4V218c.2-4.8-.1-10.3.6-15.4Zm47.6-.8a190.6 190.6 0 0 1-41.5 1.4l.5 6.2 1.3 12.4.5 3.6 37.5-1.9h1.7l.5-7c.4-4.6.7-9.2 1.3-13.8l-.4-.1-1.4-.8Zm4.4 1.7 1.2 19.6 8.2-.4 4.2-.2c5.3-.3 12.2-2 17.5-.4.4-4.8-1-9.5-5.3-12.7-7.7-5.7-17.3-3.7-25.8-5.9Zm-28.2-58.3c12.3-7 43-14.2 45 7.9 1 10.1-6.6 18.6-15.5 22.3l-.3.1c-8.3 3.4-23 7.3-30.1 0-6-6.2 2-17.2 9.3-12.2 3.9 2.6 11.9.7 16.1-.6h.3c4.6-1.4 10.7-5.7 8.8-11.3-1.7-5-8.8-6-13.3-6-6.7-.3-13.2 1.2-19.8 1.7-1 0-1.3-1.4-.5-2Zm50.8-35.5c16.7-.8 27 17.4 23.2 32.3-.6 2.6-3.5 5-6.3 4.8h-.7l-1-.2c-2.7-.8-5-3.5-4.8-6.4v-.8c.4-7-.4-15.1-8.7-16.8-7.1-1.5-11 5.3-11.2 11.6 0 1.1-1.2 2-2.2 1.3-5.2-3-6-9.3-4-14.6a17.2 17.2 0 0 1 15.7-11.2Zm-123.6 3.9c12.2-4 25.2 2.4 31.1 13.1 2 .6 4.1 2.2 3.8 4.6-.4 3.5-1 5.7-3.4 8.4-3.8 4.1-11 2-12.5-3.1v-.2c-1.9-6.6-9.1-11-15.7-8.7-7.8 2.7-7.5 10.9-13 15.6-.6.6-1.4.7-2.1.3-5.8-2.8-4.8-11.1-2.7-16 2.7-6.2 8-11.8 14.5-14ZM66 76.7c9.8-10 35.5-19.7 42.2-1.2 1.3 3.5-1.5 8.2-5.1 9-6 1.2-11.4-1.4-17.3-1a26 26 0 0 0-13.8 5c-10.7 8.3-13 22.3-20.5 32.9-.4.5-1 .3-1.1-.3a58.4 58.4 0 0 1 15.6-44.4ZM194 66.8a33 33 0 0 1 20.5 0 39.7 39.7 0 0 1 23 18.6c.8 1.5 1.7 4.4 2.6 6.2 5.1 3 7.3 9.7 2.7 14.5l-.2.3-.6.6a9.9 9.9 0 0 1-9.6 2.5c-7.5-2.2-8.4-8.1-11-14.4a25.8 25.8 0 0 0-8.3-10.6 39.8 39.8 0 0 0-32.6-5.4c-.5.1-1.1-.6-.8-1 2-2.6 3-4.6 5.7-6.6 2.6-2 5.5-3.6 8.6-4.7Z" fill="#000"/></g></g><g transform="translate(279 400)"></g><g transform="translate(179 343)"></g><g transform="translate(203 303)"></g></g></svg></div>
+        <div class="face" data-face="wow"><svg class="art" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 704 704" fill="none" shape-rendering="auto"><mask id="viewboxMask-5"><rect width="704" height="704" rx="0" ry="0" x="0" y="0" fill="#fff" /></mask><g mask="url(#viewboxMask-5)"><g fill-rule="evenodd" clip-rule="evenodd"><path d="M705.3 1074a2351.1 2351.1 0 0 1-15.6-101c-1-7.7-2.5-16.4 2.7-22 7.3-8 14-14.8 14.8-26.2.8-10.7-2.8-22.4-5-32.8a809.4 809.4 0 0 0-17.3-64.7c-6.6-21.7-13.9-43.2-21.3-64.6-6.9-20-13.5-40.3-22.5-59.5-17-36.5-46-63.5-81.6-81.6-9-4.5-27-20.5-36.3-24-8.5-3.4-8.5 6.3-16.9 2.6-6.7-2.9-13-6.7-16.7-13.2-4-7-14.3-16.9-15.9-25-3.3-17.4.3-32.2-12-45.3a90 90 0 0 0-41.1-23.8c-33.7-9.3-78.5-2.8-98.8 28.5-9.7 14.9-13 33-26.2 45.1-11.4 10.7-8.8 18-23.6 23.4-.9.3-23.6-4.5-24.4-4.2-16.2-3.5-31.7 6.2-46.5 11.8a325.4 325.4 0 0 0-63 32.3 399.2 399.2 0 0 0-102.3 98.5 482.5 482.5 0 0 0-76.4 161c-1.7 6.4-3.5 13-1.5 19.4 1.7 5.3 5.4 9.2 9.8 12.4 6 4.3 18 7 17.7 15.7-.1 6.6-2.4 13.5-3.5 20-1.3 7.7-2.3 15.5-3.4 23.2-4.8 35.4-8.6 71-10.3 106.6a920 920 0 0 0-.5 106c.1 2.3.8 4.5 2 6.2-1 .4-1.2 2.4.1 2.7l2.7.5a12 12 0 0 0 7 2.4l5.5.2c19.3 4 38.6 7.9 58.1 10.8 23.8 3.5 47.6 6.3 71.5 8.7 49.2 4.8 98 3.2 147.1.6a1877 1877 0 0 1 147.4-2c49.2 1.4 98.4 3.5 147.6 4.4 55 1 110-.5 164.8-5 7.5-.5 12.2-6.5 10.7-14-8.9-44.7-19-89.1-27-134Z" fill="#d08b5b"/><path d="m201 597.5 1.2-.4c14.5-5.7 29.6-14.8 45.4-11.4.5-.2 10.8 1.9 17.9 3.2l-6.7 7L247 598c40.7 67.1 88.8 100.7 144.3 100.7 55.5 0 97.7-33.6 126.4-100.7l4-1c.4 0 1 .2 1.5.4 9.3 3.6 27.4 19.6 36.3 24.1 35.6 18 64.5 45 81.6 81.6 8.7 18.6 15.2 38 21.8 57.5l.7 2c7.4 21.4 14.7 43 21.3 64.6 6.3 20.4 12 41 16.6 61.8l.7 2.9c2.2 10.4 5.8 22 5 32.8a29 29 0 0 1-3 10.7l-80.4 29 38.4 261.3c-35.1 1.5-70.3 2-105.5 1.3-49.2-.9-98.4-3-147.6-4.3-47.7-1.2-95.3-.7-143 1.7l-12 .6a946.3 946.3 0 0 1-139.5-1l-3.1-.3v-38.3l16.3-212.9-83-15.6-81.3-39.5a21.7 21.7 0 0 1-5.6-8.8c-1.9-6-.5-12 1-18l.5-1.3a492.8 492.8 0 0 1 76.4-161A399.3 399.3 0 0 1 138 629.7c19.8-13 40.9-23.9 63-32.3Z" fill="#ffd93d"/><path d="M232.2 584.6c5.1-.3 10.3.6 15.4 1 .4.1.6.8 0 .9-9 1.9-18 4.5-26.9 7.1l-3.8 1.2c-10 3-19.8 6-29.6 10-19.4 7.9-37.8 18.5-54.8 30.8C67.2 682.8 20 754.3-9.9 828.3a526 526 0 0 0-24.3 77c-.4 1.6-2 5.4-1 7 .7 1.3 3.6 2.1 5 2.9l4.5 2.3 25.2 12.9 2.3 1.1c38 18.6 78.4 34.4 121 35.5l.4-3.7a342 342 0 0 1 9.9-60c.3-1 1.6-.6 1.7.3 3 23.1 2 46.4 1 69.7-1.8 41-4.3 82.2-6.5 123.3-1.2 20.6-2.6 41-3.9 61.7-1.3 20.5-1.7 41.6-4.7 62-.6 4.6-6 7-10 6.6-4.4-.5-7.9-4.5-8-9 0-11.9 1.5-24 2.4-35.8l2.5-33.8c3.1-41.1 6.8-82.2 10.2-123.3a4771 4771 0 0 1 3.8-43.7C76.4 979.8 34.2 963-6.1 943.5c-.6 13.2-2 26.5-3.4 39.6-3.8 36.8-7.1 73.6-9.6 110.5a2254.2 2254.2 0 0 0-4.2 92.7l-.2 7c0 4.4-.5 8.5-4.3 11.7-3.7 3.3-8.9 3.5-12.6 0-5-4.6-4.2-10.9-4-17.1a1675.6 1675.6 0 0 1 1.8-47.2 1321 1321 0 0 1 10.5-109.5l2-14c3.5-26 7.5-52.7 15.5-77.9-3.1-1.5-6.2-3-9.3-4.7-5.5-2.7-11.2-5.4-16.6-8.4-4.2-2.5-7.9-5.8-9-10.8-1.4-5.5.6-11.5 2-16.9v-.4a502 502 0 0 1 26.6-80 523.2 523.2 0 0 1 67.8-117 353.8 353.8 0 0 1 88.7-83.3 239 239 0 0 1 53.8-25.7 142.6 142.6 0 0 1 42.8-7.5Zm90.1-66c6-6.5 18.1.2 15.2 8.8a108.2 108.2 0 0 1-34.7 52A79.4 79.4 0 0 1 247 598l1.7 2.4a321.1 321.1 0 0 0 46.1 52.6c36 31.2 84.8 48 132 36 37.1-9.4 69.8-38.8 79.4-76.2-1.3.6-3 .9-4.8.5-7.7-1.7-15.3-9.8-20.3-15.6-5.3-6.3-9.5-13-12.6-20.7-5.6-14-7.4-32.1.3-45.7 1-1.7 3-.7 3.3 1l.3 2.5c1.5 12.7 3.3 25 9.3 36.6a76 76 0 0 0 18.2 23.1c2.6 2 5.8 3.6 8.1 6l.5.4c.6-5 4.1-7.3 7.6-7.2 3.3.2 7.3 1.6 8.8 2.3l.1.1a341 341 0 0 1 65.1 42 259 259 0 0 1 88.4 129c7.5 25.3 11.8 51.4 16.3 77.4l2.8 16c4.2 23.9 8.9 48.4 18.4 70.7 2.5 5.7.6 11.1-5.5 13.4A1493 1493 0 0 1 688 953c3.7 16 6 32.5 8.7 48.5 6 34.1 13.2 68 19.4 102 3.2 17.5 6.1 35 9.3 52.3l4.7 25.2 2.4 13.6.1.7c.5 2.4 1 4.9.4 7.3-.8 2.7-2.9 4.6-4.8 6.6-1.6 1.6-3.8 1.6-5.7.7l-.7-.3c-3.4-1.6-6-3.2-7.3-7-.7-2.5-1-5.2-1.5-7.7a3535.6 3535.6 0 0 1-7.8-43.6l-1.6-9.1c-5.2-31.4-10.2-62.9-12.8-94.5-1-14-2.3-28.1-3.5-42.2l-.9-10.5c-1.1-13.3-2.5-27-2.7-40.5l-4.5 1.6L657 964c-5.5 2-12.5 6-18.4 5.2-2.9-.3-5-1.2-6.8-2.9 2 28.8 4.8 57.4 8.5 86a1965.7 1965.7 0 0 0 22 135c.6 3.2 1.4 6.4 1.9 9.6.5 3.7-.5 5.9-2.5 9-1.7 2.4-5 3.7-7.8 2-3.6-2.3-5.5-4.3-6.5-8.4-1-3.7-1.6-7.6-2.3-11.4a1654.2 1654.2 0 0 1-11.4-65.2c-7.8-52-12.7-104.4-15.2-156.8a1388 1388 0 0 1-1.4-77.8c0-13.3.5-26.6 1.4-39.9 1-13.4 3-26.5 4.8-39.8 0-.5.7-.5.7 0 .8 14.9 2.1 29.8 2.8 44.7.6 14.3.9 28.5 1.4 42.8.6 18.7 1.5 37.5 2.7 56.2a9.6 9.6 0 0 1 8.5-3.1c4.7-1 9.7-3.4 14.1-5l16.8-5.5 26.4-8.7a679 679 0 0 1-18-80.8l-2-12.3c-4-24.2-8.5-48.5-15.8-72a229.8 229.8 0 0 0-34.8-68.2 370.2 370.2 0 0 0-52.7-55.3C557 627 539.7 614 523 600c.1.9.2 2 0 3-3.5 25.9-17 50-35.8 67.9-37.7 36-93.6 43.4-142 26.5-46.7-16.3-88-55-102.6-102.8-.3-.8.8-1 1.3-.5l2.4 3.3c0-.4.2-.9.7-1a129 129 0 0 0 46.6-29.2 100.2 100.2 0 0 0 21.3-33.3l.4-1c1.7-5 3.2-10.2 7-14.2Z" fill="#000"/></g><g transform="matrix(.99789 0 0 1 156 62)"><g fill-rule="evenodd" clip-rule="evenodd"><path d="M120.4 26.5c63-3.4 118.9-21.1 163.2 18.5 0 0 71.8-53.6 83.8-33.2 8 13.7-3.1 32-.2 49 19.5 33 18.4 89.2 19.5 102.4 2.8 33.1 20.2 157.9 20.2 187.5 0 15.1-12.4 54.7-20.2 76.8-17.3 49-50.3 74-104.4 74-54 0-142.4-45.2-170.7-85.3-2.5-3.5-18.5 6.7-35.3-11C58 385.7 48 349 48 327c0-27.8-18-47.1-15.9-82.8 4.7-79.5 21-214 88.3-217.8Z" fill="#d08b5b"/><path d="M367.4 11.6c8 13.7-3 32 0 49 7.4 12.7 11.9 29 14.6 44.8l-14.8 7.8-5.4.8c-88.2 13-144.6 24.7-169 35.1-24.6 10.5-54.5 47.5-89.7 110.8l-1 2-7 47.2-32 9.8-15 7.1c-.4-27.3-18-46.6-16-81.9 4.7-79.5 21-214 88.4-217.8 63-3.4 118.8-21.1 163.2 18.5C331.5 9.1 359.4-2 367.4 11.6Z" fill="#ffd93d"/><path d="M113.4-66h2.5l2.7.4a22 22 0 0 1 12 6.8l.2.3a31 31 0 0 1 4.1 3.7l.7-.6 2-1.6c3-2.6 6.6-4.5 10.4-5.6l.5-.1h.3c2.7-1 5.6-1.4 8.4-1.4 3.5-.1 6.9.4 10 1.7 3.9 1.6 7.2 4 10 7 1.8 1.6 3.4 3.2 5 5a37.5 37.5 0 0 1 8.6 14.9 170.7 170.7 0 0 1 27-1.3 132.3 132.3 0 0 1 45.9 9.9c3.6 1.4 7.1 3.3 10.4 5.5l2.8 1.7 4.1 2.5c3.2 2 6.3 4.4 9.2 7A99.8 99.8 0 0 1 301.1 0c6.3 3.4 12 7.8 17.2 13a128.4 128.4 0 0 1 28.2-11.9 98.6 98.6 0 0 1 18.8-3.5l4.1-.3 1.8-.2h1.5c.4-.1 1 .9 1 1.3l.1.3.9 1h.8c.7 0 1.6 1.3 2.1 1.9l.4.4a4 4 0 0 1 1 2c.6 4.1 1 8.3 1.5 12.5.1 3.1 0 6.2-.5 9.3l-1.2 9-2 6.3-.7 2.4c-1.6 5.3-3.5 10.4-5.7 15.4 1.6 1.8 3.1 3.6 4.5 5.6l1 1 .4-.3c.5-.2.8 0 1.1.4 3.2 3 5.4 6.6 6.9 10.6l.8 2 .5 1.1a73.7 73.7 0 0 1 4.1 16.9 312 312 0 0 1 5.5 22 5 5 0 0 1-.2 3l.9 1 1.6 1.5c2.7 2.7 5.5 5.6 7.5 8.8 2 3.3 3.6 6.9 5.3 10.4l.3.8.8 1.5a37 37 0 0 1 4 14.6 30.3 30.3 0 0 1-1.9 15.6c-1 4.6-3.5 8.8-7.3 11.5-.9.8-1.7 1.5-2.7 2a8.4 8.4 0 0 1-6.8.9h-.3l-.8-.3c.4.3.6.7 0 1a5 5 0 0 1-1.6.5c.2.3.2.6-.2.8-1 .5-1.8.7-2.6.5l.2 1.4c1.3 10.5 2.5 12.6 3.5 24 .7 11.5 1.8 23 3.3 34.5l.5 4.2a444.4 444.4 0 0 0 10 56.8c1.5 4.4 2.5 8.8 3 13.4a133 133 0 0 1 1.8 14.1c1.1 3 1.7 6.1 1.7 9.3.1 4.2 0 8.4-.5 12.6-.2 4.4-.8 8.7-1.8 13a73.5 73.5 0 0 1-4.6 17 164.8 164.8 0 0 1-20.2 44c-5 7.8-10.3 15.4-16.4 22.4A153.4 153.4 0 0 1 304 504a99.8 99.8 0 0 1-47 2.8 96 96 0 0 1-19.5-4.7c-5.2-1.8-10-4-15-6.3a80 80 0 0 1-21.4-15.7c-.5-.4-.2-1 .4-1.2h.2l-.7-.7-.2-.1-.3-.3c-.4-.4 0-1.1.3-1.3h.5v-.2l-.1-.2h-.2c-.5-.5-.2-1.2.4-1.4h1.3l.2.1-.4-.3c-.6-.5-.4-1 .3-1.3.6 0 1.1.2 1.7.3h.4l.6.3-1-1c-.4-.2 0-1 .3-1.2.4-.3 1.2 0 1.6.3.9.1 2 .5 2.5.9l3.7 3.3c.8.3 1.5.6 2.1 1 1.4 1.5 3 2.8 4.5 4l1.1.8.6.4 6.6 3.9 24 8.1 1.2.3 7.7 1c5.2.5 10.3.5 15.4 0a106 106 0 0 0 30.1-6 141.3 141.3 0 0 0 29.3-15.4 181.4 181.4 0 0 0 19.8-17.5l.9-.8 5.3-6.3 1.6-1.9c6.6-8.1 12.5-17 17.7-26 5.2-9 9.5-18.5 13-28.3 1-3.5 2-7 2.8-10.6a58.3 58.3 0 0 0 3.3-15.8v-1.4l.1-.7a85.7 85.7 0 0 0 .6-8.4v-8.7l-.1-.8-.3-2-1.3-11.8-.6-4.5-.4-2.6-.2-1.5a99 99 0 0 0-1.7-8l-.3-1.1-1.8-8.8-2-8.6a681.6 681.6 0 0 1-9.8-73.1c-.7-8.6-1-17.3-1.2-26 0-.4.2-.7.6-.9v-1.6c-.1-1.5-.1.3-.2-1.4v-5.3c-5.3.4-8.9 0-14-.2h-1c-4.7-.3-9.4-.8-14-1.6 0 .3-.2.4-.5.5h-1.4l.2.7c0 .3-.1.5-.5.6h-1.3a30.2 30.2 0 0 1-10-1l-3-.8-7.5-2.4c-2.6-.6-5.3-.8-8-.1-3 .7-5.4 2-8.5 1.2l-1.8-.7h-.8c-3.2-.5-6-2.5-9-3.6a5 5 0 0 0-3.2.2l-.3.2-1 .7-1.2 1.5-.6.7a15 15 0 0 1-3.6 3.4 9.1 9.1 0 0 1-6.2 2.6c-1.3 0-2.7-.3-4-.7-5 1.6-10.3 1.9-15.3.4a22.1 22.1 0 0 1-8.3-3c-3.5 1.4-6.9 3.4-10.2 5l-.8.5A22.7 22.7 0 0 1 234 197a139.8 139.8 0 0 1-14.8-1.8l-.7-.1-2.4-.4-2-.4-1 .4c-8 3-16.7 5.4-24.8 3.3a22 22 0 0 1-10-3.9l-1.3-.8h-.1l-.1-.1a11 11 0 0 1-6.5-11.2c-.3-1.5-.3-3 0-4.6l-4.3 5a334.7 334.7 0 0 0-15.7 20.1l-1 1.6c-2.8 3.8-5.3 7.8-7.6 11.8l-7.3 12c-3.2 3.5-6.3 7.2-9.4 11l-1.2 1.5-4.4 5.7a116.5 116.5 0 0 0-13.4 24.3 97.3 97.3 0 0 0-5.2 20.7v1a60 60 0 0 0-.3 3.5l.7.5.7.3.6.1c1 .3 2.5 1 2.1 1.6l-1.9 3.7c.2.2.3.5.2.7l-4 7.4v.2l3.1 1.7c2 1.2 3.5 2.6 4.9 4.2 1.4.9 2.8 1.8 4 2.9a30.5 30.5 0 0 1 6.8 11.3c.3 1 .5 2.1.5 3.3-1.2 8.5-11 2.7-11.2 2a26 26 0 0 0-6.3-12.3l-.1-.1c-2-.9-4-1.8-6-2.4l-1 .1c.3.5.1 1-.6 1.1-3.1.6-6.3.8-9.5.5l-4.9-.7c-2 .8-4 1.8-5.7 3l-.6.4h-.1A38.8 38.8 0 0 0 60.7 341l-.3.7A55.7 55.7 0 0 0 66 380 316 316 0 0 0 76 395.2l3.4 4.5a172 172 0 0 1 6.9 6.8l3.1 1.7 1.3.4c2 1 4.1 1.5 6.4 1.6 3 .2 5.8-.2 8.6-1l.6-.3.4-.1c1.5-1 3-2.2 4.3-3.6.3-.3.8-.3 1.5-.2l1-1.1c.2-.3.6-.3.9 0 1-.2 3.5 1.3 2.8 2l-.3.6 1.3.7c2 .6 5.2 2.7 5 3.3h-.1c-.5 1-1.1 1.8-2 2.4l-.2.2-.6.4c.9.5 1.6 1.1 1.2 1.5l-.5 1 5 6.2c1.7 3.7 3.8 7 6.3 10.2 2 3.5 4.5 6.5 7.5 9.3l.7.7 6.7 4.5 1 .6c.5.3 1.4.7 1 1.5l-.2.2c1.5 1 3 1.9 4.6 2.7h.1c.6.5 1.4 1.2.6 1.7-.7.5-2.6-.8-3.5-1.4l-.6-.1.9.5.4.2c.4.3 2.1 1.4 1 1.9-.7 0-1.2-.1-1.7-.5l-1.8-.9c.2.3.2.6-.3.8a3 3 0 0 1-.5 0c1.2.8 2.4 1.5 3.7 2.1l.2.1c.5.4 1.3 1 .7 1.6-.7.6-2.6-.7-3-1l-1.5-.9a1 1 0 0 1-.4.1l1.3.8.6.4c.8.4 1.9 1 1.5 1.8-.4.7-1.6.1-2.3-.3l-.8-.5-.1-.1v.1c-.5.7-1.4.3-2 0l-.6-.4-2.6-1.6-1.3-.8a82.6 82.6 0 0 1-19.3-15.5c-4.1-4.7-7.3-10.1-10.3-15.6l.2-.6-1-2a29.6 29.6 0 0 1-14.7 0 37.3 37.3 0 0 1-15-6.1l-.7-.6c-1.9-1-3.6-2.2-5.2-3.6a87 87 0 0 1-14.8-16.1l-5.5-7.7a66 66 0 0 1-9.7-26.6 53.5 53.5 0 0 1 0-18.1l-1-.9c0 .3-.2.5-.3.4l-2.3-2.3a53.3 53.3 0 0 1-14-32.6c-.7-5.2 0-10.2.7-15.3 0-.3.2-.5.5-.7l.1-1.2a35.2 35.2 0 0 1-11-25.7c.2-3.2.8-6.4 2-9.3l.2-.3c-5.5-.9-9.9-4.8-13.2-9.6l-.8-.7c-6-5-10-12.2-12.8-19.7a46 46 0 0 1-3.9-13.9v-1a89 89 0 0 1-1.2-23 114.8 114.8 0 0 1-4-21.5v-.5l-.2-1v-.6a139 139 0 0 1 11-62.3l2.2-5.3.7-1.9c8-12.8 20-23.2 30-34.1 3.5-3.8-2.1-9.5-5.6-5.7C16 61.6 8.8 68.6 2.4 76a28.1 28.1 0 0 1-9.3-.8c-4.7-.7-9-2.6-12.8-5.4-5.2-2.4-9.7-7-10.1-13v-1.7c-.5-3 0-6 1.2-8.8a15.2 15.2 0 0 1 5.4-8l.1-.2.7-.6 1-.9a54.8 54.8 0 0 1-3.6-6.9 28.4 28.4 0 0 1-2.2-11.5l-.1-1.5c-.3-4 .2-8.1 1.7-11.8l.3-.9 1-2.5c1.5-3.1 3.6-5.8 6.2-8a25.6 25.6 0 0 1 8-5.3c2.2-1.2 5-2.2 7.2-2.3h.8c.2-5.7 1-12 3.2-17.2 1.3-3.7 3.3-7 6.3-9.5C9-42.6 11.2-44 13.9-45l.5-.2h.1a17 17 0 0 1 7.7-1.6A17.3 17.3 0 0 1 32.8-44l1.5-2.6c2-3.1 4.2-5.8 7-8.3l1-.8 4-3.3c3.2-2.1 6.6-3.8 10.2-4.8 4.1-1.5 8.5-2.2 12.8-2h1.5a38.6 38.6 0 0 1 23.8 10c.8-1 1.7-2 2.8-3l1-.8.7-.7c1.2-1 2.5-2 3.9-2.8 1.5-.9 3.2-1.5 5-1.9 1.7-.6 3.5-1 5.4-1ZM92.8 346.3c.2 0 9.5 3.4 14 5.7h.3c5.3 2.7 8 4.6 12.7 8 .3.3.6.6.6 1 0 4.9-1.2 11-5.3 8.2l-1.8-1-1-.6c-9-5.6-18.5-9.9-28.6-13-.7-.2 4.4-8 5.8-7.5-.8-.3 3.2-.8 3.3-.8Zm95-218.1a4591.5 4591.5 0 0 1-29.5 3 81.9 81.9 0 0 1-23.3-1.4c-1.4 1-2.8 2-4.2 2.8l-15.9 12.1c-10.6 8.4-21 17.3-30.4 27a176.8 176.8 0 0 0-38.2 59.4c-.7.4-1.3 1.2-1.5 2.4-1.5 9-5.8 17.4-7.4 26.4-1.5 9 .5 16.5 6.1 23.6 1.2 1.5 3.7 1.4 5.2.4.3.7 1.8.6 2.4-2.4 2.5-2.7 4.6-5.5 6-9 1-2.6-.7-4.4-2.9-4.7a136.8 136.8 0 0 1 16.2-36.6 151.8 151.8 0 0 1 16.5-20.5l1.2-1.4c.2-.2.5-.2 1 0l1-1.3c.4-.4.8-.2 1 0 .7 0 1.8.6 2.2.8.6.4.8.9.3 1.5l-.3.3c.7.2 1.4.6 1.9 1 1.8.4 4.4 2.1 4 2.7l-2.8 3c.8.5 1.3 1 1.1 1.3A122.8 122.8 0 0 0 64.3 290v.7c-.3 3.5-.3 13-.7 15.3A49.6 49.6 0 0 0 72 309l.8-.3a28.1 28.1 0 0 1 11.6-2h.6l2.1.1v-1.2c-.3 0-.4-.3-.4-.5a66.2 66.2 0 0 1 2.3-26.2 107 107 0 0 1 5.1-15.6c6-14.4 14.6-27.4 23.2-40.4 6.3-9.4 12.2-19 18.8-28.4 5.5-7.9 11.3-15.7 17.5-23a235 235 0 0 1 23.3-24.2c6.7-6 14-11 21.6-15.8.3-.2.8 0 1.2.4l1.2-.8.6-.3c.2-.1.4 0 .6.2l1.5-.8 1.2-.9c-5.7-.2-11.3-.7-16.9-1.2Zm70.5-66.7c-4.5-.9-9-1-13.7-.3-1.9.2-3.8.6-5.7 1 4.3 3.7 7.8 8.5 10 14 2.4 6-7.2 8.6-9.6 2.7-2.3-5.7-6.7-10-12-12.6l-3.3 2a36.4 36.4 0 0 0-10.6 14.3 41.4 41.4 0 0 0-1.5 8c-1 10.3 2 20.4 7 29.3h.3c4.5-2.5 9.3-4.6 14.2-6.3a132.6 132.6 0 0 1 40.1-18l1.2-.3 6.9-1.6 1.4-.2-.2-1.5a43.6 43.6 0 0 0-15.3-27v-.1c-1.7-1-3.5-1.8-5.3-2.4l-.7-.3-3.2-.7Zm-121.9-8.9a161.3 161.3 0 0 0-58.9 5.5l2.3 4.6c3.8 7.7 7.7 15.3 12.3 22.5a108.3 108.3 0 0 0 15.9 19.6c2 1.8 4.3 3.3 6.8 4.6 2 1.4 4 2.7 6.1 3.8l.8.4 7.5 2.9 1.2.3.6.2 1.2.2.8-.5.5-.2c.2-.1.4.1.4.3v.3l1-.6a31.3 31.3 0 0 0 9 2.2h.1v.1h1.1c7.5.8 15.1-.2 22.6-1.5 10.5-1 21-2.3 31.6-3.4.2 0 .3.1.3.3l.7-.1c1-.1 2 1.5 1.3 2l1.5 1.2h.3a43.5 43.5 0 0 1-3.4-8.9l-1-5.2a47.3 47.3 0 0 1-.6-8.5v-2.2l-6-2.1-17.6-2.2a249.4 249.4 0 0 0-22.4 2.1c-.3 0-1-.4-1.4-1l-1.7.2c-.9.1-1.8-1.6-.6-2l1.2-.5.7-.2h-.8c-1 0-2 .2-2.8.3-1.2.1-1-1.4-.1-1.8h.4c-.7-.5-1.3-1.7-.5-2l.2-.1 1.1-.5v-.3l-1.6.2c-.1 0 .6-1 1-1.3l.8-.2c0-.4.7-1.1 1-1.2a102.8 102.8 0 0 1 14.2-3.7c0-.2.2-.3.3-.3a68.4 68.4 0 0 1 32.6 3.7l1 .4 2.8 1.1a40.3 40.3 0 0 1 2.1-6l-1-.5c-.1.4-.6.7-.8.5-7-4.7-14.3-8.6-22-11.7a112.8 112.8 0 0 0-23.8-7.6c-6-1.6-12-2.7-18.3-3.2Zm229 16-2.6 4.2c-4.5 7-10 13.4-16.1 19.1a50 50 0 0 1 12.8 1.6c.2-.2.4-.3.6-.2l.7.5a52.6 52.6 0 0 1 15.5 7v-4.6a82 82 0 0 0-6.3-20.5v-.5c-1.3-2.3-2.9-4.6-4.6-6.7Zm1.3-56.8-6.2 1.5c-3.9.6-7.6 1.6-11.2 3a188 188 0 0 0-14.7 6c-9.3 4.3-18.1 9.7-26.1 16.1l-1.5 1.2a79.2 79.2 0 0 0-5.2 4.9l-5.2 5.6c-2.1 2.3-4.5 4.3-6.5 6.7l-1 1.5 1.1.4c1 .4.8 2.1-.1 1.9l-1-.3c.2.1.3.3.3.4 0 .5-.3 1.2-1 1l-.7-.3-.2 1h.2c.7.2 2 1.3 2 2 .2.5-.2 1-.8 1l-1.3-.6c.3.3.5.6.5.8 0 .5-.4 1.1-1 1a7 7 0 0 1-2.4-1.3c-.2.3-.5.5-.7.4l-.4-.1.3.3.2.2c2.7 3 5.1 6.2 7 9.8l.4-.3 2.8-2.2.3-.3.2-.2-2 .7c.1-.3.6-1 .8-1.1 3-2.6 6-4.8 9.5-6.6a141.6 141.6 0 0 1 24.5-10.2l2.7-.9c.2 0 .3 0 .3.2l.4-.1c.9-.3 2.3 1.2 1.7 1.9l1 .9.2.2h.3c.7-.3 1.9.8 2.6 1.6l.6.6c.4.5 1.3 1.4.2 1.8l-1.2.4c0 .3-.1.5-.5.7l-1.3.4.7.7.4.4c.5.5 1.5 1.5.6 2h-.1l-1.2.4c.1.4 0 .7-.5 1-7.1 2.4-14.2 5.2-21 8.5-5.1 2.8-10.6 5-16.3 6.3-.4.2-1.5-.5-1.9-1.2l-.8.2-.5.1a44 44 0 0 1 2.3 9.8l3.4-.2c7.7-.4 15.6-.2 23.3.7a93 93 0 0 0 11.7-8.2 100.3 100.3 0 0 0 24-31 78 78 0 0 0 8.6-34.8V17.4l-.6-5.7Zm-73.2 67-.8.2.4 1 1-.8c-.2 0-.4-.2-.6-.4Zm71.8-81.2c1.8-.6 3.2-.8 4.1-.3-1.4 0-2.7.2-4 .3Z" fill="#000"/></g></g><g transform="translate(315 248)"><g fill-rule="evenodd" clip-rule="evenodd"><path d="M95 163c26.5 0 48-18.8 48-42s-21.5-42-48-42-55.2 18-55.2 41.2c0 9.9 7.8 27 14.2 34.2 8.8 9.8 25.7 8.6 41 8.6ZM209.3 155c20.2 0 36.7-17 36.7-38s-16.5-38-36.7-38C189 79 167 95.3 167 116.3c0 8.9 6 24.4 10.9 31 6.7 8.7 19.7 7.7 31.4 7.7Z" fill="#fff"/><path d="M94.3 189c.2-.1.6-.2.8 0 4.4 2.7 4.9 12 5 17.2l5.1 1.4 10.7 2.2 2.7.5c9 2 18 3.3 27.1 4 8.8.7 18 1 26.7-.2 3.8-.5 7.6-1.3 11.2-2.4 4.3-1.3 7.8-3.4 11.8-5.3 10-4.7 18.5 9 8.8 15a68 68 0 0 1-29.2 8 157.6 157.6 0 0 1-59.9-9.6 107 107 0 0 1-12.2-5.7l-1.1-.6-2-1a70 70 0 0 1-5.5 19.1 8.5 8.5 0 0 1-11.7 5.6c-6-2.5-6.4-9-3-13.8l.2-.2c4-5.2 6.7-11.8 8.9-18 1.1-3.1 2.2-6.4 3-9.7.8-2.3.8-4.7 2.6-6.4Zm153.9-52.7a34.7 34.7 0 0 1-22 22.6 68.2 68.2 0 0 1-33.4.3l-7.2-1.4c2 1.2 3.7 3 5.3 4.7 2.5 2.7 4.7 5.6 5.4 9 .7 3.3-.4 5.8-2.3 7.7-3 3-7.8 4.6-11.8 5.4a63 63 0 0 1-27.3-.3 6.9 6.9 0 0 1-4.8-3.4 9 9 0 0 1-.5-6.6 9 9 0 0 1 3.8-5.4c1.6-1 3.6-1.2 5.8-.5a46.6 46.6 0 0 0 23.3 2 84.6 84.6 0 0 1-9.3-16 84.3 84.3 0 0 1-1.5-3.8l-.4-.4a26.7 26.7 0 0 1-7-9.3 52.4 52.4 0 0 1-1-33.7A42.6 42.6 0 0 1 177 85.4a22 22 0 0 1 2.8-4c3.8-3.9 9-6.5 14.1-8.1 11.5-3.6 24-1 33.6 5.8 9 6.3 16 15.8 19.7 26.3 3.6 10 4.3 20.8 1 31Zm-155.7-65a64.8 64.8 0 0 1 38.5 12c10.5 7.6 18.8 19 18.8 32.5 0 13.1-7 26-14.9 36.3a41.6 41.6 0 0 1-34.5 17c-7.5.1-15-.6-22.5-1.5l-4-.5c-5.4-.7-11-1.5-16.2-3.4-24.7-9-25.5-41.4-16.3-62 7-16 25-31.6 42.8-29.8 2.7-.3 5.5-.5 8.3-.6Zm23 15.3a65.1 65.1 0 0 0-54.2 2.8A56.8 56.8 0 0 0 48 113.7c-2 8.9-1.7 18.3 1.4 26.9 3.8 10.4 13 13 23.2 14.6l3.9.6 1.6.3a92.6 92.6 0 0 0 30.2.7c10.6-2 17.4-10.6 22.7-19.4l.2-.4c5.5-9.2 10.1-20.4 5.5-30.9-4-9-12.5-15.6-21.2-19.5Zm100.4 2.6a23 23 0 0 0-26.1 2.5l-1 .7c-2.7 2.1-5.3 3.2-7.4 6.1l-.3.4c-1 1.6-3 2.2-4.6 2-2 5.4-2.8 11.3-2.8 17v1.6c.1 6.8 1.3 15.1 6.7 19.7 4.9 4.2 12.3 5.2 19 5.8l5 .4h1.4c7 .6 14.6.4 20.4-3.7 5.1-3.6 7.5-9.7 8.1-15.7A38.4 38.4 0 0 0 216 89.2ZM88.8 90.5a27.3 27.3 0 0 1 28.6 2.4 8 8 0 0 0-2.1.7c-1.8 1-3 2.7-3.4 4.6-.5 2.2.7 4.3 2.8 5 1.9.6 4.1.8 5.8-.3 1-.6 1.6-1.4 2-2.4v-.1l.1-.1a12 12 0 0 0 .3-.8l.3-.3c1.5 2.2 2.6 4.8 3.3 7.5 4.6 18-14.3 36.5-31.2 38.4-6.4.7-12.2-.9-17-3.9v-.1c2 .3 4.3-.5 5-2.7 1.9-5.5 0-12-6-13.8-3.9-1.2-7.9.1-10.6 2.8-2.1-5.2-2.9-11-1.9-16.7a24.9 24.9 0 0 1 14-19c3.7-1.6 7-2 10-1.2Zm98.7 11 .3-.4c2.9-4.4 8.4-9.9 14.1-8.4.8.2 1.6.6 2.3 1a14 14 0 0 1 9.2 2v.2c-.3 1.1-.2 2.1.3 3.1.6 1.1 1.3 2.1 2.4 2.7.7.5 1.6.7 2.4.7 1.2 0 2.3-.6 3.2-1.4.5-.5.8-1.1 1-1.8l1.3 1.4a24.4 24.4 0 0 1-2 30.6l-1 1c-3.2 4.3-8.1 7.2-14 7.8a21 21 0 0 1-15-4.3l1-.7a9.8 9.8 0 0 0 2-3.4l.1-.3.2-.6v-.2c.8-1.9.5-4-1.3-5.2h-.2a4 4 0 0 0-2-.6c-1.8-2.2-4.5-2.7-7-2v-.8l-.1-.3c-2-6.5-1-13.9 2.8-20Zm-86.8-65.2h.6c5-.8 8.3 0 11.5 4.2 1.5 2 1 5 0 7-3.4 6.7-12.8 5.3-19 6.6a90.4 90.4 0 0 0-34.9 14.7c-4.8 3.2-9.2 8-14.8 9.8-.2 0-.5-.2-.5-.4.4-6.3 5.7-12.1 9.7-16.6A76.5 76.5 0 0 1 69.8 48a89.3 89.3 0 0 1 30.9-11.8Zm74.8 8.6c6.1-9 21.5-7.3 30.6-4.9 11.3 3 23.7 9.2 31.6 18 7.2 8-3.5 18.3-11.5 11.6l-2.2-1.8-1.4-1.1c-6.1-5-12.2-9.6-19.7-13-8.8-3.9-17.8-5.8-27-8-.4 0-.7-.5-.4-.8Z" fill="#000"/></g></g><g transform="translate(279 400)"></g><g transform="translate(179 343)"></g><g transform="translate(203 303)"></g></g></svg></div>
+        <div class="face" data-face="laugh"><svg class="art" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 704 704" fill="none" shape-rendering="auto"><mask id="viewboxMask-6"><rect width="704" height="704" rx="0" ry="0" x="0" y="0" fill="#fff" /></mask><g mask="url(#viewboxMask-6)"><g fill-rule="evenodd" clip-rule="evenodd"><path d="M705.3 1074a2351.1 2351.1 0 0 1-15.6-101c-1-7.7-2.5-16.4 2.7-22 7.3-8 14-14.8 14.8-26.2.8-10.7-2.8-22.4-5-32.8a809.4 809.4 0 0 0-17.3-64.7c-6.6-21.7-13.9-43.2-21.3-64.6-6.9-20-13.5-40.3-22.5-59.5-17-36.5-46-63.5-81.6-81.6-9-4.5-27-20.5-36.3-24-8.5-3.4-8.5 6.3-16.9 2.6-6.7-2.9-13-6.7-16.7-13.2-4-7-14.3-16.9-15.9-25-3.3-17.4.3-32.2-12-45.3a90 90 0 0 0-41.1-23.8c-33.7-9.3-78.5-2.8-98.8 28.5-9.7 14.9-13 33-26.2 45.1-11.4 10.7-8.8 18-23.6 23.4-.9.3-23.6-4.5-24.4-4.2-16.2-3.5-31.7 6.2-46.5 11.8a325.4 325.4 0 0 0-63 32.3 399.2 399.2 0 0 0-102.3 98.5 482.5 482.5 0 0 0-76.4 161c-1.7 6.4-3.5 13-1.5 19.4 1.7 5.3 5.4 9.2 9.8 12.4 6 4.3 18 7 17.7 15.7-.1 6.6-2.4 13.5-3.5 20-1.3 7.7-2.3 15.5-3.4 23.2-4.8 35.4-8.6 71-10.3 106.6a920 920 0 0 0-.5 106c.1 2.3.8 4.5 2 6.2-1 .4-1.2 2.4.1 2.7l2.7.5a12 12 0 0 0 7 2.4l5.5.2c19.3 4 38.6 7.9 58.1 10.8 23.8 3.5 47.6 6.3 71.5 8.7 49.2 4.8 98 3.2 147.1.6a1877 1877 0 0 1 147.4-2c49.2 1.4 98.4 3.5 147.6 4.4 55 1 110-.5 164.8-5 7.5-.5 12.2-6.5 10.7-14-8.9-44.7-19-89.1-27-134Z" fill="#d08b5b"/><path d="m201 597.5 1.2-.4c14.5-5.7 29.6-14.8 45.4-11.4.5-.2 10.8 1.9 17.9 3.2l-6.7 7L247 598c40.7 67.1 88.8 100.7 144.3 100.7 55.5 0 97.7-33.6 126.4-100.7l4-1c.4 0 1 .2 1.5.4 9.3 3.6 27.4 19.6 36.3 24.1 35.6 18 64.5 45 81.6 81.6 8.7 18.6 15.2 38 21.8 57.5l.7 2c7.4 21.4 14.7 43 21.3 64.6 6.3 20.4 12 41 16.6 61.8l.7 2.9c2.2 10.4 5.8 22 5 32.8a29 29 0 0 1-3 10.7l-80.4 29 38.4 261.3c-35.1 1.5-70.3 2-105.5 1.3-49.2-.9-98.4-3-147.6-4.3-47.7-1.2-95.3-.7-143 1.7l-12 .6a946.3 946.3 0 0 1-139.5-1l-3.1-.3v-38.3l16.3-212.9-83-15.6-81.3-39.5a21.7 21.7 0 0 1-5.6-8.8c-1.9-6-.5-12 1-18l.5-1.3a492.8 492.8 0 0 1 76.4-161A399.3 399.3 0 0 1 138 629.7c19.8-13 40.9-23.9 63-32.3Z" fill="#ffd93d"/><path d="M232.2 584.6c5.1-.3 10.3.6 15.4 1 .4.1.6.8 0 .9-9 1.9-18 4.5-26.9 7.1l-3.8 1.2c-10 3-19.8 6-29.6 10-19.4 7.9-37.8 18.5-54.8 30.8C67.2 682.8 20 754.3-9.9 828.3a526 526 0 0 0-24.3 77c-.4 1.6-2 5.4-1 7 .7 1.3 3.6 2.1 5 2.9l4.5 2.3 25.2 12.9 2.3 1.1c38 18.6 78.4 34.4 121 35.5l.4-3.7a342 342 0 0 1 9.9-60c.3-1 1.6-.6 1.7.3 3 23.1 2 46.4 1 69.7-1.8 41-4.3 82.2-6.5 123.3-1.2 20.6-2.6 41-3.9 61.7-1.3 20.5-1.7 41.6-4.7 62-.6 4.6-6 7-10 6.6-4.4-.5-7.9-4.5-8-9 0-11.9 1.5-24 2.4-35.8l2.5-33.8c3.1-41.1 6.8-82.2 10.2-123.3a4771 4771 0 0 1 3.8-43.7C76.4 979.8 34.2 963-6.1 943.5c-.6 13.2-2 26.5-3.4 39.6-3.8 36.8-7.1 73.6-9.6 110.5a2254.2 2254.2 0 0 0-4.2 92.7l-.2 7c0 4.4-.5 8.5-4.3 11.7-3.7 3.3-8.9 3.5-12.6 0-5-4.6-4.2-10.9-4-17.1a1675.6 1675.6 0 0 1 1.8-47.2 1321 1321 0 0 1 10.5-109.5l2-14c3.5-26 7.5-52.7 15.5-77.9-3.1-1.5-6.2-3-9.3-4.7-5.5-2.7-11.2-5.4-16.6-8.4-4.2-2.5-7.9-5.8-9-10.8-1.4-5.5.6-11.5 2-16.9v-.4a502 502 0 0 1 26.6-80 523.2 523.2 0 0 1 67.8-117 353.8 353.8 0 0 1 88.7-83.3 239 239 0 0 1 53.8-25.7 142.6 142.6 0 0 1 42.8-7.5Zm90.1-66c6-6.5 18.1.2 15.2 8.8a108.2 108.2 0 0 1-34.7 52A79.4 79.4 0 0 1 247 598l1.7 2.4a321.1 321.1 0 0 0 46.1 52.6c36 31.2 84.8 48 132 36 37.1-9.4 69.8-38.8 79.4-76.2-1.3.6-3 .9-4.8.5-7.7-1.7-15.3-9.8-20.3-15.6-5.3-6.3-9.5-13-12.6-20.7-5.6-14-7.4-32.1.3-45.7 1-1.7 3-.7 3.3 1l.3 2.5c1.5 12.7 3.3 25 9.3 36.6a76 76 0 0 0 18.2 23.1c2.6 2 5.8 3.6 8.1 6l.5.4c.6-5 4.1-7.3 7.6-7.2 3.3.2 7.3 1.6 8.8 2.3l.1.1a341 341 0 0 1 65.1 42 259 259 0 0 1 88.4 129c7.5 25.3 11.8 51.4 16.3 77.4l2.8 16c4.2 23.9 8.9 48.4 18.4 70.7 2.5 5.7.6 11.1-5.5 13.4A1493 1493 0 0 1 688 953c3.7 16 6 32.5 8.7 48.5 6 34.1 13.2 68 19.4 102 3.2 17.5 6.1 35 9.3 52.3l4.7 25.2 2.4 13.6.1.7c.5 2.4 1 4.9.4 7.3-.8 2.7-2.9 4.6-4.8 6.6-1.6 1.6-3.8 1.6-5.7.7l-.7-.3c-3.4-1.6-6-3.2-7.3-7-.7-2.5-1-5.2-1.5-7.7a3535.6 3535.6 0 0 1-7.8-43.6l-1.6-9.1c-5.2-31.4-10.2-62.9-12.8-94.5-1-14-2.3-28.1-3.5-42.2l-.9-10.5c-1.1-13.3-2.5-27-2.7-40.5l-4.5 1.6L657 964c-5.5 2-12.5 6-18.4 5.2-2.9-.3-5-1.2-6.8-2.9 2 28.8 4.8 57.4 8.5 86a1965.7 1965.7 0 0 0 22 135c.6 3.2 1.4 6.4 1.9 9.6.5 3.7-.5 5.9-2.5 9-1.7 2.4-5 3.7-7.8 2-3.6-2.3-5.5-4.3-6.5-8.4-1-3.7-1.6-7.6-2.3-11.4a1654.2 1654.2 0 0 1-11.4-65.2c-7.8-52-12.7-104.4-15.2-156.8a1388 1388 0 0 1-1.4-77.8c0-13.3.5-26.6 1.4-39.9 1-13.4 3-26.5 4.8-39.8 0-.5.7-.5.7 0 .8 14.9 2.1 29.8 2.8 44.7.6 14.3.9 28.5 1.4 42.8.6 18.7 1.5 37.5 2.7 56.2a9.6 9.6 0 0 1 8.5-3.1c4.7-1 9.7-3.4 14.1-5l16.8-5.5 26.4-8.7a679 679 0 0 1-18-80.8l-2-12.3c-4-24.2-8.5-48.5-15.8-72a229.8 229.8 0 0 0-34.8-68.2 370.2 370.2 0 0 0-52.7-55.3C557 627 539.7 614 523 600c.1.9.2 2 0 3-3.5 25.9-17 50-35.8 67.9-37.7 36-93.6 43.4-142 26.5-46.7-16.3-88-55-102.6-102.8-.3-.8.8-1 1.3-.5l2.4 3.3c0-.4.2-.9.7-1a129 129 0 0 0 46.6-29.2 100.2 100.2 0 0 0 21.3-33.3l.4-1c1.7-5 3.2-10.2 7-14.2Z" fill="#000"/></g><g transform="matrix(.99789 0 0 1 156 62)"><g fill-rule="evenodd" clip-rule="evenodd"><path d="M120.4 26.5c63-3.4 118.9-21.1 163.2 18.5 0 0 71.8-53.6 83.8-33.2 8 13.7-3.1 32-.2 49 19.5 33 18.4 89.2 19.5 102.4 2.8 33.1 20.2 157.9 20.2 187.5 0 15.1-12.4 54.7-20.2 76.8-17.3 49-50.3 74-104.4 74-54 0-142.4-45.2-170.7-85.3-2.5-3.5-18.5 6.7-35.3-11C58 385.7 48 349 48 327c0-27.8-18-47.1-15.9-82.8 4.7-79.5 21-214 88.3-217.8Z" fill="#d08b5b"/><path d="M367.4 11.6c8 13.7-3 32 0 49 7.4 12.7 11.9 29 14.6 44.8l-14.8 7.8-5.4.8c-88.2 13-144.6 24.7-169 35.1-24.6 10.5-54.5 47.5-89.7 110.8l-1 2-7 47.2-32 9.8-15 7.1c-.4-27.3-18-46.6-16-81.9 4.7-79.5 21-214 88.4-217.8 63-3.4 118.8-21.1 163.2 18.5C331.5 9.1 359.4-2 367.4 11.6Z" fill="#ffd93d"/><path d="M113.4-66h2.5l2.7.4a22 22 0 0 1 12 6.8l.2.3a31 31 0 0 1 4.1 3.7l.7-.6 2-1.6c3-2.6 6.6-4.5 10.4-5.6l.5-.1h.3c2.7-1 5.6-1.4 8.4-1.4 3.5-.1 6.9.4 10 1.7 3.9 1.6 7.2 4 10 7 1.8 1.6 3.4 3.2 5 5a37.5 37.5 0 0 1 8.6 14.9 170.7 170.7 0 0 1 27-1.3 132.3 132.3 0 0 1 45.9 9.9c3.6 1.4 7.1 3.3 10.4 5.5l2.8 1.7 4.1 2.5c3.2 2 6.3 4.4 9.2 7A99.8 99.8 0 0 1 301.1 0c6.3 3.4 12 7.8 17.2 13a128.4 128.4 0 0 1 28.2-11.9 98.6 98.6 0 0 1 18.8-3.5l4.1-.3 1.8-.2h1.5c.4-.1 1 .9 1 1.3l.1.3.9 1h.8c.7 0 1.6 1.3 2.1 1.9l.4.4a4 4 0 0 1 1 2c.6 4.1 1 8.3 1.5 12.5.1 3.1 0 6.2-.5 9.3l-1.2 9-2 6.3-.7 2.4c-1.6 5.3-3.5 10.4-5.7 15.4 1.6 1.8 3.1 3.6 4.5 5.6l1 1 .4-.3c.5-.2.8 0 1.1.4 3.2 3 5.4 6.6 6.9 10.6l.8 2 .5 1.1a73.7 73.7 0 0 1 4.1 16.9 312 312 0 0 1 5.5 22 5 5 0 0 1-.2 3l.9 1 1.6 1.5c2.7 2.7 5.5 5.6 7.5 8.8 2 3.3 3.6 6.9 5.3 10.4l.3.8.8 1.5a37 37 0 0 1 4 14.6 30.3 30.3 0 0 1-1.9 15.6c-1 4.6-3.5 8.8-7.3 11.5-.9.8-1.7 1.5-2.7 2a8.4 8.4 0 0 1-6.8.9h-.3l-.8-.3c.4.3.6.7 0 1a5 5 0 0 1-1.6.5c.2.3.2.6-.2.8-1 .5-1.8.7-2.6.5l.2 1.4c1.3 10.5 2.5 12.6 3.5 24 .7 11.5 1.8 23 3.3 34.5l.5 4.2a444.4 444.4 0 0 0 10 56.8c1.5 4.4 2.5 8.8 3 13.4a133 133 0 0 1 1.8 14.1c1.1 3 1.7 6.1 1.7 9.3.1 4.2 0 8.4-.5 12.6-.2 4.4-.8 8.7-1.8 13a73.5 73.5 0 0 1-4.6 17 164.8 164.8 0 0 1-20.2 44c-5 7.8-10.3 15.4-16.4 22.4A153.4 153.4 0 0 1 304 504a99.8 99.8 0 0 1-47 2.8 96 96 0 0 1-19.5-4.7c-5.2-1.8-10-4-15-6.3a80 80 0 0 1-21.4-15.7c-.5-.4-.2-1 .4-1.2h.2l-.7-.7-.2-.1-.3-.3c-.4-.4 0-1.1.3-1.3h.5v-.2l-.1-.2h-.2c-.5-.5-.2-1.2.4-1.4h1.3l.2.1-.4-.3c-.6-.5-.4-1 .3-1.3.6 0 1.1.2 1.7.3h.4l.6.3-1-1c-.4-.2 0-1 .3-1.2.4-.3 1.2 0 1.6.3.9.1 2 .5 2.5.9l3.7 3.3c.8.3 1.5.6 2.1 1 1.4 1.5 3 2.8 4.5 4l1.1.8.6.4 6.6 3.9 24 8.1 1.2.3 7.7 1c5.2.5 10.3.5 15.4 0a106 106 0 0 0 30.1-6 141.3 141.3 0 0 0 29.3-15.4 181.4 181.4 0 0 0 19.8-17.5l.9-.8 5.3-6.3 1.6-1.9c6.6-8.1 12.5-17 17.7-26 5.2-9 9.5-18.5 13-28.3 1-3.5 2-7 2.8-10.6a58.3 58.3 0 0 0 3.3-15.8v-1.4l.1-.7a85.7 85.7 0 0 0 .6-8.4v-8.7l-.1-.8-.3-2-1.3-11.8-.6-4.5-.4-2.6-.2-1.5a99 99 0 0 0-1.7-8l-.3-1.1-1.8-8.8-2-8.6a681.6 681.6 0 0 1-9.8-73.1c-.7-8.6-1-17.3-1.2-26 0-.4.2-.7.6-.9v-1.6c-.1-1.5-.1.3-.2-1.4v-5.3c-5.3.4-8.9 0-14-.2h-1c-4.7-.3-9.4-.8-14-1.6 0 .3-.2.4-.5.5h-1.4l.2.7c0 .3-.1.5-.5.6h-1.3a30.2 30.2 0 0 1-10-1l-3-.8-7.5-2.4c-2.6-.6-5.3-.8-8-.1-3 .7-5.4 2-8.5 1.2l-1.8-.7h-.8c-3.2-.5-6-2.5-9-3.6a5 5 0 0 0-3.2.2l-.3.2-1 .7-1.2 1.5-.6.7a15 15 0 0 1-3.6 3.4 9.1 9.1 0 0 1-6.2 2.6c-1.3 0-2.7-.3-4-.7-5 1.6-10.3 1.9-15.3.4a22.1 22.1 0 0 1-8.3-3c-3.5 1.4-6.9 3.4-10.2 5l-.8.5A22.7 22.7 0 0 1 234 197a139.8 139.8 0 0 1-14.8-1.8l-.7-.1-2.4-.4-2-.4-1 .4c-8 3-16.7 5.4-24.8 3.3a22 22 0 0 1-10-3.9l-1.3-.8h-.1l-.1-.1a11 11 0 0 1-6.5-11.2c-.3-1.5-.3-3 0-4.6l-4.3 5a334.7 334.7 0 0 0-15.7 20.1l-1 1.6c-2.8 3.8-5.3 7.8-7.6 11.8l-7.3 12c-3.2 3.5-6.3 7.2-9.4 11l-1.2 1.5-4.4 5.7a116.5 116.5 0 0 0-13.4 24.3 97.3 97.3 0 0 0-5.2 20.7v1a60 60 0 0 0-.3 3.5l.7.5.7.3.6.1c1 .3 2.5 1 2.1 1.6l-1.9 3.7c.2.2.3.5.2.7l-4 7.4v.2l3.1 1.7c2 1.2 3.5 2.6 4.9 4.2 1.4.9 2.8 1.8 4 2.9a30.5 30.5 0 0 1 6.8 11.3c.3 1 .5 2.1.5 3.3-1.2 8.5-11 2.7-11.2 2a26 26 0 0 0-6.3-12.3l-.1-.1c-2-.9-4-1.8-6-2.4l-1 .1c.3.5.1 1-.6 1.1-3.1.6-6.3.8-9.5.5l-4.9-.7c-2 .8-4 1.8-5.7 3l-.6.4h-.1A38.8 38.8 0 0 0 60.7 341l-.3.7A55.7 55.7 0 0 0 66 380 316 316 0 0 0 76 395.2l3.4 4.5a172 172 0 0 1 6.9 6.8l3.1 1.7 1.3.4c2 1 4.1 1.5 6.4 1.6 3 .2 5.8-.2 8.6-1l.6-.3.4-.1c1.5-1 3-2.2 4.3-3.6.3-.3.8-.3 1.5-.2l1-1.1c.2-.3.6-.3.9 0 1-.2 3.5 1.3 2.8 2l-.3.6 1.3.7c2 .6 5.2 2.7 5 3.3h-.1c-.5 1-1.1 1.8-2 2.4l-.2.2-.6.4c.9.5 1.6 1.1 1.2 1.5l-.5 1 5 6.2c1.7 3.7 3.8 7 6.3 10.2 2 3.5 4.5 6.5 7.5 9.3l.7.7 6.7 4.5 1 .6c.5.3 1.4.7 1 1.5l-.2.2c1.5 1 3 1.9 4.6 2.7h.1c.6.5 1.4 1.2.6 1.7-.7.5-2.6-.8-3.5-1.4l-.6-.1.9.5.4.2c.4.3 2.1 1.4 1 1.9-.7 0-1.2-.1-1.7-.5l-1.8-.9c.2.3.2.6-.3.8a3 3 0 0 1-.5 0c1.2.8 2.4 1.5 3.7 2.1l.2.1c.5.4 1.3 1 .7 1.6-.7.6-2.6-.7-3-1l-1.5-.9a1 1 0 0 1-.4.1l1.3.8.6.4c.8.4 1.9 1 1.5 1.8-.4.7-1.6.1-2.3-.3l-.8-.5-.1-.1v.1c-.5.7-1.4.3-2 0l-.6-.4-2.6-1.6-1.3-.8a82.6 82.6 0 0 1-19.3-15.5c-4.1-4.7-7.3-10.1-10.3-15.6l.2-.6-1-2a29.6 29.6 0 0 1-14.7 0 37.3 37.3 0 0 1-15-6.1l-.7-.6c-1.9-1-3.6-2.2-5.2-3.6a87 87 0 0 1-14.8-16.1l-5.5-7.7a66 66 0 0 1-9.7-26.6 53.5 53.5 0 0 1 0-18.1l-1-.9c0 .3-.2.5-.3.4l-2.3-2.3a53.3 53.3 0 0 1-14-32.6c-.7-5.2 0-10.2.7-15.3 0-.3.2-.5.5-.7l.1-1.2a35.2 35.2 0 0 1-11-25.7c.2-3.2.8-6.4 2-9.3l.2-.3c-5.5-.9-9.9-4.8-13.2-9.6l-.8-.7c-6-5-10-12.2-12.8-19.7a46 46 0 0 1-3.9-13.9v-1a89 89 0 0 1-1.2-23 114.8 114.8 0 0 1-4-21.5v-.5l-.2-1v-.6a139 139 0 0 1 11-62.3l2.2-5.3.7-1.9c8-12.8 20-23.2 30-34.1 3.5-3.8-2.1-9.5-5.6-5.7C16 61.6 8.8 68.6 2.4 76a28.1 28.1 0 0 1-9.3-.8c-4.7-.7-9-2.6-12.8-5.4-5.2-2.4-9.7-7-10.1-13v-1.7c-.5-3 0-6 1.2-8.8a15.2 15.2 0 0 1 5.4-8l.1-.2.7-.6 1-.9a54.8 54.8 0 0 1-3.6-6.9 28.4 28.4 0 0 1-2.2-11.5l-.1-1.5c-.3-4 .2-8.1 1.7-11.8l.3-.9 1-2.5c1.5-3.1 3.6-5.8 6.2-8a25.6 25.6 0 0 1 8-5.3c2.2-1.2 5-2.2 7.2-2.3h.8c.2-5.7 1-12 3.2-17.2 1.3-3.7 3.3-7 6.3-9.5C9-42.6 11.2-44 13.9-45l.5-.2h.1a17 17 0 0 1 7.7-1.6A17.3 17.3 0 0 1 32.8-44l1.5-2.6c2-3.1 4.2-5.8 7-8.3l1-.8 4-3.3c3.2-2.1 6.6-3.8 10.2-4.8 4.1-1.5 8.5-2.2 12.8-2h1.5a38.6 38.6 0 0 1 23.8 10c.8-1 1.7-2 2.8-3l1-.8.7-.7c1.2-1 2.5-2 3.9-2.8 1.5-.9 3.2-1.5 5-1.9 1.7-.6 3.5-1 5.4-1ZM92.8 346.3c.2 0 9.5 3.4 14 5.7h.3c5.3 2.7 8 4.6 12.7 8 .3.3.6.6.6 1 0 4.9-1.2 11-5.3 8.2l-1.8-1-1-.6c-9-5.6-18.5-9.9-28.6-13-.7-.2 4.4-8 5.8-7.5-.8-.3 3.2-.8 3.3-.8Zm95-218.1a4591.5 4591.5 0 0 1-29.5 3 81.9 81.9 0 0 1-23.3-1.4c-1.4 1-2.8 2-4.2 2.8l-15.9 12.1c-10.6 8.4-21 17.3-30.4 27a176.8 176.8 0 0 0-38.2 59.4c-.7.4-1.3 1.2-1.5 2.4-1.5 9-5.8 17.4-7.4 26.4-1.5 9 .5 16.5 6.1 23.6 1.2 1.5 3.7 1.4 5.2.4.3.7 1.8.6 2.4-2.4 2.5-2.7 4.6-5.5 6-9 1-2.6-.7-4.4-2.9-4.7a136.8 136.8 0 0 1 16.2-36.6 151.8 151.8 0 0 1 16.5-20.5l1.2-1.4c.2-.2.5-.2 1 0l1-1.3c.4-.4.8-.2 1 0 .7 0 1.8.6 2.2.8.6.4.8.9.3 1.5l-.3.3c.7.2 1.4.6 1.9 1 1.8.4 4.4 2.1 4 2.7l-2.8 3c.8.5 1.3 1 1.1 1.3A122.8 122.8 0 0 0 64.3 290v.7c-.3 3.5-.3 13-.7 15.3A49.6 49.6 0 0 0 72 309l.8-.3a28.1 28.1 0 0 1 11.6-2h.6l2.1.1v-1.2c-.3 0-.4-.3-.4-.5a66.2 66.2 0 0 1 2.3-26.2 107 107 0 0 1 5.1-15.6c6-14.4 14.6-27.4 23.2-40.4 6.3-9.4 12.2-19 18.8-28.4 5.5-7.9 11.3-15.7 17.5-23a235 235 0 0 1 23.3-24.2c6.7-6 14-11 21.6-15.8.3-.2.8 0 1.2.4l1.2-.8.6-.3c.2-.1.4 0 .6.2l1.5-.8 1.2-.9c-5.7-.2-11.3-.7-16.9-1.2Zm70.5-66.7c-4.5-.9-9-1-13.7-.3-1.9.2-3.8.6-5.7 1 4.3 3.7 7.8 8.5 10 14 2.4 6-7.2 8.6-9.6 2.7-2.3-5.7-6.7-10-12-12.6l-3.3 2a36.4 36.4 0 0 0-10.6 14.3 41.4 41.4 0 0 0-1.5 8c-1 10.3 2 20.4 7 29.3h.3c4.5-2.5 9.3-4.6 14.2-6.3a132.6 132.6 0 0 1 40.1-18l1.2-.3 6.9-1.6 1.4-.2-.2-1.5a43.6 43.6 0 0 0-15.3-27v-.1c-1.7-1-3.5-1.8-5.3-2.4l-.7-.3-3.2-.7Zm-121.9-8.9a161.3 161.3 0 0 0-58.9 5.5l2.3 4.6c3.8 7.7 7.7 15.3 12.3 22.5a108.3 108.3 0 0 0 15.9 19.6c2 1.8 4.3 3.3 6.8 4.6 2 1.4 4 2.7 6.1 3.8l.8.4 7.5 2.9 1.2.3.6.2 1.2.2.8-.5.5-.2c.2-.1.4.1.4.3v.3l1-.6a31.3 31.3 0 0 0 9 2.2h.1v.1h1.1c7.5.8 15.1-.2 22.6-1.5 10.5-1 21-2.3 31.6-3.4.2 0 .3.1.3.3l.7-.1c1-.1 2 1.5 1.3 2l1.5 1.2h.3a43.5 43.5 0 0 1-3.4-8.9l-1-5.2a47.3 47.3 0 0 1-.6-8.5v-2.2l-6-2.1-17.6-2.2a249.4 249.4 0 0 0-22.4 2.1c-.3 0-1-.4-1.4-1l-1.7.2c-.9.1-1.8-1.6-.6-2l1.2-.5.7-.2h-.8c-1 0-2 .2-2.8.3-1.2.1-1-1.4-.1-1.8h.4c-.7-.5-1.3-1.7-.5-2l.2-.1 1.1-.5v-.3l-1.6.2c-.1 0 .6-1 1-1.3l.8-.2c0-.4.7-1.1 1-1.2a102.8 102.8 0 0 1 14.2-3.7c0-.2.2-.3.3-.3a68.4 68.4 0 0 1 32.6 3.7l1 .4 2.8 1.1a40.3 40.3 0 0 1 2.1-6l-1-.5c-.1.4-.6.7-.8.5-7-4.7-14.3-8.6-22-11.7a112.8 112.8 0 0 0-23.8-7.6c-6-1.6-12-2.7-18.3-3.2Zm229 16-2.6 4.2c-4.5 7-10 13.4-16.1 19.1a50 50 0 0 1 12.8 1.6c.2-.2.4-.3.6-.2l.7.5a52.6 52.6 0 0 1 15.5 7v-4.6a82 82 0 0 0-6.3-20.5v-.5c-1.3-2.3-2.9-4.6-4.6-6.7Zm1.3-56.8-6.2 1.5c-3.9.6-7.6 1.6-11.2 3a188 188 0 0 0-14.7 6c-9.3 4.3-18.1 9.7-26.1 16.1l-1.5 1.2a79.2 79.2 0 0 0-5.2 4.9l-5.2 5.6c-2.1 2.3-4.5 4.3-6.5 6.7l-1 1.5 1.1.4c1 .4.8 2.1-.1 1.9l-1-.3c.2.1.3.3.3.4 0 .5-.3 1.2-1 1l-.7-.3-.2 1h.2c.7.2 2 1.3 2 2 .2.5-.2 1-.8 1l-1.3-.6c.3.3.5.6.5.8 0 .5-.4 1.1-1 1a7 7 0 0 1-2.4-1.3c-.2.3-.5.5-.7.4l-.4-.1.3.3.2.2c2.7 3 5.1 6.2 7 9.8l.4-.3 2.8-2.2.3-.3.2-.2-2 .7c.1-.3.6-1 .8-1.1 3-2.6 6-4.8 9.5-6.6a141.6 141.6 0 0 1 24.5-10.2l2.7-.9c.2 0 .3 0 .3.2l.4-.1c.9-.3 2.3 1.2 1.7 1.9l1 .9.2.2h.3c.7-.3 1.9.8 2.6 1.6l.6.6c.4.5 1.3 1.4.2 1.8l-1.2.4c0 .3-.1.5-.5.7l-1.3.4.7.7.4.4c.5.5 1.5 1.5.6 2h-.1l-1.2.4c.1.4 0 .7-.5 1-7.1 2.4-14.2 5.2-21 8.5-5.1 2.8-10.6 5-16.3 6.3-.4.2-1.5-.5-1.9-1.2l-.8.2-.5.1a44 44 0 0 1 2.3 9.8l3.4-.2c7.7-.4 15.6-.2 23.3.7a93 93 0 0 0 11.7-8.2 100.3 100.3 0 0 0 24-31 78 78 0 0 0 8.6-34.8V17.4l-.6-5.7Zm-73.2 67-.8.2.4 1 1-.8c-.2 0-.4-.2-.6-.4Zm71.8-81.2c1.8-.6 3.2-.8 4.1-.3-1.4 0-2.7.2-4 .3Z" fill="#000"/></g></g><g transform="translate(315 248)"><path fill-rule="evenodd" clip-rule="evenodd" d="M55.6 167.6c3.5-7.8 19.1-20 19.1-20s4.8 27 1.1 35.3c-3 6.8-14 19.2-22 15.7s-4-18 1.8-31ZM250.2 160.5c-2.8-6.6-15.7-17-15.7-17s-3.9 22.9-.9 30c2.5 5.7 11.5 16.2 18.1 13.2 6.6-3 3.2-15.3-1.5-26.2ZM117 199.2h87.8l5.2 14.5s-65.5 15.3-88.5 5.5l-4.5-20Z" fill="#fff"/><g fill="#000"><path d="M181.7 171c8.2-11.3-3.3-22-10.9-26.6-2-1.5-.4-6.2 3.8-5.4 38.4 6.6 18.5 72.7-30.5 36.4-5.8-4.7 1.2-15 7.5-11l1 .7c7.1 5.5 20 15.5 29.1 6ZM104.5 56.5l-2 .3c-6 1-12 3.4-17.5 6.2a59.3 59.3 0 0 0-25.9 24c-.5 1.2.7 2.7 2 2 9-6.2 17.8-11.8 28.6-15a67.7 67.7 0 0 1 19.5-2.5c4.4.2 8.6.3 12.4-2.9 3-2.3 2.2-7 0-9.4-4.1-4.7-11.3-3.7-17.1-2.7ZM204.6 52.5l-1.4-.3a8.5 8.5 0 0 0-4.9.4 7.4 7.4 0 0 0-3.6 3.1 7 7 0 0 0-.8 5.9 7 7 0 0 0 2.6 4c1.2.9 2.9 1.5 4.6 1.7 7.8.9 15.4 2.6 22.9 5 3.5 1.2 6.8 2.7 10 4.3L237 78a45 45 0 0 0 9.4 3.6c.9-.3 1.1-.6 1.3-.8v-.1l.1-.1c.3-.3.6-.8.3-3-7.4-15.3-27.7-21.9-43.4-25.1ZM123.3 128c-3 1.8-6.3 1-8.9-1.1-1.6-1.3-2.8-3-4-4.6-1.5-1.9-2.9-3.8-5-5.1-3.2-2.2-7.5-2.3-11.2-1.7-5.6 1-10.4 3.6-15.3 6.2a86 86 0 0 1-8.3 4.2c-1.1.5-1.8-1-1.4-1.8a38 38 0 0 1 27-22.5 29 29 0 0 1 30.4 18.2c1.1 3-.7 6.7-3.3 8.2ZM242.6 115.4c.2 0 .5-.2.4-.5-3.2-10.3-15.1-14.7-25.2-13.8-6.2.5-11.9 2.8-16.6 7-4.5 4-8 11.4-4 16.9 4.3 5.6 12.8 3.8 13.3-3.6.4-4.8 8.6-7.8 12.8-8.5 6.5-1.2 13.2.2 19.3 2.5Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M176.1 195.5c11.6-.1 25.6-.3 35.6.3 3.6.2 5.3 5.3 5.6 7.8 2.3 22.4-15.6 40.4-35.4 47.3-18.4 6.5-42.7 7.7-59.2-4.3a50.2 50.2 0 0 1-16-20.6 56.8 56.8 0 0 1-4.3-15c-.6-3.3-1.3-7.3-.2-10.4 1.7-4.4 6-4.5 10.1-4.5h1l5-.2 12.8-.2 27.7-.2H176Zm-49.8 19a253 253 0 0 0 42.5 1.5c10-.4 36-6.5 36-9 0-2.7-1.1-5-2-5-4 .5-34.7.8-56.4 1a3011.2 3011.2 0 0 0-24.7.3c-1 3.2 1.7 10 4.6 11.1ZM82.3 146.6c-.3-2-2-3.2-4-2.2a7.5 7.5 0 0 0-2.6 2.2l.1-.2c0-.2 0-.4-.2-.4-4.4-.7-10.1 5.4-13.2 8.8l-.7.7a61.8 61.8 0 0 0-11 16c-3.5 7.5-7.2 18.9-2.5 26.6 6.6 10.9 20.5 2.7 25.7-4.8a39.9 39.9 0 0 0 7-21.5c0-2.2 0-4.4-.2-6.7 0-2-.2-4.2 0-6.3 0-1.8.4-3.6.8-5.3.5-2.3 1-4.6.8-6.9Zm-9.9 32.5c-1.5 5.8-4.6 12.5-10 15.6-2.9 1.7-7.1 2.3-8.8-1.1-3-6.5 1.3-16.4 3.9-22.2a63 63 0 0 1 17.2-23 29 29 0 0 0-1.6 11.2l.2 5.4c.2 4.7.3 9.5-.9 14.1ZM253.3 157.5A65.2 65.2 0 0 1 262 175c3 11.9-7.2 20.5-18.5 18-11.9-2.7-16.3-16.4-16-27.2 0-5 1-10 2.1-14.9l.4-2 .7-4.1c.3-2 .5-4 1-5.9-.5-1.5-.9-3-.8-4.6 0-2.5 2.6-3.8 4.7-2.7 3 1.5 4.7 4.3 6.3 7.2l1 1.8 3.6 6 3.5 6 3.2 5Zm-13 25.5c3.1 2.8 8.5 3.9 12 1.2 4.9-3.6.8-10-1.9-14.2l-.7-1.2a1574 1574 0 0 1-13-21.3l-.8 4.9-.7 3.6c-1.3 8.8-2.2 20.3 5.1 27Z"/></g></g><g transform="translate(279 400)"></g><g transform="translate(179 343)"></g><g transform="translate(203 303)"></g></g></svg></div>
+        <div class="face" data-face="oops"><svg class="art" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 704 704" fill="none" shape-rendering="auto"><mask id="viewboxMask-7"><rect width="704" height="704" rx="0" ry="0" x="0" y="0" fill="#fff" /></mask><g mask="url(#viewboxMask-7)"><g fill-rule="evenodd" clip-rule="evenodd"><path d="M705.3 1074a2351.1 2351.1 0 0 1-15.6-101c-1-7.7-2.5-16.4 2.7-22 7.3-8 14-14.8 14.8-26.2.8-10.7-2.8-22.4-5-32.8a809.4 809.4 0 0 0-17.3-64.7c-6.6-21.7-13.9-43.2-21.3-64.6-6.9-20-13.5-40.3-22.5-59.5-17-36.5-46-63.5-81.6-81.6-9-4.5-27-20.5-36.3-24-8.5-3.4-8.5 6.3-16.9 2.6-6.7-2.9-13-6.7-16.7-13.2-4-7-14.3-16.9-15.9-25-3.3-17.4.3-32.2-12-45.3a90 90 0 0 0-41.1-23.8c-33.7-9.3-78.5-2.8-98.8 28.5-9.7 14.9-13 33-26.2 45.1-11.4 10.7-8.8 18-23.6 23.4-.9.3-23.6-4.5-24.4-4.2-16.2-3.5-31.7 6.2-46.5 11.8a325.4 325.4 0 0 0-63 32.3 399.2 399.2 0 0 0-102.3 98.5 482.5 482.5 0 0 0-76.4 161c-1.7 6.4-3.5 13-1.5 19.4 1.7 5.3 5.4 9.2 9.8 12.4 6 4.3 18 7 17.7 15.7-.1 6.6-2.4 13.5-3.5 20-1.3 7.7-2.3 15.5-3.4 23.2-4.8 35.4-8.6 71-10.3 106.6a920 920 0 0 0-.5 106c.1 2.3.8 4.5 2 6.2-1 .4-1.2 2.4.1 2.7l2.7.5a12 12 0 0 0 7 2.4l5.5.2c19.3 4 38.6 7.9 58.1 10.8 23.8 3.5 47.6 6.3 71.5 8.7 49.2 4.8 98 3.2 147.1.6a1877 1877 0 0 1 147.4-2c49.2 1.4 98.4 3.5 147.6 4.4 55 1 110-.5 164.8-5 7.5-.5 12.2-6.5 10.7-14-8.9-44.7-19-89.1-27-134Z" fill="#d08b5b"/><path d="m201 597.5 1.2-.4c14.5-5.7 29.6-14.8 45.4-11.4.5-.2 10.8 1.9 17.9 3.2l-6.7 7L247 598c40.7 67.1 88.8 100.7 144.3 100.7 55.5 0 97.7-33.6 126.4-100.7l4-1c.4 0 1 .2 1.5.4 9.3 3.6 27.4 19.6 36.3 24.1 35.6 18 64.5 45 81.6 81.6 8.7 18.6 15.2 38 21.8 57.5l.7 2c7.4 21.4 14.7 43 21.3 64.6 6.3 20.4 12 41 16.6 61.8l.7 2.9c2.2 10.4 5.8 22 5 32.8a29 29 0 0 1-3 10.7l-80.4 29 38.4 261.3c-35.1 1.5-70.3 2-105.5 1.3-49.2-.9-98.4-3-147.6-4.3-47.7-1.2-95.3-.7-143 1.7l-12 .6a946.3 946.3 0 0 1-139.5-1l-3.1-.3v-38.3l16.3-212.9-83-15.6-81.3-39.5a21.7 21.7 0 0 1-5.6-8.8c-1.9-6-.5-12 1-18l.5-1.3a492.8 492.8 0 0 1 76.4-161A399.3 399.3 0 0 1 138 629.7c19.8-13 40.9-23.9 63-32.3Z" fill="#ffd93d"/><path d="M232.2 584.6c5.1-.3 10.3.6 15.4 1 .4.1.6.8 0 .9-9 1.9-18 4.5-26.9 7.1l-3.8 1.2c-10 3-19.8 6-29.6 10-19.4 7.9-37.8 18.5-54.8 30.8C67.2 682.8 20 754.3-9.9 828.3a526 526 0 0 0-24.3 77c-.4 1.6-2 5.4-1 7 .7 1.3 3.6 2.1 5 2.9l4.5 2.3 25.2 12.9 2.3 1.1c38 18.6 78.4 34.4 121 35.5l.4-3.7a342 342 0 0 1 9.9-60c.3-1 1.6-.6 1.7.3 3 23.1 2 46.4 1 69.7-1.8 41-4.3 82.2-6.5 123.3-1.2 20.6-2.6 41-3.9 61.7-1.3 20.5-1.7 41.6-4.7 62-.6 4.6-6 7-10 6.6-4.4-.5-7.9-4.5-8-9 0-11.9 1.5-24 2.4-35.8l2.5-33.8c3.1-41.1 6.8-82.2 10.2-123.3a4771 4771 0 0 1 3.8-43.7C76.4 979.8 34.2 963-6.1 943.5c-.6 13.2-2 26.5-3.4 39.6-3.8 36.8-7.1 73.6-9.6 110.5a2254.2 2254.2 0 0 0-4.2 92.7l-.2 7c0 4.4-.5 8.5-4.3 11.7-3.7 3.3-8.9 3.5-12.6 0-5-4.6-4.2-10.9-4-17.1a1675.6 1675.6 0 0 1 1.8-47.2 1321 1321 0 0 1 10.5-109.5l2-14c3.5-26 7.5-52.7 15.5-77.9-3.1-1.5-6.2-3-9.3-4.7-5.5-2.7-11.2-5.4-16.6-8.4-4.2-2.5-7.9-5.8-9-10.8-1.4-5.5.6-11.5 2-16.9v-.4a502 502 0 0 1 26.6-80 523.2 523.2 0 0 1 67.8-117 353.8 353.8 0 0 1 88.7-83.3 239 239 0 0 1 53.8-25.7 142.6 142.6 0 0 1 42.8-7.5Zm90.1-66c6-6.5 18.1.2 15.2 8.8a108.2 108.2 0 0 1-34.7 52A79.4 79.4 0 0 1 247 598l1.7 2.4a321.1 321.1 0 0 0 46.1 52.6c36 31.2 84.8 48 132 36 37.1-9.4 69.8-38.8 79.4-76.2-1.3.6-3 .9-4.8.5-7.7-1.7-15.3-9.8-20.3-15.6-5.3-6.3-9.5-13-12.6-20.7-5.6-14-7.4-32.1.3-45.7 1-1.7 3-.7 3.3 1l.3 2.5c1.5 12.7 3.3 25 9.3 36.6a76 76 0 0 0 18.2 23.1c2.6 2 5.8 3.6 8.1 6l.5.4c.6-5 4.1-7.3 7.6-7.2 3.3.2 7.3 1.6 8.8 2.3l.1.1a341 341 0 0 1 65.1 42 259 259 0 0 1 88.4 129c7.5 25.3 11.8 51.4 16.3 77.4l2.8 16c4.2 23.9 8.9 48.4 18.4 70.7 2.5 5.7.6 11.1-5.5 13.4A1493 1493 0 0 1 688 953c3.7 16 6 32.5 8.7 48.5 6 34.1 13.2 68 19.4 102 3.2 17.5 6.1 35 9.3 52.3l4.7 25.2 2.4 13.6.1.7c.5 2.4 1 4.9.4 7.3-.8 2.7-2.9 4.6-4.8 6.6-1.6 1.6-3.8 1.6-5.7.7l-.7-.3c-3.4-1.6-6-3.2-7.3-7-.7-2.5-1-5.2-1.5-7.7a3535.6 3535.6 0 0 1-7.8-43.6l-1.6-9.1c-5.2-31.4-10.2-62.9-12.8-94.5-1-14-2.3-28.1-3.5-42.2l-.9-10.5c-1.1-13.3-2.5-27-2.7-40.5l-4.5 1.6L657 964c-5.5 2-12.5 6-18.4 5.2-2.9-.3-5-1.2-6.8-2.9 2 28.8 4.8 57.4 8.5 86a1965.7 1965.7 0 0 0 22 135c.6 3.2 1.4 6.4 1.9 9.6.5 3.7-.5 5.9-2.5 9-1.7 2.4-5 3.7-7.8 2-3.6-2.3-5.5-4.3-6.5-8.4-1-3.7-1.6-7.6-2.3-11.4a1654.2 1654.2 0 0 1-11.4-65.2c-7.8-52-12.7-104.4-15.2-156.8a1388 1388 0 0 1-1.4-77.8c0-13.3.5-26.6 1.4-39.9 1-13.4 3-26.5 4.8-39.8 0-.5.7-.5.7 0 .8 14.9 2.1 29.8 2.8 44.7.6 14.3.9 28.5 1.4 42.8.6 18.7 1.5 37.5 2.7 56.2a9.6 9.6 0 0 1 8.5-3.1c4.7-1 9.7-3.4 14.1-5l16.8-5.5 26.4-8.7a679 679 0 0 1-18-80.8l-2-12.3c-4-24.2-8.5-48.5-15.8-72a229.8 229.8 0 0 0-34.8-68.2 370.2 370.2 0 0 0-52.7-55.3C557 627 539.7 614 523 600c.1.9.2 2 0 3-3.5 25.9-17 50-35.8 67.9-37.7 36-93.6 43.4-142 26.5-46.7-16.3-88-55-102.6-102.8-.3-.8.8-1 1.3-.5l2.4 3.3c0-.4.2-.9.7-1a129 129 0 0 0 46.6-29.2 100.2 100.2 0 0 0 21.3-33.3l.4-1c1.7-5 3.2-10.2 7-14.2Z" fill="#000"/></g><g transform="matrix(.99789 0 0 1 156 62)"><g fill-rule="evenodd" clip-rule="evenodd"><path d="M120.4 26.5c63-3.4 118.9-21.1 163.2 18.5 0 0 71.8-53.6 83.8-33.2 8 13.7-3.1 32-.2 49 19.5 33 18.4 89.2 19.5 102.4 2.8 33.1 20.2 157.9 20.2 187.5 0 15.1-12.4 54.7-20.2 76.8-17.3 49-50.3 74-104.4 74-54 0-142.4-45.2-170.7-85.3-2.5-3.5-18.5 6.7-35.3-11C58 385.7 48 349 48 327c0-27.8-18-47.1-15.9-82.8 4.7-79.5 21-214 88.3-217.8Z" fill="#d08b5b"/><path d="M367.4 11.6c8 13.7-3 32 0 49 7.4 12.7 11.9 29 14.6 44.8l-14.8 7.8-5.4.8c-88.2 13-144.6 24.7-169 35.1-24.6 10.5-54.5 47.5-89.7 110.8l-1 2-7 47.2-32 9.8-15 7.1c-.4-27.3-18-46.6-16-81.9 4.7-79.5 21-214 88.4-217.8 63-3.4 118.8-21.1 163.2 18.5C331.5 9.1 359.4-2 367.4 11.6Z" fill="#ffd93d"/><path d="M113.4-66h2.5l2.7.4a22 22 0 0 1 12 6.8l.2.3a31 31 0 0 1 4.1 3.7l.7-.6 2-1.6c3-2.6 6.6-4.5 10.4-5.6l.5-.1h.3c2.7-1 5.6-1.4 8.4-1.4 3.5-.1 6.9.4 10 1.7 3.9 1.6 7.2 4 10 7 1.8 1.6 3.4 3.2 5 5a37.5 37.5 0 0 1 8.6 14.9 170.7 170.7 0 0 1 27-1.3 132.3 132.3 0 0 1 45.9 9.9c3.6 1.4 7.1 3.3 10.4 5.5l2.8 1.7 4.1 2.5c3.2 2 6.3 4.4 9.2 7A99.8 99.8 0 0 1 301.1 0c6.3 3.4 12 7.8 17.2 13a128.4 128.4 0 0 1 28.2-11.9 98.6 98.6 0 0 1 18.8-3.5l4.1-.3 1.8-.2h1.5c.4-.1 1 .9 1 1.3l.1.3.9 1h.8c.7 0 1.6 1.3 2.1 1.9l.4.4a4 4 0 0 1 1 2c.6 4.1 1 8.3 1.5 12.5.1 3.1 0 6.2-.5 9.3l-1.2 9-2 6.3-.7 2.4c-1.6 5.3-3.5 10.4-5.7 15.4 1.6 1.8 3.1 3.6 4.5 5.6l1 1 .4-.3c.5-.2.8 0 1.1.4 3.2 3 5.4 6.6 6.9 10.6l.8 2 .5 1.1a73.7 73.7 0 0 1 4.1 16.9 312 312 0 0 1 5.5 22 5 5 0 0 1-.2 3l.9 1 1.6 1.5c2.7 2.7 5.5 5.6 7.5 8.8 2 3.3 3.6 6.9 5.3 10.4l.3.8.8 1.5a37 37 0 0 1 4 14.6 30.3 30.3 0 0 1-1.9 15.6c-1 4.6-3.5 8.8-7.3 11.5-.9.8-1.7 1.5-2.7 2a8.4 8.4 0 0 1-6.8.9h-.3l-.8-.3c.4.3.6.7 0 1a5 5 0 0 1-1.6.5c.2.3.2.6-.2.8-1 .5-1.8.7-2.6.5l.2 1.4c1.3 10.5 2.5 12.6 3.5 24 .7 11.5 1.8 23 3.3 34.5l.5 4.2a444.4 444.4 0 0 0 10 56.8c1.5 4.4 2.5 8.8 3 13.4a133 133 0 0 1 1.8 14.1c1.1 3 1.7 6.1 1.7 9.3.1 4.2 0 8.4-.5 12.6-.2 4.4-.8 8.7-1.8 13a73.5 73.5 0 0 1-4.6 17 164.8 164.8 0 0 1-20.2 44c-5 7.8-10.3 15.4-16.4 22.4A153.4 153.4 0 0 1 304 504a99.8 99.8 0 0 1-47 2.8 96 96 0 0 1-19.5-4.7c-5.2-1.8-10-4-15-6.3a80 80 0 0 1-21.4-15.7c-.5-.4-.2-1 .4-1.2h.2l-.7-.7-.2-.1-.3-.3c-.4-.4 0-1.1.3-1.3h.5v-.2l-.1-.2h-.2c-.5-.5-.2-1.2.4-1.4h1.3l.2.1-.4-.3c-.6-.5-.4-1 .3-1.3.6 0 1.1.2 1.7.3h.4l.6.3-1-1c-.4-.2 0-1 .3-1.2.4-.3 1.2 0 1.6.3.9.1 2 .5 2.5.9l3.7 3.3c.8.3 1.5.6 2.1 1 1.4 1.5 3 2.8 4.5 4l1.1.8.6.4 6.6 3.9 24 8.1 1.2.3 7.7 1c5.2.5 10.3.5 15.4 0a106 106 0 0 0 30.1-6 141.3 141.3 0 0 0 29.3-15.4 181.4 181.4 0 0 0 19.8-17.5l.9-.8 5.3-6.3 1.6-1.9c6.6-8.1 12.5-17 17.7-26 5.2-9 9.5-18.5 13-28.3 1-3.5 2-7 2.8-10.6a58.3 58.3 0 0 0 3.3-15.8v-1.4l.1-.7a85.7 85.7 0 0 0 .6-8.4v-8.7l-.1-.8-.3-2-1.3-11.8-.6-4.5-.4-2.6-.2-1.5a99 99 0 0 0-1.7-8l-.3-1.1-1.8-8.8-2-8.6a681.6 681.6 0 0 1-9.8-73.1c-.7-8.6-1-17.3-1.2-26 0-.4.2-.7.6-.9v-1.6c-.1-1.5-.1.3-.2-1.4v-5.3c-5.3.4-8.9 0-14-.2h-1c-4.7-.3-9.4-.8-14-1.6 0 .3-.2.4-.5.5h-1.4l.2.7c0 .3-.1.5-.5.6h-1.3a30.2 30.2 0 0 1-10-1l-3-.8-7.5-2.4c-2.6-.6-5.3-.8-8-.1-3 .7-5.4 2-8.5 1.2l-1.8-.7h-.8c-3.2-.5-6-2.5-9-3.6a5 5 0 0 0-3.2.2l-.3.2-1 .7-1.2 1.5-.6.7a15 15 0 0 1-3.6 3.4 9.1 9.1 0 0 1-6.2 2.6c-1.3 0-2.7-.3-4-.7-5 1.6-10.3 1.9-15.3.4a22.1 22.1 0 0 1-8.3-3c-3.5 1.4-6.9 3.4-10.2 5l-.8.5A22.7 22.7 0 0 1 234 197a139.8 139.8 0 0 1-14.8-1.8l-.7-.1-2.4-.4-2-.4-1 .4c-8 3-16.7 5.4-24.8 3.3a22 22 0 0 1-10-3.9l-1.3-.8h-.1l-.1-.1a11 11 0 0 1-6.5-11.2c-.3-1.5-.3-3 0-4.6l-4.3 5a334.7 334.7 0 0 0-15.7 20.1l-1 1.6c-2.8 3.8-5.3 7.8-7.6 11.8l-7.3 12c-3.2 3.5-6.3 7.2-9.4 11l-1.2 1.5-4.4 5.7a116.5 116.5 0 0 0-13.4 24.3 97.3 97.3 0 0 0-5.2 20.7v1a60 60 0 0 0-.3 3.5l.7.5.7.3.6.1c1 .3 2.5 1 2.1 1.6l-1.9 3.7c.2.2.3.5.2.7l-4 7.4v.2l3.1 1.7c2 1.2 3.5 2.6 4.9 4.2 1.4.9 2.8 1.8 4 2.9a30.5 30.5 0 0 1 6.8 11.3c.3 1 .5 2.1.5 3.3-1.2 8.5-11 2.7-11.2 2a26 26 0 0 0-6.3-12.3l-.1-.1c-2-.9-4-1.8-6-2.4l-1 .1c.3.5.1 1-.6 1.1-3.1.6-6.3.8-9.5.5l-4.9-.7c-2 .8-4 1.8-5.7 3l-.6.4h-.1A38.8 38.8 0 0 0 60.7 341l-.3.7A55.7 55.7 0 0 0 66 380 316 316 0 0 0 76 395.2l3.4 4.5a172 172 0 0 1 6.9 6.8l3.1 1.7 1.3.4c2 1 4.1 1.5 6.4 1.6 3 .2 5.8-.2 8.6-1l.6-.3.4-.1c1.5-1 3-2.2 4.3-3.6.3-.3.8-.3 1.5-.2l1-1.1c.2-.3.6-.3.9 0 1-.2 3.5 1.3 2.8 2l-.3.6 1.3.7c2 .6 5.2 2.7 5 3.3h-.1c-.5 1-1.1 1.8-2 2.4l-.2.2-.6.4c.9.5 1.6 1.1 1.2 1.5l-.5 1 5 6.2c1.7 3.7 3.8 7 6.3 10.2 2 3.5 4.5 6.5 7.5 9.3l.7.7 6.7 4.5 1 .6c.5.3 1.4.7 1 1.5l-.2.2c1.5 1 3 1.9 4.6 2.7h.1c.6.5 1.4 1.2.6 1.7-.7.5-2.6-.8-3.5-1.4l-.6-.1.9.5.4.2c.4.3 2.1 1.4 1 1.9-.7 0-1.2-.1-1.7-.5l-1.8-.9c.2.3.2.6-.3.8a3 3 0 0 1-.5 0c1.2.8 2.4 1.5 3.7 2.1l.2.1c.5.4 1.3 1 .7 1.6-.7.6-2.6-.7-3-1l-1.5-.9a1 1 0 0 1-.4.1l1.3.8.6.4c.8.4 1.9 1 1.5 1.8-.4.7-1.6.1-2.3-.3l-.8-.5-.1-.1v.1c-.5.7-1.4.3-2 0l-.6-.4-2.6-1.6-1.3-.8a82.6 82.6 0 0 1-19.3-15.5c-4.1-4.7-7.3-10.1-10.3-15.6l.2-.6-1-2a29.6 29.6 0 0 1-14.7 0 37.3 37.3 0 0 1-15-6.1l-.7-.6c-1.9-1-3.6-2.2-5.2-3.6a87 87 0 0 1-14.8-16.1l-5.5-7.7a66 66 0 0 1-9.7-26.6 53.5 53.5 0 0 1 0-18.1l-1-.9c0 .3-.2.5-.3.4l-2.3-2.3a53.3 53.3 0 0 1-14-32.6c-.7-5.2 0-10.2.7-15.3 0-.3.2-.5.5-.7l.1-1.2a35.2 35.2 0 0 1-11-25.7c.2-3.2.8-6.4 2-9.3l.2-.3c-5.5-.9-9.9-4.8-13.2-9.6l-.8-.7c-6-5-10-12.2-12.8-19.7a46 46 0 0 1-3.9-13.9v-1a89 89 0 0 1-1.2-23 114.8 114.8 0 0 1-4-21.5v-.5l-.2-1v-.6a139 139 0 0 1 11-62.3l2.2-5.3.7-1.9c8-12.8 20-23.2 30-34.1 3.5-3.8-2.1-9.5-5.6-5.7C16 61.6 8.8 68.6 2.4 76a28.1 28.1 0 0 1-9.3-.8c-4.7-.7-9-2.6-12.8-5.4-5.2-2.4-9.7-7-10.1-13v-1.7c-.5-3 0-6 1.2-8.8a15.2 15.2 0 0 1 5.4-8l.1-.2.7-.6 1-.9a54.8 54.8 0 0 1-3.6-6.9 28.4 28.4 0 0 1-2.2-11.5l-.1-1.5c-.3-4 .2-8.1 1.7-11.8l.3-.9 1-2.5c1.5-3.1 3.6-5.8 6.2-8a25.6 25.6 0 0 1 8-5.3c2.2-1.2 5-2.2 7.2-2.3h.8c.2-5.7 1-12 3.2-17.2 1.3-3.7 3.3-7 6.3-9.5C9-42.6 11.2-44 13.9-45l.5-.2h.1a17 17 0 0 1 7.7-1.6A17.3 17.3 0 0 1 32.8-44l1.5-2.6c2-3.1 4.2-5.8 7-8.3l1-.8 4-3.3c3.2-2.1 6.6-3.8 10.2-4.8 4.1-1.5 8.5-2.2 12.8-2h1.5a38.6 38.6 0 0 1 23.8 10c.8-1 1.7-2 2.8-3l1-.8.7-.7c1.2-1 2.5-2 3.9-2.8 1.5-.9 3.2-1.5 5-1.9 1.7-.6 3.5-1 5.4-1ZM92.8 346.3c.2 0 9.5 3.4 14 5.7h.3c5.3 2.7 8 4.6 12.7 8 .3.3.6.6.6 1 0 4.9-1.2 11-5.3 8.2l-1.8-1-1-.6c-9-5.6-18.5-9.9-28.6-13-.7-.2 4.4-8 5.8-7.5-.8-.3 3.2-.8 3.3-.8Zm95-218.1a4591.5 4591.5 0 0 1-29.5 3 81.9 81.9 0 0 1-23.3-1.4c-1.4 1-2.8 2-4.2 2.8l-15.9 12.1c-10.6 8.4-21 17.3-30.4 27a176.8 176.8 0 0 0-38.2 59.4c-.7.4-1.3 1.2-1.5 2.4-1.5 9-5.8 17.4-7.4 26.4-1.5 9 .5 16.5 6.1 23.6 1.2 1.5 3.7 1.4 5.2.4.3.7 1.8.6 2.4-2.4 2.5-2.7 4.6-5.5 6-9 1-2.6-.7-4.4-2.9-4.7a136.8 136.8 0 0 1 16.2-36.6 151.8 151.8 0 0 1 16.5-20.5l1.2-1.4c.2-.2.5-.2 1 0l1-1.3c.4-.4.8-.2 1 0 .7 0 1.8.6 2.2.8.6.4.8.9.3 1.5l-.3.3c.7.2 1.4.6 1.9 1 1.8.4 4.4 2.1 4 2.7l-2.8 3c.8.5 1.3 1 1.1 1.3A122.8 122.8 0 0 0 64.3 290v.7c-.3 3.5-.3 13-.7 15.3A49.6 49.6 0 0 0 72 309l.8-.3a28.1 28.1 0 0 1 11.6-2h.6l2.1.1v-1.2c-.3 0-.4-.3-.4-.5a66.2 66.2 0 0 1 2.3-26.2 107 107 0 0 1 5.1-15.6c6-14.4 14.6-27.4 23.2-40.4 6.3-9.4 12.2-19 18.8-28.4 5.5-7.9 11.3-15.7 17.5-23a235 235 0 0 1 23.3-24.2c6.7-6 14-11 21.6-15.8.3-.2.8 0 1.2.4l1.2-.8.6-.3c.2-.1.4 0 .6.2l1.5-.8 1.2-.9c-5.7-.2-11.3-.7-16.9-1.2Zm70.5-66.7c-4.5-.9-9-1-13.7-.3-1.9.2-3.8.6-5.7 1 4.3 3.7 7.8 8.5 10 14 2.4 6-7.2 8.6-9.6 2.7-2.3-5.7-6.7-10-12-12.6l-3.3 2a36.4 36.4 0 0 0-10.6 14.3 41.4 41.4 0 0 0-1.5 8c-1 10.3 2 20.4 7 29.3h.3c4.5-2.5 9.3-4.6 14.2-6.3a132.6 132.6 0 0 1 40.1-18l1.2-.3 6.9-1.6 1.4-.2-.2-1.5a43.6 43.6 0 0 0-15.3-27v-.1c-1.7-1-3.5-1.8-5.3-2.4l-.7-.3-3.2-.7Zm-121.9-8.9a161.3 161.3 0 0 0-58.9 5.5l2.3 4.6c3.8 7.7 7.7 15.3 12.3 22.5a108.3 108.3 0 0 0 15.9 19.6c2 1.8 4.3 3.3 6.8 4.6 2 1.4 4 2.7 6.1 3.8l.8.4 7.5 2.9 1.2.3.6.2 1.2.2.8-.5.5-.2c.2-.1.4.1.4.3v.3l1-.6a31.3 31.3 0 0 0 9 2.2h.1v.1h1.1c7.5.8 15.1-.2 22.6-1.5 10.5-1 21-2.3 31.6-3.4.2 0 .3.1.3.3l.7-.1c1-.1 2 1.5 1.3 2l1.5 1.2h.3a43.5 43.5 0 0 1-3.4-8.9l-1-5.2a47.3 47.3 0 0 1-.6-8.5v-2.2l-6-2.1-17.6-2.2a249.4 249.4 0 0 0-22.4 2.1c-.3 0-1-.4-1.4-1l-1.7.2c-.9.1-1.8-1.6-.6-2l1.2-.5.7-.2h-.8c-1 0-2 .2-2.8.3-1.2.1-1-1.4-.1-1.8h.4c-.7-.5-1.3-1.7-.5-2l.2-.1 1.1-.5v-.3l-1.6.2c-.1 0 .6-1 1-1.3l.8-.2c0-.4.7-1.1 1-1.2a102.8 102.8 0 0 1 14.2-3.7c0-.2.2-.3.3-.3a68.4 68.4 0 0 1 32.6 3.7l1 .4 2.8 1.1a40.3 40.3 0 0 1 2.1-6l-1-.5c-.1.4-.6.7-.8.5-7-4.7-14.3-8.6-22-11.7a112.8 112.8 0 0 0-23.8-7.6c-6-1.6-12-2.7-18.3-3.2Zm229 16-2.6 4.2c-4.5 7-10 13.4-16.1 19.1a50 50 0 0 1 12.8 1.6c.2-.2.4-.3.6-.2l.7.5a52.6 52.6 0 0 1 15.5 7v-4.6a82 82 0 0 0-6.3-20.5v-.5c-1.3-2.3-2.9-4.6-4.6-6.7Zm1.3-56.8-6.2 1.5c-3.9.6-7.6 1.6-11.2 3a188 188 0 0 0-14.7 6c-9.3 4.3-18.1 9.7-26.1 16.1l-1.5 1.2a79.2 79.2 0 0 0-5.2 4.9l-5.2 5.6c-2.1 2.3-4.5 4.3-6.5 6.7l-1 1.5 1.1.4c1 .4.8 2.1-.1 1.9l-1-.3c.2.1.3.3.3.4 0 .5-.3 1.2-1 1l-.7-.3-.2 1h.2c.7.2 2 1.3 2 2 .2.5-.2 1-.8 1l-1.3-.6c.3.3.5.6.5.8 0 .5-.4 1.1-1 1a7 7 0 0 1-2.4-1.3c-.2.3-.5.5-.7.4l-.4-.1.3.3.2.2c2.7 3 5.1 6.2 7 9.8l.4-.3 2.8-2.2.3-.3.2-.2-2 .7c.1-.3.6-1 .8-1.1 3-2.6 6-4.8 9.5-6.6a141.6 141.6 0 0 1 24.5-10.2l2.7-.9c.2 0 .3 0 .3.2l.4-.1c.9-.3 2.3 1.2 1.7 1.9l1 .9.2.2h.3c.7-.3 1.9.8 2.6 1.6l.6.6c.4.5 1.3 1.4.2 1.8l-1.2.4c0 .3-.1.5-.5.7l-1.3.4.7.7.4.4c.5.5 1.5 1.5.6 2h-.1l-1.2.4c.1.4 0 .7-.5 1-7.1 2.4-14.2 5.2-21 8.5-5.1 2.8-10.6 5-16.3 6.3-.4.2-1.5-.5-1.9-1.2l-.8.2-.5.1a44 44 0 0 1 2.3 9.8l3.4-.2c7.7-.4 15.6-.2 23.3.7a93 93 0 0 0 11.7-8.2 100.3 100.3 0 0 0 24-31 78 78 0 0 0 8.6-34.8V17.4l-.6-5.7Zm-73.2 67-.8.2.4 1 1-.8c-.2 0-.4-.2-.6-.4Zm71.8-81.2c1.8-.6 3.2-.8 4.1-.3-1.4 0-2.7.2-4 .3Z" fill="#000"/></g></g><g transform="translate(315 248)"><g fill-rule="evenodd" clip-rule="evenodd"><path d="M105.8 231.1c4.6-14 54.2-34.8 62.6-28.8 8.3 6-2.5 49.2-2.5 49.2s-46.2 4.8-49.5 2.4c-3.3-2.4-15.2-8.7-10.6-22.8Z" fill="#fff"/><path d="M190.3 203.4c.3.3-.3.8-.7.5-3.8-2.7-9.8-1.1-13.5.1 0 0-1.3 43.3.2 44.3s22.4.5 22.4 3c0 8.4-12.6 11.6-19.4 11-10.8-.7-21.9-2.2-32.6-1-10.8 1.3-33.6 8.1-45.3-1.4-14-11.3-12.1-29.9-.5-42a68 68 0 0 1 28.7-15.7c15.5-5 52.1-8.1 60.7 1.2Zm-28.6 31.8a748.9 748.9 0 0 1-40.3 13.1c7.8-.5 34.3-1.1 40.3-4 .6-2.7 1-9.5 0-9Zm4.2-30c-15.2 2.5-48.1 13.6-52.8 19.6 7.1-1.2 47.2-6 51.8-6 .6-3.5.2-9.6 1-13.6Zm5-67.8c7.5 4.6 19 15.3 10.8 26.6-9.5 10-23.3-1.4-30-6.6-6.4-4-13.4 6.3-7.6 11 49 36.3 69-29.8 30.5-36.4-4.2-.8-5.8 4-3.8 5.4Zm16.7-67c4.4 0 7 2.8 10.3 5.4 3.4 2.6 7.6 4.7 11.6 6.3 4.1 1.7 8.6 3 13 4 4.5 1 8.7.5 13.2 1.4 12 2.2 9.2 22.2-2.8 21.2a59.6 59.6 0 0 1-30.7-14.5c-3.9-3.2-7.2-7-10.4-11l-.6-.7c-2.9-3.5-5.5-7.1-4-11.8 0-.2.1-.3.4-.3Zm-100 58.3c0-6.4 3.7-21 13-21 5.7 0 9.1 10 9.7 20.2v.4c.3 6.4-1.4 20.2-9.8 20.2S87.7 135.4 87.6 129v-.2Zm135.2 0c0-6.4-3.8-21-13-21-5.5 0-9 9.5-9.7 19.4v.8c-.4 6.1 1.2 20.6 9.8 20.6 8.4 0 12.8-13.1 12.9-19.6v-.2ZM117.7 71.3c5.7-2.4 12.2-1.7 15.7 4.2 3.3 5.5 1 12.3-4.1 15.7-5.1 3.4-12 5.2-17.8 7.1l-.6.2a148.2 148.2 0 0 1-33.7 7.4l-1.6.2c-4.3.5-10.3 2.1-14.2-.3a.8.8 0 0 1-.3-1c2.3-4 8.3-5.5 12.1-7.5 5-2.5 9.8-5.3 14.7-8l14.5-8.5c5-3 10-7.2 15.3-9.5Z" fill="#000"/></g></g><g transform="translate(279 400)"></g><g transform="translate(179 343)"></g><g transform="translate(203 303)"></g></g></svg></div>
       </div>
     </div>
-  </section>
 
-  <div class="dock">
-    <p class="say" id="say" aria-live="polite">Tap the button and say your answer. A mic is not needed to try it.</p>
-    <button class="btn" id="go">
-      <span id="goLabel">Start</span><span class="go" aria-hidden="true">&#187;</span>
+    <span class="stick s-star tw" aria-hidden="true"><svg width="42" height="42" viewBox="0 0 24 24"><path d="M12.4.9 14.4 9.5 22.9 12.1 15.1 14.3 12.4 23.5 9.7 15 1.1 12 9.2 9.7Z" fill="currentColor"/></svg></span>
+    <span class="stick s-squiggle tw" aria-hidden="true"><svg width="50" height="34" viewBox="0 0 50 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"><path d="M2.5 16C7 4.2 14.5 20.9 20.5 11.1 24.4 4.8 31 17.5 36 9.4c2.6-4.2 7-1.4 11.5-4.4"/></svg></span>
+    <span class="stick s-heart tw" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M11.7 21.6C1.5 13.4 3.1 3.9 12 7.9c8.2-4.8 10.7 5.6.4 14.1Z" fill="currentColor"/></svg></span>
+    <span class="stick s-note" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M9 18.2V5.4l11-2.3v12.6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="6" cy="18.4" r="3.4" fill="currentColor"/><circle cx="17" cy="16.2" r="3.4" fill="currentColor"/></svg></span>
+    <span class="stick s-ear" aria-hidden="true"><svg width="54" height="42" viewBox="0 0 54 42" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"><path d="M22 39c-2.5-6-6-7-9.5-10.5S7 19 10 12.5 20.5 3 26 5.5s7.5 9 4 13-6 3.5-6 8"/><path d="M38 11.5c3.2 3 3.2 11 0 14M46.5 5.5c6 6.5 6 20.5 0 26.5"/></svg></span>
+    <span class="burst" id="burst" aria-hidden="true"><svg viewBox="0 0 128 128"><path d="M64 2 76 46l44-12-32 30 32 30-44-12-12 44-12-44-44 12 32-30L8 34l44 12Z" fill="currentColor"/></svg></span>
+
+    <div class="bars" id="bars" role="group" aria-label="How you sounded">
+      <div class="bar"><b>Sounds</b><span class="track"><i class="fill" id="f0"></i></span></div>
+      <div class="bar"><b>Rhythm</b><span class="track"><i class="fill" id="f1"></i></span></div>
+      <div class="bar"><b>Words</b><span class="track"><i class="fill" id="f2"></i></span></div>
+    </div>
+  </main>
+
+  <footer class="dock">
+    <button class="pill" id="go">
+      <span class="ring" aria-hidden="true"></span><span class="ring b" aria-hidden="true"></span>
+      <span id="goIcon" class="hide" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="8.2" y="1.8" width="7.6" height="13" rx="3.8" fill="currentColor"/><path d="M4.8 11.2a7.2 7.2 0 0 0 14.4 0M12 18.4V22" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></span>
+      <span id="goLabel">Start</span>
+      <span class="chev" id="goChev" aria-hidden="true">&#187;</span>
     </button>
-    <button class="minor hidden" id="minor">Type it instead</button>
     <div class="typed" id="typed">
       <label class="sr" for="typedIn">Type what you would say</label>
-      <input id="typedIn" type="text" autocomplete="off" placeholder="Type your answer" />
-      <button id="typedGo">Send</button>
+      <input id="typedIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type your answer">
+      <button id="typedGo">Say it</button>
     </div>
-  </div>
+    <button class="minor hide" id="minor">Type it instead</button>
+  </footer>
 </div>
 
 <script>
-(function(){
+(function () {
   "use strict";
 
-  /* ---------------- the conversation: three A2 turns at a cafe ---------------- */
-  const TURNS = [
-    { maya:"Hello! What would you like?",  model:"I'd like a coffee, please.",   keys:["like","coffee","please"],
-      good:"Lovely. A coffee it is.",      near:"Nearly. Listen once more." },
-    { maya:"Milk and sugar?",              model:"Just milk, no sugar, thanks.", keys:["milk","sugar","no"],
-      good:"Got it. Just milk.",           near:"Almost. Here it is slowly." },
-    { maya:"Anything to eat?",             model:"A cheese sandwich, please.",   keys:["cheese","sandwich","please"],
-      good:"Good choice. Coming up.",      near:"So close. One more listen." }
+  var TURNS = [
+    { maya: "Hello! What would you like?", you: "A coffee, please.",  praise: "Lovely!",  face: "happy" },
+    { maya: "Here or take away?",          you: "Take away, please.", praise: "Spot on!", face: "wow"   },
+    { maya: "Anything else?",              you: "No, thank you.",     praise: "That's it!", face: "laugh" }
   ];
-  const STICKERS = ["star","heart","sparkle","squiggle","cloud"];
 
-  const el = (id) => document.getElementById(id);
-  const app = el("app"), card = el("card"), bubble = el("bubble"), bubbleText = el("bubbleText");
-  const meBubble = el("meBubble"), meText = el("meText"), headline = el("headline"), sub = el("sub");
-  const say = el("say"), go = el("go"), goLabel = el("goLabel"), minor = el("minor");
-  const typed = el("typed"), typedIn = el("typedIn"), typedGo = el("typedGo");
-  const bars = el("bars"), burst = el("burst"), pips = el("pips");
+  var el = function (id) { return document.getElementById(id); };
+  var card = el("card"), headline = el("headline"), lede = el("lede");
+  var bubble = el("bubble"), bubbleText = el("bubbleText"), scene = el("scene");
+  var go = el("go"), goLabel = el("goLabel"), goIcon = el("goIcon"), goChev = el("goChev");
+  var minor = el("minor"), typed = el("typed"), typedIn = el("typedIn"), typedGo = el("typedGo");
+  var prog = el("prog"), burst = el("burst"), bars = el("bars");
+  var faces = {};
+  [].forEach.call(document.querySelectorAll(".face"), function (f) { faces[f.dataset.face] = f; });
 
-  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  const canHear = !!SR;
+  var turn = 0, scores = [], timers = [], mouth = null, rec = null, listening = false, missed = false;
+  var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  let turn = 0, tries = 0, phase = "intro", wordTimer = null, lastSticker = -1, skipLine = null;
-  const totals = { sounds:[], rhythm:[], words:[] };
-
-  /* ---------------- Maya's state: speaking, listening, reacting ---------------- */
-  const POSE_FOR = { speaking:"talk", listening:"listen", reacting:"celebrate" };
-  const cast = el("cast");
-  function setPose(p){
-    card.classList.remove("speaking","listening","reacting");
-    if (p) card.classList.add(p);
-    const want = POSE_FOR[p] || "idle";
-    cast.querySelectorAll(".pose").forEach(n => n.classList.toggle("on", n.dataset.pose === want));
-    cast.classList.toggle("sway", !reduced && want === "idle");
+  /* ---------- small helpers ---------- */
+  function clearTimers() { timers.forEach(clearTimeout); timers = []; stopMouth(); }
+  function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
+  function setFace(name) {
+    for (var k in faces) faces[k].classList.toggle("on", k === name);
+  }
+  function stopMouth() { if (mouth) { clearInterval(mouth); mouth = null; } }
+  function setState(s) { card.dataset.state = s; }
+  function syllables(word) {
+    var w = word.toLowerCase().replace(/[^a-z]/g, "");
+    if (!w) return 1;
+    var m = w.replace(/e$/, "").match(/[aeiouy]{1,2}/g);
+    return Math.max(1, m ? m.length : 1);
   }
 
-  /* ---------------- she speaks, with the words lighting up one by one -------- */
-  function speak(line, rate, done){
-    const words = line.split(" ");
-    bubble.classList.remove("hidden");
-    bubbleText.innerHTML = words.map((w,i)=>'<span class="w" data-i="'+i+'">'+w+'</span>').join(" ");
-    const spans = bubbleText.querySelectorAll(".w");
-    setPose("speaking");
+  /* ---------- the card ---------- */
+  function say(text, mine) {
+    bubble.classList.remove("hide");
+    bubble.classList.toggle("mine", !!mine);
+    bubbleText.innerHTML = "";
+    var words = text.split(" ");
+    words.forEach(function (w, i) {
+      var s = document.createElement("span");
+      s.className = "w";
+      s.textContent = w;
+      bubbleText.appendChild(s);
+      if (i < words.length - 1) bubbleText.appendChild(document.createTextNode(" "));
+    });
+    return [].slice.call(bubbleText.querySelectorAll(".w"));
+  }
 
-    // tapping the button while she talks skips to the end of the line
-    let over = false;
-    const end = () => {
-      if (over) return;
-      over = true;
-      clearTimeout(wordTimer);
-      spans.forEach(s => { s.classList.remove("now"); s.classList.add("said"); });
-      if (window.speechSynthesis) { try { window.speechSynthesis.cancel(); } catch(e){} }
-      setPose(null);
-      if (done) done();
-    };
-    skipLine = end;
+  function speakAloud(text, rate) {
+    try {
+      if (!("speechSynthesis" in window)) return;
+      window.speechSynthesis.cancel();
+      var u = new SpeechSynthesisUtterance(text);
+      u.lang = "en-GB"; u.rate = rate || 1;
+      window.speechSynthesis.speak(u);
+    } catch (e) { /* no voice available: the karaoke line still carries the turn */ }
+  }
 
-    let i = 0;
-    const step = () => {
-      spans.forEach((s,k)=>{ s.classList.toggle("now", k===i); if (k<i) s.classList.add("said"); });
-      if (i >= spans.length){ end(); return; }
-      const w = spans[i].textContent;
-      i++;
-      wordTimer = setTimeout(step, (reduced ? 120 : 170) + w.length * (38 / rate));
-    };
-    clearTimeout(wordTimer);
-    step();
+  /* Maya speaks: words light up one by one and the mouth swaps on the syllable beat. */
+  function mayaSays(text, rate, done) {
+    clearTimers();
+    setState("speak");
+    setFace("idle");
+    var words = say(text, false);
+    speakAloud(text, rate);
+    var at = 0, beat = 125 / (rate || 1);
+    (function next(i) {
+      if (i >= words.length) {
+        later(function () { stopMouth(); setFace("idle"); done(); }, 420 / (rate || 1));
+        return;
+      }
+      var hold = (190 + syllables(words[i].textContent) * 150) / (rate || 1);
+      later(function () {
+        if (i) { words[i - 1].classList.remove("now"); words[i - 1].classList.add("said"); }
+        words[i].classList.add("now");
+        stopMouth();
+        var open = false;
+        setFace("talk");
+        if (!reduced) {
+          mouth = setInterval(function () { open = !open; setFace(open ? "idle" : "talk"); }, beat);
+        }
+        later(function () { stopMouth(); setFace("idle"); }, hold - 60);
+      }, at);
+      at += hold + 80;
+      next(i + 1);
+    })(0);
+    later(function () {
+      if (words.length) { words[words.length - 1].classList.remove("now"); words[words.length - 1].classList.add("said"); }
+    }, at);
+  }
 
-    if (window.speechSynthesis){
-      try {
-        window.speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(line);
-        u.lang = "en-GB"; u.rate = rate;
-        window.speechSynthesis.speak(u);
-      } catch(e){}
+  /* ---------- scoring: three honest-ish signals, never a percentage ---------- */
+  function norm(s) { return s.toLowerCase().replace(/[^a-z' ]/g, "").replace(/\s+/g, " ").trim(); }
+  function lev(a, b) {
+    var prev = [], i, j, cur;
+    for (j = 0; j <= b.length; j++) prev[j] = j;
+    for (i = 1; i <= a.length; i++) {
+      cur = [i];
+      for (j = 1; j <= b.length; j++) {
+        cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      }
+      prev = cur;
     }
+    return prev[b.length];
+  }
+  function lcs(a, b) {
+    var t = [], i, j;
+    for (i = 0; i <= a.length; i++) { t[i] = []; for (j = 0; j <= b.length; j++) t[i][j] = 0; }
+    for (i = 1; i <= a.length; i++) for (j = 1; j <= b.length; j++) {
+      t[i][j] = a[i - 1] === b[j - 1] ? t[i - 1][j - 1] + 1 : Math.max(t[i - 1][j], t[i][j - 1]);
+    }
+    return t[a.length][b.length];
+  }
+  function score(said, target) {
+    var a = norm(said), b = norm(target);
+    var aw = a.split(" ").filter(Boolean), bw = b.split(" ").filter(Boolean);
+    var hit = bw.filter(function (w) { return aw.indexOf(w) > -1; }).length;
+    var words = bw.length ? hit / bw.length : 0;
+    var as = a.replace(/ /g, ""), bs = b.replace(/ /g, "");
+    var sounds = Math.max(0, 1 - lev(as, bs) / Math.max(1, bs.length));
+    var order = bw.length ? lcs(aw, bw) / bw.length : 0;
+    var len = 1 - Math.min(1, Math.abs(aw.length - bw.length) / Math.max(2, bw.length));
+    return { sounds: sounds, rhythm: order * 0.55 + len * 0.45, words: words };
   }
 
-  /* ---------------- her turn, then the learner's ---------------- */
-  function startTurn(){
-    phase = "speaking";
-    card.classList.remove("lean");
-    headline.parentNode.classList.add("hidden");
-    meBubble.classList.add("hidden");
-    burst.classList.remove("go");
-    bars.classList.add("hidden");
-    paintPips();
-    setButton("Maya is talking", true);
-    say.textContent = "Listen.";
-    speak(TURNS[turn].maya, 1, askLearner);
+  /* ---------- turn flow ---------- */
+  function setProg() {
+    [].forEach.call(prog.children, function (s, i) { s.classList.toggle("on", i <= turn); });
+    prog.setAttribute("aria-label", "Turn " + Math.min(turn + 1, TURNS.length) + " of " + TURNS.length);
   }
 
-  function askLearner(){
-    phase = "ready";
-    const t = TURNS[turn];
-    say.innerHTML = 'Say: <b>' + t.model.replace(/</g,"&lt;") + '</b>';
-    setButton("Say it", false);
-    minor.classList.remove("hidden");
-    go.classList.remove("live");
-  }
-
-  function setButton(label, waiting){
+  function button(label, opts) {
+    opts = opts || {};
     goLabel.textContent = label;
-    go.classList.toggle("waiting", !!waiting);
+    go.disabled = !!opts.off;
+    goIcon.classList.toggle("hide", !opts.mic);
+    goChev.classList.toggle("hide", !opts.chev);
+    go.classList.toggle("live", !!opts.live);
   }
 
-  /* ---------------- listening ---------------- */
-  let rec = null;
-  function listen(){
-    if (!canHear){ openTyped("No mic here. Type your answer instead."); return; }
-    phase = "listening";
-    setPose("listening");
-    go.classList.add("live");
-    setButton("I'm listening", false);
-    meBubble.classList.remove("hidden");
-    meText.textContent = "...";
+  function askTurn() {
+    setProg();
+    missed = false;
+    lede.classList.add("hide");
+    headline.textContent = "Maya asks";
+    button("Listen", { off: true });
+    minor.classList.add("hide");
+    typed.classList.remove("show");
+    mayaSays(TURNS[turn].maya, 1, yourTurn);
+  }
+
+  function replay() {
+    headline.textContent = "Once more";
+    button("Listen", { off: true });
+    mayaSays(TURNS[turn].maya, 0.75, yourTurn);
+  }
+
+  function yourTurn() {
+    setState("listen");
+    setFace("listen");
+    headline.textContent = "Your turn";
+    say(TURNS[turn].you, true);
+    button("Say it", { mic: true });
+    minor.classList.remove("hide");
+    go.onclick = startListening;
+  }
+
+  function startListening() {
+    if (listening) { stopListening(); return; }
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    button("Listening", { mic: true, live: true });
+    listening = true;
+    if (!SR) { useTyping(); return; }
     try {
       rec = new SR();
-      rec.lang = "en-GB"; rec.interimResults = true; rec.maxAlternatives = 1;
-      let heard = "";
-      rec.onresult = (ev) => {
-        let live = "";
-        for (let i = ev.resultIndex; i < ev.results.length; i++){
-          live += ev.results[i][0].transcript;
-          if (ev.results[i].isFinal) heard += ev.results[i][0].transcript;
-        }
-        meText.textContent = (heard || live).trim() || "...";
-      };
-      rec.onerror = () => { stopListening(); openTyped("I could not hear you. Type it instead."); };
-      rec.onend = () => {
-        go.classList.remove("live");
-        if (phase !== "listening") return;
-        const said = meText.textContent.trim();
-        if (!said || said === "...") { openTyped("I could not hear you. Type it instead."); return; }
-        judge(said);
-      };
+      rec.lang = "en-GB"; rec.interimResults = false; rec.maxAlternatives = 1;
+      rec.onresult = function (e) { listening = false; judge(e.results[0][0].transcript); };
+      rec.onerror = function () { listening = false; useTyping(); };
+      rec.onend = function () { if (listening) { listening = false; useTyping(); } };
       rec.start();
-    } catch(e){
-      stopListening();
-      openTyped("No mic here. Type your answer instead.");
-    }
+      later(function () { if (listening) stopListening(); }, 7000);
+    } catch (e) { listening = false; useTyping(); }
   }
 
-  function stopListening(){
-    phase = "ready";
-    setPose(null);
-    go.classList.remove("live");
-    setButton("Say it", false);
-    if (rec) { try { rec.stop(); } catch(e){} }
+  function stopListening() {
+    listening = false;
+    try { if (rec) rec.stop(); } catch (e) { /* already stopped */ }
+    useTyping();
   }
 
-  function openTyped(message){
-    phase = "typing";
-    setPose("listening");
-    meBubble.classList.add("hidden");
-    if (message) say.textContent = message;
-    typed.classList.add("on");
-    go.classList.add("hidden");
-    minor.classList.add("hidden");
-    typedIn.value = "";
-    typedIn.placeholder = TURNS[turn].model;
+  function useTyping() {
+    button("Say it", { mic: true });
+    typed.classList.add("show");
+    minor.classList.add("hide");
     typedIn.focus();
   }
 
-  function closeTyped(){
-    typed.classList.remove("on");
-    go.classList.remove("hidden");
-  }
+  function judge(said) {
+    clearTimers();
+    try { if (rec) rec.abort(); } catch (e) { /* nothing to abort */ }
+    listening = false;
+    typed.classList.remove("show");
+    typedIn.value = "";
+    minor.classList.add("hide");
+    var s = score(said, TURNS[turn].you);
+    var avg = (s.sounds + s.rhythm + s.words) / 3;
 
-  /* ---------------- scoring: three ink bars, never a percentage ------------- */
-  function norm(s){ return s.toLowerCase().replace(/[^a-z' ]/g," ").replace(/\s+/g," ").trim(); }
-
-  function judge(said){
-    phase = "reacting";
-    const t = TURNS[turn];
-    const heard = norm(said), model = norm(t.model);
-    const hw = heard ? heard.split(" ") : [], mw = model.split(" ");
-
-    const hits = t.keys.filter(k => hw.some(w => w === k || (k.length > 3 && w.indexOf(k.slice(0,4)) === 0)));
-    const words = hits.length / t.keys.length;
-    const overlap = mw.filter(w => hw.indexOf(w) > -1).length / mw.length;
-    const sounds = Math.min(1, overlap * 0.75 + words * 0.35);
-    const rhythm = Math.max(0.25, 1 - Math.abs(hw.length - mw.length) / Math.max(4, mw.length));
-
-    meBubble.classList.remove("hidden");
-    meText.textContent = said;
-
-    if (words >= 0.6 || tries >= 2){
-      totals.sounds.push(sounds); totals.rhythm.push(rhythm); totals.words.push(words);
-      reactGood(t);
-    } else {
-      tries++;
-      reactMiss(t);
+    if (avg < 0.62) {
+      missed = true;
+      setState("miss");
+      setFace("oops");
+      headline.textContent = "Nearly";
+      say(TURNS[turn].you, true);
+      button("Again", { off: true });
+      later(replay, 1300);
+      return;
     }
+
+    scores.push(s);
+    setState("good");
+    setFace(TURNS[turn].face);
+    headline.textContent = TURNS[turn].praise;
+    say(TURNS[turn].you, true);
+    [].forEach.call(bubbleText.querySelectorAll(".w"), function (w) { w.classList.add("said"); });
+    if (!reduced) { burst.classList.remove("go"); void burst.offsetWidth; burst.classList.add("go"); }
+    speakAloud(TURNS[turn].praise, 1);
+    button(turn === TURNS.length - 1 ? "See how you did" : "Next", { chev: true });
+    go.onclick = function () {
+      turn += 1;
+      if (turn >= TURNS.length) finish(); else askTurn();
+    };
   }
 
-  function reactGood(t){
-    setPose("reacting");            // the star pops first, then she answers
-    paintSticker();
-    burst.classList.add("go");
-    say.textContent = "";
-    setButton("Maya is talking", true);
-    minor.classList.add("hidden");
-    closeTyped();
-    setTimeout(() => {
-      speak(t.good, 1, () => {
-        setPose("reacting");
-        setTimeout(() => {
-          turn++; tries = 0;
-          burst.classList.remove("go");
-          if (turn >= TURNS.length) finish(); else startTurn();
-        }, reduced ? 200 : 650);
-      });
-    }, reduced ? 120 : 460);
-  }
-
-  function reactMiss(t){
-    setPose("listening");           // she leans in and stays leaning through the replay
-    card.classList.add("lean");
-    closeTyped();
-    minor.classList.add("hidden");
-    setButton("Listen again", true);
-    say.textContent = "Listen, then try again.";
-    speak(t.near, 1, () => {
-      setPose("listening");
-      speak(t.model, 0.75, () => { card.classList.remove("lean"); setPose(null); askLearner(); });
-    });
-  }
-
-  /* one of the kit stickers, never the same twice in a row */
-  const SHAPES = {
-    "heart": "<svg viewBox=\"0 0 24 24\" width=\"72\" height=\"72\" aria-hidden=\"true\"><g><path d=\"M11.70 21.60 C1.55 13.37 3.13 3.90 12.04 7.91 C20.23 3.07 22.74 13.47 12.42 21.99 Z\" fill=\"#121212\"></path></g></svg>",
-    "star": "<svg viewBox=\"0 0 24 24\" width=\"72\" height=\"72\" aria-hidden=\"true\"><g><path d=\"M12.48 0.87 L14.44 9.47 L22.88 12.09 L15.09 14.25 L12.37 23.47 L9.71 15.01 L1.13 11.98 L9.19 9.70 Z\" fill=\"#121212\"></path></g></svg>",
-    "sparkle": "<svg viewBox=\"0 0 24 24\" width=\"72\" height=\"72\" aria-hidden=\"true\"><g><path d=\"M10.76 3.02 L12.25 9.79 L19.09 10.99 L12.00 12.67 L10.87 18.73 L10.03 12.41 L2.94 11.20 L9.58 9.64 Z\" fill=\"#121212\"></path><circle cx=\"19.5\" cy=\"18.5\" r=\"2.1\" fill=\"#121212\"></circle><circle cx=\"4.5\" cy=\"20\" r=\"1.4\" fill=\"#121212\"></circle></g></svg>",
-    "squiggle": "<svg viewBox=\"0 0 24 24\" width=\"72\" height=\"72\" aria-hidden=\"true\"><g><path d=\"M2.31 15.75 C5.50 5.33 9.88 20.60 13.26 11.50 C14.96 6.92 18.76 10.45 22.47 7.11\" fill=\"none\" stroke=\"#121212\" stroke-width=\"3\" stroke-linecap=\"round\"></path></g></svg>",
-    "cloud": "<svg viewBox=\"0 0 24 24\" width=\"72\" height=\"72\" aria-hidden=\"true\"><g><path d=\"M6.70 18.92 C0.64 19.31 0.77 11.11 7.49 11.67 C7.69 5.95 15.78 4.44 17.88 10.71 C22.65 9.84 23.95 18.82 17.25 19.12 Z\" fill=\"#121212\"></path></g></svg>"
-};
-  function paintSticker(){
-    let i;
-    do { i = Math.floor(Math.random() * STICKERS.length); } while (i === lastSticker);
-    lastSticker = i;
-    burst.innerHTML = SHAPES[STICKERS[i]];
-  }
-
-  /* ---------------- the "You did it" card ---------------- */
-  function finish(){
-    phase = "done";
-    setPose("reacting");
-    card.dataset.tone = "mint";
-    card.classList.add("done");
-    bubble.classList.add("hidden");
-    meBubble.classList.add("hidden");
-    burst.classList.remove("go");
-    headline.parentNode.classList.remove("hidden");
+  function finish() {
+    clearTimers();
+    setProg();
+    setState("done");
+    setFace("happy");
     headline.textContent = "You did it";
-    sub.textContent = "You can now order a coffee at a cafe.";
-    paintPips(true);
-
-    const avg = (a) => a.length ? a.reduce((x,y)=>x+y,0) / a.length : 0;
-    const rows = [["Sounds", avg(totals.sounds)], ["Rhythm", avg(totals.rhythm)], ["Words", avg(totals.words)]];
-    bars.innerHTML = rows.map(r =>
-      '<div class="bar-row"><span class="bar-label">' + r[0] + '</span>' +
-      '<div class="track" role="img" aria-label="' + r[0] + ': ' + band(r[1]) + '"><i class="fill"></i></div></div>'
-    ).join("");
-    bars.classList.remove("hidden");
-    const fills = bars.querySelectorAll(".fill");
-    rows.forEach((r,i) => setTimeout(() => {
-      fills[i].style.width = Math.round(26 + r[1] * 66) + "%";
-    }, 160 + i * 60));
-
-    say.textContent = "";
-    setButton("Again", false);
-    minor.classList.add("hidden");
-    closeTyped();
+    bubble.classList.add("hide");
+    lede.classList.add("hide");
+    button("Again", { chev: true });
+    var avg = function (k) {
+      if (!scores.length) return 0.7;
+      return scores.reduce(function (t, s) { return t + s[k]; }, 0) / scores.length;
+    };
+    ["sounds", "rhythm", "words"].forEach(function (k, i) {
+      var pct = Math.round(Math.max(0.3, Math.min(1, avg(k))) * 100);
+      later(function () { el("f" + i).style.width = pct + "%"; }, 160 + i * 110);
+    });
+    go.onclick = restart;
   }
 
-  function band(v){ return v >= 0.75 ? "strong" : v >= 0.45 ? "growing" : "getting started"; }
-
-  function paintPips(all){
-    const list = pips.children;
-    for (let i = 0; i < list.length; i++){
-      list[i].classList.toggle("done", all || i < turn);
-      list[i].classList.toggle("live", !all && i === turn);
-    }
-    pips.setAttribute("aria-label", all ? "All three turns done" : "Turn " + (turn + 1) + " of 3");
+  function restart() {
+    clearTimers();
+    turn = 0; scores = []; missed = false;
+    ["f0", "f1", "f2"].forEach(function (id) { el(id).style.width = "0"; });
+    askTurn();
   }
 
-  function reset(){
-    turn = 0; tries = 0; lastSticker = -1;
-    totals.sounds = []; totals.rhythm = []; totals.words = [];
-    card.dataset.tone = "sun";
-    card.classList.remove("done");
-    bars.classList.add("hidden");
-    headline.textContent = "Talk with Maya";
-    sub.textContent = "Three short turns at a cafe. Say your answer out loud.";
-    headline.parentNode.classList.remove("hidden");
-    bubble.classList.add("hidden");
-    meBubble.classList.add("hidden");
-    setPose(null);
-    phase = "intro";
-    paintPips();
-    say.textContent = canHear ? "Tap the button and say your answer." : "Tap the button, then type your answer.";
-    setButton("Start", false);
-    minor.classList.add("hidden");
-    closeTyped();
-  }
-
-  /* ---------------- one button drives everything ---------------- */
-  go.addEventListener("click", () => {
-    if (phase === "intro" || phase === "done") { if (phase === "done") reset(); startTurn(); return; }
-    if (phase === "ready") { listen(); return; }
-    if (phase === "listening") { try { rec && rec.stop(); } catch(e){} return; }
-    // she is talking: skip to the end of the line
-    if (skipLine) skipLine();
+  /* ---------- wiring ---------- */
+  go.onclick = function () { restart(); };
+  minor.onclick = useTyping;
+  typedGo.onclick = function () { if (typedIn.value.trim()) judge(typedIn.value); };
+  typedIn.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") { e.preventDefault(); if (typedIn.value.trim()) judge(typedIn.value); }
   });
 
-  minor.addEventListener("click", () => openTyped("Type what you would say."));
-  typedGo.addEventListener("click", sendTyped);
-  typedIn.addEventListener("keydown", (e) => { if (e.key === "Enter") sendTyped(); });
-  function sendTyped(){
-    const v = typedIn.value.trim();
-    if (!v) return;
-    closeTyped();
-    judge(v);
-  }
-
-  /* ---------------- light and dark ---------------- */
-  const sw = el("switch");
-  sw.addEventListener("click", () => {
-    const dark = document.documentElement.dataset.theme === "dark";
+  el("theme").onclick = function () {
+    var dark = document.documentElement.dataset.theme === "dark";
     document.documentElement.dataset.theme = dark ? "light" : "dark";
-    sw.setAttribute("aria-label", dark ? "Switch to dark mode" : "Switch to light mode");
-    sw.innerHTML = dark
-      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="4.6"/><path d="M12 2.4v2M12 19.6v2M2.4 12h2M19.6 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4"/></svg>'
-      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5Z"/></svg>';
-  });
-
-  /* a small hook so the prototype can be driven in a browser check */
-  window.__maya = {
-    start: startTurn,
-    answer: (text) => judge(text),
-    pose: setPose,
-    listen: () => { phase = "listening"; setPose("listening"); go.classList.add("live"); setButton("I'm listening", false); meBubble.classList.remove("hidden"); meText.textContent = "I'd like a coffee"; },
-    finish: () => { totals.sounds=[.72,.6,.78]; totals.rhythm=[.62,.8,.7]; totals.words=[1,.67,1]; turn=3; finish(); },
-    state: () => phase
+    this.setAttribute("aria-pressed", String(!dark));
+    document.querySelector('meta[name="theme-color"]').content = dark ? "#FFF7E8" : "#121212";
   };
 
-  reset();
+  /* Board and test hooks: drive the prototype without a microphone. */
+  window.PROTO = {
+    start: restart,
+    answer: function (text) { judge(text || TURNS[turn].you); },
+    turn: function () { return turn; },
+    state: function () { return card.dataset.state; }
+  };
 })();
 </script>
 </body>

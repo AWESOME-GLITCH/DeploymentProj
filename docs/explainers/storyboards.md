@@ -868,7 +868,7 @@ then hears themselves do it.
 | atom_id | ATM-A2-LST-0015 |
 | title | Thursday at half past six |
 | sublevel / strand | A2.1 / LST (Listening) |
-| type | video, 45 s, 1350 frames |
+| type | video, 40 s, 1200 frames (re-cut from 45 s on 26 October) |
 | single target | The day after on, the time after at: on Thursday at half past six |
 | characters | you (listening to a voice message), maya (explain and practise). Noor is a voice on the phone, not drawn |
 | setting | The same kitchen table as Monday at ten, early evening: the window behind goes from blue to amber over the video. A phone on the table with a voicemail bar |

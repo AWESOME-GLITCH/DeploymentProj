@@ -99,6 +99,12 @@ const en: Dict = {
   download_report: "Download my report",
   first_week: "After a week of practice, your level appears here.",
   hours: "hours",
+  // How I'm doing, in plain words. The other dictionaries fall back to English
+  // for these until they are translated (makeT falls back key by key).
+  minutes_so_far: "minutes of English so far",
+  hours_so_far: "hours of English so far",
+  learners_today: "learners did this lesson today",
+  earlier_can_do: "Before today I learnt to",
   can_do_line: "What I can do now",
   next_stop: "Next stop",
   checkpoint: "AZE checkpoint",

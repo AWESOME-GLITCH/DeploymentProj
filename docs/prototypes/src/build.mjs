@@ -15,7 +15,8 @@ const src = fs.readFileSync(path.join(root, "docs/prototypes/src", `${name}.html
 const inline = (cast, n) => {
   let svg = fs.readFileSync(path.join(root, "docs/design/cast", `${cast}.svg`), "utf8");
   svg = svg.replace(/<metadata[\s\S]*?<\/metadata>/g, "");
-  svg = svg.replace(/\s(?:width|height)="\d+"/g, "");
+  // Drop the fixed size on the root tag only: the mask rect needs to keep its width and height.
+  svg = svg.replace(/^<svg[^>]*>/, (tag) => tag.replace(/\s(?:width|height)="\d+"/g, ""));
   // Every pre-rendered file reuses the same ids, so scope them to this copy.
   for (const id of new Set([...svg.matchAll(/id="([^"]+)"/g)].map((m) => m[1]))) {
     svg = svg.split(`id="${id}"`).join(`id="${id}-${n}"`).split(`url(#${id})`).join(`url(#${id}-${n})`);
