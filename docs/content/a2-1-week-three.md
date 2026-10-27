@@ -51,7 +51,7 @@ The six steps of §1.2 are scene, notice, say it with a response, say it again, 
 | Atom | input | noticing | free_use (step 3) | controlled (step 4) | free_use (step 5) | check (delayed) |
 | --- | --- | --- | --- | --- | --- | --- |
 | 0021 | video 50 s | This one doesn't work. | 2101 | 2102, 2104, 2103, 2105 | 2106, 2107 | 2108 |
-| 0022 | 4 word cards | too small, too big | 2201 | 2202, 2204, 2203, 2205 | 2206, 2207 | 2208 |
+| 0022 | 3 word cards | too small, too big | 2201 | 2202, 2204, 2203, 2205 | 2206, 2207 | 2208 |
 | 0023 | video 50 s | Could I change it for a bigger one? | 2301 | 2302, 2304, 2303, 2305 | 2306, 2307 | 2308 |
 | 0024 | video 50 s | Here's the receipt. I bought it on Saturday. | 2401 | 2402, 2404, 2403, **2205**, 2405 | 2406, 2407 | 2408 |
 | 0025 | video 35 s | none: nothing new is taught | 2501 | **2205**, 2502, **2305**, **ITM-INT-0105** | 2503, 2504 | 2505 |
