@@ -876,31 +876,53 @@ then hears themselves do it.
 
 ### Beats
 
-| id | kind | from | to | narration (TTS) | targets | pauseAt | scene for the animator |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| hook | hook | 0 | 150 | A voice message. Omar listens twice. | | | Kitchen table, amber window. The phone lies flat with a voicemail bar that fills left to right and a small "2" badge for two plays. you leans in, chin on hand. Sound rings rise from the phone in time with the bar. |
-| n1 | notice | 150 | 420 | Your appointment is on Thursday at half past six. | on Thursday at half past six | | The message bubble floats up out of the phone, grey with a tail down. The words type on the narration; "Thursday" lands on a calendar page that springs in to the left, "half past six" on a clock face that springs in to the right, hands snapping to 6.30 with a thunk. Both stay on screen. |
-| n2 | notice | 420 | 620 | On Thursday. Not Tuesday. | On Thursday | | The calendar page flicks through the week: a Tuesday page tries to settle, then slides off with a small wobble; the Thursday page drops back with a leaf tick. The clock dims slightly so the day is the only thing moving. No cross, no red. |
-| explain | explain | 620 | 960 | The day after on. The time after at. | on, at | | PAPER background, maya in the corner circle. Centre: the sentence laid out as two slots, "on ___" over the calendar page and "at ___" over the clock. At frame 720 the Thursday page slides into the first slot with a click; at 810 the clock slides into the second. The words "on" and "at" are ACCENT chips above their slots. At 900 "half past six" and "6.30" appear side by side with an equals sign. |
-| practise | practise | 960 | 1260 | Say it with me. On Thursday at half past six. | on Thursday at half past six | 1140 | Pale blue background, maya large in a white circle. Karaoke in 88 px, one line, "on" and "at" in ACCENT. At 1140 the mic pulses and the player pauses. On resume the calendar page and the clock land under the line with a tick. |
-| recap | recap | 1260 | 1350 | On Thursday at half past six. | on Thursday at half past six | | ACCENT background, white card: "REMEMBER", then "**on** Thursday **at** half past six", and under it "6.30". Icons: calendar page, clock at 6.30, phone with a voicemail bar. |
+Re-cut 26 October 2026 to **The attention law**, on the video spine, from six
+beats and one stop to eight beats and six. The old cut had a nine-second notice
+beat, an eleven-second explain beat, and the learner's only act at 38 s, which
+breaks rules 1 and 2 outright.
+
+**One deviation, with its reason.** The hook carries the message itself, 5 s with
+no ask, where the beat law wants an ask at the end of every beat that teaches. A
+listening atom cannot honestly be cut any other way: the learner has to *hear*
+the message before there is anything to commit to, and the listening rule in
+`docs/learning-model.md` §1.7 forbids showing the words before they have been
+heard. The hook and the `predict` beat therefore work as one act-pair and the
+first stop lands at 8.6 s, inside rule 1's ten-second ceiling. This is the
+`ATM-A2-LST-0004` shape: hear it once, say which one you heard, then see it
+confirmed. Prediction is this atom's first ask and its best one, because
+committing to a day before the text appears is the whole criterion.
+
+| id | kind | from | to | narration (TTS) | targets | ask | pauseAt | scene for the animator |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| hook | hook | 0 | 150 | Your appointment is on Thursday at half past six. | | | | Kitchen table, amber window. The phone lies flat with a voicemail bar that fills left to right and a small "2" badge for two plays. you leans in, chin on hand. Sound rings rise from the phone in time with the bar. **No text on screen at all**: the message is audio only, played once at natural speed, and the L1 caption says that a message is playing, not what it said. The bar finishes on 138, so the frame is settled before the stop. |
+| predict | predict | 150 | 270 | Which day? | Thursday | predict | 258 | The prediction moment, and the first ask of the video. Two calendar pages spring in side by side over the phone, TUESDAY left and THURSDAY right, both lit the same so the choice is real. A thought cloud over you carries a big ACCENT "?". Nothing is spoken in English; the caption asks in the learner's own language. The ask is one tap on a page. A tap on Thursday lights it leaf; a tap on Tuesday dims it and replays the message at 0.75, which is the answer arriving as a consequence rather than as a correction. n1 settles it either way. |
+| n1 | notice | 270 | 420 | On Thursday. Not Tuesday. | on Thursday | tap | 408 | The Tuesday page slides off with a small wobble; the Thursday page drops to centre with a leaf tick, and the message bubble floats up out of the phone, grey with a tail down, its words typing on the narration with "on Thursday" in ACCENT. This is the first time the learner sees the words. No cross, no red. The tap is the chips "on" and "Thursday". |
+| n2 | notice | 420 | 600 | At half past six. Six thirty. | at half past six | say the word | 588 | A clock face springs in to the right of the bubble, hands snapping to 6.30 with a thunk by 480, and "6.30" types under it beside "half past six" with an equals sign between them, settled by 558. The calendar page stays in frame, so the day and the time are both visible at once. The learner says "half past six" at 588, which is the chunk and not yet the phrase. |
+| n3 | notice | 600 | 750 | On Thursday at half past six. | on Thursday at half past six | say the line | 738 | The bubble, the calendar page and the clock line up in a row and the whole phrase reads across them on one line, "on" and "at" in ACCENT. you nods once (12-frame ease). The learner says the whole phrase at 738, which is the criterion. |
+| explain | explain | 750 | 930 | The day after on. The time after at. | on, at | tap | 918 | PAPER background, maya in the corner circle. Centre: two slots, "on ___" over the calendar page and "at ___" over the clock. At frame 800 the Thursday page slides into the first slot with a click; at 860 the clock slides into the second. The words "on" and "at" sit above their slots as ACCENT chips, settled by 900. Nothing else is explained. The tap is the two chips. |
+| practise | practise | 930 | 1110 | Say it with me. On Friday at half past five. | on Friday, at half past five | say it changed | 1098 | Pale blue background, maya large in a white circle. A new day and a new time, so the learner is not reading back the phrase they have just said. Karaoke in 88 px, one line, "on" and "at" in ACCENT, "Friday" and "five" in SAFFRON. Line complete by 1062, mic cue in by 1074. On resume the calendar page flicks to Friday and the clock hands sweep to 5.30, both with a tick. |
+| recap | recap | 1110 | 1200 | You can hear the day and the time. Again tomorrow. | | | | ACCENT background, white card: "REMEMBER", then "**on** Thursday **at** half past six", and under it "6.30". Icons: calendar page, clock at 6.30, phone with a voicemail bar. The narration is the self-efficacy close, in the learner's own language. Hold with nothing moving. |
 
 ### L1 captions
 
 | beat | ar | es | hi | ru | tr | zh |
 | --- | --- | --- | --- | --- | --- | --- |
-| hook | رسالة صوتية. عمر يسمعها مرتين. | Un mensaje de voz. Omar lo oye dos veces. | एक वॉइस मैसेज। उमर दो बार सुनता है। | Голосовое сообщение. Омар слушает дважды. | Bir sesli mesaj. Omar iki kez dinler. | 一条语音留言。Omar 听了两遍。 |
-| n1 | موعدك الخميس في السادسة والنصف. | Su cita es el jueves a las seis y media. | आपका अपॉइंटमेंट गुरुवार साढ़े छह बजे है। | Ваш приём в четверг в половине седьмого. | Randevunuz perşembe altı buçukta. | 您的预约是星期四六点半。 |
-| n2 | الخميس، لا الثلاثاء. | El jueves, no el martes. | गुरुवार, मंगलवार नहीं। | В четверг, не во вторник. | Perşembe, salı değil. | 是星期四，不是星期二。 |
+| hook | رسالة صوتية. اسمعها مرتين. | Un mensaje de voz. Escucha dos veces. | एक वॉइस मैसेज। दो बार सुनो। | Голосовое сообщение. Послушайте дважды. | Sesli mesaj. İki kez dinle. | 一条语音留言。听两遍。 |
+| predict | أي يوم؟ | ¿Qué día? | कौन सा दिन? | Какой день? | Hangi gün? | 哪一天？ |
+| n1 | الخميس، لا الثلاثاء. | El jueves, no el martes. | गुरुवार, मंगलवार नहीं। | В четверг, не во вторник. | Perşembe, salı değil. | 是星期四，不是星期二。 |
+| n2 | في السادسة والنصف. 6.30. | A las seis y media. 6.30. | साढ़े छह बजे। 6.30। | В половине седьмого. 6.30. | Altı buçukta. 6.30. | 六点半。6.30。 |
+| n3 | الخميس في السادسة والنصف. | El jueves a las seis y media. | गुरुवार साढ़े छह बजे। | В четверг в половине седьмого. | Perşembe altı buçukta. | 星期四六点半。 |
 | explain | اليوم بعد on، والوقت بعد at. | El día tras on, la hora tras at. | on के बाद दिन, at के बाद समय। | После on день, после at время. | on'dan sonra gün, at'ten sonra saat. | on 后面是日子，at 后面是时间。 |
 | practise | قلها معي. | Dilo conmigo. | मेरे साथ बोलो। | Скажи со мной. | Benimle söyle. | 跟我一起说。 |
-| recap | half past six تعني 6.30. | half past six es 6.30. | half past six यानी 6.30। | half past six это 6.30. | half past six yani 6.30. | half past six 就是 6.30。 |
+| recap | يمكنك سماع اليوم والوقت. غدًا مرة أخرى. | Ya puedes oír el día y la hora. Mañana otra vez. | अब आप दिन और समय सुन सकते हैं। कल फिर। | Теперь вы слышите день и время. Завтра снова. | Artık günü ve saati duyabiliyorsun. Yarın tekrar. | 你现在能听出日子和时间了。明天再来。 |
 
 ### Interactive moments
 
 - Tappable words: all caption words; the calendar page plays "Thursday" and the clock plays "half past six" wherever they appear, including in the recap card.
-- At the pause (frame 1140) the learner says: "On Thursday at half past six." Model answer: the same line. Scored as shadow (the day and the time must both be audible, not the whole sentence). `ITM-LST-1501` then asks for the same two facts back from a live message.
-- Extra tap: in n1 the voicemail bar is a scrub bar for 120 frames. Dragging it replays the message from that point at 0.75x, which is the only replay offered before the first attempt, exactly as the listening rule in `docs/learning-model.md` §1.7 requires.
+- Six stops, growing, and the first of them is the prediction: tap the day at 258, tap the key words at 408, say "half past six" at 588, say the whole phrase at 738, tap the two chips at 918, say it with a new day and time at 1098. The first ask lands at 8.6 s and no passive stretch runs longer than 8.6 s.
+- At 738 the learner says "On Thursday at half past six." and at 1098 "On Friday at half past five." Both scored as shadow (the day and the time must both be audible, not the whole sentence). `ITM-LST-1501` then asks for the same two facts back from a live message.
+- Prediction (frame 258, `predict` beat): one tap on TUESDAY or THURSDAY, after the message has been heard once and before any of it is written down. A tap on Tuesday dims it and replays the message at 0.75, so the learner hears the answer rather than being told they were wrong. **Not wired yet**: needs the `predict` beat kind and ask kind, LP-46.
+- Extra tap: in the hook the voicemail bar is a scrub bar for 120 frames. Dragging it replays the message from that point at 0.75x, which is the only replay offered before the first attempt, exactly as the listening rule in `docs/learning-model.md` §1.7 requires. The bar stays live through the `predict` beat, so a learner who is unsure can listen again instead of guessing.
 
 ---
 
@@ -911,7 +933,7 @@ then hears themselves do it.
 | atom_id | ATM-A2-WRT-0016 |
 | title | Sorry, I can't come |
 | sublevel / strand | A2.1 / WRT (Writing) |
-| type | word_tutorial, 40 s, 1200 frames |
+| type | word_tutorial, 35 s, 1050 frames (re-cut from 40 s on 26 October) |
 | single target | Sorry, then the reason with because, then the new time |
 | characters | you (writing), maya (practise). The reader is a contact name on the phone, not drawn |
 | setting | A phone frame centre screen, chat header "Hillside Health Centre", saffron bubbles on the right. Behind it, a desk corner with a laptop and a wall clock at ten |
@@ -919,15 +941,28 @@ then hears themselves do it.
 
 ### Beats
 
-| id | kind | from | to | narration (TTS) | targets | pauseAt | scene for the animator |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| hook | hook | 0 | 120 | Ten o'clock. Omar is at work. | | | The phone frame rises into the centre. Behind it the wall clock snaps to ten and a laptop screen glows. A calendar reminder slides down from the top of the phone: "Appointment 10.00" and pulses once. you looks at the clock, then at the phone. |
-| w1 | word | 120 | 330 | I'm sorry. Say this first when you change a plan. | I'm sorry | | Word card above the phone: "I'm sorry". Typing dots appear in a saffron bubble, then the words type themselves in. The bubble holds alone on the screen for 20 frames so the learner sees that the message starts here and nowhere else. |
-| w2 | word | 330 | 540 | I can't come at ten. | I can't come at ten | | Card: "I can't come at ten". The second saffron bubble types under the first. As "at ten" lands, the clock behind the phone dims to grey and the reminder card slides back up out of frame. Still no reason given: the message looks unfinished on purpose. |
-| w3 | word | 540 | 780 | Because I'm at work. Give the reason with because. | because I'm at work | | Card: "because I'm at work". The word "because" slides in as an ACCENT chip and the laptop behind the phone lights up; a dotted line joins the lit laptop to the chip. The bubble completes to "I can't come at ten because I'm at work." The unfinished look resolves. |
-| w4 | word | 780 | 940 | Could we make it later? Ask for a new time. | Could we make it later? | | Card: "Could we make it later?" A third saffron bubble types it, and the clock behind brightens again with the hands sweeping forward from ten to half past four. A small "?" chip hops once at the end of the bubble. |
-| practise | practise | 940 | 1120 | Say it with me. I'm sorry, I can't come at ten because I'm at work. | I'm sorry, because | 1060 | Pale blue background, maya large in a white circle. Karaoke in 80 px over three lines; "I'm sorry" and "because" in ACCENT. At 1060 the mic pulses and the player pauses. On resume the three bubbles reassemble as one message with a sent tick. |
-| recap | recap | 1120 | 1200 | Sorry. Then because. Then the new time. | sorry, because, later | | ACCENT background, white card: "REMEMBER" and three stacked lines, each with a small icon: 🙏 "I'm sorry", 💼 "because I'm at work", 📅 "Could we make it later?" Hold. |
+Re-cut 26 October 2026 to **The attention law**, on the word-tutorial spine, from
+seven beats and one stop to eight beats and six. The beats were already close to
+length; what was wrong was that the learner's only act came at 35 s. The four
+word cards keep their order and their scenes, each now ending on its own stopping
+line, and the `predict` beat is paid for by the 90 frames the old w3 and w4 were
+carrying as padding.
+
+**The prediction is already written into the old w2**, which left the message
+looking unfinished on purpose. That set-up is now an ask: the learner guesses the
+reason before w3 gives it. The laptop is planted glowing in the hook, so the
+answer is in the scene rather than in the learner's English.
+
+| id | kind | from | to | narration (TTS) | targets | ask | pauseAt | scene for the animator |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| hook | hook | 0 | 90 | Ten o'clock. Omar is at work. | | | | The phone frame rises into the centre. Behind it the wall clock snaps to ten and a laptop screen glows, which is the fact the prediction will need. A calendar reminder slides down from the top of the phone: "Appointment 10.00" and pulses once. you looks at the clock, then at the phone. Settled by 84. |
+| w1 | word | 90 | 240 | I'm sorry. Say this first when you change a plan. | I'm sorry | tap | 228 | Word card above the phone: "I'm sorry". Typing dots appear in a saffron bubble, then the words type themselves in. The bubble holds alone on the screen for 20 frames so the learner sees that the message starts here and nowhere else. The tap is the two chips "I'm" and "sorry". |
+| w2 | word | 240 | 390 | I can't come at ten. | I can't come | say the word | 378 | Card: "I can't come at ten". The second saffron bubble types under the first. As "at ten" lands, the clock behind the phone dims to grey and the reminder card slides back up out of frame. Still no reason given: the message looks unfinished on purpose, and the next beat makes that an ask. The learner says "I can't come" at 378, the chunk and not the whole message. |
+| predict | predict | 390 | 480 | Why can't he come? | because I'm at work | predict | 468 | The prediction moment. The unfinished message hangs there with a typing-dots bubble under it. A thought cloud over you holds three icons: the laptop from the hook, a bed, and a bus. Nothing is spoken in English; the caption asks in the learner's own language. The ask is one tap. A tap on the laptop lights it leaf and it flies to the end of the message; a tap on the bed or the bus plays that reason aloud in place and leaves all three up, so a wrong guess is a thing you hear rather than a thing you lose. w3 answers it either way. |
+| w3 | word | 480 | 630 | Because I'm at work. Give the reason with because. | because | say the word | 618 | Card: "because I'm at work". The word "because" slides in as an ACCENT chip and the laptop behind the phone lights up; a dotted line joins the lit laptop to the chip. The bubble completes to "I can't come at ten because I'm at work." The unfinished look resolves. The learner says "because" at 618. |
+| w4 | word | 630 | 780 | Could we make it later? Ask for a new time. | Could we make it later? | say the line | 768 | Card: "Could we make it later?" A third saffron bubble types it, and the clock behind brightens again with the hands sweeping forward from ten to half past four. A small "?" chip hops once at the end of the bubble, settled by 756. The learner says the whole question at 768, which is the third part of the criterion. |
+| practise | practise | 780 | 960 | Say it with me. I'm sorry, I can't come at nine because I'm at work. | I'm sorry, because, at nine | say it changed | 948 | Pale blue background, maya large in a white circle. The time changes to nine, so the learner is not reading back a line they have just built. Karaoke in 80 px over three lines; "I'm sorry" and "because" in ACCENT, "nine" in SAFFRON. Line complete by 912, mic cue in by 924. On resume the three bubbles reassemble as one message with a sent tick. |
+| recap | recap | 960 | 1050 | You can change a plan politely. Again tomorrow. | | | | ACCENT background, white card: "REMEMBER" and three stacked lines, each with a small icon: a praying hand "I'm sorry", a briefcase "because I'm at work", a calendar page "Could we make it later?" The narration is the self-efficacy close, in the learner's own language. Hold with nothing moving. |
 
 ### L1 captions
 
@@ -936,15 +971,18 @@ then hears themselves do it.
 | hook | العاشرة. عمر في العمل. | Las diez. Omar está en el trabajo. | दस बजे। उमर काम पर है। | Десять. Омар на работе. | Saat on. Omar işte. | 十点。Omar 在上班。 |
 | w1 | I'm sorry: قلها أولًا. | I'm sorry: dilo primero. | I'm sorry: पहले यही कहें। | I'm sorry: скажи это первым. | I'm sorry: önce bunu söyle. | I'm sorry：先说这句。 |
 | w2 | لا أستطيع الحضور في العاشرة. | No puedo ir a las diez. | मैं दस बजे नहीं आ सकता। | Я не могу прийти в десять. | Saat onda gelemiyorum. | 我十点来不了。 |
+| predict | لماذا لا يستطيع الحضور؟ | ¿Por qué no puede ir? | वह क्यों नहीं आ सकता? | Почему он не может прийти? | Neden gelemiyor? | 他为什么来不了？ |
 | w3 | because: اذكر السبب. | because: da el motivo. | because: कारण बताएँ। | because: назови причину. | because: nedeni söyle. | because：说原因。 |
 | w4 | هل يمكن أن نجعله لاحقًا؟ | ¿Podríamos dejarlo más tarde? | क्या हम बाद में कर सकते हैं? | Можно перенести на позже? | Daha geç yapabilir miyiz? | 可以晚一点吗？ |
 | practise | قلها معي. | Dilo conmigo. | मेरे साथ बोलो। | Скажи со мной. | Benimle söyle. | 跟我一起说。 |
-| recap | اعتذار، ثم سبب، ثم وقت جديد. | Disculpa, motivo y hora nueva. | माफ़ी, कारण, नया समय। | Извинение, причина, новое время. | Özür, neden, yeni saat. | 道歉、原因、新时间。 |
+| recap | يمكنك تغيير موعد بلطف. غدًا مرة أخرى. | Ya puedes cambiar un plan con cortesía. Mañana otra vez. | अब आप विनम्रता से योजना बदल सकते हैं। कल फिर। | Теперь вы можете вежливо изменить план. Завтра снова. | Artık bir planı kibarca değiştirebilirsin. Yarın tekrar. | 你现在能礼貌地改约了。明天再来。 |
 
 ### Interactive moments
 
 - Tappable words: all caption words; each of the three bubbles is a chip that plays its own line, so the learner can hear the message in parts before writing it.
-- At the pause (frame 1060) the learner says the first two lines aloud: "I'm sorry, I can't come at ten because I'm at work." Model answer: the same line. This is the atom's spoken turn; the writing comes later, at `ITM-WRT-1605`, which is where the strand's mastery evidence sits.
+- Six stops, growing: tap the key words at 228, say "I can't come" at 378, predict the reason at 468, say "because" at 618, say the whole question at 768, say the message with a new time at 948. The first ask lands at 7.6 s and no passive stretch runs longer than 7.6 s.
+- At 768 the learner says "Could we make it later?" and at 948 "I'm sorry, I can't come at nine because I'm at work." Both are the atom's spoken turns; the writing comes later, at `ITM-WRT-1605`, which is where the strand's mastery evidence sits.
+- Prediction (frame 468, `predict` beat): one tap on the laptop, the bed or the bus, before w3 gives the reason. The laptop is the one the hook planted, so the guess is made from the scene and not from the learner's English. A tap on the bed or the bus plays that reason in place, which is a thing heard rather than a mark. **Not wired yet**: needs the `predict` beat kind and ask kind, LP-46.
 - Extra tap: in w3 the "because" chip is draggable for 90 frames. Dropped between the two halves it clips in with a click and the full sentence plays; dropped at the start of the message the bubble wobbles and the chip returns, with the message read back without a reason so the learner hears what is missing.
 
 ---
@@ -956,7 +994,7 @@ then hears themselves do it.
 | atom_id | ATM-A2-MED-0017 |
 | title | Pass it on |
 | sublevel / strand | A2.1 / MED (Explaining) |
-| type | video, 45 s, 1350 frames |
+| type | video, 40 s, 1200 frames (re-cut from 45 s on 26 October) |
 | single target | Three facts in one sentence: on Thursday at half past six, at the health centre |
 | characters | sami (holding the card), you (reading it to him), maya (explain corner) |
 | setting | The flat-share kitchen from The gas bill: table, kettle, fridge with magnets. An appointment card on the table, the size of a postcard |
@@ -964,15 +1002,27 @@ then hears themselves do it.
 
 ### Beats
 
-| id | kind | from | to | narration (TTS) | targets | pauseAt | scene for the animator |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| hook | hook | 0 | 150 | Sami has an appointment card. He cannot read it. | | | Kitchen table. sami holds a small card, turning it over twice; the text on it is squiggle lines. A "?" bubble appears over him and droops. you sits down opposite and holds a hand out for the card. |
-| n1 | notice | 150 | 420 | Your appointment is on Thursday. | on Thursday | | The card lands flat and large in the centre; its squiggles resolve line by line into "Hillside Health Centre / Thursday 18.30 / arrive 10 minutes early". The word "Thursday" lifts off the card into you's bubble and a calendar page springs in beside sami with THURSDAY on it. |
-| n2 | notice | 420 | 600 | At half past six. | at half past six | | "18.30" lifts off the card and becomes a clock face whose hands snap to 6.30, with "half past six" typing underneath it. sami's "?" bubble stands up straight with a small ping. The calendar page stays in frame, so two facts are now visible at once. |
-| n3 | notice | 600 | 780 | At the health centre. | at the health centre | | The health centre building card slides in behind the clock, with the green chemist cross from Which way? beside it as the landmark. Three objects now sit in a row in front of sami: calendar page, clock, building. |
-| explain | explain | 780 | 1080 | Three things: the day, the time, the place. | the day, the time, the place | | PAPER background, maya in the corner circle. The three objects line up as three cards with their labels under them. At frame 870 a single sentence draws itself under the row, picking up each fact in order with a dotted line from its card: "on Thursday / at half past six / at the health centre". At 1000 sami's silhouette nods at the far right. |
-| practise | practise | 1080 | 1290 | Say it with me. On Thursday at half past six, at the health centre. | on Thursday at half past six, at the health centre | 1200 | Pale blue background, maya large in a white circle. Karaoke in 80 px over two lines; the three facts in ACCENT in turn as they are spoken. At 1200 the mic pulses and the player pauses. On resume the three cards stack into sami's hand with a leaf tick. |
-| recap | recap | 1290 | 1350 | On ... at ... at the ... | on, at, at the | | ACCENT background, white card: "REMEMBER", then three lines with saffron dotted blanks: "on ...", "at ...", "at the ...". The three icons sit under them in the same order. |
+Re-cut 26 October 2026 to **The attention law**, on the video spine, from seven
+beats and one stop to eight beats and six. The old n1 ran nine seconds and the
+explain beat ten, and the learner's only act was at 40 s. The three facts keep a
+notice beat each, which is what the criterion needs; the ten-second explain beat
+comes down to six by dropping the drawn-out sentence animation and letting the
+row of three cards carry it.
+
+**The prediction uses the card's own third line.** After the day and the time have
+lifted off the card, one line of squiggles is still unresolved, so asking what
+else is on it is a real question about the scene rather than an invented one.
+
+| id | kind | from | to | narration (TTS) | targets | ask | pauseAt | scene for the animator |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| hook | hook | 0 | 120 | Sami has an appointment card. He cannot read it. | | | | Kitchen table. sami holds a small card, turning it over twice; the text on it is squiggle lines. A "?" bubble appears over him and droops. you sits down opposite and holds a hand out for the card. Settled by 114. |
+| n1 | notice | 120 | 270 | Your appointment is on Thursday. | on Thursday | tap | 258 | The card lands flat and large in the centre; its first two lines resolve into "Hillside Health Centre / Thursday 18.30" while **the third line stays squiggles**, which is what the prediction beat will ask about. The word "Thursday" lifts off the card into you's bubble and a calendar page springs in beside sami with THURSDAY on it. The tap is the chips "on" and "Thursday". |
+| n2 | notice | 270 | 450 | At half past six. | at half past six | say the word | 438 | "18.30" lifts off the card and becomes a clock face whose hands snap to 6.30, with "half past six" typing underneath it, settled by 408. sami's "?" bubble stands up straight with a small ping. The calendar page stays in frame, so two facts are visible at once. The learner says "half past six" at 438. |
+| predict | predict | 450 | 570 | What else is on the card? | at the health centre | predict | 558 | The prediction moment. The card's third line is still squiggles and a small ACCENT ring pulses around it twice. A thought cloud over you holds three icons: a building with a green cross, a price tag, and a name badge. Nothing is spoken in English; the caption asks in the learner's own language. The ask is one tap. A tap on the building lights it leaf and it slides towards the card; a tap on the price tag or the badge slides it gently away and leaves the other two, which is a nudge and not a mark. n3 resolves the line either way. |
+| n3 | notice | 570 | 720 | At the health centre. | on Thursday at half past six, at the health centre | say the line | 708 | The third line resolves and the health centre building card slides in behind the clock, with the green chemist cross from Which way? beside it as the landmark. Three objects now sit in a row in front of sami: calendar page, clock, building, settled by 690. The learner says all three facts in one sentence at 708, which is the criterion. |
+| explain | explain | 720 | 900 | Three things: the day, the time, the place. | the day, the time, the place | tap | 888 | PAPER background, maya in the corner circle. The three objects line up as three cards with their labels under them, and the sentence under the row picks up each fact in order with a dotted line from its card: "on Thursday / at half past six / at the health centre", settled by 870. At 840 sami's silhouette nods at the far right. The tap is the three labels. |
+| practise | practise | 900 | 1080 | Say it with me. On Friday at half past six, at the health centre. | on Friday, at half past six, at the health centre | say it changed | 1068 | Pale blue background, maya large in a white circle. The day changes to Friday, so the learner is not reading back the sentence they have just said. Karaoke in 80 px over two lines; the three facts in ACCENT in turn as they are spoken, "Friday" in SAFFRON. Line complete by 1032, mic cue in by 1044. On resume the three cards stack into sami's hand with a leaf tick. |
+| recap | recap | 1080 | 1200 | You can pass on three facts. Again tomorrow. | | | | ACCENT background, white card: "REMEMBER", then three lines with saffron dotted blanks: "on ...", "at ...", "at the ...". The three icons sit under them in the same order. The narration is the self-efficacy close, in the learner's own language. Hold with nothing moving. |
 
 ### L1 captions
 
@@ -981,6 +1031,7 @@ then hears themselves do it.
 | hook | سامي لديه بطاقة موعد ولا يستطيع قراءتها. | Sami tiene una tarjeta de cita y no puede leerla. | सामी के पास अपॉइंटमेंट कार्ड है, पढ़ नहीं पाता। | У Сами карточка приёма, он не может её прочесть. | Sami'nin randevu kartı var, okuyamıyor. | Sami 有张预约卡，看不懂。 |
 | n1 | موعدك يوم الخميس. | Tu cita es el jueves. | तुम्हारा अपॉइंटमेंट गुरुवार को है। | Твой приём в четверг. | Randevun perşembe. | 你的预约在星期四。 |
 | n2 | في السادسة والنصف. | A las seis y media. | साढ़े छह बजे। | В половине седьмого. | Altı buçukta. | 六点半。 |
+| predict | ماذا أيضًا على البطاقة؟ | ¿Qué más hay en la tarjeta? | कार्ड पर और क्या है? | Что ещё на карточке? | Kartta başka ne var? | 卡上还有什么？ |
 | n3 | في المركز الصحي. | En el centro de salud. | हेल्थ सेंटर में। | В поликлинике. | Sağlık merkezinde. | 在诊所。 |
 | explain | ثلاث معلومات: اليوم، الوقت، المكان. | Tres datos: día, hora, lugar. | तीन बातें: दिन, समय, जगह। | Три факта: день, время, место. | Üç bilgi: gün, saat, yer. | 三件事：日子、时间、地点。 |
 | practise | قلها معي. | Dilo conmigo. | मेरे साथ बोलो। | Скажи со мной. | Benimle söyle. | 跟我一起说。 |
