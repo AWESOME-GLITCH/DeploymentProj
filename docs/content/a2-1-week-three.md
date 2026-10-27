@@ -50,10 +50,10 @@ The six steps of §1.2 are scene, notice, say it with a response, say it again, 
 
 | Atom | input | noticing | free_use (step 3) | controlled (step 4) | free_use (step 5) | check (delayed) |
 | --- | --- | --- | --- | --- | --- | --- |
-| 0021 | video 50 s | This one doesn't work. | 2101 | 2102, 2103, 2104, 2105 | 2106, 2107 | 2108 |
-| 0022 | 4 word cards | too small, too big | 2201 | 2202, 2203, 2204, 2205 | 2206, 2207 | 2208 |
-| 0023 | video 50 s | Could I change it for a bigger one? | 2301 | 2302, 2303, 2304, 2305 | 2306, 2307 | 2308 |
-| 0024 | video 50 s | Here's the receipt. I bought it on Saturday. | 2401 | 2402, 2403, 2404, **2205**, 2405 | 2406, 2407 | 2408 |
+| 0021 | video 50 s | This one doesn't work. | 2101 | 2102, 2104, 2103, 2105 | 2106, 2107 | 2108 |
+| 0022 | 4 word cards | too small, too big | 2201 | 2202, 2204, 2203, 2205 | 2206, 2207 | 2208 |
+| 0023 | video 50 s | Could I change it for a bigger one? | 2301 | 2302, 2304, 2303, 2305 | 2306, 2307 | 2308 |
+| 0024 | video 50 s | Here's the receipt. I bought it on Saturday. | 2401 | 2402, 2404, 2403, **2205**, 2405 | 2406, 2407 | 2408 |
 | 0025 | video 35 s | none: nothing new is taught | 2501 | **2205**, 2502, **2305**, **ITM-INT-0105** | 2503, 2504 | 2505 |
 | 0026 | none: the week's four scenes are the input | the sound, on known sentences | folded into the run-up, which opens on a spoken item | 2601, 2602, 2603 | 2604, 2605 | 2606 |
 
@@ -69,8 +69,8 @@ Every teaching atom has the same eight items in the same order. A content author
 | --- | --- | --- | --- | --- |
 | 1 | `dialogue_turn` | spoken | 3, say it with a response | Says the target to the coach, who replies in character |
 | 2 | `shadow` | spoken | 4 | Speaks along with the model, stress marked |
-| 3 | `magnet_tiles` or `sentence_build` | cued | 4 | Builds the sentence, then says it. The only tap in the atom, and it hands straight to item 5 |
-| 4 | `gap_fill` | recognition | 4 | One choice, on the single thing the attempt is likely to break |
+| 3 | `gap_fill` | recognition | 4 | One choice, on the single thing the attempt is likely to break |
+| 4 | `magnet_tiles` or `sentence_build` | cued | 4 | Builds the sentence. The only tap in the atom, and it hands straight to item 5, which says what it built |
 | 5 | `read_aloud` | spoken | 4 | Says the whole sentence, with one word changed from the model |
 | 6 | `dialogue_turn` | spoken | 5 | Answers an unexpected reply: the repair rehearsal |
 | 7 | `roleplay` | spoken | 5 | The whole exchange, three turns, `need` 2 |
