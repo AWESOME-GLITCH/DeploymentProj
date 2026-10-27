@@ -252,3 +252,11 @@ circle r56 at 100,92; eyes 40 apart at y98; mouth at y120; shoulders from y158).
 `docs/design/cast/flat/cast.js`, with the expression sheet beside it. Buttons are solid with a solid
 darker underside; panels are solid translucent fills; props, scenes, the chest and Blobert are flat.
 Gradients are not used, except soft background glow.
+
+## Palette v4 and button craft (board, 27 Oct)
+Saturated primaries on deep navy (dark) or soft paper (light): red #FF4F5E, yellow #FFC531,
+green #1FCB8B, blue #2F6BFF, purple #7C5CFF, each with a darker solid partner for undersides.
+Layout: heading, main area that fills the screen, one action; 16 px gutters and rhythm.
+Button rule: a label is centred on the visible face, so padding-bottom equals the underside depth
+and line-height is 1. Every push gets a granular review: close-up crops of each button and chip,
+and a measured label offset under 1 px.
