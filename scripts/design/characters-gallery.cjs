@@ -1,6 +1,7 @@
 // Builds docs/design/characters.html from the real components, so the gallery
 // can never drift from components/learning-path/art/characters.tsx.
 //
+//   node scripts/design/build-cast-module.cjs          # refresh the art first
 //   node_modules/.bin/sucrase-node scripts/design/characters-gallery.cjs
 //
 // Run it with sucrase-node so the TSX import compiles in place.
@@ -13,18 +14,20 @@ const { createElement: h } = React;
 // Sucrase compiles JSX to the classic React.createElement runtime, while the
 // app relies on Next's automatic runtime, so give the module a global React.
 global.React = React;
+
 const {
   ART,
   CAST,
-  POSES,
-  HOLD_ITEMS,
+  EXPRESSIONS,
+  DOODLE_NAMES,
   STICKER_KINDS,
+  TALK_BEAT_MS,
   Character,
+  Doodle,
   Sticker,
   Blobert,
   BLOBERT_GAGS,
   BLOBERT_GAG_MS,
-  BLOBERT_SEQUENCE,
 } = require("../../components/learning-path/art/characters.tsx");
 
 const BLOCKS = [
@@ -35,331 +38,215 @@ const BLOCKS = [
   ["sky", ART.sky],
 ];
 
-const POSE_ITEM = { phone: "phone", cup: "cup", suitcase: "suitcase", star: "star", book: "book", mic: "mic" };
-const ITEM_FOR = { maya: "phone", leo: "cup", fatima: "book", sami: "suitcase", you: "star" };
+const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const r = (el) => renderToStaticMarkup(el);
 
-function svg(name, pose, opts = {}) {
-  return renderToStaticMarkup(
-    h(Character, {
-      name,
-      pose,
-      size: opts.size ?? 190,
-      item: opts.item,
-      stickers: opts.stickers ?? false,
-      idle: true,
-      popIn: true,
-      seed: opts.seed ?? 3,
-      title: opts.title,
-    }),
+/* ----------------------------------------------------------- the cast */
+// Every expression of every character, on that character's block colour.
+const castSection = CAST.map((c) => {
+  const tiles = EXPRESSIONS.map(
+    (e) =>
+      `<figure class="tile" style="background:${c.block}">` +
+      r(h(Character, { name: c.name, expression: e, size: 190 })) +
+      `<figcaption>${esc(e)}</figcaption></figure>`,
+  ).join("");
+  return (
+    `<h3>${esc(c.label)} <span class="role">${esc(c.role)}</span></h3>` +
+    `<p class="note">Block colour <code>${c.block}</code>, jumper <code>${c.jumper}</code>. ` +
+    `Talking swaps <b>talk</b> and <b>idle</b> every ${TALK_BEAT_MS} ms; listening is <b>listen</b> with the lean-in.</p>` +
+    `<div class="grid">${tiles}</div>`
   );
-}
-
-const poseRow = (name) =>
-  POSES.map((pose) => {
-    const shot = svg(name, pose, {
-      item: ITEM_FOR[name],
-      stickers: pose === "celebrate",
-      title: `${name} ${pose}`,
-    });
-    const label = pose === "hold" ? `hold("${ITEM_FOR[name]}")` : pose;
-    return `<figure class="cell"><div class="art">${shot}</div><figcaption>${label}</figcaption></figure>`;
-  }).join("");
-
-// A character is never shown on their own accent colour: the accent would sink
-// into the card. Each cast card uses the recommended partner colour instead.
-const PARTNER = { maya: "lilac", leo: "sun", fatima: "mint", sami: "sun", you: "sky" };
-
-const castBlocks = CAST.map((c) => {
-  const own = BLOCKS.find(([, v]) => v === c.block)?.[0] ?? "sun";
-  const partner = PARTNER[c.name];
-  const bg = BLOCKS.find(([n]) => n === partner)[1];
-  return `
-  <section class="card" style="--block:${bg}">
-    <header>
-      <h2>${c.label}</h2>
-      <p>${c.role} &middot; own colour <code>${own}</code> &middot; shown on <code>${partner}</code></p>
-    </header>
-    <div class="row">${poseRow(c.name)}</div>
-  </section>`;
 }).join("");
 
-const onEveryBlock = BLOCKS.map(
-  ([bname, bval]) => `
-  <div class="strip" style="--block:${bval}">
-    <span class="tag">${bname}</span>
-    <div class="row tight">${CAST.map((c) => `<div class="art">${svg(c.name, "idle", { size: 150, seed: 5, title: `${c.label} on ${bname}` })}</div>`).join("")}</div>
-  </div>`,
-).join("");
+/* ------------------------------------------------- talk, listen, react */
+const maya = (expression, extra) => r(h(Character, { name: "maya", expression, size: 200, ...extra }));
+const behaviour =
+  `<div class="grid">` +
+  [
+    ["talking, beat 1", maya("talk"), ART.sun],
+    ["talking, beat 2", maya("idle"), ART.sun],
+    ["listening, lean-in", maya("listen", { lean: true }), ART.sky],
+    ["reaction: happy", maya("happy"), ART.mint],
+    ["reaction: wow", maya("wow"), ART.mint],
+    ["reaction: laugh", maya("laugh"), ART.mint],
+    ["reaction: oops", maya("oops"), ART.tangerine],
+  ]
+    .map(([label, svg, bg]) => `<figure class="tile" style="background:${bg}">${svg}<figcaption>${esc(label)}</figcaption></figure>`)
+    .join("") +
+  `</div>`;
 
-const stickerRow = STICKER_KINDS.map(
-  (k) => `<figure class="cell"><div class="art">${renderToStaticMarkup(h(Sticker, { kind: k, size: 56, seed: 4, twinkle: true, title: k }))}</div><figcaption>${k}</figcaption></figure>`,
-).join("");
+/* --------------------------------------------------------- the doodles */
+// The hero figures, big and cropped, next to the faces they belong with.
+const doodleSection =
+  `<div class="grid wide">` +
+  DOODLE_NAMES.map((name, i) => {
+    const bg = BLOCKS[i % BLOCKS.length][1];
+    return (
+      `<figure class="tile crop" style="background:${bg}">` +
+      r(h(Doodle, { name, size: 300 })) +
+      `<figcaption>${esc(name)}</figcaption></figure>`
+    );
+  }).join("") +
+  `</div>`;
 
-const itemRow = HOLD_ITEMS.map(
-  (it) => `<figure class="cell"><div class="art">${svg("maya", "hold", { item: it, size: 170, seed: 9, title: `Maya holding a ${it}` })}</div><figcaption>hold("${it}")</figcaption></figure>`,
-).join("");
+// One exemplar card, so the gate is on the page and not only in words: one
+// block colour, one oversized figure cropped by the card edge, one sticker,
+// a two-word headline, one black pill, nothing else.
+const pairing =
+  `<div class="pair" style="background:${ART.sun}">` +
+  `<h4 class="pair-head">Coffee time</h4>` +
+  `<span class="pair-stick">${r(h(Sticker, { kind: "star", size: 40 }))}</span>` +
+  `<div class="pair-art">${r(h(Doodle, { name: "coffee", size: 420 }))}</div>` +
+  `<span class="pair-pill">Start &#187;</span>` +
+  `</div>`;
 
-// ------------------------------------------------------------- Blobert
-const blob = (props) => renderToStaticMarkup(h(Blobert, props));
+/* --------------------------------------------------------- Blobert */
+const blobert =
+  `<div class="grid wide">` +
+  BLOBERT_GAGS.map((gag, i) => {
+    const bg = BLOCKS[i % BLOCKS.length][1];
+    // He takes the cream, never the block colour he is standing on, or he
+    // disappears into the card.
+    return (
+      `<figure class="tile" style="background:${bg}">` +
+      r(h(Blobert, { pose: "gag", gag, word: "goed", fill: ART.cream, size: 230, seed: 3 + i, scripted: false, progress: 0.45 })) +
+      `<figcaption>${esc(gag)}</figcaption></figure>`
+    );
+  }).join("") +
+  `</div>` +
+  `<div class="grid wide">` +
+  ["in", "look", "wave", "out"]
+    .map(
+      (pose, i) =>
+        `<figure class="tile left" style="background:${BLOCKS[i % BLOCKS.length][1]}">` +
+        r(h(Blobert, { pose, fill: ART.cream, size: 230, seed: 9 + i })) +
+        `<figcaption>${esc(pose)}</figcaption></figure>`,
+    )
+    .join("") +
+  `</div>`;
 
-const GAG_WORD = { sweep: "has", eat: "goed", mop: "am", bin: "hase", vacuum: "do", crane: "is" };
-const GAG_FILL = { sweep: ART.sun, eat: ART.tangerine, mop: ART.sky, bin: ART.mint, vacuum: ART.lilac, crane: ART.sun };
-const GAG_SAYS = {
-  sweep: "Sweeps it off the screen.",
-  eat: "Eats it and burps a star.",
-  mop: "Mops it into a puddle that dries.",
-  bin: "Flicks it in and the lid claps.",
-  vacuum: "Vacuums it up, then sneezes.",
-  crane: "Lifts it away with the tiny crane.",
-};
+/* --------------------------------------------------------- stickers */
+const stickers =
+  `<div class="grid small">` +
+  STICKER_KINDS.map(
+    (kind, i) =>
+      `<figure class="tile" style="background:${BLOCKS[i % BLOCKS.length][1]}">` +
+      r(h(Sticker, { kind, size: 76, seed: 4 + i })) +
+      `<figcaption>${esc(kind)}</figcaption></figure>`,
+  ).join("") +
+  `</div>`;
 
-// He stands in the left half of a 300 x 200 box, so a pose cell is cropped
-// to that half: the caption then sits under the drawing, not under the empty
-// gag area. `out` is sampled early, before he is half off the box and the
-// viewBox cuts him in two.
-const BLOB_POSE_PX = 128;
-const half = (svg, size) =>
-  `<div class="art half" style="width:${Math.round((size * 150) / 200)}px">${svg}</div>`;
-
-const blobPoses = ["in", "look", "wave", "out"]
-  .map((pose, i) => {
-    const fill = [ART.sun, ART.tangerine, ART.sky, ART.mint][i];
-    const art = blob({
-      pose,
-      fill,
-      size: BLOB_POSE_PX,
-      seed: 3,
-      progress: pose === "out" ? 0.12 : undefined,
-      title: `Blobert ${pose}`,
-    });
-    return `<figure class="cell">${half(art, BLOB_POSE_PX)}<figcaption>${pose}</figcaption></figure>`;
-  })
-  .join("");
-
-const blobGags = BLOBERT_GAGS.map((gag) => {
-  const common = { pose: "gag", gag, word: GAG_WORD[gag], fill: GAG_FILL[gag], size: 150, seed: 3 };
-  const still = blob({ ...common, title: `Blobert ${gag}` });
-  const playing = blob({ ...common, play: true, idle: true, title: `Blobert ${gag}` });
-  return `
-  <figure class="gag" data-gag="${gag}">
-    <div class="stage">${still}</div>
-    <template>${playing}</template>
-    <figcaption><b>${gag}</b> ${GAG_SAYS[gag]}</figcaption>
-    <button type="button" class="pill">Play ${gag} &nbsp;&#9654;</button>
-  </figure>`;
-}).join("");
-
-// Sampled inside the on-stage window. Before about 140 ms and after about
-// 770 ms he is travelling through the edge of his own box, so the viewBox
-// clips him and a still of that frame reads as a drawing error, not a move.
-const FRAMES = [0.16, 0.3, 0.44, 0.58, 0.72, 0.86];
-const blobStrips = BLOBERT_GAGS.map(
-  (gag) => `
-  <div class="strip" style="--block:var(--cream)">
-    <span class="tag">${gag}</span>
-    <div class="row tight">${FRAMES.map(
-      (p) =>
-        `<figure class="cell"><div class="art">${blob({
-          pose: "gag",
-          gag,
-          progress: p,
-          word: GAG_WORD[gag],
-          fill: GAG_FILL[gag],
-          size: 116,
-          seed: 3,
-          title: `Blobert ${gag} at ${Math.round(p * BLOBERT_GAG_MS)} ms`,
-        })}</div><figcaption>${Math.round(p * BLOBERT_GAG_MS)} ms</figcaption></figure>`,
-    ).join("")}</div>
-  </div>`,
-).join("");
-
-const blobOnBlocks = BLOCKS.map(
-  ([bname, bval]) => `
-  <div class="strip" style="--block:${bval}">
-    <span class="tag">${bname}</span>
-    <div class="row tight pair">
-      ${half(blob({ pose: "look", fill: ART.cream, size: 112, seed: 4, title: `Blobert in cream on ${bname}` }), 112)}
-      ${half(blob({ pose: "wave", fill: ART.paper, size: 112, seed: 6, title: `Blobert in white on ${bname}` }), 112)}
-    </div>
-  </div>`,
-).join("");
-
-const seqRow = Object.entries(BLOBERT_SEQUENCE)
-  .map(([step, { from, to }]) => `<li><code>${step}</code> ${from} to ${to} ms</li>`)
-  .join("");
-
+/* ------------------------------------------------------------ page */
 const html = `<!doctype html>
-<html lang="en-GB">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Learning Path character kit</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --ink:${ART.ink}; --cream:${ART.cream}; --paper:${ART.paper};
-    --sun:${ART.sun}; --lilac:${ART.lilac}; --tangerine:${ART.tangerine};
-    --mint:${ART.mint}; --sky:${ART.sky};
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; padding: 32px 20px 72px; background: var(--cream); color: var(--ink);
-    font: 600 16px/1.4 "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
-  }
-  .wrap { max-width: 1200px; margin: 0 auto; }
-  h1 { font-size: 40px; font-weight: 800; line-height: 1.05; margin: 0 0 8px; }
-  .lede { margin: 0 0 32px; max-width: 60ch; }
-  h2 { font-size: 26px; font-weight: 800; margin: 0; }
-  h3 { font-size: 20px; font-weight: 800; margin: 40px 0 12px; }
-  code { font: 600 14px/1 ui-monospace, monospace; background: rgba(18,18,18,.08); padding: 2px 6px; border-radius: 6px; }
-  .card {
-    background: var(--block); border: 3px solid var(--ink); border-radius: 28px;
-    padding: 20px 20px 8px; margin: 0 0 24px;
-  }
-  .card header p { margin: 2px 0 14px; font-size: 14px; }
-  .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; justify-content: space-around; }
-  .row.tight { gap: 4px; justify-content: space-around; }
-  .cell { margin: 0; text-align: center; }
-  .cell figcaption { font-size: 13px; font-weight: 700; padding: 6px 0 12px; }
-  .art { display: flex; align-items: flex-end; justify-content: center; }
-  .art.half { justify-content: flex-start; overflow: hidden; }
-  .art.half > svg { flex: 0 0 auto; }
-  .row.pair { justify-content: center; gap: 48px; padding: 6px 0 10px; }
-  .strip {
-    background: var(--block); border: 3px solid var(--ink); border-radius: 28px;
-    padding: 12px 16px 4px; margin: 0 0 14px; position: relative;
-  }
-  .tag { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
-  .sheet { background: var(--paper); border: 3px solid var(--ink); border-radius: 28px; padding: 18px 22px; }
-  .sheet ul { margin: 0; padding-left: 20px; }
-  .sheet li { margin: 4px 0; }
-  .gags { display: flex; flex-wrap: wrap; gap: 14px; }
-  .gag {
-    margin: 0; flex: 1 1 300px; background: var(--paper); border: 3px solid var(--ink);
-    border-radius: 28px; padding: 10px 14px 14px; text-align: center;
-  }
-  .gag .stage { height: 150px; display: flex; align-items: center; justify-content: center; }
-  .gag figcaption { font-size: 14px; padding: 8px 0 10px; min-height: 42px; }
-  .gag figcaption b { text-transform: capitalize; }
-  .pill {
-    display: block; width: 100%; height: 48px; border: 0; border-radius: 999px;
-    background: var(--ink); color: var(--cream); font: 700 15px "Plus Jakarta Sans", ui-sans-serif, sans-serif;
-    cursor: pointer;
-  }
-  .pill:focus-visible { outline: 3px solid var(--tangerine); outline-offset: 3px; }
-  .pill.wide { width: auto; padding: 0 26px; margin: 0 0 14px; }
-  @media (max-width: 420px) { h1 { font-size: 32px; } }
+:root{--ink:#121212; --cream:#FFF7E8}
+*{box-sizing:border-box}
+figure{margin:0}
+body{margin:0; padding:28px 22px 60px; background:var(--cream); color:var(--ink);
+  font-family:"Plus Jakarta Sans",system-ui,-apple-system,sans-serif; font-weight:600}
+h1{font-size:38px; font-weight:800; letter-spacing:-.02em; margin:0 0 8px; line-height:1.05}
+h2{font-size:26px; font-weight:800; letter-spacing:-.02em; margin:44px 0 6px;
+  padding-top:18px; border-top:3px solid var(--ink)}
+h3{font-size:19px; font-weight:800; margin:26px 0 4px}
+h3 .role{font-weight:600; opacity:.6}
+p{margin:0 0 12px; max-width:62ch; line-height:1.45; font-size:15px}
+.note{font-size:13.5px; opacity:.85}
+code{font:700 12.5px ui-monospace,SFMono-Regular,Menlo,monospace; background:#fff;
+  border:2px solid var(--ink); border-radius:6px; padding:1px 5px}
+.grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(148px,1fr)); gap:10px; margin:10px 0 4px}
+.grid.wide{grid-template-columns:repeat(auto-fill,minmax(232px,1fr))}
+.grid.small{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
+.tile{border:3px solid var(--ink); border-radius:22px; overflow:hidden;
+  display:flex; flex-direction:column; align-items:center; justify-content:flex-end; padding-top:6px}
+.tile svg{display:block; width:100%; height:auto}
+.tile.crop svg{width:118%; max-width:none; margin-bottom:-6%}
+/* the short poses have no gag to the right, so crop his own box */
+.tile.left{align-items:flex-start}
+.tile.left svg{width:205%; max-width:none; margin-left:-6%}
+figcaption{align-self:stretch; background:var(--ink); color:var(--cream);
+  font-size:11.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase;
+  text-align:center; padding:6px 4px}
+.pair{position:relative; height:420px; border:3px solid var(--ink); border-radius:28px;
+  overflow:hidden; margin:12px 0 4px; max-width:420px}
+.pair-art{position:absolute; left:-4%; bottom:-20%; width:120%}
+.pair-art svg{width:100%; height:auto; display:block}
+.pair-head{position:absolute; left:22px; top:18px; margin:0; z-index:2;
+  font-size:34px; font-weight:800; letter-spacing:-.02em; line-height:1.04; max-width:7ch}
+.pair-stick{position:absolute; right:20px; top:22px; z-index:2}
+.pair-pill{position:absolute; left:22px; right:22px; bottom:20px; z-index:2; height:56px;
+  border-radius:99px; background:var(--ink); color:var(--cream); display:flex;
+  align-items:center; justify-content:center; font-size:18px; font-weight:800}
+.rules{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; margin-top:12px}
+.rules div{border:3px solid var(--ink); border-radius:22px; padding:14px 16px; background:#fff}
+.rules h4{margin:0 0 6px; font-size:15px; font-weight:800; text-transform:uppercase; letter-spacing:.06em}
+.rules ul{margin:0; padding-left:18px; font-size:14px; line-height:1.5}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>Character kit</h1>
-  <p class="lede">Hand-drawn ink cast for the Learning Path app and its videos. Rendered from
-  <code>components/learning-path/art/characters.tsx</code>. Written rules:
-  <code>docs/design/characters.md</code>.</p>
 
-  <h3>Every character, every pose</h3>
-  ${castBlocks}
+<h1>Character kit</h1>
+<p>The cast is the pre-rendered art in <code>docs/design/cast/</code>: Open Peeps faces and Open
+Doodles figures, both CC0 by Pablo Stanley, recoloured to the palette by
+<code>scripts/lp/cast.mjs</code>. It is inlined, never redrawn. Blobert and the stickers are the only
+drawings in the kit, inked to match the doodle line. Written style sheet:
+<code>docs/design/characters.md</code>. This page is generated from the real components by
+<code>scripts/design/characters-gallery.cjs</code>.</p>
 
-  <h3>Pairing check: the cast on all five block colours</h3>
-  <p class="lede">Order is Maya, Leo, Fatima, Sami, You. A character on their own accent colour
-  loses that accent, so pair across: Maya on lilac, Leo on sun, Fatima on mint, Sami on sun,
-  You on sky.</p>
-  ${onEveryBlock}
+<h2>The cast</h2>
+<p>Five characters, nine expressions each, on the block colour that character is placed on.</p>
+${castSection}
 
-  <h3>Stickers</h3>
-  <section class="card" style="--block:var(--sun)"><div class="row">${stickerRow}</div></section>
+<h2>Talking, listening, reacting</h2>
+<p>No mouth rig. Talking is a swap between <b>talk</b> and <b>idle</b> on the syllable beat
+(${TALK_BEAT_MS} ms). Listening is <b>listen</b> plus the lean-in. Reactions use <b>happy</b>,
+<b>wow</b>, <b>laugh</b> and <b>oops</b>.</p>
+${behaviour}
 
-  <h3>Things they hold</h3>
-  <section class="card" style="--block:var(--sky)"><div class="row">${itemRow}</div></section>
+<h2>The hero doodles</h2>
+<p>Full-body figures for the big moments. Use them large and cropped by the card edge, as below.
+A doodle floating small in an empty block is a fail.</p>
+${pairing}
+${doodleSection}
 
-  <h3>Blobert, the blob who clears mistakes</h3>
-  <p class="lede">He is the only thing that ever handles an error, so a mistake is never red, never a
-  loss, always a small laugh. One gag per miss, never the same twice in a row. Pass him the screen's
-  one block colour; on a block-colour card pass <code>cream</code> instead.</p>
-  <section class="card" style="--block:var(--paper)">
-    <header><h2>Poses</h2><p>in, look, wave, out &middot; plus <code>gag</code>, below</p></header>
-    <div class="row">${blobPoses}</div>
-  </section>
+<h2>Blobert, and his six gags</h2>
+<p>Blobert is custom, drawn in the sketchy ink of the doodles. He is the only thing that handles a
+mistake, so a miss is never red and never a loss. One gag per miss, never the same twice in a row,
+each under ${BLOBERT_GAG_MS} ms. The frames below are held at the middle of each gag.</p>
+${blobert}
 
-  <h3>The six gags, ${BLOBERT_GAG_MS} ms each</h3>
-  <p class="lede">Every card plays the whole scripted miss: pop in, look at the wrong word, the gag,
-  a wave, slide out. Press a button to play one, or play them all in turn.</p>
-  <button type="button" class="pill wide" id="playall">Play all six &nbsp;&#9654;</button>
-  <div class="gags">${blobGags}</div>
+<h2>Stickers</h2>
+<p>Black, placed with intent: one or two per card, in the clear block colour, never over the
+character's face or hair.</p>
+${stickers}
 
-  <h3>Every gag, frame by frame</h3>
-  <p class="lede">Rendered from the same timeline with the <code>progress</code> prop, so what the
-  videos draw and what the browser animates cannot drift apart.</p>
-  ${blobStrips}
-
-  <h3>Blobert on the five block colours</h3>
-  <p class="lede">On a block-colour card he is filled cream or white, never the card's own colour.</p>
-  ${blobOnBlocks}
-
-  <h3>His timing</h3>
-  <div class="sheet"><ul>${seqRow}<li>The wave overlaps the tail of the gag by 120 ms, which is what
-  brings the whole miss under 900 ms.</li></ul></div>
-
-  <h3>Using it</h3>
-  <div class="sheet">
-    <ul>
-      <li><code>&lt;Maya pose="talk" size={240} /&gt;</code> on the coach screens.</li>
-      <li><code>&lt;Leo pose="hold" item="cup" /&gt;</code> in the cafe lesson.</li>
-      <li><code>&lt;Character name="you" pose="celebrate" stickers idle /&gt;</code> on the reward card.</li>
-      <li><code>&lt;Sticker kind="star" size={28} twinkle /&gt;</code> for the good-answer pop.</li>
-      <li>One block colour per screen. Keep <code>seed</code> fixed so videos stay frame stable.</li>
-    </ul>
-  </div>
+<h2>Do and do not</h2>
+<div class="rules">
+  <div><h4>Do</h4><ul>
+    <li>One block colour per screen, plus ink and cream.</li>
+    <li>One character, oversized, filling at least half the card.</li>
+    <li>Crop the figure with confidence at the card edge.</li>
+    <li>Swap talk and idle on the beat; lean in to listen.</li>
+    <li>Place stickers where the block colour is clear.</li>
+  </ul></div>
+  <div><h4>Do not</h4><ul>
+    <li>Redraw the cast. Inline the files; never trace them.</li>
+    <li>Float a small figure in an empty block.</li>
+    <li>Put a sticker over hair or a face: black on black is a smudge.</li>
+    <li>Use three block colours on one screen.</li>
+    <li>Give Blobert a sentence. Tiny sounds only.</li>
+  </ul></div>
 </div>
-<script>
-// Replay without a framework: each gag card ships the resting frame in the
-// stage and the animated copy in a <template>. Playing swaps the template in,
-// which starts the generated CSS from zero, then puts the resting frame back.
-(function () {
-  var MS = ${BLOBERT_GAG_MS};
-  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  // Reduced motion replaces every timeline with one 360 ms fade, so hold the
-  // animated copy for that long instead of the full gag.
-  var hold = reduced ? 420 : MS + 80;
 
-  var plays = [].slice.call(document.querySelectorAll(".gag")).map(function (fig) {
-    var stage = fig.querySelector(".stage");
-    var tpl = fig.querySelector("template");
-    var still = stage.innerHTML;
-    var button = fig.querySelector("button");
-    var timer = null;
-
-    function play(then) {
-      if (timer) window.clearTimeout(timer);
-      stage.innerHTML = tpl.innerHTML;
-      button.disabled = true;
-      timer = window.setTimeout(function () {
-        stage.innerHTML = still;
-        button.disabled = false;
-        timer = null;
-        if (then) then();
-      }, hold);
-    }
-
-    button.addEventListener("click", function () { play(); });
-    return play;
-  });
-
-  var all = document.getElementById("playall");
-  all.addEventListener("click", function () {
-    all.disabled = true;
-    var i = 0;
-    (function step() {
-      if (i >= plays.length) { all.disabled = false; return; }
-      plays[i++](function () { window.setTimeout(step, 160); });
-    })();
-  });
-})();
-</script>
 </body>
 </html>
 `;
 
-writeFileSync(path.join(__dirname, "../../docs/design/characters.html"), html);
-console.log("wrote docs/design/characters.html");
-void POSE_ITEM;
+const out = path.join(__dirname, "..", "..", "docs", "design", "characters.html");
+writeFileSync(out, html);
+console.log(`characters.html  ${(Buffer.byteLength(html) / 1024).toFixed(0)} kB`);
