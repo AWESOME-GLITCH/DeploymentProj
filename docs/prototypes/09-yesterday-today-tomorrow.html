@@ -1,0 +1,1209 @@
+<!doctype html>
+<html lang="en-GB" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Yesterday, today, tomorrow - Learning Path</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ---------------------------------------------------------------
+   Yesterday, today, tomorrow - prototype 9
+   Board-approved direction: flat colour blocks, ink outlines,
+   hand-drawn line, black pill button, springy motion.
+   One block colour (sky) plus ink and cream. Three type sizes:
+   32 display, 24 sentence, 17 body.
+   The sun on the horizon is the time slider; the three landmarks
+   are yesterday (sepia), today (in colour) and tomorrow (a
+   sketch). Blobert clears every mistake with one gag.
+   --------------------------------------------------------------- */
+
+:root{
+  --sky:#BFE3FF;
+  --ink:#121212;
+  --cream:#FFF7E8;
+
+  --page:var(--cream);
+  --on-page:var(--ink);
+  --line:var(--ink);           /* outlines drawn on the page */
+  --block:var(--sky);          /* the one block colour */
+  --btn-bg:var(--ink);
+  --btn-fg:var(--cream);
+
+  --sepia-fill:#CBB28F;        /* yesterday: an old photograph */
+  --sepia-line:#6F5740;
+
+  --spring:cubic-bezier(.34,1.56,.64,1);
+  --ease:cubic-bezier(.2,.8,.3,1);
+}
+html[data-theme="dark"]{
+  --page:#121212;
+  --on-page:#FFF7E8;
+  --line:#FFF7E8;
+  --btn-bg:#FFF7E8;
+  --btn-fg:#121212;
+}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0;overflow:hidden}
+body{
+  background:var(--page);
+  color:var(--on-page);
+  font-family:'Plus Jakarta Sans','Segoe UI',system-ui,-apple-system,sans-serif;
+  font-weight:600;
+  transition:background-color .3s var(--ease),color .3s var(--ease);
+}
+
+/* ---------- shell ---------- */
+.app{
+  position:relative;
+  display:flex;flex-direction:column;
+  width:100%;max-width:430px;margin:0 auto;
+  height:100dvh;max-height:100dvh;
+  padding:14px 20px 18px;
+  gap:12px;
+  overflow:hidden;
+}
+
+/* ---------- top row: back, progress, theme ---------- */
+.top{flex:none;display:flex;align-items:center;gap:12px;height:44px}
+.icon-btn{
+  width:44px;height:44px;flex:none;
+  display:grid;place-items:center;
+  border:3px solid var(--line);border-radius:999px;
+  background:transparent;color:var(--on-page);
+  cursor:pointer;
+  transition:transform .2s var(--spring);
+}
+.icon-btn:active{transform:scale(.92)}
+.icon-btn svg{width:20px;height:20px;display:block}
+.bar{
+  flex:1;height:12px;border-radius:999px;
+  background:color-mix(in srgb,var(--line) 18%,transparent);
+  overflow:hidden;
+}
+.bar i{
+  display:block;height:100%;width:0;border-radius:999px;
+  background:var(--line);
+  transition:width .38s var(--spring);
+}
+
+/* ---------- headline and the one line ---------- */
+.head{flex:none}
+h1{margin:0;font-size:32px;line-height:1.05;font-weight:800;letter-spacing:-.02em}
+.sub{margin:6px 0 0;font-size:17px;font-weight:600;opacity:.72;line-height:1.3}
+.pop{animation:pop .34s var(--spring) both}
+@keyframes pop{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:none}}
+
+/* ---------- the card: the one block colour ---------- */
+.card{
+  position:relative;
+  flex:1 1 auto;min-height:0;
+  background:var(--block);
+  border:3px solid var(--ink);
+  border-radius:28px;
+  padding:14px 16px 16px;
+  display:flex;flex-direction:column;
+  color:var(--ink);
+  overflow:hidden;
+  animation:cardIn .4s var(--spring) both;
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
+
+/* ---------- the scene: three landmarks on the horizon ---------- */
+.scene{flex:1 1 auto;min-height:0;width:100%;display:block}
+.scene svg{width:100%;height:100%;display:block;overflow:visible}
+.lm{
+  transform-box:fill-box;transform-origin:50% 100%;
+  opacity:.55;
+  transition:opacity .3s var(--ease),transform .34s var(--spring);
+}
+.lm.on{opacity:1;transform:translateY(-7px) scale(1.05)}
+.lm .b{fill:var(--cream);stroke:var(--ink);stroke-width:3;stroke-linejoin:round;stroke-linecap:round}
+.lm .l{fill:none;stroke:var(--ink);stroke-width:3;stroke-linejoin:round;stroke-linecap:round}
+/* yesterday is a faded photograph */
+#lm-0 .b{fill:var(--sepia-fill);stroke:var(--sepia-line)}
+#lm-0 .l{stroke:var(--sepia-line)}
+/* tomorrow is not drawn yet */
+#lm-2 .b{fill:none;stroke-dasharray:7 6}
+#lm-2 .l{stroke-dasharray:7 6}
+/* at the end the learner owns all three times, so all three are drawn */
+.all #lm-0 .b{fill:var(--cream);stroke:var(--ink)}
+.all #lm-0 .l{stroke:var(--ink)}
+.all #lm-2 .b{fill:var(--cream);stroke-dasharray:none}
+.all #lm-2 .l{stroke-dasharray:none}
+.all .lm{opacity:1}
+.ground{fill:none;stroke:var(--ink);stroke-width:3;stroke-linecap:round}
+.mark{fill:var(--ink);opacity:0;transition:opacity .3s var(--ease)}
+.mark.on{opacity:1;animation:burst .4s var(--spring) both}
+
+/* ---------- the time slider: the sun travels the horizon ---------- */
+.slider{flex:none;margin:6px 0 0;padding:0 22px;position:relative}
+.rail-line{
+  position:relative;height:12px;border-radius:999px;
+  background:color-mix(in srgb,var(--ink) 20%,transparent);
+}
+.rail-line b{
+  position:absolute;left:0;top:0;bottom:0;border-radius:999px;
+  background:var(--ink);width:0;
+  transition:width .34s var(--spring);
+}
+.notch{
+  position:absolute;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;
+  border-radius:999px;background:var(--ink);opacity:.45;
+}
+.knob{
+  position:absolute;top:50%;left:0;width:44px;height:44px;margin-top:-22px;
+  transform:translateX(-50%);
+  transition:left .34s var(--spring);
+  pointer-events:none;
+}
+.knob svg{width:100%;height:100%;display:block}
+.knob .disc{fill:var(--cream);stroke:var(--ink);stroke-width:3}
+.knob .ray{fill:none;stroke:var(--ink);stroke-width:3;stroke-linecap:round}
+.knob.hop{animation:hop .34s var(--spring) both}
+@keyframes hop{0%{transform:translateX(-50%) scale(.86)}60%{transform:translateX(-50%) scale(1.08)}100%{transform:translateX(-50%) scale(1)}}
+/* the real control sits on top, invisible, so the keyboard and the
+   screen reader get a proper slider */
+.slider input{
+  position:absolute;left:14px;right:14px;top:50%;width:calc(100% - 28px);
+  height:44px;margin:-22px 0 0;padding:0;
+  opacity:0;cursor:grab;
+  -webkit-appearance:none;appearance:none;background:transparent;
+}
+.slider input::-webkit-slider-thumb{-webkit-appearance:none;width:44px;height:44px}
+.slider input::-moz-range-thumb{width:44px;height:44px;border:0}
+.slider:has(input:focus-visible) .knob svg{outline:3px solid var(--ink);outline-offset:2px;border-radius:999px}
+.stops{
+  display:flex;justify-content:space-between;
+  margin:10px 0 0;font-size:17px;font-weight:600;
+}
+.stops span{opacity:.5;transition:opacity .25s var(--ease),font-weight .2s linear}
+.stops span.on{opacity:1;font-weight:800}
+
+/* ---------- the sentence with the gap ---------- */
+.line{
+  flex:none;margin:12px 0 0;padding:0;
+  display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:center;
+  gap:0 8px;
+  font-size:24px;font-weight:800;letter-spacing:-.01em;line-height:1.25;
+  background:none;border:0;color:inherit;font-family:inherit;
+  width:100%;cursor:pointer;text-align:center;
+}
+.gap{
+  position:relative;display:inline-grid;place-items:center;
+  min-width:104px;height:34px;padding:0 4px;
+  transition:min-width .34s var(--spring);
+}
+.gap::after{
+  content:"";position:absolute;left:0;right:0;bottom:-1px;height:4px;
+  border-radius:999px;background:var(--ink);opacity:.38;
+  transition:opacity .2s var(--ease),transform .3s var(--spring);
+}
+.gap.filled::after{opacity:1}
+.gap.waiting::after{animation:waiting 1.6s ease-in-out infinite}
+@keyframes waiting{0%,100%{transform:scaleX(1);opacity:.38}50%{transform:scaleX(1);opacity:.85}}
+.gap .word{display:inline-block;animation:land .34s var(--spring) both;white-space:nowrap}
+@keyframes land{from{transform:translateY(-7px) scale(1.14)}to{transform:none}}
+.gap.ghost .word{opacity:.001;animation:fadeWord .3s var(--ease) .06s both}
+@keyframes fadeWord{to{opacity:1}}
+
+/* what the learner said */
+.bubble{
+  position:absolute;left:16px;right:16px;bottom:62px;z-index:2;
+  margin:0 auto;max-width:76%;
+  background:var(--cream);border:3px solid var(--ink);border-radius:20px 20px 20px 6px;
+  padding:8px 13px;font-size:17px;font-weight:700;line-height:1.25;text-align:center;
+  animation:pop .3s var(--spring) both;
+}
+
+/* ---------- stickers ---------- */
+.sticker{position:absolute;color:var(--ink);pointer-events:none;z-index:3}
+.sticker svg{display:block;width:100%;height:100%;fill:currentColor}
+.tw{animation:twinkle 4s ease-in-out infinite}
+@keyframes twinkle{0%,100%{transform:scale(1) rotate(0);opacity:1}50%{transform:scale(1.18) rotate(10deg);opacity:.7}}
+.burst{animation:burst .4s var(--spring) both}
+@keyframes burst{from{transform:scale(0) rotate(-40deg)}60%{transform:scale(1.14) rotate(6deg)}to{transform:scale(1) rotate(0)}}
+.puff{animation:puff .6s var(--ease) both}
+@keyframes puff{0%{transform:scale(.4) translateY(0);opacity:0}30%{transform:scale(1) translateY(-6px);opacity:1}100%{transform:scale(1.1) translateY(-26px);opacity:0}}
+
+/* ---------- the magnet tiles ---------- */
+.rail{
+  flex:none;display:flex;gap:10px;justify-content:center;align-items:center;
+  min-height:52px;
+  transition:opacity .2s var(--ease),transform .2s var(--ease);
+}
+.rail.out{opacity:0;transform:translateY(10px)}
+.tile{
+  font-family:inherit;font-size:17px;font-weight:700;
+  padding:0 16px;height:48px;
+  border:3px solid var(--line);border-radius:999px;
+  background:transparent;color:var(--on-page);
+  cursor:pointer;white-space:nowrap;
+  animation:pop .34s var(--spring) both;
+  transition:transform .18s var(--spring),opacity .22s var(--ease);
+}
+.tile:active{transform:scale(.94)}
+.tile.used{opacity:.26}
+/* the flying tile: a pill that becomes bare ink text as it lands */
+.fly{
+  position:fixed;margin:0;z-index:30;pointer-events:none;
+  display:grid;place-items:center;
+  font-family:inherit;font-weight:800;
+  border:3px solid var(--line);border-radius:999px;
+  background:transparent;color:var(--on-page);
+  transition:border-color .22s var(--ease),color .22s var(--ease),font-size .22s var(--ease);
+}
+.fly.bare{border-color:transparent;color:var(--ink);font-size:24px}
+
+/* ---------- typed fallback ---------- */
+.typed{flex:none;display:flex;flex-direction:column;gap:8px;min-height:52px;justify-content:center}
+.typed input{
+  font-family:inherit;font-size:17px;font-weight:700;
+  height:52px;padding:0 18px;width:100%;
+  border:3px solid var(--line);border-radius:999px;
+  background:transparent;color:var(--on-page);
+}
+.typed input::placeholder{color:var(--on-page);opacity:.42}
+
+/* ---------- the one button ---------- */
+.cta{flex:none;display:flex;flex-direction:column;align-items:center;gap:6px}
+.btn{
+  font-family:inherit;font-size:17px;font-weight:700;
+  width:100%;height:56px;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  border:0;border-radius:999px;
+  background:var(--btn-bg);color:var(--btn-fg);
+  cursor:pointer;
+  transition:transform .22s var(--spring),opacity .3s var(--ease);
+}
+.btn:active{transform:scale(.97)}
+.btn[disabled]{opacity:.26;pointer-events:none}
+.btn.ready{animation:ready .4s var(--spring) both}
+@keyframes ready{from{transform:scale(.94)}60%{transform:scale(1.04)}to{transform:scale(1)}}
+.btn .chev{font-size:20px;line-height:1}
+.btn .dots i{
+  display:inline-block;width:8px;height:8px;margin:0 2px;border-radius:999px;
+  background:var(--btn-fg);animation:listen 1s ease-in-out infinite;
+}
+.btn .dots i:nth-child(2){animation-delay:.15s}
+.btn .dots i:nth-child(3){animation-delay:.3s}
+@keyframes listen{0%,100%{transform:translateY(0);opacity:.45}50%{transform:translateY(-5px);opacity:1}}
+.link{
+  background:none;border:0;padding:4px;font-family:inherit;
+  font-size:17px;font-weight:700;color:var(--on-page);opacity:.72;
+  text-decoration:underline;text-underline-offset:3px;cursor:pointer;
+}
+
+/* ---------- the end card ---------- */
+.done-note{
+  flex:none;margin:14px 0 2px;font-size:24px;font-weight:800;line-height:1.2;
+  text-align:center;
+  animation:pop .35s var(--spring) both;
+}
+
+/* ---------- Blobert ---------- */
+.blob{
+  position:fixed;z-index:40;width:150px;height:150px;
+  pointer-events:none;opacity:0;
+}
+.blob svg{width:100%;height:100%;display:block;overflow:visible}
+.blob .body{fill:var(--block);stroke:var(--ink);stroke-width:3;stroke-linejoin:round}
+.blob .eye{fill:var(--ink)}
+.blob .mouth{fill:var(--ink);stroke:var(--ink);stroke-width:3;stroke-linejoin:round}
+.blob .arm-ink{fill:none;stroke:var(--ink);stroke-width:14;stroke-linecap:round}
+.blob .arm-fill{fill:none;stroke:var(--block);stroke-width:8;stroke-linecap:round}
+.blob .tl{fill:none;stroke:var(--ink);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.blob .tf{fill:var(--cream);stroke:var(--ink);stroke-width:3;stroke-linejoin:round}
+.blob .tool{display:none}
+.blob[data-gag="sweep"] .t-sweep,
+.blob[data-gag="mop"] .t-mop,
+.blob[data-gag="bin"] .t-bin,
+.blob[data-gag="vacuum"] .t-vacuum,
+.blob[data-gag="crane"] .t-crane{display:block}
+.blob .m-rest{display:block}
+.blob .m-open{display:none}
+.blob[data-gag="eat"] .m-rest{display:none}
+.blob[data-gag="eat"] .m-open{display:block}
+/* he wobbles, he never bounces */
+.blob .wob{transform-box:fill-box;transform-origin:50% 100%;animation:wob 3.2s ease-in-out infinite}
+@keyframes wob{0%,100%{transform:scaleX(1)}50%{transform:scaleX(1.03)}}
+/* the scripted gag: in, look, gag, wave, out */
+.blob.in{animation:blobIn .18s var(--spring) both}
+.blob.out{animation:blobOut .16s var(--ease) both}
+.blob.flip svg{transform:scaleX(-1)}
+@keyframes blobIn{from{opacity:0;transform:translate(var(--from),16px) scale(.8)}to{opacity:1;transform:none}}
+@keyframes blobOut{from{opacity:1;transform:none}to{opacity:0;transform:translate(var(--from),10px) scale(.86)}}
+.blob.look .head{animation:look .1s var(--ease) both}
+@keyframes look{to{transform:translate(6px,2px)}}
+.blob.wave .arm-r{animation:wave .16s ease-in-out 2 alternate}
+@keyframes wave{from{transform:rotate(0)}to{transform:rotate(-7deg)}}
+.blob .arm-r{transform-box:fill-box;transform-origin:10% 80%}
+.blob.gag-sweep .t-sweep{animation:sweepIt .28s var(--ease) both}
+@keyframes sweepIt{from{transform:rotate(-22deg)}to{transform:rotate(20deg)}}
+.blob.gag-mop .t-mop{animation:mopIt .28s var(--ease) both}
+@keyframes mopIt{0%{transform:translateY(-6px) rotate(-6deg)}50%{transform:translateY(2px) rotate(6deg)}100%{transform:translateY(0) rotate(0)}}
+.blob.gag-bin .lid{animation:lidIt .3s var(--spring) both}
+@keyframes lidIt{0%{transform:rotate(-74deg)}70%{transform:rotate(4deg)}100%{transform:rotate(0)}}
+.blob.gag-vacuum{animation:sneeze .22s var(--ease) .22s both}
+@keyframes sneeze{0%{transform:none}40%{transform:translate(0,-5px) rotate(-3deg)}100%{transform:none}}
+.blob.gag-crane .hook{animation:hookIt .3s var(--ease) both}
+@keyframes hookIt{0%{transform:translateY(-14px)}50%{transform:translateY(6px)}100%{transform:translateY(-10px)}}
+.blob .t-sweep,.blob .t-mop{transform-box:fill-box;transform-origin:14% 86%}
+.blob .lid{transform-box:fill-box;transform-origin:0% 100%}
+.blob .hook{transform-box:fill-box;transform-origin:50% 0%}
+
+/* ---------- focus and motion preferences ---------- */
+:focus{outline:none}
+:focus-visible{outline:3px solid var(--line);outline-offset:3px;border-radius:999px}
+.card :focus-visible{outline-color:var(--ink)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+@media (prefers-reduced-motion:reduce){
+  .tw,.gap.waiting::after,.btn .dots i,.blob .wob{animation:none!important}
+  *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- top row -->
+  <div class="top">
+    <button class="icon-btn" id="back" aria-label="Back to the lesson">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5 8 12l7 7"/></svg>
+    </button>
+    <div class="bar" role="progressbar" aria-label="Progress in this exercise" aria-valuemin="0" aria-valuemax="9" aria-valuenow="0" id="barBox"><i id="bar"></i></div>
+    <button class="icon-btn" id="theme" aria-label="Dark mode" aria-pressed="false">
+      <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="4.4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.2 5.2l1.6 1.6M17.2 17.2l1.6 1.6M18.8 5.2l-1.6 1.6M6.8 17.2l-1.6 1.6"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- one headline, one line -->
+  <div class="head">
+    <h1 id="title">Yesterday, today, tomorrow</h1>
+    <p class="sub" id="sub">Drag the sun across the day.</p>
+  </div>
+
+  <!-- the card: one block colour -->
+  <div class="card" id="card">
+
+    <!-- the scene: Riyadh then, Dubai now, London next -->
+    <div class="scene" id="scene">
+      <svg id="sceneSvg" viewBox="0 0 330 182" preserveAspectRatio="xMidYMax meet" aria-hidden="true" data-wobble>
+
+        <!-- yesterday: Riyadh, a faded photograph -->
+        <g class="lm" id="lm-0">
+          <path class="b" d="M8 172 L8 134 L27 134 L27 172 Z"/>
+          <path class="b" fill-rule="evenodd" d="M31 172 L35 66 Q56 38 77 66 L81 172 Z M49 172 L51 92 Q56 82 61 92 L63 172 Z"/>
+          <path class="l" d="M93 172 Q90 150 93 131"/>
+          <path class="l" d="M93 131 Q80 124 71 131"/>
+          <path class="l" d="M93 131 Q82 117 74 113"/>
+          <path class="l" d="M93 131 Q105 122 114 128"/>
+          <path class="l" d="M93 131 Q103 115 110 109"/>
+          <path class="mark" id="mk-0" transform="translate(44 18) scale(1.1)"></path>
+        </g>
+
+        <!-- today: Dubai, in colour -->
+        <g class="lm" id="lm-1">
+          <path class="b" d="M136 172 L136 108 L142 108 L142 76 L147 76 L149 30 L151 76 L156 76 L156 108 L162 108 L162 172 Z"/>
+          <path class="b" d="M172 172 L174 88 Q202 118 207 172 Z"/>
+          <path class="l" d="M181 150 L198 150"/>
+          <path class="mark" id="mk-1" transform="translate(158 8) scale(1.1)"></path>
+        </g>
+
+        <!-- tomorrow: London, not drawn yet -->
+        <g class="lm" id="lm-2">
+          <path class="b" d="M238 172 L238 86 L235 86 L246 60 L257 86 L254 86 L254 172 Z"/>
+          <path class="b" d="M246 100 m-8 0 a8 8 0 1 0 16 0 a8 8 0 1 0 -16 0"/>
+          <path class="b" d="M290 128 m-28 0 a28 28 0 1 0 56 0 a28 28 0 1 0 -56 0"/>
+          <path class="l" d="M290 128 L279 172"/>
+          <path class="l" d="M290 128 L301 172"/>
+          <path class="l" d="M270 108 L310 148"/>
+          <path class="l" d="M270 148 L310 108"/>
+          <path class="mark" id="mk-2" transform="translate(272 70) scale(1.1)"></path>
+        </g>
+
+        <!-- the horizon -->
+        <path class="ground" d="M2 174 L328 174"/>
+      </svg>
+    </div>
+
+    <!-- the time slider: the sun travels the day -->
+    <div class="slider" id="slider">
+      <div class="rail-line" id="railLine">
+        <b id="railFill"></b>
+        <i class="notch" style="left:0"></i>
+        <i class="notch" style="left:50%"></i>
+        <i class="notch" style="left:100%"></i>
+        <div class="knob" id="knob">
+          <svg viewBox="0 0 44 44" aria-hidden="true">
+            <circle class="disc" cx="22" cy="22" r="12"/>
+            <path class="ray" d="M22 2.5v4.5M22 37v4.5M2.5 22h4.5M37 22h4.5M8 8l3.2 3.2M32.8 32.8L36 36M36 8l-3.2 3.2M11.2 32.8L8 36"/>
+          </svg>
+        </div>
+      </div>
+      <input id="time" type="range" min="0" max="2" step="1" value="0"
+             aria-label="Time: yesterday, today or tomorrow" aria-valuetext="Yesterday">
+      <div class="stops" id="stopLabels" aria-hidden="true">
+        <span class="on">Yesterday</span><span>Today</span><span>Tomorrow</span>
+      </div>
+    </div>
+
+    <!-- the sentence: the gap takes the tile -->
+    <button class="line" id="line" aria-label="Hear the sentence">
+      <span>I</span><span class="gap waiting" id="gap"></span><span>in a shop</span>
+    </button>
+
+    <p class="done-note" id="doneNote" hidden>Yesterday, today and tomorrow.</p>
+  </div>
+
+  <!-- the magnet tiles -->
+  <div class="rail" id="rail" role="group" aria-label="Word tiles"></div>
+
+  <!-- the typed fallback -->
+  <div class="typed" id="typed" hidden>
+    <input id="say" type="text" autocomplete="off" autocapitalize="sentences" spellcheck="false"
+           placeholder="Type what you would say" aria-label="Type the sentence you would say">
+  </div>
+
+  <!-- the one button -->
+  <div class="cta">
+    <button class="btn" id="cta" disabled>Say it <span class="chev" aria-hidden="true">&#187;</span></button>
+    <button class="link" id="alt" hidden>Type it instead</button>
+  </div>
+
+  <p class="sr" role="status" aria-live="polite" id="live"></p>
+</div>
+
+<!-- Blobert: he is the only thing that handles a mistake -->
+<div class="blob" id="blob" aria-hidden="true">
+  <svg viewBox="0 0 150 150" data-wobble>
+    <!-- the tools, one at a time -->
+    <g class="tool t-sweep">
+      <path class="tl" d="M104 96 L136 58" stroke-width="5"/>
+      <path class="tf" d="M96 92 L112 108 L96 124 L82 108 Z"/>
+      <path class="tl" d="M90 112 L96 118M86 106 L92 112M96 118 L102 124"/>
+    </g>
+    <g class="tool t-mop">
+      <path class="tl" d="M104 96 L136 58" stroke-width="5"/>
+      <path class="tl" d="M90 100 Q96 118 86 126M100 100 Q106 120 98 128M110 102 Q114 120 108 128"/>
+      <path class="tl" d="M88 98 L114 98" stroke-width="5"/>
+    </g>
+    <g class="tool t-bin">
+      <g class="lid"><path class="tf" d="M92 86 L140 86 L140 94 L92 94 Z"/></g>
+      <path class="tf" d="M96 96 L136 96 L130 140 L102 140 Z"/>
+      <path class="tl" d="M110 106 L108 130M122 106 L124 130"/>
+    </g>
+    <g class="tool t-vacuum">
+      <path class="tf" d="M104 108 L140 108 L140 140 L104 140 Z"/>
+      <path class="tl" d="M104 118 Q88 112 92 94" stroke-width="6"/>
+      <path class="tf" d="M92 94 L78 82 L86 74 L98 88 Z"/>
+      <path class="tl" d="M112 122 L132 122"/>
+    </g>
+    <g class="tool t-crane">
+      <path class="tl" d="M110 140 L110 44" stroke-width="5"/>
+      <path class="tl" d="M110 46 L62 46" stroke-width="5"/>
+      <path class="tl" d="M110 60 L98 46"/>
+      <g class="hook">
+        <path class="tl" d="M62 46 L62 74"/>
+        <path class="tl" d="M56 74 Q62 88 68 76"/>
+      </g>
+      <path class="tf" d="M100 140 L128 140 L124 128 L104 128 Z"/>
+    </g>
+
+    <!-- the blob himself -->
+    <g class="wob">
+      <path class="arm-ink arm-l" d="M30 108 Q14 102 10 88"/>
+      <path class="arm-fill" d="M30 108 Q14 102 10 88"/>
+      <path class="arm-ink arm-r" d="M96 108 Q112 104 116 92"/>
+      <path class="arm-fill" d="M96 108 Q112 104 116 92"/>
+      <path class="body" id="blobBody" d=""/>
+      <g class="head">
+        <circle class="eye" cx="50" cy="92" r="4.4"/>
+        <circle class="eye" cx="74" cy="92" r="4.4"/>
+        <path class="mouth m-rest" d="M52 108 Q62 122 72 108 Z"/>
+        <path class="mouth m-open" d="M48 104 Q62 134 76 104 Q62 112 48 104 Z"/>
+      </g>
+    </g>
+  </svg>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var SPRING = "cubic-bezier(.34,1.56,.64,1)";
+  var EASE = "cubic-bezier(.2,.8,.3,1)";
+
+  var STOPS = [
+    { label:"Yesterday", word:"worked",    sentence:"I worked in a shop",      key:"worked" },
+    { label:"Today",     word:"work",      sentence:"I work in a shop",        key:"work" },
+    { label:"Tomorrow",  word:"will work", sentence:"I will work in a shop",   key:"will" }
+  ];
+  var ASK_ORDER = [1, 2, 0];   /* the ask never repeats the order of the drag */
+
+  var el = function(id){ return document.getElementById(id); };
+  var card = el("card"), scene = el("scene"), sceneSvg = el("sceneSvg");
+  var input = el("time"), knob = el("knob"), railFill = el("railFill"), railLine = el("railLine");
+  var stopLabels = el("stopLabels"), gap = el("gap"), lineBtn = el("line");
+  var rail = el("rail"), cta = el("cta"), alt = el("alt"), live = el("live");
+  var title = el("title"), sub = el("sub"), bar = el("bar"), doneNote = el("doneNote");
+  var typed = el("typed"), say = el("say"), blob = el("blob");
+
+  var at = 0;                  /* which time the sun is on */
+  var phase = "explore";       /* explore | ask | say | done */
+  var seen = [false,false,false], solved = [false,false,false], said = [false,false,false];
+  var askAt = 0, sayAt = 0;
+  var busy = false;            /* a gag or a magnet is running */
+  var bubble = null;
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------- the hand-drawn line, straight from the character kit ----------
+     components/learning-path/art/characters.tsx: a deterministic jitter on the
+     path numbers, never a filter, so the ink stays vector sharp. */
+  function rnd(n){
+    var t = (n + 0x6d2b79f5) | 0;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  }
+  function wobble(d, seed, amount){
+    var i = 0;
+    return d.replace(/-?\d*\.?\d+/g, function(n){
+      var j = (rnd(seed * 977 + i++ * 37) - 0.5) * 2 * (amount === undefined ? 1 : amount);
+      return (parseFloat(n) + j).toFixed(2);
+    });
+  }
+  function blobPath(cx, cy, rx, ry, seed, amount, n){
+    amount = amount === undefined ? 1.4 : amount; n = n || 11;
+    var pts = [], i;
+    for (i = 0; i < n; i++){
+      var a = (i / n) * Math.PI * 2;
+      var k = 1 + ((rnd(seed * 131 + i * 17) - 0.5) * 2 * amount) / Math.max(rx, ry);
+      pts.push([cx + Math.cos(a) * rx * k, cy + Math.sin(a) * ry * k]);
+    }
+    var mid = function(a, b){ return ((a[0]+b[0])/2).toFixed(2) + " " + ((a[1]+b[1])/2).toFixed(2); };
+    var d = "M" + mid(pts[n-1], pts[0]);
+    for (i = 0; i < n; i++){
+      d += " Q" + pts[i][0].toFixed(2) + " " + pts[i][1].toFixed(2) + " " + mid(pts[i], pts[(i+1) % n]);
+    }
+    return d + " Z";
+  }
+  /* Blobert's body is a kit blob: soft, rounded, no legs */
+  el("blobBody").setAttribute("d", blobPath(62, 96, 40, 34, 9, 1.6, 13));
+  /* every drawn path gets the wobble once */
+  Array.prototype.forEach.call(document.querySelectorAll("[data-wobble] path"), function(p, i){
+    if (p.id === "blobBody") return;
+    var d = p.getAttribute("d");
+    if (d) p.setAttribute("d", wobble(d, i + 3, 0.8));
+  });
+
+  /* ---------- stickers: the five kit shapes, never the same twice ---------- */
+  var SHAPES = {
+    star:"M12 1 L14.6 9.4 L23 12 L14.6 14.6 L12 23 L9.4 14.6 L1 12 L9.4 9.4 Z",
+    heart:"M12 21.5 C1.5 13.5 3.5 3.5 12 8 C20.5 3.5 22.5 13.5 12 21.5 Z",
+    sparkle:"M11 3 L12.4 9.6 L19 11 L12.4 12.4 L11 19 L9.6 12.4 L3 11 L9.6 9.6 Z",
+    squiggle:"M2 16 C5.5 5 9.5 21 13 11 C15 6.5 19 10 22 7.5",
+    cloud:"M6.5 19 C1 19 1 11.5 7 11.5 C7.6 5.5 16 4.8 17.4 10.6 C22.5 10 24 19 17.5 19 Z"
+  };
+  var STROKED = { squiggle:1 };
+  var lastSticker = null;
+  function pickSticker(){
+    var keys = Object.keys(SHAPES).filter(function(k){ return k !== lastSticker; });
+    lastSticker = keys[Math.floor(Math.random() * keys.length)];
+    return lastSticker;
+  }
+  function stickerSvg(kind, seed){
+    var d = wobble(SHAPES[kind], seed || 5, 0.5);
+    return STROKED[kind]
+      ? "<svg viewBox='0 0 24 24'><path d='" + d + "' fill='none' stroke='currentColor' stroke-width='3' stroke-linecap='round'/></svg>"
+      : "<svg viewBox='0 0 24 24'><path d='" + d + "'/></svg>";
+  }
+  /* a sticker on the card, for a good answer */
+  function pop(kind, css, cls, life){
+    var s = document.createElement("span");
+    s.className = "sticker " + (cls || "burst");
+    s.style.cssText = css;
+    s.innerHTML = stickerSvg(kind, Math.floor(Math.random() * 90) + 1);
+    card.appendChild(s);
+    if (life) setTimeout(function(){ s.remove(); }, life);
+    return s;
+  }
+  var SPOTS = [
+    "width:34px;height:34px;right:9%;top:8%",
+    "width:24px;height:24px;left:9%;top:12%",
+    "width:28px;height:28px;right:16%;top:26%"
+  ];
+  function reward(n){
+    for (var i = 0; i < n; i++){
+      (function(i){
+        var s = pop(pickSticker(), SPOTS[i] + ";animation-delay:" + (i * 80) + "ms", "burst", 1900);
+        setTimeout(function(){ s.classList.add("tw"); }, 420 + i * 80);
+      })(i);
+    }
+  }
+
+  /* ---------- small helpers ---------- */
+  function announce(m){ live.textContent = m; }
+  function setTitle(h, s){
+    title.textContent = h; sub.textContent = s;
+    title.classList.remove("pop"); sub.classList.remove("pop");
+    void title.offsetWidth;
+    title.classList.add("pop"); sub.classList.add("pop");
+  }
+  function steps(){
+    var n = 0, i;
+    for (i = 0; i < 3; i++){ if (seen[i]) n++; if (solved[i]) n++; if (said[i]) n++; }
+    return n;
+  }
+  function progress(){
+    var n = steps();
+    bar.style.width = (n / 9 * 100) + "%";
+    el("barBox").setAttribute("aria-valuenow", String(n));
+  }
+  function speak(text, rate){
+    if (!window.speechSynthesis) return;
+    var u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-GB"; u.rate = rate || 0.9;
+    try { speechSynthesis.cancel(); speechSynthesis.speak(u); } catch(e){}
+  }
+  function tileFor(i){ return rail.children[i]; }
+  function dimTiles(){
+    for (var i = 0; i < 3; i++) tileFor(i).classList.toggle("used", gap.dataset.word === STOPS[i].word);
+  }
+
+  /* ---------- the tiles ---------- */
+  STOPS.forEach(function(s, i){
+    var t = document.createElement("button");
+    t.className = "tile";
+    t.type = "button";
+    t.textContent = s.word;
+    t.dataset.word = s.word;
+    t.dataset.index = String(i);
+    t.style.animationDelay = (i * 60) + "ms";
+    t.addEventListener("click", function(){ tapTile(i); });
+    rail.appendChild(t);
+  });
+
+  /* ---------- the sun moves, the day changes ---------- */
+  function paint(){
+    var p = at / 2;
+    knob.style.left = (p * 100) + "%";
+    railFill.style.width = (p * 100) + "%";
+    for (var i = 0; i < 3; i++){
+      el("lm-" + i).classList.toggle("on", i === at);
+      stopLabels.children[i].classList.toggle("on", i === at);
+      var mk = el("mk-" + i);
+      if (solved[i] || said[i] || phase === "done"){
+        if (!mk.getAttribute("d")) mk.setAttribute("d", wobble(SHAPES.star, 20 + i, 0.5));
+        mk.classList.add("on");
+      }
+    }
+    input.value = String(at);
+    input.setAttribute("aria-valuetext", STOPS[at].label);
+    knob.classList.remove("hop"); void knob.offsetWidth; knob.classList.add("hop");
+  }
+
+  function clearGap(waiting){
+    gap.innerHTML = "";
+    gap.classList.remove("filled", "ghost");
+    gap.classList.toggle("waiting", !!waiting);
+    delete gap.dataset.word;
+    dimTiles();
+  }
+  function fillGap(word, ghost){
+    gap.innerHTML = '<span class="word">' + word + "</span>";
+    gap.classList.add("filled");
+    gap.classList.toggle("ghost", !!ghost);
+    gap.classList.remove("waiting");
+    gap.dataset.word = word;
+    dimTiles();
+  }
+
+  /* the magnet: the tile flies out of the rail and lands on the line */
+  function magnet(i, then){
+    var tile = tileFor(i), word = STOPS[i].word;
+    if (reduced){ fillGap(word); if (then) then(); return; }
+    var a = tile.getBoundingClientRect(), b = gap.getBoundingClientRect();
+    var g = document.createElement("div");
+    g.className = "fly";
+    g.textContent = word;
+    g.style.cssText = "left:" + a.left + "px;top:" + a.top + "px;width:" + a.width +
+      "px;height:" + a.height + "px;font-size:17px";
+    document.body.appendChild(g);
+    requestAnimationFrame(function(){ g.classList.add("bare"); });
+    g.animate([
+      { transform:"translate(0,0) scale(1)" },
+      { transform:"translate(" + (b.left + b.width/2 - a.left - a.width/2) + "px," +
+                                 (b.top + b.height/2 - a.top - a.height/2) + "px) scale(1.04)" }
+    ], { duration:340, easing:SPRING, fill:"both" }).finished.then(function(){
+      g.remove();
+      fillGap(word);
+      if (then) then();
+    });
+  }
+
+  function setStop(i, fromDrag){
+    if (busy) { input.value = String(at); return; }
+    at = i;
+    paint();
+    if (phase === "explore"){
+      busy = true;
+      clearGap(false);
+      magnet(at, function(){
+        busy = false;
+        if (!seen[at]){ seen[at] = true; progress(); }
+        speak(STOPS[at].sentence, 0.9);
+        announce(STOPS[at].label + ". " + STOPS[at].sentence + ".");
+        if (seen[0] && seen[1] && seen[2]) setTimeout(toAsk, 900);
+        else setTitle("Yesterday, today, tomorrow", "Drag the sun to " + nextUnseen() + ".");
+      });
+    } else if (phase === "ask"){
+      askAt = at;
+      clearGap(true);
+      setTitle("Which word now?", "Tap the word for " + STOPS[at].label.toLowerCase() + ".");
+      announce(STOPS[at].label + ". Tap the word for " + STOPS[at].label.toLowerCase() + ".");
+    } else if (phase === "say"){
+      sayAt = at;
+      fillGap(STOPS[at].word);
+      setTitle("Say it aloud", "Say the sentence for " + STOPS[at].label.toLowerCase() + ".");
+      speak(STOPS[at].sentence, 0.9);
+    }
+    if (!fromDrag) input.value = String(at);
+  }
+
+  function nextUnseen(){
+    for (var i = 0; i < 3; i++) if (!seen[i]) return STOPS[i].label.toLowerCase();
+    return "today";
+  }
+
+  input.addEventListener("input", function(){ setStop(parseInt(input.value, 10), true); });
+
+  /* ---------- round two: which word for this time? ---------- */
+  function toAsk(){
+    phase = "ask";
+    setStop(ASK_ORDER[0]);
+  }
+  function nextAsk(){
+    for (var k = 0; k < 3; k++){
+      var i = ASK_ORDER[k];
+      if (!solved[i]) { setStop(i); return; }
+    }
+    toSay();
+  }
+
+  function tapTile(i){
+    if (busy) return;
+    if (phase === "ask"){
+      if (i === askAt) right(i);
+      else wrong(i);
+      return;
+    }
+    /* outside the ask the tiles are a magnet for whichever time is shown */
+    if (phase === "explore" || phase === "say"){
+      if (i === at) { if (gap.dataset.word !== STOPS[i].word) magnet(i); }
+      else wrong(i);
+    }
+  }
+
+  function right(i){
+    busy = true;
+    magnet(i, function(){
+      solved[i] = true;
+      progress(); paint();
+      reward(2);
+      announce("Yes. " + STOPS[i].sentence + ".");
+      setTitle("Yes", STOPS[i].sentence + ".");
+      speak(STOPS[i].sentence, 0.9);
+      setTimeout(function(){ busy = false; nextAsk(); }, 1200);
+    });
+  }
+
+  /* ---------- the mistake: Blobert, then the calm correction ---------- */
+  function wrong(i){
+    busy = true;
+    var target = tileFor(i), right = STOPS[askAt] ? askAt : at;
+    if (phase !== "ask") right = at;
+    announce("Not that one. Blobert has taken it away.");
+    setTitle("Blobert has it", "Watch, then look again.");
+    blobert(target, function(){
+      /* the real thing: the right answer, calm, at 0.75 speed */
+      solved[right] = true;
+      magnet(right, function(){
+        gap.classList.add("ghost");
+        progress(); paint();
+        setTitle(STOPS[right].label, STOPS[right].sentence + ".");
+        announce(STOPS[right].label + " is " + STOPS[right].word + ". " + STOPS[right].sentence + ".");
+        speak(STOPS[right].sentence, 0.75);
+        setTimeout(function(){ busy = false; if (phase === "ask") nextAsk(); }, 1700);
+      });
+    });
+  }
+
+  /* ---------- Blobert ----------
+     One gag per miss, never the same twice in a row, each sequence under
+     900 ms: in 180, look 100, gag 340, wave 160 overlapping, out 160. */
+  var GAGS = ["crane", "sweep", "eat", "mop", "bin", "vacuum"];
+  var lastGag = null;
+  function pickGag(){
+    var pool = GAGS.filter(function(g){ return g !== lastGag; });
+    lastGag = pool[Math.floor(Math.random() * pool.length)];
+    return lastGag;
+  }
+
+  function blobert(target, then){
+    var gagKind = pickGag();
+    var r = target.getBoundingClientRect();
+    var fromRight = (r.left + r.width / 2) > window.innerWidth / 2;
+
+    /* a clone so the rail never reflows while he works */
+    var ghost = target.cloneNode(true);
+    ghost.classList.add("fly");
+    ghost.style.cssText = "left:" + r.left + "px;top:" + r.top + "px;width:" + r.width +
+      "px;height:" + r.height + "px;font-size:17px";
+    document.body.appendChild(ghost);
+    target.style.visibility = "hidden";
+
+    /* he stands beside the tile, his tool over it */
+    var bw = 150, bh = 150;
+    var left = fromRight ? Math.min(window.innerWidth - bw - 4, r.right - 24)
+                         : Math.max(4, r.left - bw + 28);
+    var top = Math.min(window.innerHeight - bh - 4, r.top + r.height / 2 - 96);
+    blob.style.left = left + "px";
+    blob.style.top = top + "px";
+    blob.style.setProperty("--from", (fromRight ? 150 : -150) + "px");
+    blob.dataset.gag = gagKind;
+    blob.className = "blob" + (fromRight ? " flip" : "");
+    blob.style.opacity = "1";
+
+    var finish = function(){
+      ghost.remove();
+      target.style.visibility = "";
+      target.animate
+        ? target.animate([{ transform:"scale(.86)" }, { transform:"scale(1)" }],
+            { duration:300, easing:SPRING }) : null;
+      blob.style.opacity = "0";
+      blob.className = "blob";
+      blob.removeAttribute("data-gag");
+      if (then) then();
+    };
+
+    if (reduced){
+      ghost.animate([{ opacity:1 }, { opacity:0 }], { duration:120, fill:"both" });
+      setTimeout(finish, 320);
+      return;
+    }
+
+    /* in */
+    blob.classList.add("in");
+    /* look at the wrong tile */
+    setTimeout(function(){ blob.classList.add("look"); }, 180);
+    /* the gag */
+    setTimeout(function(){
+      blob.classList.add("gag-" + gagKind);
+      runGag(gagKind, ghost, r, fromRight, left, top);
+    }, 280);
+    /* the wave overlaps the tail of the gag */
+    setTimeout(function(){ blob.classList.add("wave"); }, 540);
+    /* out */
+    setTimeout(function(){
+      blob.classList.remove("in");
+      blob.classList.add("out");
+    }, 700);
+    setTimeout(finish, 870);
+  }
+
+  /* each gag ends with the wrong word gone from the frame */
+  function runGag(kind, ghost, r, fromRight, bx, by){
+    var away = fromRight ? -(r.right + 40) : (window.innerWidth - r.left + 40);
+    var mouth = { x: bx + (fromRight ? 150 - 62 : 62), y: by + 104 };
+    var dx = mouth.x - (r.left + r.width / 2), dy = mouth.y - (r.top + r.height / 2);
+    var frames, ms = 340, ease = EASE;
+
+    if (kind === "sweep"){
+      frames = [{ transform:"none", opacity:1 },
+                { transform:"translate(" + away + "px,-8px) rotate(" + (fromRight ? -16 : 16) + "deg)", opacity:0 }];
+    } else if (kind === "eat"){
+      frames = [{ transform:"none", opacity:1 },
+                { transform:"translate(" + dx + "px," + dy + "px) scale(.08)", opacity:0 }];
+      setTimeout(function(){
+        var s = document.createElement("span");
+        s.className = "sticker puff";
+        s.style.cssText = "position:fixed;z-index:41;width:30px;height:30px;left:" +
+          (mouth.x - 15) + "px;top:" + (mouth.y - 46) + "px;color:var(--ink)";
+        s.innerHTML = stickerSvg("star", 31);
+        document.body.appendChild(s);
+        setTimeout(function(){ s.remove(); }, 640);
+      }, 240);
+    } else if (kind === "mop"){
+      frames = [{ transform:"none", opacity:1 },
+                { transform:"translateY(10px) scaleY(.08) scaleX(1.2)", opacity:.9, offset:.6 },
+                { transform:"translateY(12px) scaleY(.06) scaleX(1.3)", opacity:0 }];
+      setTimeout(function(){
+        var s = document.createElement("span");
+        s.className = "sticker puff";
+        s.style.cssText = "position:fixed;z-index:41;width:26px;height:26px;left:" +
+          (r.left + r.width/2 - 13) + "px;top:" + (r.top - 16) + "px;color:var(--ink)";
+        s.innerHTML = stickerSvg("cloud", 42);
+        document.body.appendChild(s);
+        setTimeout(function(){ s.remove(); }, 640);
+      }, 200);
+    } else if (kind === "bin"){
+      var bin = { x: bx + (fromRight ? 150 - 116 : 116), y: by + 104 };
+      frames = [{ transform:"none", opacity:1 },
+                { transform:"translate(" + (bin.x - (r.left + r.width/2)) + "px," +
+                  (bin.y - (r.top + r.height/2) - 10) + "px) scale(.5)", opacity:1, offset:.7 },
+                { transform:"translate(" + (bin.x - (r.left + r.width/2)) + "px," +
+                  (bin.y - (r.top + r.height/2) + 14) + "px) scale(.3)", opacity:0 }];
+    } else if (kind === "vacuum"){
+      var noz = { x: bx + (fromRight ? 150 - 88 : 88), y: by + 82 };
+      frames = [{ transform:"none", opacity:1 },
+                { transform:"translate(" + (noz.x - (r.left + r.width/2)) + "px," +
+                  (noz.y - (r.top + r.height/2)) + "px) scale(.06)", opacity:0 }];
+      setTimeout(function(){
+        var s = document.createElement("span");
+        s.className = "sticker puff";
+        s.style.cssText = "position:fixed;z-index:41;width:28px;height:18px;left:" +
+          (noz.x - 14) + "px;top:" + (noz.y - 30) + "px;color:var(--ink)";
+        s.innerHTML = stickerSvg("squiggle", 53);
+        document.body.appendChild(s);
+        setTimeout(function(){ s.remove(); }, 640);
+      }, 260);
+    } else { /* crane */
+      var hook = { x: bx + (fromRight ? 150 - 62 : 62), y: by + 74 };
+      frames = [{ transform:"none", opacity:1 },
+                { transform:"translate(" + (hook.x - (r.left + r.width/2)) + "px," +
+                  (hook.y - (r.top + r.height/2) + 14) + "px) rotate(-5deg)", opacity:1, offset:.55 },
+                { transform:"translate(" + (away * .5) + "px," +
+                  (hook.y - (r.top + r.height/2) - 18) + "px) rotate(-10deg)", opacity:0 }];
+      ease = "cubic-bezier(.3,.7,.3,1)";
+    }
+    ghost.animate(frames, { duration:ms, easing:ease, fill:"both" });
+  }
+
+  /* ---------- round three: say the three sentences ---------- */
+  function toSay(){
+    phase = "say";
+    rail.classList.add("out");
+    setTimeout(function(){ rail.hidden = true; rail.classList.remove("out"); }, 200);
+    cta.disabled = false;
+    cta.classList.add("ready");
+    setStop(0);
+    setTitle("Say it aloud", "Say the sentence for yesterday.");
+    announce("Now say the three sentences. " + STOPS[0].sentence + ".");
+  }
+
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var rec = null;
+
+  function showBubble(text){
+    if (!bubble){
+      bubble = document.createElement("div");
+      bubble.className = "bubble";
+      card.appendChild(bubble);
+    }
+    bubble.textContent = text;
+    return bubble;
+  }
+  function dropBubble(){ if (bubble){ bubble.remove(); bubble = null; } }
+
+  function listening(){
+    cta.innerHTML = 'Listening <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>';
+    cta.setAttribute("aria-label", "Listening, tap to stop");
+    alt.hidden = false;
+    typed.hidden = true;
+    announce("Listening. Say: " + STOPS[sayAt].sentence + ".");
+  }
+  function toTyped(message){
+    if (rec){ try { rec.abort(); } catch(e){} rec = null; }
+    typed.hidden = false;
+    alt.hidden = true;
+    cta.innerHTML = 'Check <span class="chev" aria-hidden="true">&#187;</span>';
+    cta.removeAttribute("aria-label");
+    cta.disabled = false;
+    sub.textContent = message || "Type what you would say.";
+    say.focus();
+  }
+  function startSpeech(){
+    if (!SR){ toTyped("No mic here, so type it instead."); return; }
+    try { rec = new SR(); } catch(e){ toTyped("The mic would not start, so type it instead."); return; }
+    rec.lang = "en-GB"; rec.interimResults = true; rec.maxAlternatives = 1;
+    rec.onresult = function(ev){
+      var text = "", i;
+      for (i = 0; i < ev.results.length; i++) text += ev.results[i][0].transcript;
+      showBubble(text.trim());
+      if (ev.results[ev.results.length - 1].isFinal) judge(text);
+    };
+    rec.onerror = function(){ toTyped("The mic is off, so type it instead."); };
+    rec.onend = function(){ if (phase === "say" && !bubble) toTyped("Nothing heard, so type it instead."); };
+    try { rec.start(); listening(); }
+    catch(e){ toTyped("The mic would not start, so type it instead."); }
+  }
+
+  function words(s){ return s.toLowerCase().replace(/[^a-z ]/g, "").split(/\s+/).filter(Boolean); }
+  function tenseOk(i, got){
+    var has = function(w){ return got.indexOf(w) > -1; };
+    if (i === 0) return has("worked");
+    if (i === 1) return has("work") && !has("worked") && !has("will");
+    return has("will") && has("work");
+  }
+
+  function judge(heard){
+    if (busy) return;
+    var got = words(heard), want = words(STOPS[sayAt].sentence);
+    var hit = want.filter(function(w){ return got.indexOf(w) > -1; }).length;
+    showBubble((heard || "").trim() || "...");
+    if (hit >= want.length - 1 && tenseOk(sayAt, got)) saidIt();
+    else almost();
+  }
+
+  function saidIt(){
+    if (rec){ try { rec.stop(); } catch(e){} rec = null; }
+    said[sayAt] = true;
+    progress(); paint();
+    reward(2);
+    setTitle("Yes", STOPS[sayAt].sentence + ".");
+    announce("Yes. " + STOPS[sayAt].sentence + ".");
+    typed.hidden = true; alt.hidden = true; say.value = "";
+    cta.innerHTML = 'Say it <span class="chev" aria-hidden="true">&#187;</span>';
+    cta.disabled = true;
+    setTimeout(function(){
+      dropBubble();
+      cta.disabled = false;
+      var next = -1, i;
+      for (i = 0; i < 3; i++) if (!said[i]) { next = i; break; }
+      if (next < 0) finish();
+      else setStop(next);
+    }, 1400);
+  }
+
+  /* a spoken miss is a mistake too, so Blobert tidies the bubble away */
+  function almost(){
+    if (rec){ try { rec.stop(); } catch(e){} rec = null; }
+    busy = true;
+    var b = showBubble(bubble ? bubble.textContent : "...");
+    cta.innerHTML = 'Say it <span class="chev" aria-hidden="true">&#187;</span>';
+    cta.disabled = true;
+    typed.hidden = true; alt.hidden = true; say.value = "";
+    setTitle("Blobert has it", "Listen, then say it again.");
+    announce("Not quite. Listen once more, then say it again.");
+    blobert(b, function(){
+      dropBubble();
+      busy = false;
+      cta.disabled = false;
+      setTitle("Say it aloud", STOPS[sayAt].sentence + ".");
+      speak(STOPS[sayAt].sentence, 0.75);
+    });
+  }
+
+  /* ---------- the end: you can now talk about all three ---------- */
+  function finish(){
+    phase = "done";
+    dropBubble();
+    if (rec){ try { rec.stop(); } catch(e){} rec = null; }
+    scene.classList.add("all");
+    sceneSvg.parentElement.classList.add("all");
+    card.classList.add("all");
+    el("slider").hidden = true;
+    lineBtn.hidden = true;
+    doneNote.hidden = false;
+    rail.hidden = true; typed.hidden = true; alt.hidden = true;
+    setTitle("You can now", "Talk about yesterday, today and tomorrow.");
+    cta.innerHTML = 'Next <span class="chev" aria-hidden="true">&#187;</span>';
+    cta.disabled = false;
+    cta.classList.remove("ready"); void cta.offsetWidth; cta.classList.add("ready");
+    paint(); progress();
+    announce("You did it. You can now talk about yesterday, today and tomorrow.");
+  }
+
+  /* ---------- the one button ---------- */
+  cta.addEventListener("click", function(){
+    if (phase === "say"){
+      if (!typed.hidden){ judge(say.value); return; }
+      if (rec){ try { rec.stop(); } catch(e){} return; }
+      startSpeech();
+      return;
+    }
+    if (phase === "done") reset();
+  });
+  alt.addEventListener("click", function(){ toTyped("Type what you would say."); });
+  say.addEventListener("keydown", function(ev){ if (ev.key === "Enter"){ ev.preventDefault(); judge(say.value); } });
+
+  lineBtn.addEventListener("click", function(){
+    var s = gap.dataset.word ? STOPS[at].sentence : "I " + STOPS[at].label.toLowerCase();
+    if (!gap.dataset.word){ announce("The gap is empty. Tap a word."); return; }
+    speak(STOPS[at].sentence, 0.9);
+    announce("Playing: " + STOPS[at].sentence + ".");
+  });
+
+  el("back").addEventListener("click", reset);
+
+  function reset(){
+    phase = "explore";
+    at = 0; askAt = 0; sayAt = 0; busy = false;
+    seen = [false,false,false]; solved = [false,false,false]; said = [false,false,false];
+    dropBubble();
+    Array.prototype.forEach.call(card.querySelectorAll(".sticker"), function(s){ s.remove(); });
+    for (var i = 0; i < 3; i++){ el("mk-" + i).classList.remove("on"); }
+    scene.classList.remove("all"); card.classList.remove("all");
+    el("slider").hidden = false; lineBtn.hidden = false; doneNote.hidden = true;
+    rail.hidden = false; rail.classList.remove("out");
+    typed.hidden = true; alt.hidden = true; say.value = "";
+    Array.prototype.forEach.call(rail.children, function(t){
+      t.classList.remove("used"); t.style.visibility = "";
+    });
+    clearGap(true);
+    cta.innerHTML = 'Say it <span class="chev" aria-hidden="true">&#187;</span>';
+    cta.disabled = true;
+    setTitle("Yesterday, today, tomorrow", "Drag the sun across the day.");
+    paint(); progress();
+    /* the first time snaps in by itself, so the mechanic is clear at once */
+    setTimeout(function(){ setStop(0); }, 520);
+  }
+
+  /* ---------- light and dark ---------- */
+  var themeBtn = el("theme");
+  var SUN = "<circle cx='12' cy='12' r='4.4'/><path d='M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.2 5.2l1.6 1.6M17.2 17.2l1.6 1.6M18.8 5.2l-1.6 1.6M6.8 17.2l-1.6 1.6'/>";
+  var MOON = "<path d='M20 14.6A8.4 8.4 0 0 1 9.4 4 8.6 8.6 0 1 0 20 14.6z'/>";
+  function setTheme(dark){
+    document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+    themeBtn.setAttribute("aria-pressed", dark ? "true" : "false");
+    themeBtn.setAttribute("aria-label", dark ? "Light mode" : "Dark mode");
+    el("themeIcon").innerHTML = dark ? MOON : SUN;
+    el("themeIcon").setAttribute("fill", dark ? "currentColor" : "none");
+  }
+  setTheme(window.matchMedia("(prefers-color-scheme: dark)").matches);
+  themeBtn.addEventListener("click", function(){
+    setTheme(document.documentElement.getAttribute("data-theme") !== "dark");
+    if (!reduced) themeBtn.animate([{ transform:"rotate(-40deg) scale(.8)" }, { transform:"none" }],
+      { duration:360, easing:SPRING });
+  });
+
+  /* ---------- go ---------- */
+  paint(); progress();
+  setTimeout(function(){ setStop(0); }, 560);
+
+  /* ---------- hooks for the screenshot run ---------- */
+  window.lpProto = {
+    stop: function(i){ setStop(i); },
+    seeAll: function(){ seen = [true,true,true]; progress(); },
+    ask: function(i){ phase = "ask"; seen = [true,true,true]; progress(); setStop(i === undefined ? 1 : i); },
+    miss: function(i){ wrong(i === undefined ? 0 : i); },
+    gag: function(name, i){ lastGag = null; GAGS = [name]; wrong(i === undefined ? 0 : i); },
+    say: function(){ seen = [true,true,true]; solved = [true,true,true]; progress(); toSay(); },
+    typed: function(){ window.lpProto.say(); setTimeout(function(){ toTyped("No mic here, so type it instead."); }, 60); },
+    heard: function(text){ showBubble(text); },
+    done: function(){ seen = [true,true,true]; solved = [true,true,true]; said = [true,true,true]; progress(); finish(); },
+    theme: setTheme,
+    reset: reset
+  };
+})();
+</script>
+</body>
+</html>

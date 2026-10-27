@@ -722,3 +722,914 @@ export function You(props: CharacterProps) {
 export function Character({ name, ...rest }: CharacterProps & { name: CharacterName }) {
   return <Figure spec={SPECS[name]} {...rest} />;
 }
+
+// =====================================================================
+// BLOBERT: the blob who clears mistakes
+// =====================================================================
+// Board request, 26 October 2026. Spec: docs/design/brief.md section
+// "Blobert", timing in docs/design/motion.md section 7a.
+//
+// Blobert is the only thing in the app that handles an error, so a
+// mistake is never red, never a loss, always a small laugh. He pops in
+// from the edge, looks at the wrong word, does one gag, waves and
+// slides out, all in 880 ms.
+//
+// ---------------------------------------------------------------------
+// PUBLIC API (stable, other agents build on this; add, never rename)
+// ---------------------------------------------------------------------
+//
+//   import { Blobert, BLOBERT_GAGS, nextBlobertGag, BLOBERT_SEQUENCE }
+//     from "@/components/learning-path/art/characters";
+//
+//   <Blobert pose="gag" gag="sweep" play word="has" fill={ART.sun} />
+//   <Blobert pose="look" size={140} />                 // held frame
+//   <Blobert pose="gag" gag="bin" progress={0.6} />    // frame driven
+//
+// Props (all optional):
+//   pose      "in" | "look" | "gag" | "wave" | "out", default "look".
+//   gag       "sweep" | "eat" | "mop" | "bin" | "vacuum" | "crane",
+//             default "sweep". Only used when pose is "gag".
+//   play      run the pose's timeline once on mount, default false.
+//             pose="gag" plays the whole 880 ms script (in, look, gag,
+//             wave, out). The other poses play their own short move.
+//   scripted  default true. false makes pose="gag" play the 360 ms gag
+//             core only, for when the host already has him on screen.
+//   progress  0..1. Draws one exact frame of the timeline and runs no
+//             CSS at all, so Remotion compositions stay deterministic.
+//             Overrides `play`.
+//   word      the wrong answer he clears, drawn as a tile to his right.
+//             Omit it and he performs on the host's own tile (see the
+//             box contract below).
+//   fill      his body colour: pass the screen's one block colour.
+//             Default ART.sun.
+//   size      rendered height in CSS px, default 170. Width is
+//             size * 300/200.
+//   flip      mirror him, for when the wrong word is to his left.
+//   idle      3.2 s soft wobble (scale on the horizontal only).
+//   seed      integer that re-rolls the line wobble, default 1. Same
+//             seed draws the same Blobert on every frame.
+//   title     accessible label. Given: role="img" plus <title>.
+//             Omitted: aria-hidden. He is a joke on top of a real
+//             message, so usually leave it off.
+//   className, style  passed to the root <svg>.
+//
+// Also exported: BLOBERT_POSES, BLOBERT_GAGS, BLOBERT_GAG_MS (880),
+//   BLOBERT_CORE_MS (360), BLOBERT_SEQUENCE (the step timings),
+//   BLOB_VIEWBOX, nextBlobertGag().
+//
+// THE BOX CONTRACT. His viewBox is 300 x 200 with Blobert standing in
+// the left third (x 26 to 126) and the gag happening in the right two
+// thirds. Position him so that right-hand area sits over the tile or
+// word you want cleared; his own `word` tile is centred at x 184 and
+// stands on the same baseline, y 168.
+//
+// REDUCED MOTION. Under prefers-reduced-motion every timeline is
+// dropped for one 360 ms sequence: he fades in over 120 ms, the wrong
+// word fades out over 120 ms, he fades out. No travel, no wobble, no
+// bounce. Nothing else is needed from the caller.
+//
+// HOW THE TIMELINES WORK. One table of keyframes per pose and per gag
+// drives both playback paths: `play` turns the table into CSS
+// @keyframes, `progress` samples the same table in JavaScript. There is
+// no second copy of the timing, so the CSS and the video frames cannot
+// drift. Every animated layer carries its own pivot inside its own
+// transform list (translate, rotate, scale, translate back), so no
+// transform-origin guesswork and no transformed ancestors.
+// =====================================================================
+
+export type BlobertPose = "in" | "look" | "gag" | "wave" | "out";
+export type BlobertGag = "sweep" | "eat" | "mop" | "bin" | "vacuum" | "crane";
+
+export const BLOBERT_POSES: BlobertPose[] = ["in", "look", "gag", "wave", "out"];
+export const BLOBERT_GAGS: BlobertGag[] = ["sweep", "eat", "mop", "bin", "vacuum", "crane"];
+
+export const BLOB_VIEWBOX = { w: 300, h: 200 } as const;
+
+/** The scripted miss, measured not estimated. The wave overlaps the tail
+ *  of the gag by 120 ms, which is what brings the total under 900 ms. */
+export const BLOBERT_SEQUENCE = {
+  in: { from: 0, to: 200 },
+  look: { from: 200, to: 320 },
+  gag: { from: 320, to: 680 },
+  wave: { from: 560, to: 720 },
+  out: { from: 720, to: 880 },
+} as const;
+export const BLOBERT_GAG_MS = 880;
+export const BLOBERT_CORE_MS = 360;
+
+/** Variable reward, same rule as the sticker pop: never the same gag
+ *  twice in a row. Pass the gag you played last. */
+export function nextBlobertGag(last?: BlobertGag): BlobertGag {
+  const pool = BLOBERT_GAGS.filter((g) => g !== last);
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+// ------------------------------------------------------- the timeline
+type Key = { t: number; x?: number; y?: number; r?: number; s?: number; o?: number; e?: string };
+type Tracks = Record<string, Key[]>;
+type Timeline = { ms: number; still: number; rest: number; tracks: Tracks };
+type Vals = { x: number; y: number; r: number; s: number; o: number };
+
+function vals(k: Key): Vals {
+  return { x: k.x ?? 0, y: k.y ?? 0, r: k.r ?? 0, s: k.s ?? 1, o: k.o ?? 1 };
+}
+
+function lerp(a: number, b: number, u: number): number {
+  return a + (b - a) * u;
+}
+
+/** The frame of one track at `t` ms. Holds the first and last key. */
+function sampleTrack(keys: Key[], t: number): Vals {
+  if (t <= keys[0].t) return vals(keys[0]);
+  for (let i = 1; i < keys.length; i += 1) {
+    if (t <= keys[i].t) {
+      const a = vals(keys[i - 1]);
+      const b = vals(keys[i]);
+      const span = keys[i].t - keys[i - 1].t;
+      const u = span <= 0 ? 1 : (t - keys[i - 1].t) / span;
+      return { x: lerp(a.x, b.x, u), y: lerp(a.y, b.y, u), r: lerp(a.r, b.r, u), s: lerp(a.s, b.s, u), o: lerp(a.o, b.o, u) };
+    }
+  }
+  return vals(keys[keys.length - 1]);
+}
+
+// Pivot per layer, in viewBox units. A layer rotates and scales about
+// its own pivot, so the arm swings from the shoulder and the body
+// squashes on the ground.
+const PIVOT: Record<string, [number, number]> = {
+  body: [76, 169],
+  eyes: [76, 114],
+  eHappy: [76, 114],
+  mSmile: [77, 142],
+  mO: [77, 142],
+  mWide: [77, 142],
+  armL: [30, 128],
+  armR: [120, 120],
+  tool: [146, 118],
+  word: [184, 146],
+  bin: [258, 152],
+  lid: [224, 128],
+  hook: [204, 66],
+  puddle: [184, 164],
+  dust: [236, 140],
+  star: [115, 103],
+  sneeze: [140, 108],
+};
+
+// Layers that are not drawn unless their gag asks for them.
+const HIDDEN = new Set(["mO", "mWide", "eHappy", "puddle", "dust", "star", "sneeze"]);
+
+function attrXf(v: Vals, p: [number, number]): string {
+  return `translate(${(p[0] + v.x).toFixed(2)} ${(p[1] + v.y).toFixed(2)}) rotate(${v.r.toFixed(2)}) scale(${v.s.toFixed(3)}) translate(${-p[0]} ${-p[1]})`;
+}
+
+function cssXf(v: Vals, p: [number, number]): string {
+  return `translate(${(p[0] + v.x).toFixed(2)}px,${(p[1] + v.y).toFixed(2)}px) rotate(${v.r.toFixed(2)}deg) scale(${v.s.toFixed(3)}) translate(${-p[0]}px,${-p[1]}px)`;
+}
+
+/** One track becomes one @keyframes rule. Both ends are pinned so the
+ *  browser never interpolates towards the element's own attributes. */
+function keyframes(name: string, keys: Key[], p: [number, number], ms: number): string {
+  const pinned: Key[] = [...keys];
+  if (pinned[0].t > 0) pinned.unshift({ ...pinned[0], t: 0 });
+  if (pinned[pinned.length - 1].t < ms) pinned.push({ ...pinned[pinned.length - 1], t: ms });
+  const stops = pinned
+    .map((k) => {
+      const pct = Math.min(100, Math.max(0, (k.t / ms) * 100)).toFixed(3);
+      const ease = k.e ? `;animation-timing-function:${k.e}` : "";
+      return `${pct}%{transform:${cssXf(vals(k), p)};opacity:${vals(k).o}${ease}}`;
+    })
+    .join("");
+  return `@keyframes ${name}{${stops}}`;
+}
+
+// ------------------------------------------------- the scripted miss
+// Pop in from the edge, lean at the wrong word, hold, lean back, go.
+const BODY_SCRIPT: Key[] = [
+  { t: 0, x: -176, y: 10, s: 0.86, o: 0 },
+  { t: 96, x: -58, y: 0, s: 1, o: 1 },
+  { t: 200, x: 0, y: -5, s: 1.06, o: 1, e: "cubic-bezier(.34,1.56,.64,1)" },
+  { t: 262, x: 0, y: 0, r: 4, s: 1, o: 1 },
+  { t: 700, x: 0, y: 0, r: 4, s: 1, o: 1 },
+  { t: 740, x: -14, y: 0, r: 1, s: 1, o: 1 },
+  { t: 880, x: -176, y: 6, r: 0, s: 0.9, o: 0 },
+];
+
+const EYES_SCRIPT: Key[] = [
+  { t: 0, x: 0, o: 1 },
+  { t: 200, x: 0, o: 1 },
+  { t: 320, x: 5, o: 1 },
+  { t: 548, x: 5, o: 1 },
+  { t: 572, x: 5, o: 0 },
+  { t: 880, x: 5, o: 0 },
+];
+
+const HAPPY_SCRIPT: Key[] = [
+  { t: 0, x: 5, o: 0 },
+  { t: 548, x: 5, o: 0 },
+  { t: 572, x: 5, o: 1 },
+  { t: 760, x: 0, o: 1 },
+  { t: 880, x: 0, o: 1 },
+];
+
+// Two swings of a raised arm. The spec's 6 degrees does not read at
+// 150 px, so the arm lifts 56 degrees and swings 12.
+const WAVE_SCRIPT: Key[] = [
+  { t: 0, r: 0 },
+  { t: 560, r: 0 },
+  { t: 596, r: 56 },
+  { t: 632, r: 44 },
+  { t: 668, r: 56 },
+  { t: 700, r: 44 },
+  { t: 760, r: 0 },
+];
+
+/** Merge extra body keys (a sneeze, a recoil) into the script in order. */
+function bodyWith(extra: Key[]): Key[] {
+  return [...BODY_SCRIPT, ...extra].sort((a, b) => a.t - b.t);
+}
+
+/** Swap the resting smile for one open mouth between two times. */
+function mouth(variant: "mO" | "mWide", from: number, to: number): Tracks {
+  return {
+    mSmile: [
+      { t: 0, o: 1 },
+      { t: from - 40, o: 1 },
+      { t: from, o: 0 },
+      { t: to, o: 0 },
+      { t: to + 56, o: 1 },
+    ],
+    [variant]: [
+      { t: 0, o: 0 },
+      { t: from - 40, o: 0 },
+      { t: from, o: 1 },
+      { t: to, o: 1 },
+      { t: to + 56, o: 0 },
+    ],
+  };
+}
+
+const SCRIPT_BASE: Tracks = { eyes: EYES_SCRIPT, eHappy: HAPPY_SCRIPT, armL: WAVE_SCRIPT };
+
+// ------------------------------------------------------- the six gags
+const GAGS: Record<BlobertGag, Timeline> = {
+  // Sweeps it off the screen with the broom.
+  sweep: {
+    ms: BLOBERT_GAG_MS,
+    still: 0.59,
+    rest: 320,
+    tracks: {
+      ...SCRIPT_BASE,
+      body: BODY_SCRIPT,
+      ...mouth("mO", 360, 640),
+      armR: [
+        { t: 0, r: 0 },
+        { t: 320, r: 0 },
+        { t: 404, r: -7 },
+        { t: 500, r: 6 },
+        { t: 600, r: 4 },
+        { t: 680, r: 0 },
+      ],
+      tool: [
+        { t: 0, r: 0 },
+        { t: 320, r: 0 },
+        { t: 404, r: 12 },
+        { t: 504, r: -32, e: "cubic-bezier(.2,.85,.3,1)" },
+        { t: 604, r: -26 },
+        { t: 680, r: 0 },
+      ],
+      word: [
+        { t: 0, x: 0, r: 0, o: 1 },
+        { t: 432, x: 0, r: 0, o: 1 },
+        { t: 520, x: 58, r: 12, o: 1 },
+        { t: 624, x: 152, r: 30, o: 0 },
+        { t: 880, x: 152, r: 30, o: 0 },
+      ],
+      dust: [
+        { t: 0, x: 0, s: 0.8, o: 0 },
+        { t: 468, x: 0, s: 0.8, o: 0 },
+        { t: 532, x: 0, s: 1, o: 1 },
+        { t: 648, x: 14, s: 1.15, o: 0 },
+      ],
+    },
+  },
+
+  // Eats it and burps a star.
+  eat: {
+    ms: BLOBERT_GAG_MS,
+    still: 0.56,
+    rest: 320,
+    tracks: {
+      ...SCRIPT_BASE,
+      body: bodyWith([
+        { t: 556, x: 0, y: 0, r: 4, s: 1.04, o: 1 },
+        { t: 600, x: 0, y: 0, r: 4, s: 0.98, o: 1 },
+        { t: 648, x: 0, y: 0, r: 4, s: 1, o: 1 },
+      ]),
+      ...mouth("mWide", 380, 556),
+      armR: [
+        { t: 0, r: 0 },
+        { t: 320, r: 0 },
+        { t: 384, r: -18 },
+        { t: 444, r: 6 },
+        { t: 504, r: -12 },
+        { t: 600, r: 0 },
+      ],
+      word: [
+        { t: 0, x: 0, y: 0, s: 1, o: 1 },
+        { t: 348, x: 0, y: 0, s: 1, o: 1 },
+        { t: 464, x: -56, y: -6, s: 0.78, o: 1 },
+        { t: 540, x: -103, y: -2, s: 0.4, o: 1 },
+        { t: 560, x: -103, y: -2, s: 0.26, o: 0 },
+        { t: 880, x: -103, y: -2, s: 0.26, o: 0 },
+      ],
+      star: [
+        { t: 0, y: 0, s: 0.5, o: 0 },
+        { t: 584, y: 0, s: 0.5, o: 0 },
+        { t: 636, y: -20, s: 1.1, o: 1 },
+        { t: 712, y: -38, s: 1.2, o: 0 },
+      ],
+    },
+  },
+
+  // Mops it into a puddle that evaporates.
+  mop: {
+    ms: BLOBERT_GAG_MS,
+    still: 0.64,
+    rest: 320,
+    tracks: {
+      ...SCRIPT_BASE,
+      body: BODY_SCRIPT,
+      ...mouth("mO", 360, 640),
+      armR: [
+        { t: 0, r: 0 },
+        { t: 320, r: 0 },
+        { t: 400, r: 10 },
+        { t: 480, r: 4 },
+        { t: 544, r: 11 },
+        { t: 620, r: 0 },
+      ],
+      tool: [
+        { t: 0, r: 0, y: 0 },
+        { t: 320, r: 0, y: 0 },
+        { t: 400, r: -6, y: 4 },
+        { t: 480, r: 6, y: 4 },
+        { t: 544, r: -8, y: 4 },
+        { t: 620, r: 0, y: 0 },
+      ],
+      word: [
+        { t: 0, y: 0, s: 1, o: 1 },
+        { t: 384, y: 0, s: 1, o: 1 },
+        { t: 472, y: 10, s: 0.84, o: 1 },
+        { t: 540, y: 22, s: 0.5, o: 0.5 },
+        { t: 584, y: 26, s: 0.38, o: 0 },
+        { t: 880, y: 26, s: 0.38, o: 0 },
+      ],
+      puddle: [
+        { t: 0, s: 0.7, o: 0 },
+        { t: 516, s: 0.7, o: 0 },
+        { t: 572, s: 1, o: 1 },
+        { t: 692, s: 1.3, o: 0 },
+      ],
+    },
+  },
+
+  // Flicks it into the bin and the lid claps.
+  bin: {
+    ms: BLOBERT_GAG_MS,
+    still: 0.6,
+    rest: 320,
+    tracks: {
+      ...SCRIPT_BASE,
+      body: BODY_SCRIPT,
+      ...mouth("mO", 360, 640),
+      armR: [
+        { t: 0, r: 0 },
+        { t: 320, r: 0 },
+        { t: 392, r: -14 },
+        { t: 472, r: 22 },
+        { t: 560, r: 8 },
+        { t: 660, r: 0 },
+      ],
+      tool: [{ t: 0, r: 0 }],
+      lid: [
+        { t: 0, r: 0 },
+        { t: 332, r: 0 },
+        { t: 404, r: -62 },
+        { t: 556, r: -62 },
+        { t: 600, r: 7, e: "cubic-bezier(.3,.1,.2,1)" },
+        { t: 628, r: -5 },
+        { t: 664, r: 0 },
+      ],
+      word: [
+        { t: 0, x: 0, y: 0, r: 0, o: 1 },
+        { t: 424, x: 0, y: 0, r: 0, o: 1 },
+        { t: 484, x: 30, y: -34, r: 14, o: 1 },
+        { t: 532, x: 60, y: -10, r: 26, o: 1 },
+        { t: 572, x: 74, y: 8, r: 34, o: 1 },
+        { t: 596, x: 74, y: 16, r: 36, o: 0 },
+        { t: 880, x: 74, y: 16, r: 36, o: 0 },
+      ],
+    },
+  },
+
+  // Vacuums it up, then sneezes.
+  vacuum: {
+    ms: BLOBERT_GAG_MS,
+    still: 0.62,
+    rest: 320,
+    tracks: {
+      ...SCRIPT_BASE,
+      body: bodyWith([
+        { t: 596, x: 0, y: 0, r: 4, s: 1, o: 1 },
+        { t: 624, x: 0, y: -4, r: -9, s: 1.02, o: 1 },
+        { t: 656, x: 0, y: 2, r: 15, s: 0.98, o: 1 },
+        { t: 696, x: 0, y: 0, r: 4, s: 1, o: 1 },
+      ]),
+      mSmile: [
+        { t: 0, o: 1 },
+        { t: 352, o: 1 },
+        { t: 384, o: 0 },
+        { t: 700, o: 0 },
+        { t: 736, o: 1 },
+      ],
+      mO: [
+        { t: 0, o: 0 },
+        { t: 352, o: 0 },
+        { t: 384, o: 1 },
+        { t: 592, o: 1 },
+        { t: 616, o: 0 },
+        { t: 880, o: 0 },
+      ],
+      mWide: [
+        { t: 0, o: 0 },
+        { t: 616, o: 0 },
+        { t: 640, o: 1 },
+        { t: 700, o: 1 },
+        { t: 724, o: 0 },
+      ],
+      armR: [
+        { t: 0, r: 0 },
+        { t: 320, r: 0 },
+        { t: 384, r: -6 },
+        { t: 452, r: 2 },
+        { t: 520, r: -4 },
+        { t: 600, r: 0 },
+      ],
+      word: [
+        { t: 0, x: 0, r: 0, s: 1, o: 1 },
+        { t: 364, x: 0, r: 0, s: 1, o: 1 },
+        { t: 472, x: 16, r: -8, s: 0.78, o: 1 },
+        { t: 544, x: 34, r: 10, s: 0.44, o: 1 },
+        { t: 580, x: 40, r: 16, s: 0.18, o: 0 },
+        { t: 880, x: 40, r: 16, s: 0.18, o: 0 },
+      ],
+      sneeze: [
+        { t: 0, x: 0, s: 0.7, o: 0 },
+        { t: 636, x: 0, s: 0.7, o: 0 },
+        { t: 668, x: 4, s: 1, o: 1 },
+        { t: 736, x: 20, s: 1.25, o: 0 },
+      ],
+    },
+  },
+
+  // Lifts it away with the tiny crane.
+  crane: {
+    ms: BLOBERT_GAG_MS,
+    still: 0.74,
+    rest: 320,
+    tracks: {
+      ...SCRIPT_BASE,
+      body: BODY_SCRIPT,
+      ...mouth("mO", 360, 668),
+      armR: [
+        { t: 0, r: 0 },
+        { t: 320, r: 0 },
+        { t: 404, r: -3 },
+        { t: 476, r: 2 },
+        { t: 548, r: -3 },
+        { t: 624, r: 0 },
+      ],
+      tool: [{ t: 0, r: 0 }],
+      hook: [
+        { t: 0, y: -44, o: 1 },
+        { t: 336, y: -44, o: 1 },
+        { t: 436, y: 0, o: 1 },
+        { t: 504, y: 0, o: 1 },
+        { t: 664, y: -118, o: 1 },
+        { t: 704, y: -124, o: 0 },
+        { t: 880, y: -124, o: 0 },
+      ],
+      word: [
+        { t: 0, y: 0, r: 0, o: 1 },
+        { t: 504, y: 0, r: 0, o: 1 },
+        { t: 664, y: -118, r: -6, o: 1 },
+        { t: 704, y: -124, r: -7, o: 0 },
+        { t: 880, y: -124, r: -7, o: 0 },
+      ],
+    },
+  },
+};
+
+/** The 360 ms gag core on its own, for when he is already on screen. */
+function coreOnly(tl: Timeline): Timeline {
+  const from = BLOBERT_SEQUENCE.gag.from;
+  const to = BLOBERT_SEQUENCE.gag.to;
+  const ms = to - from;
+  const tracks: Tracks = {};
+  for (const [id, keys] of Object.entries(tl.tracks)) {
+    if (id === "body") continue; // no travel in, no slide out
+    const shifted = keys
+      .filter((k) => k.t >= from - 60 && k.t <= to + 60)
+      .map((k) => ({ ...k, t: Math.min(ms, Math.max(0, k.t - from)) }));
+    tracks[id] = shifted.length ? shifted : [{ ...sampleTrack(keys, from), t: 0 }];
+  }
+  tracks.body = [{ t: 0, r: 4 }, { t: ms, r: 4 }];
+  return { ms, still: 0.5, rest: 0, tracks };
+}
+
+// ----------------------------------------------------- the short poses
+const POSE_TL: Record<Exclude<BlobertPose, "gag">, Timeline> = {
+  in: {
+    ms: 200,
+    still: 1,
+    rest: 200,
+    tracks: {
+      body: [
+        { t: 0, x: -176, y: 10, s: 0.86, o: 0 },
+        { t: 96, x: -58, y: 0, s: 1, o: 1 },
+        { t: 170, x: 0, y: -5, s: 1.06, o: 1, e: "cubic-bezier(.34,1.56,.64,1)" },
+        { t: 200, x: 0, y: 0, s: 1, o: 1 },
+      ],
+    },
+  },
+  look: {
+    ms: 120,
+    still: 1,
+    rest: 120,
+    tracks: {
+      body: [
+        { t: 0, r: 0 },
+        { t: 120, r: 4 },
+      ],
+      eyes: [
+        { t: 0, x: 0 },
+        { t: 120, x: 5 },
+      ],
+      mSmile: [
+        { t: 0, o: 1 },
+        { t: 56, o: 0 },
+        { t: 120, o: 0 },
+      ],
+      mO: [
+        { t: 0, o: 0 },
+        { t: 56, o: 1 },
+        { t: 120, o: 1 },
+      ],
+    },
+  },
+  wave: {
+    ms: 200,
+    still: 0.3,
+    rest: 60,
+    tracks: {
+      armL: [
+        { t: 0, r: 0 },
+        { t: 44, r: 56 },
+        { t: 88, r: 44 },
+        { t: 132, r: 56 },
+        { t: 176, r: 44 },
+        { t: 200, r: 52 },
+      ],
+      eyes: [
+        { t: 0, o: 1 },
+        { t: 36, o: 0 },
+        { t: 200, o: 0 },
+      ],
+      eHappy: [
+        { t: 0, o: 0 },
+        { t: 36, o: 1 },
+        { t: 200, o: 1 },
+      ],
+    },
+  },
+  out: {
+    ms: 160,
+    still: 0.45,
+    rest: 0,
+    tracks: {
+      body: [
+        { t: 0, x: 0, y: 0, s: 1, o: 1 },
+        { t: 160, x: -176, y: 6, s: 0.9, o: 0 },
+      ],
+    },
+  },
+};
+
+// ------------------------------------------------------------ drawing
+const BLOB_GROUND = 169;
+
+/** The wrong answer, as a tile standing on the baseline. */
+function WrongWord({ word, seed }: { word: string; seed: number }) {
+  const w = Math.max(70, Math.min(116, 26 + word.length * 13));
+  return (
+    <>
+      <Shape d={roundRect(184 - w / 2, 124, w, 44, 12)} fill={ART.paper} seed={seed} amount={0.8} />
+      <text
+        x={184}
+        y={153}
+        textAnchor="middle"
+        fill={INK}
+        style={{ font: `800 22px "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif` }}
+      >
+        {word}
+      </text>
+    </>
+  );
+}
+
+/** What he holds for this gag. Drawn inside the `tool` layer, which
+ *  pivots at his hand, so a sweep swings the whole broom. */
+function BlobTool({ gag, seed, fill }: { gag: BlobertGag; seed: number; fill: string }) {
+  switch (gag) {
+    case "sweep":
+      return (
+        <g transform="rotate(-20 146 118)">
+          <Stroke d="M146 112 L145 150" seed={seed} width={5} />
+          <Shape d={roundRect(132, 150, 27, 11, 4)} fill={ART.cream} seed={seed + 1} amount={0.6} />
+          <Stroke d="M137 161 L134 170" seed={seed + 2} width={3} />
+          <Stroke d="M146 161 L146 171" seed={seed + 3} width={3} />
+          <Stroke d="M155 161 L158 170" seed={seed + 4} width={3} />
+        </g>
+      );
+    case "mop":
+      return (
+        <g transform="rotate(-16 146 118)">
+          <Stroke d="M146 112 L145 148" seed={seed} width={5} />
+          <Shape d={blob(145, 160, 17, 11, seed + 1, 1.8, 11)} fill={ART.cream} seed={seed + 2} amount={0.6} />
+          <Stroke d="M136 168 L134 174" seed={seed + 3} width={2.6} />
+          <Stroke d="M152 168 L155 174" seed={seed + 4} width={2.6} />
+        </g>
+      );
+    case "vacuum":
+      return <Stroke d="M146 122 Q198 90 252 110 Q264 118 257 132" seed={seed} width={5.5} />;
+    case "crane":
+      return (
+        <>
+          <Stroke d="M146 116 L146 73" seed={seed} width={5} />
+          <Stroke d="M144 76 L206 67" seed={seed + 1} width={5} />
+          <Shape d={blob(152, 112, 7, 7, seed + 2, 0.9)} fill={ART.cream} seed={seed + 3} amount={0.4} />
+          <Stroke d="M152 112 L160 118" seed={seed + 4} width={3} />
+        </>
+      );
+    default:
+      return null;
+  }
+}
+
+/** Gag furniture drawn behind Blobert. */
+function GagBack({ gag, seed, fill, word, A }: { gag: BlobertGag; seed: number; fill: string; word?: string; A: AnimFn }) {
+  const tile = word ? <A id="word"><WrongWord word={word} seed={seed + 7} /></A> : null;
+  switch (gag) {
+    case "sweep":
+      return (
+        <>
+          {tile}
+          <A id="dust">
+            <Stroke d="M226 136 L240 132" seed={seed + 11} width={3.4} />
+            <Stroke d="M232 148 L248 146" seed={seed + 12} width={3.4} />
+            <Stroke d="M238 124 L250 118" seed={seed + 13} width={3.4} />
+          </A>
+        </>
+      );
+    case "mop":
+      return (
+        <>
+          {tile}
+          <A id="puddle">
+            <Shape d={blob(184, 164, 36, 7, seed + 11, 1.6, 13)} fill={fill} seed={seed + 12} amount={0.5} />
+            <Stroke d="M170 152 Q166 144 171 137" seed={seed + 13} width={2.8} />
+            <Stroke d="M198 150 Q203 143 198 136" seed={seed + 14} width={2.8} />
+          </A>
+        </>
+      );
+    case "bin":
+      return (
+        <>
+          {tile}
+          <A id="bin">
+            <Shape d="M226 136 L292 136 L284 170 L234 170 Z" fill={ART.paper} seed={seed + 11} amount={0.9} />
+            <Stroke d="M246 144 L244 164" seed={seed + 12} width={3} />
+            <Stroke d="M259 144 L259 164" seed={seed + 13} width={3} />
+            <Stroke d="M272 144 L274 164" seed={seed + 14} width={3} />
+          </A>
+          <A id="lid">
+            <Shape d={roundRect(222, 122, 74, 12, 5)} fill={ART.paper} seed={seed + 15} amount={0.7} />
+            <Shape d={blob(259, 118, 7, 5, seed + 16, 0.8)} fill={ART.paper} seed={seed + 17} amount={0.4} />
+          </A>
+        </>
+      );
+    case "vacuum":
+      return (
+        <>
+          {tile}
+          <A id="bin">
+            <Shape d="M238 140 L216 128 L216 164 L238 156 Z" fill={ART.paper} seed={seed + 11} amount={0.7} />
+            <Shape d={roundRect(236, 130, 54, 40, 12)} fill={ART.paper} seed={seed + 12} amount={0.8} />
+            <Stroke d="M250 146 L276 146" seed={seed + 13} width={3} />
+            <Stroke d="M250 156 L276 156" seed={seed + 14} width={3} />
+          </A>
+        </>
+      );
+    case "crane":
+      return (
+        <>
+          {tile}
+          <A id="hook">
+            <Stroke d="M204 70 L204 110" seed={seed + 11} width={2.8} />
+            <Stroke d="M198 110 Q204 121 210 110" seed={seed + 12} width={3.4} />
+          </A>
+        </>
+      );
+    default:
+      return null;
+  }
+}
+
+/** Gag furniture drawn in front of Blobert: what goes into his mouth,
+ *  and what comes back out. */
+function GagFront({ gag, seed, word, A }: { gag: BlobertGag; seed: number; word?: string; A: AnimFn }) {
+  switch (gag) {
+    case "eat":
+      return (
+        <>
+          {word ? <A id="word"><WrongWord word={word} seed={seed + 7} /></A> : null}
+          <A id="star">
+            <g transform="translate(103 91) scale(1.6)">{stickerShape("star", seed + 21, INK)}</g>
+          </A>
+        </>
+      );
+    case "vacuum":
+      return (
+        <A id="sneeze">
+          <g transform="translate(120 92) scale(1.3)">{stickerShape("cloud", seed + 21, INK)}</g>
+          <Stroke d="M152 100 L166 94" seed={seed + 22} width={3.2} />
+          <Stroke d="M154 112 L170 112" seed={seed + 23} width={3.2} />
+          <Stroke d="M150 122 L164 128" seed={seed + 24} width={3.2} />
+        </A>
+      );
+    default:
+      return null;
+  }
+}
+
+type AnimFn = (props: { id: string; children?: ReactNode }) => ReactNode;
+
+// ------------------------------------------------------------- Blobert
+export type BlobertProps = {
+  pose?: BlobertPose;
+  gag?: BlobertGag;
+  play?: boolean;
+  scripted?: boolean;
+  progress?: number;
+  word?: string;
+  fill?: string;
+  size?: number;
+  flip?: boolean;
+  idle?: boolean;
+  seed?: number;
+  title?: string;
+  className?: string;
+  style?: CSSProperties;
+};
+
+export function Blobert({
+  pose = "look",
+  gag = "sweep",
+  play = false,
+  scripted = true,
+  progress,
+  word,
+  fill = ART.sun,
+  size = 170,
+  flip = false,
+  idle = false,
+  seed = 1,
+  title,
+  className,
+  style,
+}: BlobertProps) {
+  const s = seed * 7 + 5;
+  const key = pose === "gag" ? (scripted ? gag : `${gag}-core`) : pose;
+  const tl = pose === "gag" ? (scripted ? GAGS[gag] : coreOnly(GAGS[gag])) : POSE_TL[pose];
+  const running = play && progress === undefined;
+  const t = progress === undefined ? tl.still * tl.ms : Math.min(1, Math.max(0, progress)) * tl.ms;
+  const w = (size * BLOB_VIEWBOX.w) / BLOB_VIEWBOX.h;
+
+  // One wrapper per animated layer. Playing: a class with generated
+  // keyframes, plus the resting frame as an attribute so a
+  // reduced-motion browser (which drops the keyframes) still sees a
+  // whole Blobert. Otherwise: one sampled frame, no CSS at all.
+  const A: AnimFn = ({ id, children }) => {
+    const keys = tl.tracks[id];
+    const p = PIVOT[id] ?? [0, 0];
+    const frame = keys ? sampleTrack(keys, running ? tl.rest : t) : { x: 0, y: 0, r: 0, s: 1, o: HIDDEN.has(id) ? 0 : 1 };
+    return (
+      <g className={running && keys ? `lpb-l lpb-${key}-${id}` : undefined} transform={attrXf(frame, p)} opacity={frame.o}>
+        {children}
+      </g>
+    );
+  };
+
+  const css = running
+    ? [
+        BLOB_STYLES,
+        ...Object.entries(tl.tracks).map(([id, keys]) => keyframes(`lpb-k-${key}-${id}`, keys, PIVOT[id] ?? [0, 0], tl.ms)),
+        ...Object.keys(tl.tracks).map(
+          (id) => `.lpb-${key}-${id}{animation:lpb-k-${key}-${id} ${tl.ms}ms ease-out both}`,
+        ),
+        REDUCED_STYLES,
+      ].join("\n")
+    : [BLOB_STYLES, REDUCED_STYLES].join("\n");
+
+  return (
+    <svg
+      viewBox={`0 0 ${BLOB_VIEWBOX.w} ${BLOB_VIEWBOX.h}`}
+      width={w}
+      height={size}
+      className={[running ? "lpb-play" : null, className].filter(Boolean).join(" ") || undefined}
+      style={flip ? { ...style, transform: `${style?.transform ?? ""} scaleX(-1)`.trim() } : style}
+      role={title ? "img" : undefined}
+      aria-hidden={title ? undefined : true}
+    >
+      {title ? <title>{title}</title> : null}
+      <defs>
+        <style>{css}</style>
+      </defs>
+
+      {pose === "gag" ? <GagBack gag={gag} seed={s} fill={fill} word={word} A={A} /> : word ? <A id="word"><WrongWord word={word} seed={s + 7} /></A> : null}
+
+      <A id="body">
+        <g className={idle ? "lpb-wob" : undefined}>
+          {/* the blob */}
+          <Shape d={blob(76, 126, 50, 43, s + 1, 2.6, 13)} fill={fill} seed={s + 2} amount={1.1} />
+
+          {/* two stubby arms, no legs */}
+          <A id="armL">
+            <Limb d="M30 128 Q14 134 12 150" fill={fill} seed={s + 11} width={10} />
+            <Shape d={blob(12, 152, 7.5, 7.5, s + 12, 1)} fill={fill} seed={s + 13} amount={0.4} />
+          </A>
+          <A id="armR">
+            <Limb d="M120 120 Q136 116 146 116" fill={fill} seed={s + 14} width={10} />
+            <Shape d={blob(146, 118, 7.5, 7.5, s + 15, 1)} fill={fill} seed={s + 16} amount={0.4} />
+            {pose === "gag" ? (
+              <A id="tool">
+                <BlobTool gag={gag} seed={s + 31} fill={fill} />
+              </A>
+            ) : null}
+          </A>
+
+          {/* dot eyes and one big mouth */}
+          <A id="eyes">
+            <circle cx={62} cy={114} r={5.4} fill={INK} />
+            <circle cx={92} cy={114} r={5.4} fill={INK} />
+          </A>
+          <A id="eHappy">
+            <Stroke d="M55 117 Q62 108 69 117" seed={s + 21} width={3.4} />
+            <Stroke d="M85 117 Q92 108 99 117" seed={s + 22} width={3.4} />
+          </A>
+          <A id="mSmile">
+            <Stroke d="M58 136 Q76 154 95 135" seed={s + 23} width={3.6} />
+          </A>
+          <A id="mO">
+            <Shape d={blob(77, 142, 7.5, 9, s + 24, 1)} fill={INK} seed={s + 25} amount={0.4} />
+          </A>
+          <A id="mWide">
+            <Shape d="M54 133 Q77 172 99 132 Z" fill={INK} seed={s + 26} amount={0.7} />
+          </A>
+        </g>
+      </A>
+
+      {pose === "gag" ? <GagFront gag={gag} seed={s} word={word} A={A} /> : null}
+    </svg>
+  );
+}
+
+const BLOB_STYLES = `
+.lpb-wob{transform-box:view-box;transform-origin:0 0;animation:lpb-wob 3200ms ease-in-out infinite}
+@keyframes lpb-wob{0%,100%{transform:translate(76px,${BLOB_GROUND}px) scale(1,1) translate(-76px,-${BLOB_GROUND}px)}50%{transform:translate(76px,${BLOB_GROUND}px) scale(1.03,.99) translate(-76px,-${BLOB_GROUND}px)}}
+.lpb-l{transform-box:view-box;transform-origin:0 0}
+@keyframes lpb-rm{0%{opacity:0}33%{opacity:1}66%{opacity:1}100%{opacity:0}}
+@keyframes lpb-rm-word{0%,33%{opacity:1}66%,100%{opacity:0}}
+`;
+
+// Last in the sheet on purpose: these rules must win over the generated
+// per-layer ones, which share their specificity.
+const REDUCED_STYLES = `
+@media (prefers-reduced-motion: reduce){
+.lpb-wob{animation:none}
+.lpb-play .lpb-l{animation:none}
+.lpb-play{animation:lpb-rm 360ms linear both}
+.lpb-play .lpb-l[class*="-word"]{animation:lpb-rm-word 360ms linear both}
+}
+`;

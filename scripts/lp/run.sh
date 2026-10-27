@@ -26,12 +26,31 @@ while [ $# -gt 0 ]; do
   esac
 done
 
-out="$("$HERE/build-and-serve.sh" "${BUILD_ARGS[@]+"${BUILD_ARGS[@]}"}")"
-rc=$?
+# A dozen agents write this checkout while we build, so a build that fails on a
+# file someone is part way through saving is routine and clears on its own
+# within a minute or two. Retry a failed build twice before calling it a break,
+# and keep the first error so a real one is still reported with its own text.
+# A genuine break fails all three attempts and costs 2 extra minutes; a
+# mid-write one no longer costs the heartbeat its whole walk.
+attempts="${LP_BUILD_ATTEMPTS:-3}"
+rc=0
+for try in $(seq 1 "$attempts"); do
+  out="$("$HERE/build-and-serve.sh" "${BUILD_ARGS[@]+"${BUILD_ARGS[@]}"}")"
+  rc=$?
+  [ $rc -eq 0 ] && break
+  if [ $rc -ne 11 ] || [ "$try" -ge "$attempts" ]; then break; fi
+  [ "$try" = "1" ] && cp "$HERE/out/build.log" "$HERE/out/build-first-failure.log" 2>/dev/null
+  echo "[lp] build attempt $try failed; a file may be mid-write, retrying in 60s" >&2
+  sleep 60
+done
 if [ $rc -ne 0 ]; then
   echo "$out"
-  echo "[lp] build or server step failed (exit $rc): nothing was walked" >&2
+  echo "[lp] build or server step failed (exit $rc) after $attempts attempt(s): nothing was walked" >&2
+  echo "[lp] first failure: $HERE/out/build-first-failure.log, last: $HERE/out/build.log" >&2
   exit $rc
+fi
+if [ "${try:-1}" != "1" ]; then
+  echo "[lp] build passed on attempt $try (the earlier failure was a mid-write file, see out/build-first-failure.log)" >&2
 fi
 base="${out#LP_BASE_URL=}"
 echo "[lp] walking $base"

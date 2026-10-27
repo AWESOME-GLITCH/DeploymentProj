@@ -83,16 +83,21 @@ const PALE_BLUE = "#eaf1fb";
 // sami: late twenties, short curly hair, mustard hoodie.
 const S_SKIN = "#c98f62";
 const S_HAIR = "#241a14";
-const HOODIE = "#d9a431";
-const HOODIE_DARK = "#bd8c23";
+// The hoodie sits a shade deeper and redder than the learner's saffron top,
+// and sami keeps a short beard, so the two men never read as the same person.
+const HOODIE = "#cf8526";
+const HOODIE_DARK = "#a66715";
 
 // The kitchen set, shared by the hook and the four notice beats.
 const FLOOR_Y = 1150;
 const FEET_Y = 1400;
-const LETTER_X = 300;
-const LETTER_Y = 440;
+const LETTER_X = 310;
+const LETTER_Y = 470;
 const LETTER_W = 460;
 const LETTER_H = 690;
+// held at 0.86 in the kitchen, so the bill is the subject without burying both
+// faces behind it
+const LETTER_S = 0.86;
 
 // The kit's character rig, mirrored here so sami stands at the same scale.
 const SHOULDER = { x: 46, y: -300 };
@@ -194,13 +199,16 @@ function Sami(p: SamiProps) {
           <circle cx="-50" cy="2" r="11" fill={S_SKIN} />
           <circle cx="50" cy="2" r="11" fill={S_SKIN} />
           <path d="M-50 -10 C-50 -62 -28 -70 0 -70 C28 -70 50 -62 50 -10 C50 30 30 58 0 58 C-30 58 -50 30 -50 -10 Z" fill={S_SKIN} />
-          {/* short curly hair: a cluster of circles along the hairline */}
+          {/* short tight curls, kept close to the skull */}
           <g fill={S_HAIR}>
-            <path d="M-50 -18 C-50 -60 -28 -74 0 -74 C28 -74 50 -60 50 -18 Z" />
-            {[[-44, -34, 19], [-24, -56, 21], [2, -62, 21], [28, -54, 20], [46, -30, 17], [-50, -14, 14], [50, -12, 14]].map(([cx, cy, r], i) => (
+            <path d="M-50 -22 C-50 -58 -28 -70 0 -70 C28 -70 50 -58 50 -22 Z" />
+            {[[-42, -32, 15], [-22, -50, 17], [4, -56, 17], [26, -48, 16], [44, -28, 13]].map(([cx, cy, r], i) => (
               <circle key={i} cx={cx} cy={cy} r={r} />
             ))}
           </g>
+          {/* a short beard along the jaw, and sideburns */}
+          <path d="M-50 -2 C-48 32 -28 58 0 58 C28 58 48 32 50 -2 C44 28 28 40 0 40 C-28 40 -44 28 -50 -2 Z" fill={S_HAIR} />
+          {[-1, 1].map((k) => <rect key={k} x={k * 46 - 6} y="-24" width="12" height="34" rx="5" fill={S_HAIR} />)}
           <circle cx="-32" cy="16" r="8" fill="#e08f78" opacity="0.24" />
           <circle cx="32" cy="16" r="8" fill="#e08f78" opacity="0.24" />
           <path d="M-31 -26 Q-21 -33 -10 -27" fill="none" stroke={S_HAIR} strokeWidth="4.5" strokeLinecap="round" />
@@ -511,12 +519,14 @@ function Calendar({ frame, x, y, w = 240, flipAt, ringAt, fillFrom, fillTo }: { 
 
 /** One of the three stickers the letter is boiled down to. */
 function Sticker({
-  frame, from, icon, label, value, x, y, w = 560, fromX, fromY, scaleFrom = 0.42,
+  frame, from, icon, label, value, x, y, w = 600, fromX, fromY, scaleFrom = 0.42,
 }: {
   frame: number; from: number; icon: "calendar" | "payways" | "tag"; label: string; value: string;
   x: number; y: number; w?: number; fromX?: number; fromY?: number; scaleFrom?: number;
 }) {
   if (frame < from) return null;
+  // the value sets the type size: "online or at the shop" is the longest line
+  // the three facts ever carry, and it has to sit inside the card
   const p = springIn(frame, from, { damping: 12, stiffness: 120 });
   const h = 150;
   const sx = fromX ?? x;
@@ -529,7 +539,7 @@ function Sticker({
     <g transform={`translate(${cx} ${cy}) rotate(${rot}) scale(${sc})`}>
       <rect x="6" y="8" width={w} height={h} rx="26" fill={INK} opacity="0.18" />
       <rect x="0" y="0" width={w} height={h} rx="26" fill="#fff" stroke={INK} strokeWidth="5" />
-      <g transform="translate(78 75)">
+      <g transform="translate(70 75)">
         {icon === "calendar" ? (
           <g>
             <rect x="-42" y="-44" width="84" height="88" rx="10" fill="#fff" stroke={INK} strokeWidth="5" />
@@ -538,33 +548,36 @@ function Sticker({
             <text x="0" y="24" textAnchor="middle" fontFamily={FONT} fontWeight="800" fontSize="30" fill={INK}>30</text>
           </g>
         ) : icon === "payways" ? (
-          <g>
-            <rect x="-44" y="-42" width="46" height="84" rx="10" fill={INK} />
-            <rect x="-38" y="-34" width="34" height="62" rx="6" fill="#fff" />
-            <circle cx="-21" cy="-2" r="12" fill={SEA} />
-            <rect x="8" y="-20" width="46" height="62" rx="7" fill={WALL} stroke={INK} strokeWidth="5" />
-            <rect x="12" y="-16" width="38" height="14" rx="4" fill={SAFFRON} />
-            <rect x="26" y="8" width="16" height="34" rx="3" fill={WOOD_LIGHT} stroke={INK} strokeWidth="4" />
+          <g transform="scale(0.88)">
+            <rect x="-46" y="-42" width="46" height="84" rx="10" fill={INK} />
+            <rect x="-40" y="-34" width="34" height="62" rx="6" fill="#fff" />
+            <circle cx="-23" cy="-2" r="12" fill={SEA} />
+            <rect x="6" y="-20" width="46" height="62" rx="7" fill={WALL} stroke={INK} strokeWidth="5" />
+            <rect x="10" y="-16" width="38" height="14" rx="4" fill={SAFFRON} />
+            <rect x="24" y="8" width="16" height="34" rx="3" fill={WOOD_LIGHT} stroke={INK} strokeWidth="4" />
           </g>
         ) : (
           <g>
-            <path d="M-18 -34 L44 -34 L44 34 L-18 34 L-44 0 Z" fill={PAPER} stroke={INK} strokeWidth="5" strokeLinejoin="round" />
-            <circle cx="-16" cy="0" r="7" fill="none" stroke={INK} strokeWidth="4" />
-            <text x="16" y="14" textAnchor="middle" fontFamily={FONT} fontWeight="800" fontSize="30" fill={ACCENT}>4471</text>
+            <path d="M-16 -34 L44 -34 L44 34 L-16 34 L-42 0 Z" fill={PAPER} stroke={INK} strokeWidth="5" strokeLinejoin="round" />
+            <circle cx="-14" cy="0" r="7" fill="none" stroke={INK} strokeWidth="4" />
+            {[-12, 2, 16].map((y) => <rect key={y} x="2" y={y - 4} width="32" height="8" rx="4" fill={ACCENT} opacity="0.7" />)}
           </g>
         )}
       </g>
-      <text x="148" y="58" fontFamily={FONT} fontWeight="800" fontSize="30" letterSpacing="2" fill={FAINT}>{label}</text>
-      <text x="148" y="112" fontFamily={FONT} fontWeight="800" fontSize="42" fill={INK}>{value}</text>
+      <text x="152" y="58" fontFamily={FONT} fontWeight="800" fontSize="28" letterSpacing="2" fill={FAINT}>{label}</text>
+      <text x="152" y="110" fontFamily={FONT} fontWeight="800" fontSize="36" fill={INK}>{value}</text>
     </g>
   );
 }
 
 /** The presenter's corner circle: `you` keeps a face on screen over a diagram. */
-function CornerYou({ frame, from, x = 130, y = 1030, r = 86, talking }: { frame: number; from: number; x?: number; y?: number; r?: number; talking?: boolean }) {
+function CornerYou({ frame, from, x = 140, y = 1020, r = 88, talking }: { frame: number; from: number; x?: number; y?: number; r?: number; talking?: boolean }) {
   const s = springIn(frame, from, { damping: 11, stiffness: 130 });
   if (s <= 0) return null;
   const id = `med8-corner-${x}-${y}`;
+  // the head sits at -400 in character units, so this scale and offset put it
+  // in the middle of the circle rather than sliding off the bottom of it
+  const sc = r / 100;
   return (
     <g transform={`translate(${x} ${y}) scale(${s}) translate(${-x} ${-y})`}>
       <defs><clipPath id={id}><circle cx={x} cy={y} r={r} /></clipPath></defs>
@@ -572,7 +585,7 @@ function CornerYou({ frame, from, x = 130, y = 1030, r = 86, talking }: { frame:
       <circle cx={x} cy={y} r={r} fill="#fff" />
       <circle cx={x} cy={y} r={r} fill="none" stroke={SAFFRON} strokeWidth="9" />
       <g clipPath={`url(#${id})`}>
-        <Character who="you" x={x} y={y + r * 2.5} scale={r / 185} facing={1} frame={frame} enter={from} talking={talking} mood="happy" gesture="idle" />
+        <Character who="you" x={x} y={y + 400 * sc} scale={sc} facing={1} frame={frame} enter={from} talking={talking} mood="happy" gesture="idle" />
       </g>
     </g>
   );
@@ -597,15 +610,15 @@ function KitchenWall({ frame }: { frame: number }) {
       {[0, 1, 2, 3, 4].map((i) => (
         <rect key={i} x={-120 + i * 250} y="1040" width="220" height="96" rx="8" fill="none" stroke="#c8c3b8" strokeWidth="5" />
       ))}
-      {/* grey window light on the left */}
+      {/* grey window light on the right, falling across the table */}
       <g>
-        <rect x="56" y="296" width="250" height="330" rx="8" fill={WOOD_LIGHT} />
-        <rect x="70" y="310" width="222" height="302" fill={GLASS} />
-        <rect x="70" y="310" width="222" height="120" fill={GLASS_DARK} opacity="0.5" />
-        <rect x="172" y="310" width="14" height="302" fill={WOOD_LIGHT} />
-        <rect x="70" y="454" width="222" height="12" fill={WOOD_LIGHT} />
-        <rect x="42" y="616" width="278" height="22" rx="6" fill={WOOD} />
-        <path d="M306 336 L306 600 L700 1150 L700 760 Z" fill="#fff" opacity="0.16" />
+        <rect x="774" y="296" width="250" height="330" rx="8" fill={WOOD_LIGHT} />
+        <rect x="788" y="310" width="222" height="302" fill={GLASS} />
+        <rect x="788" y="310" width="222" height="120" fill={GLASS_DARK} opacity="0.5" />
+        <rect x="890" y="310" width="14" height="302" fill={WOOD_LIGHT} />
+        <rect x="788" y="454" width="222" height="12" fill={WOOD_LIGHT} />
+        <rect x="760" y="616" width="278" height="22" rx="6" fill={WOOD} />
+        <path d="M774 336 L774 600 L380 1150 L380 760 Z" fill="#fff" opacity="0.16" />
       </g>
       {/* the kettle on the worktop */}
       <g transform="translate(600 996)">
@@ -617,8 +630,8 @@ function KitchenWall({ frame }: { frame: number }) {
         <circle cx="26" cy="-28" r="7" fill={SEA} />
       </g>
       {/* the fridge, with magnets and a note */}
-      <g transform="translate(866 626)">
-        <rect x="0" y="0" width="200" height={FLOOR_Y - 626} rx="14" fill={FRIDGE} stroke={FRIDGE_DARK} strokeWidth="5" />
+      <g transform="translate(16 686)">
+        <rect x="0" y="0" width="200" height={FLOOR_Y - 686} rx="14" fill={FRIDGE} stroke={FRIDGE_DARK} strokeWidth="5" />
         <rect x="0" y="176" width="200" height="8" fill={FRIDGE_DARK} />
         <rect x="166" y="60" width="14" height="92" rx="7" fill={FRIDGE_DARK} />
         <rect x="166" y="212" width="14" height="92" rx="7" fill={FRIDGE_DARK} />
@@ -627,7 +640,7 @@ function KitchenWall({ frame }: { frame: number }) {
         <circle cx="46" cy="60" r="16" fill={SAFFRON} />
         <rect x="90" y="46" width="30" height="30" rx="6" fill={SEA} transform="rotate(12 105 61)" />
         <circle cx="146" cy="372" r="14" fill={ACCENT} opacity="0.8" />
-        <ellipse cx={100 + Math.sin(frame / 40) * 2} cy="440" rx="26" ry="18" fill={SAFFRON} opacity="0.35" />
+        <ellipse cx={100 + Math.sin(frame / 40) * 2} cy="418" rx="26" ry="18" fill={SAFFRON} opacity="0.35" />
       </g>
     </Stage>
   );
@@ -662,7 +675,9 @@ function Layer({ zoom, depth, children }: { zoom: number; depth: number; childre
  * cut into n1 and then creeps slowly, so the four notices read as one scene.
  */
 function KitchenScene({ frame }: { frame: number }) {
-  const zoom = 1 + tween(frame, 0, 130, 0, 0.12, EASE.inOut) - tween(frame, 130, 132, 0, 0.06) + tween(frame, 140, 804, 0, 0.04, EASE.inOut);
+  // the push-in belongs to the hook; the notices sit at a steady, gentle crawl
+  // so nothing on the right of the frame (the calendar, the shop) is cropped
+  const zoom = 1 + tween(frame, 0, 130, 0, 0.1, EASE.inOut) - tween(frame, 130, 132, 0, 0.055) + tween(frame, 140, 804, 0, 0.03, EASE.inOut);
 
   const hook = frame < 132;
   const n1 = frame >= 132 && frame < 282;
@@ -671,9 +686,10 @@ function KitchenScene({ frame }: { frame: number }) {
   const n4 = frame >= 630;
 
   // `you` walks in from the right with the mugs, puts them down, and takes the
-  // letter. All of it lands before the cut at 132.
-  const youX = tween(frame, 14, 86, 1180, 140, EASE.inOut);
-  const youFacing: 1 | -1 = frame < 88 ? -1 : 1;
+  // letter. sami is at the far side of the table, so the path never crosses
+  // him. All of it lands before the cut at 132.
+  const youX = tween(frame, 14, 86, 1240, 884, EASE.inOut);
+  const youFacing: 1 | -1 = -1;
   const youWalking = frame >= 14 && frame < 84;
   const youArm = hook
     ? { g: "cup" as const, at: 10 }
@@ -704,8 +720,8 @@ function KitchenScene({ frame }: { frame: number }) {
       {n2 ? (
         <Layer zoom={zoom} depth={0.15}>
           <Stage>
-            <g transform={`translate(770 364) scale(${springIn(frame, 292, { damping: 11, stiffness: 150 })}) translate(-770 -364)`}>
-              <Calendar frame={frame} x={770} y={364} w={240} flipAt={316} ringAt={346} fillFrom={360} fillTo={414} />
+            <g transform={`translate(26 342) scale(${springIn(frame, 292, { damping: 11, stiffness: 150 })}) translate(-26 -342)`}>
+              <Calendar frame={frame} x={26} y={342} w={228} flipAt={316} ringAt={346} fillFrom={360} fillTo={414} />
             </g>
           </Stage>
         </Layer>
@@ -715,11 +731,12 @@ function KitchenScene({ frame }: { frame: number }) {
       {n3 ? (
         <Layer zoom={zoom} depth={0.15}>
           <Stage>
-            <PhoneIcon frame={frame} from={486} x={806} y={430} />
-            <ShopIcon frame={frame} from={504} x={968} y={470} />
-            <Coin frame={frame} from={510} x0={700} y0={760} x1={806} y1={520} />
-            <Coin frame={frame} from={544} x0={700} y0={790} x1={968} y1={600} />
-            <Tick frame={frame} from={586} x={1040} y={430} size={0.6} />
+            {/* stacked, because the only clear band left of the letter is
+                narrower than the two icons side by side */}
+            <PhoneIcon frame={frame} from={486} x={152} y={316} />
+            <ShopIcon frame={frame} from={504} x={152} y={512} />
+            <Coin frame={frame} from={510} x0={330} y0={800} x1={152} y1={408} />
+            <Coin frame={frame} from={544} x0={330} y0={820} x1={152} y1={598} />
           </Stage>
         </Layer>
       ) : null}
@@ -727,7 +744,7 @@ function KitchenScene({ frame }: { frame: number }) {
       <Layer zoom={zoom} depth={0.45}>
         <Stage>
           <Sami
-            x={875} y={FEET_Y} scale={1.2} facing={-1} frame={frame} enter={0} seed={23}
+            x={172} y={FEET_Y} scale={1.2} facing={1} frame={frame} enter={0} seed={23}
             arm={hook ? "hold" : n4 ? "point" : "idle"} armAt={hook ? 0 : 646}
             leanAt={n4 ? 700 : undefined} smile={frame >= 724}
             nodAt={n1 ? 212 : n2 ? 400 : undefined}
@@ -747,20 +764,20 @@ function KitchenScene({ frame }: { frame: number }) {
       {/* the letter, held between them */}
       <Layer zoom={zoom} depth={0.8}>
         <Stage>
-          <g transform={`translate(${LETTER_X} ${LETTER_Y + lift}) rotate(${tilt} ${LETTER_W / 2} ${LETTER_H / 2})`}>
+          <g transform={`translate(${LETTER_X} ${LETTER_Y + lift}) rotate(${tilt} ${LETTER_W / 2} ${LETTER_H / 2}) scale(${LETTER_S})`}>
             <Letter frame={frame} resolve={{ header: 160, when: 320, how: 480, ref: 650 }} tagStamp={666} />
           </g>
-          <g transform={`translate(${markSize === 0.9 && frame < 196 ? 0 : 0} 0)`}>
-            <ThoughtMark frame={frame} from={24} x={944} y={740} size={markSize} glyph={markGlyph} />
-          </g>
+          {/* the mark drops a little once the props take the top-left corner */}
+          <ThoughtMark frame={frame} from={24} x={214} y={hook ? 686 : 722} size={markSize} glyph={markGlyph} />
         </Stage>
       </Layer>
 
-      {hook ? <SpeechBubble text="I cannot read this." x={520} y={168} w={480} from={56} frame={frame} tail="right" tailX={380} size={46} /> : null}
-      {n1 ? <SpeechBubble text="This is your gas bill." targets={["gas bill"]} x={70} y={182} w={640} from={142} frame={frame} tail="left" tailX={120} size={50} /> : null}
-      {n2 ? <SpeechBubble text="Please pay by 30 May." targets={["pay by"]} x={70} y={182} w={640} from={292} frame={frame} tail="left" tailX={120} size={50} /> : null}
-      {n3 ? <SpeechBubble text="You can pay online or at the shop." targets={["online", "at the shop"]} x={70} y={158} w={660} from={466} frame={frame} tail="left" tailX={120} size={46} /> : null}
-      {n4 ? <SpeechBubble text="Use reference number 4471." targets={["reference number"]} x={70} y={170} w={650} from={640} frame={frame} tail="left" tailX={120} size={48} /> : null}
+      {/* the hook carries no bubble: sami's "?" says it, and the beat has one
+          thing to read in five seconds */}
+      {n1 ? <SpeechBubble text="This is your gas bill." targets={["gas bill"]} x={354} y={182} w={640} from={142} frame={frame} tail="right" tailX={486} size={50} /> : null}
+      {n2 ? <SpeechBubble text="Please pay by 30 May." targets={["pay by"]} x={354} y={182} w={640} from={292} frame={frame} tail="right" tailX={486} size={50} /> : null}
+      {n3 ? <SpeechBubble text="You can pay online or at the shop." targets={["online", "at the shop"]} x={344} y={158} w={660} from={466} frame={frame} tail="right" tailX={496} size={46} /> : null}
+      {n4 ? <SpeechBubble text="Use reference number 4471." targets={["reference number"]} x={348} y={170} w={650} from={640} frame={frame} tail="right" tailX={492} size={48} /> : null}
     </AbsoluteFill>
   );
 }
@@ -779,17 +796,17 @@ function ExplainScene({ frame }: { frame: number }) {
     <AbsoluteFill style={{ background: PAPER }}>
       <Stage>
         {/* the letter, small, on the left */}
-        <g transform={`translate(60 300) scale(${0.46 * letterS})`}>
+        <g transform={`translate(56 286) scale(${0.44 * letterS})`}>
           <Letter frame={frame} resolve={{ header: 160, when: 320, how: 480, ref: 650 }} tagStamp={666} />
         </g>
 
-        {/* sami, receiving the three facts */}
-        <Sami x={790} y={1510} scale={1.05} facing={-1} frame={frame} enter={812} arm="open" armAt={830} smile={frame >= 930} nodAt={936} seed={23} />
-        <Tick frame={frame} from={930} x={944} y={1020} size={0.74} />
+        {/* sami, receiving the three facts, clear of the caption bar */}
+        <Sami x={960} y={1170} scale={0.62} facing={-1} frame={frame} enter={812} arm="open" armAt={830} smile={frame >= 930} nodAt={936} seed={23} />
+        <Tick frame={frame} from={930} x={1034} y={876} size={0.5} />
 
-        <Sticker frame={frame} from={840} icon="calendar" label="WHEN" value="by 30 May" x={400} y={388} fromX={120} fromY={430} />
-        <Sticker frame={frame} from={876} icon="payways" label="HOW" value="online or at the shop" x={400} y={568} fromX={120} fromY={520} />
-        <Sticker frame={frame} from={912} icon="tag" label="THE NUMBER" value="4471" x={400} y={748} fromX={120} fromY={600} />
+        <Sticker frame={frame} from={840} icon="calendar" label="WHEN" value="by 30 May" x={300} y={330} fromX={110} fromY={400} />
+        <Sticker frame={frame} from={876} icon="payways" label="HOW" value="online or at the shop" x={300} y={512} fromX={110} fromY={470} />
+        <Sticker frame={frame} from={912} icon="tag" label="THE NUMBER" value="4471" x={300} y={694} fromX={110} fromY={540} />
 
         <CornerYou frame={frame} from={818} talking={frame > 824 && frame < 924} />
       </Stage>
@@ -863,12 +880,12 @@ const PRACTISE_STEPS = [
   {
     line: "Pay by thirty May, online or at the shop.",
     targets: [0, 1, 4, 5, 6, 7],
-    from: 1140, pauseAt: 1338, eyebrow: "SAY IT WITH ME", size: 80, stickers: 2,
+    from: 1140, pauseAt: 1338, eyebrow: "SAY IT WITH ME", size: 70, stickers: 2,
   },
   {
     line: "Use reference number four four seven one.",
     targets: [1, 2],
-    from: 1374, pauseAt: 1536, eyebrow: "NOW THE NUMBER", size: 80, stickers: 3,
+    from: 1374, pauseAt: 1536, eyebrow: "NOW THE NUMBER", size: 70, stickers: 3,
   },
 ];
 
@@ -910,9 +927,9 @@ function PractiseScene({ frame }: { frame: number }) {
           </g>
         </g>
 
-        {/* sami, listening, small on the right */}
-        <Sami x={928} y={1010} scale={0.78} facing={-1} frame={frame} enter={1152} arm={samiArm} armAt={resumeAt} smile={frame >= resumeAt} nodAt={resumeAt + 6} seed={23} />
-        {frame >= resumeAt ? <Tick frame={frame} from={resumeAt + 8} x={1010} y={690} size={0.56} /> : null}
+        {/* sami, listening, small on the right and clear of the karaoke line */}
+        <Sami x={952} y={1066} scale={0.62} facing={-1} frame={frame} enter={1152} arm={samiArm} armAt={resumeAt} smile={frame >= resumeAt} nodAt={resumeAt + 6} seed={23} />
+        {frame >= resumeAt ? <Tick frame={frame} from={resumeAt + 8} x={1024} y={786} size={0.5} /> : null}
 
         {asking ? <TapCue frame={frame} x={148} y={252} kind="say" from={cueAt} label="Your turn" /> : null}
 
@@ -936,10 +953,20 @@ function PractiseScene({ frame }: { frame: number }) {
         ) : null}
       </Stage>
 
-      <Eyebrow text={step.eyebrow} x={0} y={764} align="center" frame={frame} from={step.from + 10} />
+      {/* the eyebrow shares the line's box, so the two stay on one centre */}
       <div
         style={{
-          position: "absolute", left: 60, right: 60, top: 822, display: "flex", flexWrap: "wrap",
+          position: "absolute", left: 60, right: 236, top: 756, textAlign: "center",
+          fontSize: 38, fontWeight: 800, letterSpacing: 6, color: FAINT,
+          opacity: tween(frame, step.from + 10, step.from + 24, 0, 1, EASE.out),
+        }}
+      >
+        {step.eyebrow}
+      </div>
+      {/* the right margin keeps the line out of sami's listening corner */}
+      <div
+        style={{
+          position: "absolute", left: 60, right: 236, top: 810, display: "flex", flexWrap: "wrap",
           justifyContent: "center", columnGap: 22, fontSize: step.size, fontWeight: 800, lineHeight: 1.18, zIndex: 0,
         }}
       >
@@ -1014,9 +1041,9 @@ function RecapScene({ frame }: { frame: number }) {
                   </g>
                 ) : (
                   <g>
-                    <path d="M-18 -34 L46 -34 L46 34 L-18 34 L-46 0 Z" fill={PAPER} stroke={INK} strokeWidth="5" strokeLinejoin="round" />
-                    <circle cx="-16" cy="0" r="7" fill="none" stroke={INK} strokeWidth="4" />
-                    <text x="16" y="14" textAnchor="middle" fontFamily={FONT} fontWeight="800" fontSize="32" fill={ACCENT}>4471</text>
+                    <path d="M-28 -34 L62 -34 L62 34 L-28 34 L-58 0 Z" fill={PAPER} stroke={INK} strokeWidth="5" strokeLinejoin="round" />
+                    <circle cx="-24" cy="0" r="7" fill="none" stroke={INK} strokeWidth="4" />
+                    <text x="20" y="13" textAnchor="middle" fontFamily={FONT} fontWeight="800" fontSize="32" fill={ACCENT}>4471</text>
                   </g>
                 )}
               </g>

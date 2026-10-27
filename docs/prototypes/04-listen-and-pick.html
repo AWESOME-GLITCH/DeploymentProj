@@ -263,6 +263,8 @@
   .pill:active { transform: scale(.95); }
   .pill svg { width: 20px; height: 20px; }
 
+  /* the second control is never a button: plain ink text, so only one
+     filled pill is ever on screen (engagement.md section 7, check 1) */
   .ghost {
     appearance: none;
     border: 0;
@@ -270,9 +272,10 @@
     padding: 6px 2px;
     min-height: 44px;
     font-family: inherit;
-    font-size: 15px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 600;
     color: var(--ink);
+    opacity: .72;
     text-decoration: underline;
     text-underline-offset: 3px;
     cursor: pointer;
@@ -393,6 +396,85 @@
 
   .ghost:focus-visible { border-radius: 10px; }
 
+  /* ---------- the say-it step ----------
+     The tap is a scaffold, so the item hands the sentence to the mic before it
+     ends (exercises.md, the scaffold rule; engagement.md section 3.5). In this
+     state the coach card carries no filled pill, so "Say it" is the only
+     primary action on screen. */
+  .say {
+    flex: 1 1 auto;
+    margin-top: 14px;
+    min-height: 0;
+    border-radius: var(--r-card);
+    border: 3px solid var(--line);
+    background: var(--card);
+    color: var(--on-card);
+    padding: 24px 18px 18px;
+    display: none;
+    flex-direction: column;
+    animation: pop 340ms var(--spring) both;
+  }
+
+  .is-say .say { display: flex; }
+  .is-say .grid { display: none; }
+  .is-say #playBtn { display: none; }
+
+  /* her bubble only exists when she has words */
+  .is-say .bubble { display: none; }
+  .is-say.has-reply .bubble { display: flex; }
+
+  .say .line {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1.18;
+    letter-spacing: -.02em;
+    text-align: center;
+  }
+
+  .say .heard {
+    margin: 12px 0 0;
+    min-height: 21px;
+    font-size: 14px;
+    font-weight: 600;
+    opacity: .66;
+    text-align: center;
+  }
+
+  .say .fill { flex: 1 1 auto; min-height: 10px; }
+  .say .pill { width: 100%; }
+  .say .ghost { width: 100%; text-align: center; color: var(--on-card); }
+
+  .pill.listening { animation: listen 1200ms ease-in-out infinite; }
+  @keyframes listen {
+    0%, 100% { transform: none }
+    50% { transform: scale(1.035) }
+  }
+
+  /* typed fallback, always available and never the worse outcome */
+  .typed { display: none; gap: 10px; width: 100%; }
+  .typed.show { display: flex; }
+  .typed input {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 56px;
+    border-radius: 99px;
+    border: 3px solid var(--line);
+    background: var(--card);
+    color: var(--on-card);
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    padding: 0 18px;
+  }
+  .typed input::placeholder { color: var(--on-card); opacity: .38; }
+  .typed .send { flex: 0 0 56px; width: 56px; }
+  .typed.show ~ .pill, .typed.show ~ .ghost.mic-only { display: none; }
+
+  /* listening: she leans in and the ear sticker pops */
+  .ear { opacity: 0; }
+  .listening-coach .ear { animation: stick 400ms var(--spring) forwards; }
+
   /* ---------- done screen ---------- */
   .done {
     position: absolute;
@@ -420,12 +502,78 @@
     margin: 0;
   }
 
-  .done .sub { opacity: .78; margin-top: 8px; }
-  .done-art { flex: 1 1 auto; min-height: 0; margin: 10px -19px 14px; }
+  /* the can-do bar: the only progress signal on the card, it moves once,
+     under 400 ms, and carries no number (engagement.md section 3.6 rule 2) */
+  .done .bar {
+    flex: 0 0 auto;
+    margin-top: 16px;
+    height: 11px;
+    border-radius: 99px;
+    border: 3px solid var(--ink);
+    overflow: hidden;
+  }
+
+  .done .bar i {
+    display: block;
+    height: 100%;
+    width: 100%;
+    background: var(--ink);
+    transform: scaleX(.5);
+    transform-origin: left;
+    transition: transform 340ms var(--spring) 180ms;
+  }
+
+  .done.moved .bar i { transform: scaleX(.78); }
+
+  .done-art { flex: 1 1 auto; min-height: 0; margin: 8px -19px 12px; }
   .done-art svg { width: 100%; height: 100%; display: block; }
 
+  /* one sticker, one of six, never the same as last time */
+  .end-sticker {
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+    transform: scale(.2) rotate(-24deg);
+  }
+
+  .end-sticker.go { animation: stickEnd 350ms var(--spring) 260ms forwards; }
+
+  @keyframes stickEnd {
+    0% { opacity: 0; transform: scale(.2) rotate(-24deg) }
+    70% { opacity: 1; transform: scale(1.04) rotate(2deg) }
+    100% { opacity: 1; transform: scale(1) rotate(0) }
+  }
+
+  /* two equally good next steps, exactly two (section 3.6 rule 4) */
+  .done .pill { flex: 0 0 auto; }
+
+  .end-ghost {
+    width: 100%;
+    text-align: center;
+    color: var(--ink);
+    margin-top: 2px;
+  }
+
+  .done .return {
+    margin: 4px 0 0;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    opacity: .62;
+  }
+
+  /* "Finish for today" is a real ending, not the guilty option: the card
+     goes calm and nothing nags */
+  .done.calm { background: var(--lilac); }
+  .done.calm .bar,
+  .done.calm .pill,
+  .done.calm .end-ghost { display: none; }
+
   /* the finish card is its own screen: nothing shows through its corners */
-  .is-done .head, .is-done .coach-card, .is-done .grid { visibility: hidden; }
+  .is-done .head,
+  .is-done .coach-card,
+  .is-done .grid,
+  .is-done .say { visibility: hidden; }
 
   .sr {
     position: absolute;

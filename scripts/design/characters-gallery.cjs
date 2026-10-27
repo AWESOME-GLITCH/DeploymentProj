@@ -21,6 +21,10 @@ const {
   STICKER_KINDS,
   Character,
   Sticker,
+  Blobert,
+  BLOBERT_GAGS,
+  BLOBERT_GAG_MS,
+  BLOBERT_SEQUENCE,
 } = require("../../components/learning-path/art/characters.tsx");
 
 const BLOCKS = [
@@ -95,6 +99,77 @@ const itemRow = HOLD_ITEMS.map(
   (it) => `<figure class="cell"><div class="art">${svg("maya", "hold", { item: it, size: 170, seed: 9, title: `Maya holding a ${it}` })}</div><figcaption>hold("${it}")</figcaption></figure>`,
 ).join("");
 
+// ------------------------------------------------------------- Blobert
+const blob = (props) => renderToStaticMarkup(h(Blobert, props));
+
+const GAG_WORD = { sweep: "has", eat: "goed", mop: "am", bin: "hase", vacuum: "do", crane: "is" };
+const GAG_FILL = { sweep: ART.sun, eat: ART.tangerine, mop: ART.sky, bin: ART.mint, vacuum: ART.lilac, crane: ART.sun };
+const GAG_SAYS = {
+  sweep: "Sweeps it off the screen.",
+  eat: "Eats it and burps a star.",
+  mop: "Mops it into a puddle that dries.",
+  bin: "Flicks it in and the lid claps.",
+  vacuum: "Vacuums it up, then sneezes.",
+  crane: "Lifts it away with the tiny crane.",
+};
+
+const blobPoses = ["in", "look", "wave", "out"]
+  .map((pose, i) => {
+    const fill = [ART.sun, ART.tangerine, ART.sky, ART.mint][i];
+    const art = blob({ pose, fill, size: 128, seed: 3, title: `Blobert ${pose}` });
+    return `<figure class="cell"><div class="art">${art}</div><figcaption>${pose}</figcaption></figure>`;
+  })
+  .join("");
+
+const blobGags = BLOBERT_GAGS.map((gag) => {
+  const common = { pose: "gag", gag, word: GAG_WORD[gag], fill: GAG_FILL[gag], size: 150, seed: 3 };
+  const still = blob({ ...common, title: `Blobert ${gag}` });
+  const playing = blob({ ...common, play: true, idle: true, title: `Blobert ${gag}` });
+  return `
+  <figure class="gag" data-gag="${gag}">
+    <div class="stage">${still}</div>
+    <template>${playing}</template>
+    <figcaption><b>${gag}</b> ${GAG_SAYS[gag]}</figcaption>
+    <button type="button" class="pill">Play ${gag} &nbsp;&#9654;</button>
+  </figure>`;
+}).join("");
+
+const FRAMES = [0.08, 0.26, 0.42, 0.56, 0.7, 0.86];
+const blobStrips = BLOBERT_GAGS.map(
+  (gag) => `
+  <div class="strip" style="--block:var(--cream)">
+    <span class="tag">${gag}</span>
+    <div class="row tight">${FRAMES.map(
+      (p) =>
+        `<figure class="cell"><div class="art">${blob({
+          pose: "gag",
+          gag,
+          progress: p,
+          word: GAG_WORD[gag],
+          fill: GAG_FILL[gag],
+          size: 116,
+          seed: 3,
+          title: `Blobert ${gag} at ${Math.round(p * BLOBERT_GAG_MS)} ms`,
+        })}</div><figcaption>${Math.round(p * BLOBERT_GAG_MS)} ms</figcaption></figure>`,
+    ).join("")}</div>
+  </div>`,
+).join("");
+
+const blobOnBlocks = BLOCKS.map(
+  ([bname, bval]) => `
+  <div class="strip" style="--block:${bval}">
+    <span class="tag">${bname}</span>
+    <div class="row tight">
+      <div class="art">${blob({ pose: "look", fill: ART.cream, size: 112, seed: 4, title: `Blobert in cream on ${bname}` })}</div>
+      <div class="art">${blob({ pose: "wave", fill: ART.paper, size: 112, seed: 6, title: `Blobert in white on ${bname}` })}</div>
+    </div>
+  </div>`,
+).join("");
+
+const seqRow = Object.entries(BLOBERT_SEQUENCE)
+  .map(([step, { from, to }]) => `<li><code>${step}</code> ${from} to ${to} ms</li>`)
+  .join("");
+
 const html = `<!doctype html>
 <html lang="en-GB">
 <head>
@@ -136,6 +211,21 @@ const html = `<!doctype html>
   .sheet { background: var(--paper); border: 3px solid var(--ink); border-radius: 28px; padding: 18px 22px; }
   .sheet ul { margin: 0; padding-left: 20px; }
   .sheet li { margin: 4px 0; }
+  .gags { display: flex; flex-wrap: wrap; gap: 14px; }
+  .gag {
+    margin: 0; flex: 1 1 300px; background: var(--paper); border: 3px solid var(--ink);
+    border-radius: 28px; padding: 10px 14px 14px; text-align: center;
+  }
+  .gag .stage { height: 150px; display: flex; align-items: center; justify-content: center; }
+  .gag figcaption { font-size: 14px; padding: 8px 0 10px; min-height: 42px; }
+  .gag figcaption b { text-transform: capitalize; }
+  .pill {
+    display: block; width: 100%; height: 48px; border: 0; border-radius: 999px;
+    background: var(--ink); color: var(--cream); font: 700 15px "Plus Jakarta Sans", ui-sans-serif, sans-serif;
+    cursor: pointer;
+  }
+  .pill:focus-visible { outline: 3px solid var(--tangerine); outline-offset: 3px; }
+  .pill.wide { width: auto; padding: 0 26px; margin: 0 0 14px; }
   @media (max-width: 420px) { h1 { font-size: 32px; } }
 </style>
 </head>
@@ -160,6 +250,34 @@ const html = `<!doctype html>
 
   <h3>Things they hold</h3>
   <section class="card" style="--block:var(--sky)"><div class="row">${itemRow}</div></section>
+
+  <h3>Blobert, the blob who clears mistakes</h3>
+  <p class="lede">He is the only thing that ever handles an error, so a mistake is never red, never a
+  loss, always a small laugh. One gag per miss, never the same twice in a row. Pass him the screen's
+  one block colour; on a block-colour card pass <code>cream</code> instead.</p>
+  <section class="card" style="--block:var(--paper)">
+    <header><h2>Poses</h2><p>in, look, wave, out &middot; plus <code>gag</code>, below</p></header>
+    <div class="row">${blobPoses}</div>
+  </section>
+
+  <h3>The six gags, ${BLOBERT_GAG_MS} ms each</h3>
+  <p class="lede">Every card plays the whole scripted miss: pop in, look at the wrong word, the gag,
+  a wave, slide out. Press a button to play one, or play them all in turn.</p>
+  <button type="button" class="pill wide" id="playall">Play all six &nbsp;&#9654;</button>
+  <div class="gags">${blobGags}</div>
+
+  <h3>Every gag, frame by frame</h3>
+  <p class="lede">Rendered from the same timeline with the <code>progress</code> prop, so what the
+  videos draw and what the browser animates cannot drift apart.</p>
+  ${blobStrips}
+
+  <h3>Blobert on the five block colours</h3>
+  <p class="lede">On a block-colour card he is filled cream or white, never the card's own colour.</p>
+  ${blobOnBlocks}
+
+  <h3>His timing</h3>
+  <div class="sheet"><ul>${seqRow}<li>The wave overlaps the tail of the gag by 120 ms, which is what
+  brings the whole miss under 900 ms.</li></ul></div>
 
   <h3>Using it</h3>
   <div class="sheet">

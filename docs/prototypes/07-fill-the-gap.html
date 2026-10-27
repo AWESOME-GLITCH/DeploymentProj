@@ -1,0 +1,961 @@
+<!doctype html>
+<html lang="en-GB" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Fill the gap - Learning Path prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  /* ---------- tokens (board brief, 26 Oct) ---------- */
+  :root {
+    --sun: #FFD93D;
+    --lilac: #CDB8FF;
+    --tangerine: #FF5A2D;
+    --mint: #A8F0C6;
+    --sky: #BFE3FF;
+    --ink: #121212;
+    --cream: #FFF7E8;
+    --paper: #FFFFFF;
+
+    --page: var(--cream);
+    --on-page: var(--ink);
+    --chip: var(--paper);
+    --on-chip: var(--ink);
+    --line: var(--ink);
+
+    --spring: cubic-bezier(.34, 1.56, .64, 1);
+    --r-card: 28px;
+  }
+
+  [data-theme="dark"] {
+    --page: #121212;
+    --on-page: var(--cream);
+    --chip: #1E1E1E;
+    --on-chip: var(--cream);
+    --line: var(--cream);
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body { margin: 0; height: 100%; overflow: hidden; }
+
+  body {
+    background: var(--page);
+    color: var(--on-page);
+    font-family: "Plus Jakarta Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 240ms ease, color 240ms ease;
+  }
+
+  /* ---------- phone frame ---------- */
+  .phone {
+    position: relative;
+    width: 390px;
+    height: 844px;
+    max-height: 100dvh;
+    overflow: hidden;
+    background: var(--page);
+    display: flex;
+    flex-direction: column;
+    padding: 18px 20px 22px;
+    transition: background 240ms ease;
+  }
+
+  /* ---------- top: one thick progress bar and the theme toggle ---------- */
+  .top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    height: 44px;
+    flex: 0 0 auto;
+  }
+
+  .bar {
+    flex: 1 1 auto;
+    height: 16px;
+    border-radius: 99px;
+    border: 3px solid var(--line);
+    overflow: hidden;
+  }
+
+  .bar i {
+    display: block;
+    height: 100%;
+    background: var(--line);
+    border-radius: 99px;
+    transform-origin: left;
+    transform: scaleX(.08);
+    transition: transform 340ms var(--spring);
+  }
+
+  .toggle {
+    appearance: none;
+    border: 3px solid var(--line);
+    background: transparent;
+    color: var(--on-page);
+    width: 48px;
+    height: 44px;
+    border-radius: 99px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex: 0 0 auto;
+    transition: transform 220ms var(--spring);
+  }
+
+  .toggle:active { transform: scale(.92); }
+  .toggle svg { width: 19px; height: 19px; display: block; }
+  [data-theme="light"] .toggle .moon { display: block; }
+  [data-theme="light"] .toggle .sun-i { display: none; }
+  [data-theme="dark"] .toggle .moon { display: none; }
+  [data-theme="dark"] .toggle .sun-i { display: block; }
+
+  /* ---------- headline and the one instruction line ---------- */
+  .head { flex: 0 0 auto; margin-top: 12px; }
+
+  h1 {
+    font-size: 34px;
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -.02em;
+    margin: 0;
+  }
+
+  .sub {
+    margin: 6px 0 0;
+    font-size: 16px;
+    font-weight: 600;
+    opacity: .74;
+    min-height: 22px;
+  }
+
+  /* ---------- the cafe card: one line with a gap, and Leo ---------- */
+  .card {
+    position: relative;
+    flex: 0 0 auto;
+    height: 480px;
+    margin-top: 16px;
+    border-radius: var(--r-card);
+    border: 3px solid var(--ink);
+    background: var(--lilac);
+    color: var(--ink);
+    padding: 26px 24px;
+    overflow: hidden;
+    animation: pop 380ms var(--spring) backwards;
+  }
+
+  @keyframes pop {
+    0% { opacity: 0; transform: translateY(14px) scale(.95) }
+    70% { opacity: 1; transform: translateY(0) scale(1.03) }
+    100% { opacity: 1; transform: none }
+  }
+
+  .sentence {
+    margin: 0;
+    padding-right: 58px;
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1.5;
+    letter-spacing: -.02em;
+  }
+
+  .sentence .w { white-space: nowrap; }
+
+  .gap {
+    display: inline-block;
+    vertical-align: -9px;
+    min-width: 104px;
+    height: 46px;
+    padding: 0 10px;
+    border-radius: 16px;
+    border: 3px dashed var(--ink);
+    background: transparent;
+    text-align: center;
+    line-height: 40px;
+    transition: background 200ms ease, border-color 200ms ease;
+  }
+
+  .gap.filled {
+    border-style: solid;
+    background: var(--cream);
+    animation: land 320ms var(--spring);
+  }
+
+  @keyframes land {
+    0% { transform: scale(1.14) }
+    100% { transform: scale(1) }
+  }
+
+  .gap b { font-weight: 800; }
+
+  /* Leo stands on the card's baseline, holding a tray */
+  .leo {
+    position: absolute;
+    left: -14px;
+    bottom: -6px;
+    width: 179px;
+    height: 250px;
+    pointer-events: none;
+  }
+
+  .leo svg { width: 100%; height: 100%; display: block; }
+
+  .sway { animation: sway 3s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+  @keyframes sway { 0%, 100% { transform: rotate(-1.1deg) } 50% { transform: rotate(1.1deg) translateY(-2px) } }
+
+  .twinkle { animation: twinkle 4s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 50%; }
+  .twinkle.b { animation-delay: 1.4s; }
+  @keyframes twinkle { 0%, 100% { opacity: 1; transform: scale(1) } 50% { opacity: .72; transform: scale(1.18) } }
+
+  /* hear it again: one small secondary control, top right of the card */
+  .hear {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 48px;
+    height: 48px;
+    border: 0;
+    border-radius: 99px;
+    background: var(--ink);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 220ms var(--spring);
+  }
+
+  .hear:active { transform: scale(.93); }
+  .hear svg { width: 22px; height: 22px; }
+  .hear[hidden] { display: none; }
+
+  /* ---------- the word chips ---------- */
+  .chips {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 0;
+  }
+
+  .chip {
+    appearance: none;
+    font-family: inherit;
+    flex: 1 1 0;
+    min-width: 0;
+    height: 76px;
+    border: 3px solid var(--line);
+    border-radius: 99px;
+    background: var(--chip);
+    color: var(--on-chip);
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -.01em;
+    cursor: pointer;
+    animation: pop 340ms var(--spring) backwards;
+    transition: transform 260ms var(--spring), opacity 200ms ease;
+  }
+
+  .chip:nth-child(1) { animation-delay: 60ms; }
+  .chip:nth-child(2) { animation-delay: 120ms; }
+  .chip:nth-child(3) { animation-delay: 180ms; }
+  .chip:active { transform: scale(.95); }
+
+  @media (hover: hover) { .chip:hover { transform: translateY(-3px); } }
+
+  .chip.taken { opacity: 0; transform: scale(.9); }
+
+  /* the chip flies to the gap: a clone, so the row does not jump */
+  .flyer {
+    position: absolute;
+    margin: 0;
+    border: 3px solid var(--ink);
+    border-radius: 99px;
+    background: var(--cream);
+    color: var(--ink);
+    font-size: 20px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 6;
+    pointer-events: none;
+    transition: transform 340ms var(--spring), width 340ms var(--spring), height 340ms var(--spring), font-size 340ms ease;
+  }
+
+  /* ---------- Blobert: he handles every mistake ---------- */
+  .blobert {
+    position: absolute;
+    right: -34px;
+    bottom: 8px;
+    width: 286px;
+    height: 156px;
+    z-index: 5;
+    pointer-events: none;
+    display: none;
+    transform: translateX(260px);
+  }
+
+  .blobert.show { display: block; }
+  .blobert svg { width: 100%; height: 100%; display: block; overflow: visible; }
+
+  .blobert.in { animation: bl-in 200ms var(--spring) forwards; }
+  .blobert.look { transform: translateX(0) rotate(-5deg); transition: transform 120ms ease-out; }
+  .blobert.out { animation: bl-out 150ms ease-in forwards; }
+
+  @keyframes bl-in {
+    0% { transform: translateX(260px) rotate(8deg) }
+    65% { transform: translateX(-12px) rotate(-4deg) }
+    100% { transform: translateX(0) rotate(0) }
+  }
+
+  @keyframes bl-out {
+    0% { transform: translateX(0) }
+    100% { transform: translateX(260px) rotate(7deg) }
+  }
+
+  .bl-wobble { animation: bl-wobble 3.2s ease-in-out infinite; }
+  @keyframes bl-wobble { 0%, 100% { transform: scale(1, 1) } 50% { transform: scale(1.03, .98) } }
+
+  .bl-mouth-open, .bl-sound, .tool { display: none; }
+  .blobert[data-gag="eat"] .bl-mouth-open { display: block; }
+  .blobert[data-gag="eat"] .bl-mouth-rest { display: none; }
+
+  .blobert[data-gag="sweep"] .t-broom,
+  .blobert[data-gag="mop"] .t-mop,
+  .blobert[data-gag="bin"] .t-bin,
+  .blobert[data-gag="vacuum"] .t-vac,
+  .blobert[data-gag="crane"] .t-crane { display: block; }
+
+  /* the gag: 360 ms, measured in the console */
+  .blobert[data-gag="sweep"] .swing { animation: swing 360ms ease-in-out; }
+  @keyframes swing { 0% { transform: rotate(26deg) } 50% { transform: rotate(-16deg) } 100% { transform: rotate(10deg) } }
+
+  .blobert[data-gag="mop"] .swing { animation: mopping 360ms ease-in-out; }
+  @keyframes mopping { 0% { transform: rotate(14deg) } 35% { transform: rotate(-8deg) } 70% { transform: rotate(10deg) } 100% { transform: rotate(0) } }
+
+  .blobert[data-gag="eat"] .bl-wobble { animation: chomp 360ms ease-in-out; }
+  @keyframes chomp {
+    0% { transform: scale(1, 1) }
+    35% { transform: scale(1.1, .9) }
+    65% { transform: scale(.92, 1.1) }
+    100% { transform: scale(1, 1) }
+  }
+
+  .blobert[data-gag="bin"] .lid { animation: lid 360ms var(--spring); }
+  @keyframes lid { 0% { transform: rotate(0) } 40% { transform: rotate(-38deg) translateY(-6px) } 100% { transform: rotate(0) } }
+
+  .blobert[data-gag="vacuum"] .swing { animation: suck 360ms ease-out; }
+  @keyframes suck { 0% { transform: rotate(0) } 50% { transform: rotate(-7deg) } 100% { transform: rotate(0) } }
+
+  .blobert[data-gag="vacuum"] .bl-wobble { animation: sneeze 360ms ease-out 240ms; }
+  @keyframes sneeze {
+    0% { transform: translateX(0) }
+    40% { transform: translateX(16px) scale(.94, 1.06) }
+    100% { transform: translateX(0) }
+  }
+
+  .blobert[data-gag="crane"] .hook { animation: hook 360ms ease-in-out; }
+  @keyframes hook { 0% { transform: translateY(44px) } 45% { transform: translateY(44px) } 100% { transform: translateY(0) } }
+
+  .blobert.wave .bl-arm-r { animation: wave 160ms ease-in-out 2; transform-box: fill-box; transform-origin: 10% 20%; }
+  @keyframes wave { 0%, 100% { transform: rotate(0) } 50% { transform: rotate(-6deg) } }
+
+  /* his sounds are stickers, never words */
+  .blobert[data-gag="eat"] .s-star,
+  .blobert[data-gag="vacuum"] .s-puff,
+  .blobert[data-gag="sweep"] .s-spark,
+  .blobert[data-gag="mop"] .s-spark,
+  .blobert[data-gag="bin"] .s-spark,
+  .blobert[data-gag="crane"] .s-spark { display: block; animation: sound 420ms var(--spring) 180ms backwards; }
+
+  @keyframes sound {
+    0% { opacity: 0; transform: scale(.2) translateY(10px) }
+    100% { opacity: 1; transform: scale(1) translateY(0) }
+  }
+
+  /* what the cleared chip does, one per gag, 360 ms */
+  .chip.g-sweep { animation: g-sweep 360ms ease-in forwards; }
+  @keyframes g-sweep { to { transform: translate(-260px, 6px) rotate(-20deg); opacity: 0 } }
+
+  .chip.g-eat { animation: g-eat 360ms ease-in forwards; }
+  @keyframes g-eat { to { transform: translate(150px, -14px) scale(.15); opacity: 0 } }
+
+  .chip.g-mop { animation: g-mop 360ms ease-in forwards; }
+  @keyframes g-mop { 60% { transform: scaleY(.08) translateY(32px); opacity: 1 } to { transform: scaleY(.08) translateY(32px); opacity: 0 } }
+
+  .chip.g-bin { animation: g-bin 360ms ease-in forwards; }
+  @keyframes g-bin { to { transform: translate(90px, 70px) rotate(14deg) scale(.5); opacity: 0 } }
+
+  .chip.g-vacuum { animation: g-vac 360ms ease-in forwards; }
+  @keyframes g-vac { to { transform: translateX(180px) scaleX(.12); opacity: 0 } }
+
+  .chip.g-crane { animation: g-crane 360ms ease-in forwards; }
+  @keyframes g-crane { to { transform: translate(40px, -300px) rotate(8deg); opacity: 0 } }
+
+  /* the mop leaves a puddle that evaporates */
+  .puddle {
+    position: absolute;
+    width: 104px;
+    height: 26px;
+    z-index: 4;
+    pointer-events: none;
+    display: none;
+  }
+
+  .puddle.go { display: block; animation: puddle 620ms ease-out 200ms forwards; }
+  @keyframes puddle {
+    0% { opacity: 0; transform: scaleX(.4) }
+    30% { opacity: 1; transform: scaleX(1) }
+    100% { opacity: 0; transform: scaleX(1) scaleY(.4) }
+  }
+
+  /* ---------- reward sticker by the gap ---------- */
+  .pop-sticker {
+    position: absolute;
+    width: 52px;
+    height: 52px;
+    z-index: 4;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .pop-sticker.go { animation: stick 420ms var(--spring) forwards; }
+  @keyframes stick {
+    0% { opacity: 0; transform: scale(.2) rotate(-26deg) }
+    100% { opacity: 1; transform: scale(1) rotate(0) }
+  }
+
+  /* ---------- focus ---------- */
+  :focus { outline: none; }
+  :focus-visible { outline: none; box-shadow: 0 0 0 3px var(--cream), 0 0 0 7px var(--ink); }
+
+  /* ---------- the you-can-now card ---------- */
+  .done {
+    position: absolute;
+    inset: 74px 20px 22px;
+    border-radius: var(--r-card);
+    border: 3px solid var(--ink);
+    background: var(--mint);
+    color: var(--ink);
+    padding: 28px 24px 22px;
+    display: none;
+    flex-direction: column;
+    z-index: 7;
+  }
+
+  .done.show { display: flex; animation: pop 380ms var(--spring) both; }
+
+  .done h2 {
+    font-size: 34px;
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -.02em;
+    margin: 0;
+  }
+
+  .done p { margin: 8px 0 0; font-size: 16px; font-weight: 600; opacity: .78; }
+  .done-art { flex: 1 1 auto; min-height: 0; display: flex; justify-content: center; margin: 6px 0 14px; }
+  .done-art svg { height: 100%; width: auto; display: block; }
+
+  .pill {
+    appearance: none;
+    border: 0;
+    width: 100%;
+    height: 56px;
+    border-radius: 99px;
+    background: var(--ink);
+    color: #fff;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    cursor: pointer;
+    flex: 0 0 auto;
+    transition: transform 220ms var(--spring);
+  }
+
+  .pill:active { transform: scale(.95); }
+
+  .is-done .head, .is-done .card, .is-done .chips, .is-done .top { visibility: hidden; }
+
+  .sr {
+    position: absolute;
+    width: 1px; height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; }
+    .card, .chip, .gap { opacity: 1 !important; transform: none !important; }
+    .blobert.in, .blobert.out { animation: none; }
+    .blobert.show { transform: none; opacity: 1; }
+  }
+</style>
+</head>
+<body>
+<div class="phone" id="phone">
+
+  <div class="top">
+    <div class="bar" id="bar" role="img" aria-label="Round 1 of 3"><i id="barFill"></i></div>
+    <button class="toggle" id="themeBtn" type="button" aria-label="Switch to dark mode">
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20 14.5A8.2 8.2 0 0 1 9.6 4 8.4 8.4 0 1 0 20 14.5Z" />
+      </svg>
+      <svg class="sun-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="4.4" />
+        <path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6" />
+      </svg>
+    </button>
+  </div>
+
+  <div class="head">
+    <h1>Fill the gap</h1>
+    <p class="sub" id="sub">Tap the missing word.</p>
+  </div>
+
+  <section class="card" id="card" aria-label="The line to finish">
+    <p class="sentence" id="sentence"></p>
+
+    <div class="leo">
+      <svg viewBox="0 0 200 280" preserveAspectRatio="xMidYMax meet" role="img">
+        <title>Leo the barista, holding a tray with a cup</title>
+        <g class="sway"><!--LEO_HOLD--></g>
+      </svg>
+    </div>
+
+    <button class="hear" id="hearBtn" type="button" aria-label="Hear the line again">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 9.5h3.5L13 5v14L7.5 14.5H4z" />
+        <path d="M17 9.2q2.4 2.8 0 5.6" />
+      </svg>
+    </button>
+  </section>
+
+  <div class="chips" id="chips" role="group" aria-label="Pick the missing word"></div>
+
+  <!-- Blobert, the only thing that handles a mistake -->
+  <div class="blobert" id="blobert" aria-hidden="true">
+    <svg viewBox="-104 -6 400 174">
+      <g fill="none" stroke="#121212" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+
+        <!-- the tool he carries, one at a time, swung from his hand at (8 126) -->
+        <g transform="translate(8 126)"><g class="swing"><g transform="translate(-8 -126)">
+          <g class="tool t-broom">
+            <path d="M7.84 126.05 L-54.25 59.91" stroke-width="7" />
+            <path d="M-45.72 46.54 L-27.22 29.32 L-53.91 4.93 L-71.08 20.67 Z" fill="var(--cream)" />
+            <path d="M-59.97 40.69 L-69.22 30.11 M-52.66 33.65 L-62.25 24.57 M-44.76 27.79 L-54.79 17.70" stroke-width="2.6" />
+          </g>
+          <g class="tool t-mop">
+            <path d="M8.29 125.45 L-46.35 66.45" stroke-width="7" />
+            <path d="M-33.62 43.24 Q-31.02 48.00 -33.78 52.69 Q-36.54 57.39 -40.77 60.54 Q-45.00 63.69 -50.19 64.85 Q-55.38 66.00 -61.47 67.49 Q-67.55 68.99 -71.80 65.16 Q-76.06 61.33 -77.46 56.81 Q-78.86 52.28 -81.41 47.48 Q-83.96 42.67 -80.80 38.08 Q-77.65 33.50 -71.77 32.08 Q-65.89 30.66 -60.59 29.99 Q-55.28 29.32 -49.19 29.67 Q-43.11 30.02 -39.66 34.25 Q-36.22 38.47 -33.62 43.24 Z" fill="var(--cream)" />
+          </g>
+          <g class="tool t-vac">
+            <path d="M-8.57 92.72 Q-8.61 100.00 -8.99 107.09 Q-9.38 114.18 -14.60 119.99 Q-19.82 125.79 -27.85 127.91 Q-35.87 130.02 -44.27 129.76 Q-52.68 129.49 -59.76 125.24 Q-66.84 120.98 -70.25 114.15 Q-73.67 107.32 -74.03 99.92 Q-74.39 92.52 -69.21 86.87 Q-64.02 81.22 -57.85 77.03 Q-51.68 72.83 -43.96 72.73 Q-36.23 72.64 -28.50 74.02 Q-20.76 75.41 -14.65 80.42 Q-8.54 85.43 -8.57 92.72 Z" fill="var(--cream)" />
+            <path d="M7.28 124.50 C-8.82 111.34 -14.04 106.43 -20.71 95.26" stroke-width="6" />
+            <path d="M-14.01 75.18 L9.91 96.23 L-3.54 111.12 L-25.63 91.33 Z" fill="var(--cream)" />
+          </g>
+        </g></g></g>
+
+        <!-- the bin and the crane stand on the floor, so they do not swing -->
+        <g class="tool t-bin">
+          <path d="M-70.35 55.47 L-13.99 56.91 L-19.61 134.33 L-63.02 133.27 Z" fill="var(--cream)" />
+          <path d="M-58.22 65.48 L-61.54 123.67 M-42.06 66.50 L-42.26 123.71 M-26.04 66.80 L-23.76 123.39" stroke-width="2.6" />
+          <g class="lid" style="transform-origin: -76px 45px">
+            <path d="M-77.51 49.37 L-6.63 49.91 L-8.12 40.48 L-75.73 39.43 Z" fill="var(--cream)" />
+          </g>
+        </g>
+
+        <g class="tool t-crane">
+          <path d="M-20.01 150.68 L-19.30 29.89 L-77.98 30.24" stroke-width="7" />
+          <path d="M-40.40 150.64 L0.36 150.38" stroke-width="7" />
+          <g class="hook">
+            <path d="M-77.40 29.90 L-78.10 75.73" stroke-width="2.6" />
+            <path d="M-86.11 76.59 Q-78.13 93.73 -70.19 75.87" stroke-width="5" />
+          </g>
+        </g>
+
+        <!-- Blobert himself -->
+        <g transform="translate(100 156)"><g class="bl-wobble"><g transform="translate(-100 -156)">
+          <path d="M22.91 116.61 C15.84 67.41 53.97 33.82 99.69 33.86 C145.08 33.05 182.83 65.60 174.62 115.80 C173.34 147.41 142.43 155.40 98.65 155.89 C59.43 156.58 27.31 144.62 24.45 116.93 Z" fill="var(--lilac)" />
+          <path d="M60.69 66.37 Q71.56 57.58 83.49 63.42" stroke-width="2.8" />
+          <path d="M115.86 64.09 Q127.36 58.14 139.50 65.73" stroke-width="2.8" />
+          <circle cx="72" cy="88" r="6" fill="#121212" stroke="none" />
+          <circle cx="128" cy="88" r="6" fill="#121212" stroke="none" />
+          <path class="bl-mouth-rest" d="M77.75 112.16 Q99.86 127.46 122.34 112.48" stroke-width="3.4" />
+          <path class="bl-mouth-open" d="M124.20 112.47 Q124.84 118.00 122.77 122.86 Q120.69 127.72 116.14 132.13 Q111.59 136.54 103.99 136.46 Q96.38 136.39 89.57 134.46 Q82.77 132.53 78.48 128.04 Q74.20 123.54 75.31 118.24 Q76.41 112.94 79.92 108.48 Q83.43 104.03 89.75 101.04 Q96.08 98.06 103.31 99.60 Q110.54 101.13 117.05 104.03 Q123.56 106.93 124.20 112.47 Z" fill="#121212" />
+          <path d="M36.66 104.20 Q14.41 110.57 7.70 126.07" stroke-width="15" />
+          <path d="M36.66 104.20 Q14.41 110.57 7.70 126.07" stroke="var(--lilac)" stroke-width="9" />
+          <path class="bl-arm-r" d="M164.23 103.45 Q186.52 109.44 191.84 125.24" stroke-width="15" />
+          <path class="bl-arm-r" d="M164.23 103.45 Q186.52 109.44 191.84 125.24" stroke="var(--lilac)" stroke-width="9" />
+          <path d="M17.38 125.31 Q18.39 128.00 17.52 130.78 Q16.66 133.56 14.47 135.48 Q12.29 137.39 9.29 138.62 Q6.30 139.85 3.55 138.08 Q0.80 136.31 -0.98 133.73 Q-2.76 131.16 -2.56 128.06 Q-2.35 124.96 -0.97 122.10 Q0.41 119.24 3.46 118.45 Q6.52 117.67 9.62 117.67 Q12.72 117.67 14.55 120.15 Q16.38 122.62 17.38 125.31 Z" fill="var(--lilac)" />
+          <path d="M201.79 125.14 Q202.67 128.00 201.88 130.92 Q201.09 133.84 198.87 136.01 Q196.65 138.18 193.46 139.09 Q190.27 140.00 187.84 137.80 Q185.41 135.61 183.84 133.23 Q182.28 130.85 181.44 127.75 Q180.61 124.66 182.33 121.74 Q184.05 118.83 187.26 118.08 Q190.47 117.33 193.57 117.55 Q196.67 117.78 198.79 120.03 Q200.91 122.27 201.79 125.14 Z" fill="var(--lilac)" />
+        </g></g></g>
+
+        <!-- his sounds, drawn not spelled -->
+        <g class="bl-sound s-star" transform="translate(150 6) scale(1.5)">
+          <path d="M12.05 1.15 L14.71 9.70 L23.47 12.14 L14.57 14.81 L12.14 23.44 L9.28 14.47 L1.04 12.14 L9.16 9.55 Z" fill="#121212" stroke="none" />
+        </g>
+        <g class="bl-sound s-spark" transform="translate(152 4) scale(1.4)">
+          <path d="M10.72 2.58 L12.65 9.47 L18.77 11.25 L12.21 12.30 L10.96 18.75 L9.27 12.31 L2.72 11.28 L9.26 9.32 Z" fill="#121212" stroke="none" />
+          <circle cx="19.5" cy="18.5" r="2.1" fill="#121212" stroke="none" />
+          <circle cx="4.5" cy="20" r="1.4" fill="#121212" stroke="none" />
+        </g>
+        <g class="bl-sound s-puff" transform="translate(42 30)">
+          <path d="M20.06 -4.99 Q21.11 0.00 19.68 4.80 Q18.25 9.60 13.56 12.74 Q8.87 15.89 3.03 15.94 Q-2.81 15.98 -7.94 14.16 Q-13.07 12.34 -17.14 8.72 Q-21.21 5.09 -21.75 -0.13 Q-22.30 -5.36 -18.17 -9.31 Q-14.04 -13.26 -8.54 -15.26 Q-3.03 -17.25 3.58 -17.75 Q10.19 -18.26 14.59 -14.12 Q19.00 -9.99 20.06 -4.99 Z" fill="var(--cream)" />
+        </g>
+      </g>
+    </svg>
+  </div>
+
+  <!-- the mop gag leaves a puddle, placed over the chip it cleared -->
+  <svg class="puddle" id="puddle" viewBox="-52 -13 104 26" aria-hidden="true">
+    <path d="M44.84 -3.08 Q48.21 0.00 44.62 3.04 Q41.03 6.09 32.91 8.12 Q24.79 10.15 15.29 11.81 Q5.79 13.48 -5.09 12.69 Q-15.97 11.90 -25.77 10.40 Q-35.57 8.91 -40.36 6.03 Q-45.14 3.14 -45.54 -0.03 Q-45.93 -3.20 -39.78 -5.81 Q-33.62 -8.42 -25.38 -10.59 Q-17.13 -12.76 -5.68 -13.10 Q5.78 -13.44 15.58 -11.92 Q25.39 -10.40 33.43 -8.27 Q41.48 -6.15 44.84 -3.08 Z"
+      fill="var(--line)" opacity=".28" />
+  </svg>
+
+  <svg class="pop-sticker" id="popSticker" viewBox="0 0 48 48" aria-hidden="true"><use href=""></use></svg>
+
+  <section class="done" id="done" aria-hidden="true">
+    <h2>You can now ask politely</h2>
+    <p>Could I have a tea, please? Three for three.</p>
+    <div class="done-art">
+      <svg viewBox="0 0 200 280" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+        <g class="sway"><!--LEO_CELEBRATE--></g>
+      </svg>
+    </div>
+    <button class="pill" id="againBtn" type="button">Again <span aria-hidden="true">&raquo;</span></button>
+  </section>
+
+  <p class="sr" id="live" role="status" aria-live="polite"></p>
+</div>
+
+<!-- six reward stickers: never the same one twice in a row -->
+<svg style="display:none" aria-hidden="true">
+  <symbol id="st-0" viewBox="0 0 48 48"><path d="M24 2 l6 14 14 6 -14 6 -6 14 -6-14 -14-6 14-6 z" fill="#121212" /></symbol>
+  <symbol id="st-1" viewBox="0 0 48 48"><path d="M24 42 C8 30 4 22 8 15 q7-11 16 1 q9-12 16-1 q4 7-16 27 z" fill="#121212" /></symbol>
+  <symbol id="st-2" viewBox="0 0 48 48"><g fill="#121212"><path d="M18 4 l4 9 9 4 -9 4 -4 9 -4-9 -9-4 9-4 z" /><path d="M36 24 l3 6 6 3 -6 3 -3 6 -3-6 -6-3 6-3 z" /></g></symbol>
+  <symbol id="st-3" viewBox="0 0 48 48"><path d="M24 7 v34 M9 15.5 l30 17 M39 15.5 l-30 17" fill="none" stroke="#121212" stroke-width="6" stroke-linecap="round" /></symbol>
+  <symbol id="st-4" viewBox="0 0 48 48"><path d="M24 3 l5 10 10-5 -4 11 11 5 -11 5 4 11 -10-5 -5 10 -5-10 -10 5 4-11 -11-5 11-5 -4-11 10 5 z" fill="#121212" /></symbol>
+  <symbol id="st-5" viewBox="0 0 48 48"><g fill="none" stroke="#121212" stroke-width="5.5" stroke-linecap="round"><path d="M10 32 q8-16 16-9" /><path d="M22 38 q10-18 18-10" /></g></symbol>
+</svg>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- content: three rounds of one polite ask ---------- */
+  var ROUNDS = [
+    { before: ["Could", "I"], after: ["a", "tea,", "please?"], answer: "have", chips: ["have", "want", "like"] },
+    { before: [], after: ["I", "have", "a", "coffee,", "please?"], answer: "Could", chips: ["Could", "Will", "Do"] },
+    { before: ["Could", "I", "have", "a", "tea,"], after: [], answer: "please?", chips: ["now?", "please?", "thanks?"] }
+  ];
+
+  var GAGS = ["sweep", "eat", "mop", "bin", "vacuum", "crane"];
+
+  var phone = document.getElementById("phone");
+  var sentence = document.getElementById("sentence");
+  var chips = document.getElementById("chips");
+  var barFill = document.getElementById("barFill");
+  var bar = document.getElementById("bar");
+  var sub = document.getElementById("sub");
+  var live = document.getElementById("live");
+  var done = document.getElementById("done");
+  var blobert = document.getElementById("blobert");
+  var puddle = document.getElementById("puddle");
+  var popSticker = document.getElementById("popSticker");
+  var hearBtn = document.getElementById("hearBtn");
+
+  var round = 0;
+  var locked = false;
+  var lastGag = -1;
+  var lastSticker = -1;
+  var gapEl = null;
+  var timers = [];
+
+  var synth = window.speechSynthesis || null;
+  var canSpeak = !!(synth && window.SpeechSynthesisUtterance);
+  var voice = null;
+
+  function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
+  function clearLater() { timers.forEach(clearTimeout); timers = []; }
+
+  /* ---------- speech: the line is read out, the words are always on screen ---------- */
+  function pickVoice() {
+    if (!canSpeak) return;
+    var list = synth.getVoices() || [];
+    voice = list.filter(function (v) { return /en[-_]GB/i.test(v.lang); })[0] ||
+            list.filter(function (v) { return /^en/i.test(v.lang); })[0] || null;
+  }
+
+  if (canSpeak) {
+    pickVoice();
+    synth.addEventListener("voiceschanged", pickVoice);
+  } else {
+    hearBtn.hidden = true;
+  }
+
+  function fullLine(r) {
+    return r.before.concat([r.answer], r.after).join(" ");
+  }
+
+  function speak(rate) {
+    if (!canSpeak) return;
+    var text = fullLine(ROUNDS[round]);
+    try { synth.cancel(); } catch (e) {}
+    var u = new window.SpeechSynthesisUtterance(text);
+    u.lang = "en-GB";
+    if (voice) u.voice = voice;
+    u.rate = rate || 1;
+    u.pitch = 1.04;
+    u.onerror = function () { hearBtn.hidden = true; };
+    try { synth.speak(u); } catch (e) { hearBtn.hidden = true; }
+  }
+
+  /* ---------- the board ---------- */
+  function paintBar() {
+    var n = Math.min(round, ROUNDS.length);
+    barFill.style.transform = "scaleX(" + Math.max(0.08, n / ROUNDS.length) + ")";
+    bar.setAttribute("aria-label", "Round " + Math.min(round + 1, ROUNDS.length) + " of " + ROUNDS.length);
+  }
+
+  function word(w) {
+    var s = document.createElement("span");
+    s.className = "w";
+    s.textContent = w;
+    return s;
+  }
+
+  function buildSentence() {
+    var r = ROUNDS[round];
+    sentence.textContent = "";
+    r.before.forEach(function (w) { sentence.appendChild(word(w)); sentence.appendChild(document.createTextNode(" ")); });
+    gapEl = document.createElement("span");
+    gapEl.className = "gap";
+    gapEl.id = "gap";
+    gapEl.setAttribute("aria-label", "the missing word");
+    sentence.appendChild(gapEl);
+    r.after.forEach(function (w) { sentence.appendChild(document.createTextNode(" ")); sentence.appendChild(word(w)); });
+    sentence.setAttribute("aria-label", r.before.concat(["blank"], r.after).join(" "));
+  }
+
+  function buildChips() {
+    chips.textContent = "";
+    ROUNDS[round].chips.forEach(function (w) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "chip";
+      b.textContent = w;
+      b.addEventListener("click", function () { choose(b, w); });
+      chips.appendChild(b);
+    });
+  }
+
+  function chipList() { return Array.prototype.slice.call(chips.querySelectorAll(".chip")); }
+
+  /* ---------- the right chip springs into the gap ---------- */
+  function flyIntoGap(chip, w) {
+    var from = chip.getBoundingClientRect();
+    var to = gapEl.getBoundingClientRect();
+    var box = phone.getBoundingClientRect();
+
+    var fly = document.createElement("p");
+    fly.className = "flyer";
+    fly.textContent = w;
+    fly.style.left = (from.left - box.left) + "px";
+    fly.style.top = (from.top - box.top) + "px";
+    fly.style.width = from.width + "px";
+    fly.style.height = from.height + "px";
+    phone.appendChild(fly);
+    chip.classList.add("taken");
+
+    var dx = to.left - from.left + (to.width - from.width) / 2;
+    var dy = to.top - from.top + (to.height - from.height) / 2;
+
+    requestAnimationFrame(function () {
+      fly.style.transform = "translate(" + dx + "px," + dy + "px)";
+      fly.style.width = to.width + "px";
+      fly.style.height = to.height + "px";
+      fly.style.fontSize = "30px";
+    });
+
+    later(function () {
+      gapEl.classList.add("filled");
+      gapEl.innerHTML = "<b></b>";
+      gapEl.querySelector("b").textContent = w;
+      fly.remove();
+      popReward();
+      speak(1);
+    }, 340);
+  }
+
+  function popReward() {
+    var i = Math.floor(Math.random() * 6);
+    if (i === lastSticker) i = (i + 1 + Math.floor(Math.random() * 5)) % 6;
+    lastSticker = i;
+    var g = gapEl.getBoundingClientRect();
+    var box = phone.getBoundingClientRect();
+    popSticker.querySelector("use").setAttribute("href", "#st-" + i);
+    popSticker.style.left = (g.right - box.left - 18) + "px";
+    popSticker.style.top = (g.top - box.top - 34) + "px";
+    popSticker.classList.remove("go");
+    void popSticker.offsetWidth;
+    popSticker.classList.add("go");
+  }
+
+  /* ---------- Blobert clears a wrong chip, one gag, never twice in a row ---------- */
+  function blobertClears(chip) {
+    var i = Math.floor(Math.random() * GAGS.length);
+    if (i === lastGag) i = (i + 1 + Math.floor(Math.random() * (GAGS.length - 1))) % GAGS.length;
+    lastGag = i;
+    var gag = GAGS[i];
+    var t0 = performance.now();
+
+    blobert.dataset.gag = "";
+    blobert.className = "blobert show";
+    void blobert.offsetWidth;
+    blobert.classList.add("in");
+
+    later(function () {                       // 200 ms: he looks at the wrong chip
+      blobert.classList.remove("in");
+      blobert.classList.add("look");
+    }, 200);
+
+    later(function () {                       // 300 ms: the gag, 360 ms
+      blobert.dataset.gag = gag;
+      chip.classList.add("g-" + gag);
+      if (gag === "mop") {
+        var c = chip.getBoundingClientRect();
+        var box = phone.getBoundingClientRect();
+        puddle.style.left = (c.left - box.left + c.width / 2 - 52) + "px";
+        puddle.style.top = (c.bottom - box.top - 20) + "px";
+        puddle.classList.remove("go");
+        void puddle.offsetWidth;
+        puddle.classList.add("go");
+      }
+    }, 300);
+
+    later(function () { blobert.classList.add("wave"); }, 580);
+
+    later(function () {                       // 740 ms: he slides out
+      blobert.classList.remove("look", "wave");
+      blobert.classList.add("out");
+    }, 740);
+
+    later(function () {
+      blobert.className = "blobert";
+      blobert.dataset.gag = "";
+      chip.remove();
+      if (window.console) console.log("Blobert gag " + gag + ": " + Math.round(performance.now() - t0) + " ms");
+    }, 890);
+
+    /* then the calm correction: the line again, slower */
+    later(function () {
+      sub.textContent = "Listen again, then try another word.";
+      speak(0.75);
+      locked = false;
+    }, 950);
+  }
+
+  /* ---------- a turn ---------- */
+  function choose(chip, w) {
+    if (locked) return;
+    locked = true;
+
+    if (w !== ROUNDS[round].answer) {
+      live.textContent = "Not that one. Blobert is clearing it.";
+      blobertClears(chip);
+      return;
+    }
+
+    chipList().forEach(function (c) { if (c !== chip) c.classList.add("taken"); });
+    sub.textContent = "Yes. That is the polite way.";
+    live.textContent = "Yes. " + fullLine(ROUNDS[round]);
+    flyIntoGap(chip, w);
+
+    later(function () {
+      round += 1;
+      if (round >= ROUNDS.length) { finish(); return; }
+      newRound();
+    }, 1800);
+  }
+
+  function newRound() {
+    paintBar();
+    buildSentence();
+    buildChips();
+    popSticker.classList.remove("go");
+    sub.textContent = "Tap the missing word.";
+    locked = false;
+    later(function () { speak(1); }, 420);
+  }
+
+  function finish() {
+    paintBar();
+    phone.classList.add("is-done");
+    done.classList.add("show");
+    done.setAttribute("aria-hidden", "false");
+    live.textContent = "You can now ask politely.";
+    document.getElementById("againBtn").focus();
+  }
+
+  function restart() {
+    clearLater();
+    phone.classList.remove("is-done");
+    done.classList.remove("show");
+    done.setAttribute("aria-hidden", "true");
+    round = 0;
+    newRound();
+  }
+
+  /* ---------- controls ---------- */
+  hearBtn.addEventListener("click", function () { speak(1); });
+  document.getElementById("againBtn").addEventListener("click", restart);
+
+  var themeBtn = document.getElementById("themeBtn");
+  themeBtn.addEventListener("click", function () {
+    var dark = document.documentElement.dataset.theme === "dark";
+    document.documentElement.dataset.theme = dark ? "light" : "dark";
+    themeBtn.setAttribute("aria-label", dark ? "Switch to dark mode" : "Switch to light mode");
+  });
+
+  /* left and right across the chips; Enter and Space come free with buttons */
+  chips.addEventListener("keydown", function (e) {
+    var step = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+    if (!step) return;
+    var list = chipList();
+    var i = list.indexOf(document.activeElement);
+    if (i < 0) return;
+    var n = i + step;
+    if (n < 0 || n >= list.length) return;
+    e.preventDefault();
+    list[n].focus();
+  });
+
+  /* tester hook, same shape as the app */
+  window.addEventListener("lp:auto", function (e) {
+    var right = !(e.detail && e.detail.correct === false);
+    var list = chipList();
+    var want = list.filter(function (c) {
+      return right ? c.textContent === ROUNDS[round].answer : c.textContent !== ROUNDS[round].answer;
+    })[0];
+    if (want) want.click();
+  });
+
+  /* ---------- go ---------- */
+  newRound();
+})();
+</script>
+</body>
+</html>

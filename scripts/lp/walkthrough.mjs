@@ -644,8 +644,55 @@ async function walk(browser, theme) {
 
 /* -------------------------------------------------------------------- main */
 
+/**
+ * One walk at a time in this checkout.
+ *
+ * A second run clears every PNG and report the first one has written so far,
+ * which both destroys the evidence a ticket comment already points at and
+ * leaves a half-and-half report that reads as if one walk produced it. Other
+ * agents run this script directly, not just through run.sh, so the lock has to
+ * live here. Returns a release function.
+ */
+async function acquireOutLock(waitMs = 11 * 60 * 1000) {
+  const lock = path.join(OUT, ".lock");
+  const release = () => { try { fs.rmSync(lock, { recursive: true, force: true }); } catch { /* already gone */ } };
+  const deadline = Date.now() + waitMs;
+  let told = false;
+  for (;;) {
+    try {
+      fs.mkdirSync(lock);
+      fs.writeFileSync(path.join(lock, "pid"), `${process.pid}\n`);
+      return release;
+    } catch (e) {
+      if (e.code !== "EEXIST") throw e;
+    }
+    // A run killed mid-walk leaves the directory behind: treat a dead owner,
+    // or one older than a walk could possibly take, as stale and take over.
+    let stale = false;
+    try {
+      const st = fs.statSync(lock);
+      const owner = Number(fs.readFileSync(path.join(lock, "pid"), "utf8").trim());
+      let alive = false;
+      try { process.kill(owner, 0); alive = true; } catch { alive = false; }
+      stale = !alive || Date.now() - st.mtimeMs > 20 * 60 * 1000;
+    } catch {
+      stale = true; // no readable pid: nothing is claiming it
+    }
+    if (stale) { release(); continue; }
+    if (Date.now() > deadline) {
+      console.error(`[lp] another walk still holds ${lock} after ${Math.round(waitMs / 1000)}s: not starting, so its PNGs survive`);
+      process.exit(4);
+    }
+    if (!told) { console.log(`[lp] another walk is writing ${OUT}, waiting for it to finish`); told = true; }
+    await sleep(3000);
+  }
+}
+
 async function main() {
   fs.mkdirSync(OUT, { recursive: true });
+  const releaseOutLock = await acquireOutLock();
+  for (const sig of ["SIGINT", "SIGTERM"]) process.on(sig, () => { releaseOutLock(); process.exit(130); });
+  process.on("exit", releaseOutLock);
   if (!KEEP) {
     for (const f of fs.readdirSync(OUT)) {
       if (/\.png$/.test(f) || /^report\./.test(f)) fs.rmSync(path.join(OUT, f));

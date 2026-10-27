@@ -58,7 +58,9 @@ decides which rung each beat carries and writes it in the `ask` column.
 | 5 | **say it changed** | Says the line with one new word in it | The practise beat |
 
 Rung 3 is not a step up in difficulty; it is a different thing, a guess before the answer, and it is a
-tap so that it stays tiny. Where a scene has nobody about to say anything (a word tutorial that
+tap so that it stays tiny. Because it is a tap, it can also **be** rung 1: where a scene opens with
+somebody asking the learner a question, the prediction is the right first ask and satisfies rules 2 and
+3 with one beat. `ATM-A2-INT-0012` is cut that way and is the pattern to copy. Where a scene has nobody about to say anything (a word tutorial that
 introduces four nouns, for instance), rung 3 is dropped rather than invented: "where the scene allows"
 is the board's wording and it is meant.
 
@@ -521,7 +523,7 @@ back again, and it is now the two cards the learner has not said yet, so all fou
 | atom_id | ATM-A2-RDG-0006 |
 | title | Metro notices |
 | sublevel / strand | A2.1 / RDG (Reading) |
-| type | word_tutorial, 40 s, 1200 frames |
+| type | word_tutorial, 35 s, 1050 frames (re-cut from 40 s on 26 October) |
 | single target | "No" plus ing means do not do it (No eating or drinking); its opposite on a sign is "allowed" |
 | characters | you, fatima (fellow passenger) |
 | setting | Dubai Metro carriage interior (grey seats, gold rail, windows with passing skyline) and an escalator |
@@ -529,15 +531,21 @@ back again, and it is now the two cards the learner has not said yet, so all fou
 
 ### Beats
 
-| id | kind | from | to | narration (TTS) | targets | pauseAt | scene for the animator |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| hook | hook | 0 | 120 | On the metro. Signs everywhere. | | | Carriage doors slide open; you steps in with a bag. Four small signs pop onto the wall in sequence (a no-food circle, a green tick, an escalator arrow, a seat icon), each with a soft tick sound. you looks up at them. Push in on the first sign. |
-| w1 | word | 120 | 320 | No eating or drinking. You cannot eat or drink here. | No eating or drinking | | Word card at the top: "No eating or drinking" with "No" and both "ing" endings in ACCENT. Mini-scene: you sits, pulls a sandwich from the bag; the sign glows; you looks at the sign, looks at the sandwich, and tucks it back in the bag with a small sigh (gentle, no telling off). Under the card a strip: "No + ing = do not". |
-| w2 | word | 320 | 510 | Allowed. You can do it. Water is allowed. | allowed | | Word card: "allowed" with a leaf tick. Mini-scene: you takes out a water bottle; the second sign reads "Water is allowed" and the tick on it pulses green; you drinks, fatima (sitting opposite) nods. The sandwich sign and the water sign sit side by side: circle-with-line vs tick. |
-| w3 | word | 510 | 690 | Stand on the right. Walk on the left. | Stand on the right | | Word card: "Stand on the right". Mini-scene: an escalator in side view moving up. you stands on the right step holding the rail; fatima walks up the left side and passes with a wave. Two arrows on the sign: a standing figure on the right, a walking figure on the left. |
-| w4 | word | 690 | 860 | Priority seat. A seat for people who need it more. | Priority seat | | Word card: "Priority seat". Mini-scene: back in the carriage, a seat with the icon. A grey silhouette with a stick boards; you stands up, gestures to the seat; the silhouette sits and the seat glows leaf. fatima smiles. |
-| practise | practise | 860 | 1110 | Say it with me. No eating or drinking. Water is allowed. | No eating or drinking, allowed | 1050 | Pale blue background, fatima large in a white circle. Karaoke of the two sentences, one per line, in 80 px; "No" and the two "ing" endings in ACCENT, "allowed" in ACCENT with the tick. At 1050 the mic pulses and the player pauses. On resume both signs pop a tick. |
-| recap | recap | 1110 | 1200 | No plus ing means do not. | No, ing | | ACCENT background, white card: "REMEMBER" and the line "No + ing = do not" with "No" and "ing" in ACCENT, then a row of the four signs in miniature with a fifth, "Mind the gap", sliding in last as a bonus. |
+Re-cut 26 October 2026 to **The attention law**, on the word-tutorial spine. The first ask moves from
+10.3 s to 7.6 s and the 8.3 s practise beat comes down to 6 s. The `predict` beat goes in slot 3, where
+the learner guesses whether water is allowed before the sign says so: the answer is a surprise (food
+no, water yes), and a surprise after a guess is the one the learner keeps.
+
+| id | kind | from | to | narration (TTS) | targets | ask | pauseAt | scene for the animator |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| hook | hook | 0 | 90 | On the metro. Signs everywhere. | | | | Carriage doors slide open; you steps in with a bag. Four small signs pop onto the wall in sequence (a no-food circle, a green tick, an escalator arrow, a seat icon), one per 12 frames with a soft tick each, done by 72. you looks up at them. Push in on the first sign on 90. |
+| w1 | word | 90 | 240 | No eating or drinking. You cannot eat or drink here. | No eating or drinking | tap | 228 | Word card at the top: "No eating or drinking" with "No" and both "ing" endings in ACCENT. Mini-scene: you sits, pulls a sandwich from the bag; the sign glows; you looks at the sign, looks at the sandwich, and tucks it back in the bag with a small sigh (gentle, no telling off), settled by 210. Under the card a strip: "No + ing = do not". |
+| predict | predict | 240 | 330 | And water? | allowed, not allowed | predict | 318 | The prediction moment. you holds an unopened water bottle and looks up at the second sign, which is face-away and blank. Two chips beside it: a tick and a crossed circle. Nothing is spoken in English; the caption asks in the learner's own language. The ask is one tap. The answer, in w2, is the one a learner does not expect after w1, which is exactly why it is worth guessing first. A tap on the tick lights it leaf; a tap on the crossed circle dims it and leaves the tick up. |
+| w2 | word | 330 | 480 | Allowed. You can do it. Water is allowed. | allowed | say the word | 468 | Word card: "allowed" with a leaf tick. The sign turns to face us and reads "Water is allowed"; its tick pulses green; you drinks, fatima (sitting opposite) nods. The sandwich sign and the water sign sit side by side, circle-with-line against tick, which is the contrast the recap keeps. The learner says "allowed" at 468. |
+| w3 | word | 480 | 630 | Stand on the right. Walk on the left. | Stand on the right | say the word | 618 | Word card: "Stand on the right". Mini-scene: an escalator in side view moving up. you stands on the right step holding the rail; fatima walks up the left side and passes with a wave. Two arrows on the sign: a standing figure on the right, a walking figure on the left. |
+| w4 | word | 630 | 780 | Priority seat. A seat for people who need it more. | Priority seat | say the line | 768 | Word card: "Priority seat". Mini-scene: back in the carriage, a seat with the icon. A grey silhouette with a stick boards; you stands up, gestures to the seat; the silhouette sits and the seat glows leaf. fatima smiles. The learner says "Priority seat" at 768. |
+| practise | practise | 780 | 960 | Say it with me. No eating or drinking. Water is allowed. | No eating or drinking, allowed | say it changed | 948 | Pale blue background, fatima large in a white circle. The two rules in one breath, which is a shape the learner has not said yet and is the exact tfng stem the check uses. Karaoke of the two sentences, one per line, in 80 px; "No" and the two "ing" endings in ACCENT, "allowed" in ACCENT with the tick. Line complete by 912, mic cue in by 924. On resume both signs pop a tick. |
+| recap | recap | 960 | 1050 | You can read the signs on the metro. Again tomorrow. | | | | ACCENT background, white card: the line "No + ing = do not" with "No" and "ing" in ACCENT, then a row of the four signs in miniature with a fifth, "Mind the gap", sliding in last as a bonus. The narration is the self-efficacy close, in the learner's own language. Hold with nothing moving. |
 
 ### L1 captions
 
@@ -545,16 +553,19 @@ back again, and it is now the two cards the learner has not said yet, so all fou
 | --- | --- | --- | --- | --- | --- | --- |
 | hook | في المترو. لافتات في كل مكان. | En el metro. Carteles por todas partes. | मेट्रो में। हर जगह संकेत। | В метро. Везде знаки. | Metroda. Her yerde tabela. | 在地铁里。到处是标志。 |
 | w1 | ممنوع الأكل أو الشرب هنا. | No se puede comer ni beber aquí. | यहाँ खाना-पीना मना है। | Здесь нельзя есть и пить. | Burada yiyip içmek yasak. | 这里不能吃喝。 |
+| predict | وماذا عن الماء؟ | ¿Y el agua? | और पानी? | А вода? | Peki su? | 那水呢？ |
 | w2 | Allowed: مسموح. الماء مسموح. | Allowed: está permitido. El agua sí. | Allowed: अनुमति है। पानी ठीक है। | Allowed: можно. Вода разрешена. | Allowed: izin var. Su serbest. | Allowed：允许。可以喝水。 |
 | w3 | قف على اليمين. امشِ على اليسار. | De pie a la derecha. Andar por la izquierda. | दाईं ओर खड़े हों। बाईं ओर चलें। | Стойте справа. Идите слева. | Sağda dur. Solda yürü. | 右侧站立。左侧行走。 |
 | w4 | مقعد الأولوية: لمن يحتاجه أكثر. | Asiento prioritario: para quien lo necesita más. | प्राथमिकता सीट: ज़रूरतमंद के लिए। | Приоритетное место: тем, кому нужнее. | Öncelikli koltuk: daha çok ihtiyacı olana. | 优先座位：给更需要的人。 |
 | practise | قلها معي. | Dilo conmigo. | मेरे साथ बोलो। | Скажи со мной. | Benimle söyle. | 跟我一起说。 |
-| recap | No مع ing تعني لا تفعل. | No más ing: no lo hagas. | No के साथ ing: मत करो। | No плюс ing: нельзя. | No artı ing: yapma. | No 加 ing 表示禁止。 |
+| recap | يمكنك قراءة لافتات المترو. غدًا مرة أخرى. | Ya puedes leer los carteles del metro. Mañana otra vez. | अब आप मेट्रो के संकेत पढ़ सकते हैं। कल फिर। | Теперь вы читаете знаки в метро. Завтра снова. | Artık metrodaki tabelaları okuyabilirsin. Yarın tekrar. | 你现在能看懂地铁的标志了。明天再来。 |
 
 ### Interactive moments
 
 - Tappable words: all caption words; every sign on screen is a hotspot that reads the sign aloud and highlights its text (this is the PRD "touchable scene" pattern in miniature).
-- At the pause (frame 1050) the learner says: "No eating or drinking. Water is allowed." Model answer: the same two sentences. Scored as read-aloud; the relay item ITM-RDG-0605 then asks the learner to tell a friend one rule.
+- Five stops, growing: tap the key words at 228, predict whether water is allowed at 318, say "allowed" at 468 and "Stand on the right" at 618, say "Priority seat" at 768, say both rules at 948. The first ask lands at 7.6 s and no passive stretch runs longer than 7.6 s.
+- At 948 the learner says: "No eating or drinking. Water is allowed." Scored as read-aloud; the relay item ITM-RDG-0605 then asks the learner to tell a friend one rule.
+- Prediction (frame 318, `predict` beat): one tap on the tick or the crossed circle, before w2 turns the sign round. **Not wired yet**: needs the `predict` beat kind and ask kind, LP-46.
 - Extra tap: in w2, the sandwich and the water bottle are both tappable for 90 frames. Tap the bottle: the tick sign glows and plays "Water is allowed". Tap the sandwich: it dims grey, the circle sign pulses once and plays "No eating" (consequence first, no red).
 
 ---
@@ -566,7 +577,7 @@ back again, and it is now the two cards the learner has not said yet, so all fou
 | atom_id | ATM-A2-WRT-0007 |
 | title | Where are you? |
 | sublevel / strand | A2.1 / WRT (Writing) |
-| type | word_tutorial, 39 s, 1170 frames |
+| type | word_tutorial, 35 s, 1050 frames (re-cut from 39 s on 26 October) |
 | single target | Question order: question word, then are, then you ("Where are you?") |
 | characters | you (at a desk, typing). Amira is a contact name on the phone only; she is never drawn |
 | setting | A small office at nine o'clock: desk, wall clock, an empty chair opposite, a phone held in you's hand with a chat thread |
@@ -574,15 +585,22 @@ back again, and it is now the two cards the learner has not said yet, so all fou
 
 ### Beats
 
-| id | kind | from | to | narration (TTS) | targets | pauseAt | scene for the animator |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| hook | hook | 0 | 120 | Nine o'clock. Amira is not here. | | | Office. The wall clock hands snap to 9:00 with a click. The chair opposite you is empty; a small dust-puff. you looks at the chair, picks up the phone; the phone screen grows to fill the lower two thirds of the frame with a chat header "Amira". |
-| w1 | word | 120 | 300 | Hi Amira. Start with Hi and the name. | Hi Amira | | Word card at the top: "Hi Amira". Mini-scene on the phone: a typing cursor; "Hi Amira." types in letter by letter in a saffron bubble on the right; a small wave emoji pops after it. A faint label under the bubble: "Hi + name". |
-| w2 | word | 300 | 540 | Where are you? Question word, then are, then you. | Where are you? | | Word card: "Where are you?". Gag: three tiles arrive on the phone in the wrong order, "Where you are?", and the question mark droops like a wilting stem. The "are" tile hops over "you" with a boing, lands in the middle, and the question mark stands up straight with a ping. Three labels fade in under the tiles: "question word", "are", "you". The tiles become the sent bubble. |
-| w3 | word | 540 | 720 | Are you OK? Are first, then you. | Are you OK? | | Word card: "Are you OK?". Mini-scene: the tiles "you" "Are" "OK" arrive, "Are" hops to the front, the "?" pings again (same move as w2 so it reads as the same rule). The bubble sends. you looks at the empty chair once more. |
-| w4 | word | 720 | 870 | See you soon. A friendly ending. | See you soon | | Word card: "See you soon". Mini-scene: typing dots appear on the left (grey bubble), then Amira's reply: "On the metro. See you soon." with a tiny train icon. you's shoulders drop in relief; the clock ticks to 9:05. |
-| practise | practise | 870 | 1080 | Say it with me. Where are you? Are you OK? | Where are you, Are you OK | 1040 | Pale blue background, you large in a white circle holding the phone. Karaoke of the two questions in 88 px, one per line; "are" in ACCENT both times. At 1040 the mic pulses and the player pauses. On resume both question marks ping leaf. |
-| recap | recap | 1080 | 1170 | Where are you? Are you OK? | Where are you, Are you OK | | ACCENT background, white card: "REMEMBER", the two questions with "are" in ACCENT, and under them a three-slot shape "[question word] [are] [you]" in saffron outlines. The phone thread shrinks into the corner. |
+Re-cut 26 October 2026 to **The attention law**, on the word-tutorial spine. The 240-frame w2 comes
+down to 150: it was carrying the wrong-order gag, the fix and three labels in one beat, which is two
+ideas and a lesson's worth of movement in eight seconds. The gag is now the `predict` beat, where the
+learner puts the second tile in place with one tap before w2 shows the fix. That is the generation
+effect doing the same job the gag was doing alone, and it costs no time.
+
+| id | kind | from | to | narration (TTS) | targets | ask | pauseAt | scene for the animator |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| hook | hook | 0 | 90 | Nine o'clock. Amira is not here. | | | | Office. The wall clock hands snap to 9:00 with a click. The chair opposite you is empty; a small dust-puff. you looks at the chair, picks up the phone; the phone screen grows to fill the lower two thirds of the frame with a chat header "Amira", settled by 78. |
+| w1 | word | 90 | 240 | Hi Amira. Start with Hi and the name. | Hi Amira | tap | 228 | Word card at the top: "Hi Amira". Mini-scene on the phone: a typing cursor; "Hi Amira." types in letter by letter in a saffron bubble on the right; a small wave emoji pops after it by 210. A faint label under the bubble: "Hi + name". The tap is the two chips "Hi" and "Amira". |
+| predict | predict | 240 | 330 | Which one goes here? | are, you | predict | 318 | The prediction moment, and the gag that used to live inside w2. Three tiles arrive on the phone with the middle slot empty: "Where ___ you?", and the question mark droops like a wilting stem. Two chips wait below: "are" and "you". Nothing is spoken in English; the caption asks in the learner's own language. The ask is one tap. A tap on "are" drops it into the slot and the question mark stands up straight with a ping; a tap on "you" slides it halfway in and back out, no cross and no noise of failure, and w2 then shows the fix either way. |
+| w2 | word | 330 | 480 | Where are you? Question word, then are, then you. | Where are you? | say the word | 468 | Word card: "Where are you?". The sentence completes from the predict beat: "are" settles in the middle, the "?" stands up, and three labels fade in under the tiles, "question word", "are", "you", done by 450. The tiles become the sent bubble. The learner says "are" at 468, one word, which is rung 2 and is deliberately smaller than the question. |
+| w3 | word | 480 | 630 | Are you OK? Are first, then you. | Are you OK? | say the line | 618 | Word card: "Are you OK?". Mini-scene: the tiles "you" "Are" "OK" arrive, "Are" hops to the front, the "?" pings again (same move as w2 so it reads as the same rule). The bubble sends. you looks at the empty chair once more. The learner says the whole question at 618. |
+| w4 | word | 630 | 780 | See you soon. A friendly ending. | See you soon | say the word | 768 | Word card: "See you soon". Mini-scene: typing dots appear on the left (grey bubble), then Amira's reply: "On the metro. See you soon." with a tiny train icon. you's shoulders drop in relief; the clock ticks to 9:05. |
+| practise | practise | 780 | 960 | Say it with me. Where are you? Are you OK? | Where are you, Are you OK | say it changed | 948 | Pale blue background, you large in a white circle holding the phone. Both questions in one turn, which is the message rather than a tile exercise. Karaoke in 88 px, one per line; "are" in ACCENT both times. Line complete by 912, mic cue in by 924. On resume both question marks ping leaf. |
+| recap | recap | 960 | 1050 | You can ask where someone is. Again tomorrow. | | | | ACCENT background, white card: the two questions with "are" in ACCENT, and under them a three-slot shape "[question word] [are] [you]" in saffron outlines, which is the check stem. The phone thread shrinks into the corner. The narration is the self-efficacy close, in the learner's own language. Hold with nothing moving. |
 
 ### L1 captions
 
@@ -590,17 +608,20 @@ back again, and it is now the two cards the learner has not said yet, so all fou
 | --- | --- | --- | --- | --- | --- | --- |
 | hook | الساعة التاسعة. أميرة ليست هنا. | Las nueve. Amira no está. | नौ बजे। अमीरा यहाँ नहीं है। | Девять часов. Амиры нет. | Saat dokuz. Amira burada değil. | 九点了。Amira 不在。 |
 | w1 | ابدأ بـ Hi والاسم. | Empieza con Hi y el nombre. | Hi और नाम से शुरू करें। | Начни с Hi и имени. | Hi ve isimle başla. | 用 Hi 加名字开头。 |
+| predict | أي كلمة توضع هنا؟ | ¿Cuál va aquí? | यहाँ कौन सा शब्द आएगा? | Какое слово сюда? | Buraya hangisi gelir? | 这里放哪个词？ |
 | w2 | أين أنت؟ كلمة السؤال، ثم are، ثم you. | ¿Dónde estás? Palabra interrogativa, are, you. | तुम कहाँ हो? प्रश्न शब्द, फिर are, फिर you। | Где ты? Вопрос, потом are, потом you. | Neredesin? Soru kelimesi, are, you. | 你在哪里？疑问词、are、you。 |
 | w3 | هل أنت بخير؟ Are أولًا ثم you. | ¿Estás bien? Are primero, luego you. | तुम ठीक हो? पहले Are, फिर you। | Ты в порядке? Сначала are, потом you. | İyi misin? Önce are, sonra you. | 你还好吗？先 are，再 you。 |
 | w4 | أراك قريبًا. خاتمة ودّية. | Hasta pronto. Un final amistoso. | जल्द मिलते हैं। दोस्ताना अंत। | До скорого. Дружеское окончание. | Görüşürüz. Samimi bir kapanış. | 回头见。友好的结尾。 |
 | practise | قلها معي. | Dilo conmigo. | मेरे साथ बोलो। | Скажи со мной. | Benimle söyle. | 跟我一起说。 |
-| recap | أين أنت؟ هل أنت بخير؟ | ¿Dónde estás? ¿Estás bien? | तुम कहाँ हो? तुम ठीक हो? | Где ты? Ты в порядке? | Neredesin? İyi misin? | 你在哪里？你还好吗？ |
+| recap | يمكنك أن تسأل أين يكون شخص ما. غدًا مرة أخرى. | Ya puedes preguntar dónde está alguien. Mañana otra vez. | अब आप पूछ सकते हैं कि कोई कहाँ है। कल फिर। | Теперь вы можете спросить, где кто-то. Завтра снова. | Artık birinin nerede olduğunu sorabilirsin. Yarın tekrar. | 你现在能问别人在哪里了。明天再来。 |
 
 ### Interactive moments
 
 - Tappable words: all caption words; each chat bubble on the phone is a chip that reads the message aloud.
-- At the pause (frame 1040) the learner says: "Where are you? Are you OK?" Model answer: the same two questions. Scored as read-aloud (this is a writing atom, but hearing the order before typing it is the "hear first, read second" rule); the free-use item ITM-WRT-0704 then asks for a typed two-line message.
-- Extra tap: in w2 the three tiles are draggable for 120 frames (same control as the `sentence_build` item ITM-WRT-0701). Correct order makes the "?" stand up and sends the bubble; a wrong order makes the "?" droop and the wrong tile wobble, then the "are" tile hops into place by itself.
+- Five stops, growing: tap the key words at 228, drop the missing tile at 318, say "are" at 468, say the whole question at 618, say "See you soon" at 768, say both questions at 948. The first ask lands at 7.6 s and no passive stretch runs longer than 7.6 s.
+- At 948 the learner says: "Where are you? Are you OK?" Scored as read-aloud (this is a writing atom, but hearing the order before typing it is the "hear first, read second" rule); the free-use item ITM-WRT-0704 then asks for a typed two-line message.
+- Prediction (frame 318, `predict` beat): one tap on "are" or "you" into the empty middle slot, before w2 completes the sentence. This is the same control as the `sentence_build` item ITM-WRT-0701, cut down to one tile, so the learner meets it here before being scored on it. **Not wired yet**: needs the `predict` beat kind and ask kind, LP-46.
+- Extra tap: in w3 the three tiles are draggable for 120 frames. Correct order makes the "?" stand up and sends the bubble; a wrong order makes the "?" droop and the wrong tile wobble, then the "Are" tile hops into place by itself.
 
 ---
 
@@ -611,7 +632,7 @@ back again, and it is now the two cards the learner has not said yet, so all fou
 | atom_id | ATM-A2-INT-0010 |
 | title | The bill, please |
 | sublevel / strand | A2.1 / INT (Interaction) |
-| type | word_tutorial, 39 s, 1170 frames |
+| type | word_tutorial, 35 s, 1050 frames (re-cut from 39 s on 26 October) |
 | single target | "Could I have the bill, please?" (the same shape as ordering: Could I have ... please) |
 | characters | leo, you |
 | setting | A cafe table by the window in the Cafe.tsx set: empty cup, saucer, a small card reader on the counter, a tip jar |
@@ -619,15 +640,21 @@ back again, and it is now the two cards the learner has not said yet, so all fou
 
 ### Beats
 
-| id | kind | from | to | narration (TTS) | targets | pauseAt | scene for the animator |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| hook | hook | 0 | 120 | Coffee finished. Time to pay. | | | Table by the window. you's cup tips to show it is empty (last drop). you raises a hand (arm "raise"); leo across the room notices and starts over. A small clock icon in the window says it is time to go. Cut to the table as leo arrives. |
-| w1 | word | 120 | 330 | The bill. The paper with the price. Could I have the bill, please? | the bill, Could I have | | Word card at the top: "the bill". Mini-scene: you's bubble shows the frame "Could I have ___, please?" with the blank empty; "a tea" (from the cafe lesson) slides out of the blank to the left and "the bill" slides in from the right and locks with a click. leo brings a small folded paper that unfolds to show "£3.50". Label under the frame: "same shape as ordering". |
-| w2 | word | 330 | 540 | Pay by card. Pay with a bank card. | pay by card | | Word card: "pay by card". Mini-scene: leo holds out a card reader; you taps a bank card on it; the reader shows a leaf tick and a short beep. Bubble: "Can I pay by card?" with "by card" in ACCENT. |
-| w3 | word | 540 | 720 | Pay in cash. Notes and coins. | pay in cash | | Word card: "pay in cash". Mini-scene: a note and two coins slide onto the saucer. Two small tiles sit side by side under the scene: "by card" and "in cash", the prepositions in ACCENT, so the contrast is visible without being explained. |
-| w4 | word | 720 | 870 | Keep the change. The extra money is for you. | Keep the change | | Word card: "Keep the change". Mini-scene: leo holds out a coin as change; you waves a hand gently; the coin hops into the tip jar with a clink and leo smiles. Bubble: "Keep the change." |
-| practise | practise | 870 | 1080 | Say it with me. Could I have the bill, please? | Could I have, the bill, please | 1040 | Pale blue background, leo large in a white circle holding the bill. Karaoke of "Could I have the bill, please?" in 96 px; "Could I have" and "please" in ACCENT, "the bill" in SAFFRON. At 1040 the mic pulses and the player pauses. On resume leo hands over the bill with a tick. |
-| recap | recap | 1080 | 1170 | Could I have the bill, please? | Could I have, the bill, please | | ACCENT background, white card: "REMEMBER" and the line in the same three colours as the practise beat; under it the small frame "Could I have ___, please?" with "a tea" and "the bill" shown as two tiles that fit the same blank. Card icon, coins and the tip jar spring in below. |
+Re-cut 26 October 2026 to **The attention law**, on the word-tutorial spine. The first ask moves from
+10.6 s to 7.6 s and the two seven-second cards come down to five. The `predict` beat is leo's "Card or
+cash?", which used to be an extra tap buried in w2: it is a real question put to the learner by a
+character, which is the best kind of prediction, and it belongs on a beat of its own.
+
+| id | kind | from | to | narration (TTS) | targets | ask | pauseAt | scene for the animator |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| hook | hook | 0 | 90 | Coffee finished. Time to pay. | | | | Table by the window. you's cup tips to show it is empty (last drop). you raises a hand (arm "raise"); leo across the room notices and starts over, arriving by 78. A small clock icon in the window says it is time to go. |
+| w1 | word | 90 | 240 | The bill. Could I have the bill, please? | the bill, Could I have | tap | 228 | Word card at the top: "the bill". Mini-scene: you's bubble shows the frame "Could I have ___, please?" with the blank empty; "a tea" (from the cafe lesson) slides out of the blank to the left and "the bill" slides in from the right and locks with a click by 210. leo brings a small folded paper that unfolds to show "£3.50". Label under the frame: "same shape as ordering". The tap is "Could I have" and "the bill". |
+| w2 | word | 240 | 390 | Pay by card. Pay with a bank card. | pay by card | say the word | 378 | Word card: "pay by card". Mini-scene: leo holds out a card reader; you taps a bank card on it; the reader shows a leaf tick and a short beep. Bubble: "Can I pay by card?" with "by card" in ACCENT. The learner says "by card" at 378. |
+| predict | predict | 390 | 480 | Card or cash? | by card, in cash | predict | 468 | The prediction moment, and the only one in the set spoken by a character rather than captioned: leo holds the reader in one hand and an open palm in the other and asks "Card or cash?", which is a real question put to the learner. Two chips float over the saucer: "by card" and "in cash". The ask is one tap, and both answers are right, which is the honest shape of this scene and worth a learner meeting once: a tap on either lights it leaf and plays the matching line. w3 then shows the cash side either way. |
+| w3 | word | 480 | 630 | Pay in cash. Notes and coins. | pay in cash | say the word | 618 | Word card: "pay in cash". Mini-scene: a note and two coins slide onto the saucer. The two chips from the predict beat settle side by side under the scene, "by card" and "in cash", the prepositions in ACCENT, so the contrast is visible without being explained. The learner says "in cash" at 618. |
+| w4 | word | 630 | 780 | Keep the change. The extra money is for you. | Keep the change | say the line | 768 | Word card: "Keep the change". Mini-scene: leo holds out a coin as change; you waves a hand gently; the coin hops into the tip jar with a clink and leo smiles. Bubble: "Keep the change." The learner says it at 768. |
+| practise | practise | 780 | 960 | Say it with me. Could I have the bill, please? | Could I have, the bill, please | say it changed | 948 | Pale blue background, leo large in a white circle holding the bill. Karaoke in 96 px; "Could I have" and "please" in ACCENT, "the bill" in SAFFRON. Line complete by 912, mic cue in by 924. On resume leo hands over the bill with a tick. The change here is the frame rather than the words: the learner has spent the video on how to pay and now asks for the bill, which is the atom's target line and the one the check uses. |
+| recap | recap | 960 | 1050 | You can ask for the bill and pay. Again tomorrow. | | | | ACCENT background, white card: the line in the same three colours as the practise beat; under it the small frame "Could I have ___, please?" with "a tea" and "the bill" shown as two tiles that fit the same blank, which is the check stem. Card icon, coins and the tip jar spring in below. The narration is the self-efficacy close, in the learner's own language. Hold with nothing moving. |
 
 ### L1 captions
 
@@ -636,16 +663,19 @@ back again, and it is now the two cards the learner has not said yet, so all fou
 | hook | انتهت القهوة. وقت الدفع. | Café terminado. Hora de pagar. | कॉफ़ी ख़त्म। भुगतान का समय। | Кофе выпит. Пора платить. | Kahve bitti. Ödeme zamanı. | 咖啡喝完了。该付钱了。 |
 | w1 | الفاتورة: الورقة التي فيها السعر. | The bill: el papel con el precio. | The bill: दाम वाला काग़ज़। | The bill: бумага с ценой. | The bill: fiyatın yazdığı kağıt. | The bill：写着价格的单子。 |
 | w2 | الدفع بالبطاقة. | Pagar con tarjeta. | कार्ड से भुगतान। | Оплата картой. | Kartla ödemek. | 刷卡支付。 |
+| predict | بالبطاقة أم نقدًا؟ | ¿Tarjeta o efectivo? | कार्ड या नक़द? | Картой или наличными? | Kart mı, nakit mi? | 刷卡还是现金？ |
 | w3 | الدفع نقدًا: أوراق وعملات. | Pagar en efectivo: billetes y monedas. | नक़द भुगतान: नोट और सिक्के। | Наличными: купюры и монеты. | Nakit ödemek: banknot ve bozuk para. | 现金支付：纸币和硬币。 |
 | w4 | احتفظ بالباقي. | Quédate con el cambio. | बाक़ी पैसे आप रखें। | Сдачи не надо. | Üstü kalsın. | 不用找零。 |
 | practise | قلها معي. | Dilo conmigo. | मेरे साथ बोलो। | Скажи со мной. | Benimle söyle. | 跟我一起说。 |
-| recap | هل يمكنني الحصول على الفاتورة، من فضلك؟ | ¿Me trae la cuenta, por favor? | क्या मुझे बिल मिल सकता है? | Можно счёт, пожалуйста? | Hesabı alabilir miyim, lütfen? | 可以给我账单吗？ |
+| recap | يمكنك طلب الفاتورة والدفع. غدًا مرة أخرى. | Ya puedes pedir la cuenta y pagar. Mañana otra vez. | अब आप बिल माँग सकते हैं और भुगतान कर सकते हैं। कल फिर। | Теперь вы можете попросить счёт и заплатить. Завтра снова. | Artık hesabı isteyip ödeyebilirsin. Yarın tekrar. | 你现在能要账单并付款了。明天再来。 |
 
 ### Interactive moments
 
 - Tappable words: all caption words; the word card titles and the two tiles "by card" / "in cash" are chips.
-- At the pause (frame 1040) the learner says: "Could I have the bill, please?" Model answer: the same line. Scored as read-aloud; the say-it-see-it item ITM-INT-1004 then asks for the bill in the scene.
-- Extra tap: in w2 and w3, when leo holds out the reader he asks "Card or cash?" (a short extra TTS line, not a caption line). The bank card and the note are both tappable for 90 frames: card plays "Can I pay by card?" and the reader ticks; note plays "I'll pay in cash" and the coins land on the saucer. Both are right; there is no wrong answer here.
+- Five stops, growing: tap the key words at 228, say "by card" at 378, answer leo's "Card or cash?" at 468, say "in cash" at 618, say "Keep the change" at 768, say the target line at 948. The first ask lands at 7.6 s and no passive stretch runs longer than 7.6 s.
+- At 948 the learner says: "Could I have the bill, please?" Scored as read-aloud; the say-it-see-it item ITM-INT-1004 then asks for the bill in the scene.
+- Prediction (frame 468, `predict` beat): leo asks "Card or cash?" out loud and the learner taps "by card" or "in cash". Both are right, which is deliberate: a learner should meet one ask where there is no wrong answer. **Not wired yet**: needs the `predict` beat kind and ask kind, LP-46.
+- Extra tap: in w2 and w3 the bank card and the note stay tappable for 90 frames: card plays "Can I pay by card?" and the reader ticks; note plays "I'll pay in cash" and the coins land on the saucer.
 
 ---
 
@@ -670,7 +700,7 @@ Cast for part two: **you** (Omar in the week-two atoms, the learner in the start
 | atom_id | ATM-A2-INT-0012 |
 | title | Monday at ten |
 | sublevel / strand | A2.1 / INT (Talking with someone) |
-| type | video, 50 s, 1500 frames |
+| type | video, 40 s, 1200 frames (re-cut from 50 s on 26 October) |
 | single target | Could I make an appointment, please? |
 | characters | you (on the phone), maya (explain and practise). Noor is a voice on the phone, not drawn |
 | setting | A kitchen table in a London flat, morning: a mug of tea, a phone, a wall clock at ten to nine. The health centre arrives as a flat-vector building card |
@@ -678,30 +708,46 @@ Cast for part two: **you** (Omar in the week-two atoms, the learner in the start
 
 ### Beats
 
-| id | kind | from | to | narration (TTS) | targets | pauseAt | scene for the animator |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| hook | hook | 0 | 150 | Tuesday morning. Omar has a bad tooth. | | | Kitchen table, flat morning light. you sits with one hand against the cheek; a soft saffron ring pulses at the jaw twice (40 frames apart), no grimace, no red. A phone slides up from the bottom right and settles on the table. Title words drop in top-left: "Tuesday morning." |
-| n1 | notice | 150 | 420 | Hillside Health Centre. How can I help? Could I make an appointment, please? | Could I make an appointment, please? | | you lifts the phone to the ear. A grey bubble with a tail to the left and three sound rings types the centre's line. Then you's saffron bubble, tail right: "Could I make an appointment, please?" with the whole phrase in ACCENT weight 800, "make an appointment" arriving one word at a time on the narration. |
-| n2 | notice | 420 | 660 | Of course. Monday at ten? Monday at ten is fine, thank you. | Monday at ten is fine, thank you. | | A calendar page springs in centre-right with "MONDAY" and a small clock whose hands snap to ten with a thunk. The grey bubble offers the time; you nods once (12-frame ease) and the saffron bubble answers, with "is fine, thank you" in ACCENT. The page gets a leaf tick. |
-| explain | explain | 660 | 1020 | Could I ... please. The same words as the cafe. | Could I, please | | PAPER background, maya in the corner circle bottom-left. Centre: two cards side by side. Left, a cup and "Could I have a coffee, please?"; right, a phone and "Could I make an appointment, please?". At frame 780 "Could I" lifts out of both cards and merges into one ACCENT chip above them; at 870 "please" does the same below. A dotted line joins the two cards. Nothing else is explained. |
-| practise | practise | 1020 | 1380 | Say it with me. Could I make an appointment, please? | Could I make an appointment, please? | 1230 | Pale blue background, maya large in a white circle. Karaoke of the line in 88 px over two lines, "make an appointment" rising 10 px as it is spoken. At 1230 the player pauses and the mic pulses top-left with "Your turn". On resume the phone from the hook lights leaf green for 60 frames. |
-| recap | recap | 1380 | 1500 | Could I make an appointment, please? | Could I make an appointment, please? | | ACCENT background, white card: "REMEMBER" eyebrow, then "Could I make an appointment, please?" and under it, smaller, "Monday at ten is fine, thank you." Three icons spring in below: phone, calendar page, clock at ten. |
+Re-cut 26 October 2026 to **The attention law**, on the video spine. Both old notice beats carried two
+speaker turns in nine seconds, which breaks rule 1 and rule 6 at once; each is now two beats of five,
+which costs nothing because the lines were already there. The twelve-second explain and twelve-second
+practise come down to six and seven.
+
+**This one opens on its prediction**, and it is the shape to copy wherever a scene opens with somebody
+asking the learner a question. The receptionist's "How can I help?" is scene-setting, not the target,
+so the hook can carry it; the learner's first ask is then one tap on what to say back, at 7.6 s. That
+satisfies rule 2 and rule 3 with the same beat.
+
+| id | kind | from | to | narration (TTS) | targets | ask | pauseAt | scene for the animator |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| hook | hook | 0 | 120 | Tuesday morning. Hillside Health Centre, how can I help? | | | | Kitchen table, flat morning light. you sits with one hand against the cheek; a soft saffron ring pulses at the jaw twice (40 frames apart), no grimace, no red. A phone slides up and you lifts it to the ear by frame 60. A grey bubble with a tail to the left and three sound rings types the centre's line, finishing on 108, which is the question the next beat answers. |
+| predict | predict | 120 | 240 | What do you say? | Could I make an appointment, please? | predict | 228 | The prediction moment, and the first ask of the video. you holds the phone, mouth closed, eyebrows up. Three chips wait in a thought cloud: "Could I make an appointment, please?", "I'd like a coffee, please." and "Where are you?", the last two being targets the learner already owns, so the choice is between things they can all read. Nothing is spoken in English; the caption asks in the learner's own language. The ask is one tap. A tap on the right one lights it leaf and it flies into the bubble slot; a tap on either other chip plays it back in place and leaves all three up, which makes a wrong guess a thing you hear rather than a thing you lose. |
+| n1 | notice | 240 | 390 | Could I make an appointment, please? | Could I make an appointment, please? | tap | 378 | you's saffron bubble, tail right: "Could I make an appointment, please?" with the whole phrase in ACCENT weight 800, "make an appointment" arriving one word at a time on the narration and settled by 360. The tap is the chips "Could I", "make an appointment" and "please". |
+| n2 | notice | 390 | 540 | Of course. Monday at ten? | Monday at ten | say the word | 528 | A calendar page springs in centre-right with "MONDAY" and a small clock whose hands snap to ten with a thunk by 480. The grey bubble offers the time. The learner says "Monday at ten" at 528, which is the chunk and not yet the sentence. |
+| n3 | notice | 540 | 690 | Monday at ten is fine, thank you. | is fine, thank you | say the line | 678 | you nods once (12-frame ease) and the saffron bubble answers, with "is fine, thank you" in ACCENT. The calendar page gets a leaf tick. The learner says the whole line at 678, which is the second half of the criterion: take the time offered. |
+| explain | explain | 690 | 870 | Could I ... please. The same words as the cafe. | Could I, please | tap | 858 | PAPER background, maya in the corner circle bottom-left. Centre: two cards side by side. Left, a cup and "Could I have a coffee, please?"; right, a phone and "Could I make an appointment, please?". At frame 740 "Could I" lifts out of both cards and merges into one ACCENT chip above them; at 790 "please" does the same below. A dotted line joins the two cards, settled by 840. Nothing else is explained. The tap is the two merged chips. |
+| practise | practise | 870 | 1080 | Say it with me. Could I make an appointment on Friday, please? | Could I make an appointment, on Friday | say it changed | 1068 | Pale blue background, maya large in a white circle. A day is added, so the learner is not reading back the line they have just said twice. Karaoke in 88 px over two lines, "make an appointment" rising 10 px as it is spoken and "on Friday" in SAFFRON. Line complete by 1032, mic cue in by 1044. On resume the phone from the hook lights leaf green for 36 frames. |
+| recap | recap | 1080 | 1200 | You can make an appointment on the phone. Again tomorrow. | | | | ACCENT background, white card: "Could I make an appointment, please?" and under it, smaller, "Monday at ten is fine, thank you." Three icons spring in below: phone, calendar page, clock at ten. The narration is the self-efficacy close, in the learner's own language. Hold with nothing moving. |
 
 ### L1 captions
 
 | beat | ar | es | hi | ru | tr | zh |
 | --- | --- | --- | --- | --- | --- | --- |
-| hook | صباح الثلاثاء. عمر يؤلمه ضرسه. | Martes por la mañana. A Omar le duele un diente. | मंगलवार सुबह। उमर के दाँत में दर्द है। | Утро вторника. У Омара болит зуб. | Salı sabahı. Omar'ın dişi ağrıyor. | 星期二早上。Omar 牙疼。 |
+| hook | صباح الثلاثاء. مركز هيلسايد الصحي، كيف أساعدك؟ | Martes por la mañana. Centro de Salud Hillside, ¿en qué puedo ayudarle? | मंगलवार सुबह। हिलसाइड हेल्थ सेंटर, कैसे मदद करूँ? | Утро вторника. Медцентр Хиллсайд, чем помочь? | Salı sabahı. Hillside Sağlık Merkezi, nasıl yardımcı olabilirim? | 星期二早上。Hillside 健康中心，有什么可以帮您？ |
+| predict | ماذا تقول؟ | ¿Qué dices? | आप क्या कहेंगे? | Что вы скажете? | Ne dersin? | 你会怎么说？ |
 | n1 | هل يمكنني تحديد موعد، من فضلك؟ | ¿Podría pedir una cita, por favor? | क्या मैं अपॉइंटमेंट ले सकता हूँ? | Можно записаться на приём? | Randevu alabilir miyim, lütfen? | 我可以预约吗？ |
-| n2 | الاثنين في العاشرة مناسب، شكرًا. | El lunes a las diez está bien, gracias. | सोमवार दस बजे ठीक है, धन्यवाद। | В понедельник в десять подходит, спасибо. | Pazartesi onda olur, teşekkürler. | 星期一十点可以，谢谢。 |
+| n2 | بالتأكيد. الاثنين في العاشرة؟ | Claro. ¿El lunes a las diez? | ज़रूर। सोमवार दस बजे? | Конечно. В понедельник в десять? | Tabii. Pazartesi onda? | 当然。星期一十点？ |
+| n3 | الاثنين في العاشرة مناسب، شكرًا. | El lunes a las diez está bien, gracias. | सोमवार दस बजे ठीक है, धन्यवाद। | В понедельник в десять подходит, спасибо. | Pazartesi onda olur, teşekkürler. | 星期一十点可以，谢谢。 |
 | explain | Could I ... please: نفس كلمات المقهى. | Could I ... please: como en la cafetería. | Could I ... please: कैफ़े जैसे शब्द। | Could I ... please: как в кафе. | Could I ... please: kafedeki gibi. | Could I ... please：和咖啡馆一样。 |
 | practise | قلها معي. | Dilo conmigo. | मेरे साथ बोलो। | Скажи со мной. | Benimle söyle. | 跟我一起说。 |
-| recap | اطلب موعدًا، ثم اقبل الوقت. | Pide la cita y acepta la hora. | अपॉइंटमेंट माँगो, समय मान लो। | Попроси приём и прими время. | Randevu iste, saati kabul et. | 先约时间，再接受时间。 |
+| recap | يمكنك تحديد موعد على الهاتف. غدًا مرة أخرى. | Ya puedes pedir una cita por teléfono. Mañana otra vez. | अब आप फ़ोन पर अपॉइंटमेंट ले सकते हैं। कल फिर। | Теперь вы можете записаться на приём по телефону. Завтра снова. | Artık telefonda randevu alabilirsin. Yarın tekrar. | 你现在能打电话预约了。明天再来。 |
 
 ### Interactive moments
 
 - Tappable words: every caption word; in the explain beat the two cards are chips, each playing its own line, and the merged "Could I" chip plays both lines back to back.
-- At the pause (frame 1230) the learner says: "Could I make an appointment, please?" Model answer: the same line. Scored as read-aloud, then the first `free_use` item `ITM-INT-1201` puts the same words into a live turn with Noor on the phone.
+- Five stops, growing, and the first of them is the prediction: tap what to say at 228, tap the key words at 378, say "Monday at ten" at 528, say the whole acceptance at 678, tap the merged chips at 858, say the line with a day in it at 1068. The first ask lands at 7.6 s and no passive stretch runs longer than 7.6 s.
+- At 1068 the learner says: "Could I make an appointment on Friday, please?" Scored as read-aloud, then the first `free_use` item `ITM-INT-1201` puts the same words into a live turn with Noor on the phone.
+- Prediction (frame 228, `predict` beat): one tap among three lines the learner can already read, only one of which fits a receptionist's question. A wrong tap plays that line back where it stands, so the learner hears why it does not fit. **Not wired yet**: needs the `predict` beat kind and ask kind, LP-46.
 - Extra tap: in n2 the calendar page and the clock are tappable for 90 frames. Tapping the clock plays "ten o'clock" and the hands re-snap; tapping the page plays "Monday at ten". Tapping anywhere else replays the offer at 0.75x. No red, no lives.
 
 ---
@@ -713,7 +759,7 @@ Cast for part two: **you** (Omar in the week-two atoms, the learner in the start
 | atom_id | ATM-A2-GRM-0013 |
 | title | Earlier or later? |
 | sublevel / strand | A2.1 / GRM (Grammar) |
-| type | word_tutorial, 40 s, 1200 frames |
+| type | word_tutorial, 36 s, 1080 frames (re-cut from 40 s on 26 October) |
 | single target | Add er to the short word, and than before the second thing: cheaper than the taxi |
 | characters | maya (presents throughout), you (in the mini-scenes) |
 | setting | PAPER background with a bus stop strip along the bottom; a taxi, a bus and a train enter and leave the strip as the cards change |
@@ -721,33 +767,42 @@ Cast for part two: **you** (Omar in the week-two atoms, the learner in the start
 
 ### Beats
 
-| id | kind | from | to | narration (TTS) | targets | pauseAt | scene for the animator |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| hook | hook | 0 | 120 | The taxi is twelve pounds. The bus is two pounds. | | | Bus stop strip. A taxi pulls in with a price tag "£12" that drops like a luggage label; a bus pulls in behind with "£2". you stands between them, looking from one tag to the other (two head turns, 12-frame ease). No words on screen yet. |
-| w1 | word | 120 | 330 | Cheaper. It costs less money. | cheaper | | Word card at the top: "cheaper" with "er" in ACCENT. Mini-scene: a seesaw with the two price tags on it tips down on the £2 side with a soft thunk; an "er" tile flies from the low side and clips onto the end of "cheap". The word card becomes "cheap**er**". |
-| w2 | word | 330 | 520 | Quicker. It takes less time. | quicker | | Card: "quicker". Mini-scene: the bus and a train race across the strip; the train arrives first and a stopwatch above it stops at 20 minutes against the bus's 35. The "er" tile clips onto "quick" with the same click as w1, so the pattern is one gesture, not a rule. |
-| w3 | word | 520 | 700 | Earlier. Before the time they said. Later. After it. | earlier, later | | Card: "earlier / later". Mini-scene: a single clock face centre; two ghost hands sweep back to nine and forward to eleven, leaving an "earlier" chip on the left of the clock and a "later" chip on the right. maya's hand points left, then right. |
-| w4 | word | 700 | 860 | Nearer. It is a shorter way. | nearer | | Card: "nearer". Mini-scene: two map pins drop on a simple street line, the health centre at 300 m and the hospital at 2 km; a dotted path draws to the nearer pin and the "er" tile clips onto "near". The three "er" tiles from w1, w2 and w4 then line up at the top edge. |
-| practise | practise | 860 | 1100 | Say it with me. The bus is cheaper than the taxi. | cheaper than | 1020 | Pale blue background, maya large in a white circle. Karaoke in 88 px; "cheaper" with the "er" in ACCENT, and "than" in SAFFRON with a small arrow under it pointing at "the taxi". At 1020 the mic pulses and the player pauses. On resume the two price tags from the hook swing in under the line. |
-| recap | recap | 1100 | 1200 | cheaper, quicker, earlier, nearer. Than comes next. | cheaper, than | | ACCENT background, white card: "REMEMBER", then "cheap**er** **than** the taxi" with er and than picked out, and under it the four words in a row, each with its own small icon (coin, stopwatch, clock, map pin). Hold. |
+Re-cut 26 October 2026 to **The attention law**. The first ask moves from 10.6 s to 6.6 s, and like
+Monday at ten this tutorial **opens on its prediction**: the hook puts two prices on screen and says
+nothing about them, so the obvious first ask is which one is cheaper, one tap, before w1 gives the
+word. Eight beats, 1080 frames.
+
+| id | kind | from | to | narration (TTS) | targets | ask | pauseAt | scene for the animator |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| hook | hook | 0 | 90 | The taxi is twelve pounds. The bus is two pounds. | | | | Bus stop strip. A taxi pulls in with a price tag "£12" that drops like a luggage label; a bus pulls in behind with "£2". you stands between them, looking from one tag to the other (two head turns, 12-frame ease), settled by 78. No English word for the comparison yet, which is what makes the next beat work. |
+| predict | predict | 90 | 210 | Which one is cheaper? | the bus, the taxi | predict | 198 | The prediction moment and the first ask. The two price tags hang still, £12 and £2, and a seesaw sits empty under them. The ask is one tap on a vehicle. The answer is arithmetic the learner already owns in their own language, so the only new thing is the English word, which w1 then supplies: a guess that is certain to be right is still a guess, and the word lands on an answer the learner has already committed to. A tap on the bus tips the seesaw its way; a tap on the taxi tips it and then rights itself as the tags are compared, with no cross. |
+| w1 | word | 210 | 360 | Cheaper. It costs less money. | cheaper | tap | 348 | Word card at the top: "cheaper" with "er" in ACCENT. The seesaw from the predict beat tips down on the £2 side with a soft thunk; an "er" tile flies from the low side and clips onto the end of "cheap" by 330. The word card becomes "cheap**er**". The tap is the chips "cheap" and "er". |
+| w2 | word | 360 | 510 | Quicker. It takes less time. | quicker | say the word | 498 | Card: "quicker". Mini-scene: the bus and a train race across the strip; the train arrives first and a stopwatch above it stops at 20 minutes against the bus's 35. The "er" tile clips onto "quick" with the same click as w1, so the pattern is one gesture, not a rule. The learner says "quicker" at 498. |
+| w3 | word | 510 | 660 | Earlier. Before the time they said. Later. After it. | earlier, later | say the word | 648 | Card: "earlier / later". Mini-scene: a single clock face centre; two ghost hands sweep back to nine and forward to eleven, leaving an "earlier" chip on the left of the clock and a "later" chip on the right. maya's hand points left, then right. The learner says "earlier" at 648. |
+| w4 | word | 660 | 810 | Nearer. It is a shorter way. | nearer | say the word | 798 | Card: "nearer". Mini-scene: two map pins drop on a simple street line, the health centre at 300 m and the hospital at 2 km; a dotted path draws to the nearer pin and the "er" tile clips onto "near". The three "er" tiles from w1, w2 and w4 then line up at the top edge by 780. |
+| practise | practise | 810 | 990 | Say it with me. The bus is cheaper than the taxi. | cheaper than | say the line | 978 | Pale blue background, maya large in a white circle. The first whole sentence of the tutorial, and the one place "than" appears, which is half the target. Karaoke in 88 px; "cheaper" with the "er" in ACCENT, and "than" in SAFFRON with a small arrow under it pointing at "the taxi". Line complete by 942, mic cue in by 954. On resume the two price tags from the hook swing in under the line. |
+| recap | recap | 990 | 1080 | You can say which one is cheaper. Again tomorrow. | | | | ACCENT background, white card: "cheap**er** **than** the taxi" with er and than picked out, and under it the four words in a row, each with its own small icon (coin, stopwatch, clock, map pin), which is the check stem. The narration is the self-efficacy close, in the learner's own language. Hold with nothing moving. |
 
 ### L1 captions
 
 | beat | ar | es | hi | ru | tr | zh |
 | --- | --- | --- | --- | --- | --- | --- |
 | hook | التاكسي 12 جنيهًا. الباص 2. | El taxi cuesta 12 libras. El bus, 2. | टैक्सी 12 पाउंड। बस 2 पाउंड। | Такси 12 фунтов. Автобус 2. | Taksi 12 sterlin. Otobüs 2. | 出租车 12 镑，公交 2 镑。 |
+| predict | أيهما أرخص؟ | ¿Cuál es más barato? | कौन सस्ता है? | Что дешевле? | Hangisi daha ucuz? | 哪个更便宜？ |
 | w1 | cheaper: أرخص، يكلف أقل. | cheaper: más barato, cuesta menos. | cheaper: सस्ता, कम पैसे। | cheaper: дешевле, стоит меньше. | cheaper: daha ucuz, az tutar. | cheaper：更便宜，花得少。 |
 | w2 | quicker: أسرع، وقت أقل. | quicker: más rápido, menos tiempo. | quicker: तेज़, कम समय। | quicker: быстрее, меньше времени. | quicker: daha hızlı, az zaman. | quicker：更快，用时少。 |
 | w3 | earlier: أبكر. later: لاحقًا. | earlier: más temprano. later: más tarde. | earlier: पहले। later: बाद में। | earlier: раньше. later: позже. | earlier: daha erken. later: daha geç. | earlier：更早。later：更晚。 |
 | w4 | nearer: أقرب. | nearer: más cerca. | nearer: ज़्यादा पास। | nearer: ближе. | nearer: daha yakın. | nearer：更近。 |
 | practise | قلها معي. | Dilo conmigo. | मेरे साथ बोलो। | Скажи со мной. | Benimle söyle. | 跟我一起说。 |
-| recap | أضف er، ثم than قبل الشيء الثاني. | Añade er y than antes de la segunda cosa. | er जोड़ो, दूसरी चीज़ से पहले than। | Добавь er, затем than перед вторым. | er ekle, sonra than. | 加 er，第二样前面用 than。 |
+| recap | يمكنك أن تقول أيهما أرخص. غدًا مرة أخرى. | Ya puedes decir cuál es más barato. Mañana otra vez. | अब आप बता सकते हैं कि कौन सस्ता है। कल फिर। | Теперь вы можете сказать, что дешевле. Завтра снова. | Artık hangisinin daha ucuz olduğunu söyleyebilirsin. Yarın tekrar. | 你现在能说出哪个更便宜了。明天再来。 |
 
 ### Interactive moments
 
 - Tappable words: all caption words; each card title is a chip; the three "er" tiles are chips that play "cheaper", "quicker", "nearer" in isolation so the ending is audible on its own.
-- At the pause (frame 1020) the learner says: "The bus is cheaper than the taxi." Model answer: the same line. Scored as read-aloud; the first `free_use` item `ITM-GRM-1301` then asks for the same comparison from the two prices, with Maya answering.
-- Extra tap: in w1 the "er" tile is draggable for 90 frames. Dropped on "cheap" it clips on with a click and plays "cheaper"; dropped on "more" (a decoy chip that floats in at frame 250) the "more" chip wobbles, fades, and the tile returns to its start. Consequence first, then the correct form, no mark.
+- Six stops, growing, and the first of them is the prediction: tap the cheaper vehicle at 198, tap the key words at 348, say "quicker" at 498, "earlier" at 648 and "nearer" at 798, say the whole comparison at 978. The first ask lands at 6.6 s and no passive stretch runs longer than 6.6 s.
+- At 978 the learner says: "The bus is cheaper than the taxi." Scored as read-aloud; the first `free_use` item `ITM-GRM-1301` then asks for the same comparison from the two prices, with Maya answering.
+- Prediction (frame 198, `predict` beat): one tap on the bus or the taxi, before w1 gives the word "cheaper". The learner cannot get the sum wrong, and that is the point: the English word arrives on top of an answer they have already committed to. **Not wired yet**: needs the `predict` beat kind and ask kind, LP-46.
+- Extra tap: in w1 the "er" tile is draggable for 90 frames. Dropped on "cheap" it clips on with a click and plays "cheaper"; dropped on "more" (a decoy chip that floats in at frame 300) the "more" chip wobbles, fades, and the tile returns to its start. Consequence first, then the correct form, no mark.
 
 ---
 
@@ -758,7 +813,7 @@ Cast for part two: **you** (Omar in the week-two atoms, the learner in the start
 | atom_id | ATM-A2-SPK-0014 |
 | title | Which way? |
 | sublevel / strand | A2.1 / SPK (Speaking) |
-| type | video, 50 s, 1500 frames |
+| type | video, 40 s, 1200 frames (re-cut from 50 s on 26 October) |
 | single target | Excuse me, how do I get to the health centre? |
 | characters | you (lost, with a phone in hand), sami (the passer-by), maya (explain corner) |
 | setting | A north London street: terraced houses, a postbox, a chemist with a green cross, a side street on the left. Morning, thin blue sky |
@@ -766,14 +821,22 @@ Cast for part two: **you** (Omar in the week-two atoms, the learner in the start
 
 ### Beats
 
-| id | kind | from | to | narration (TTS) | targets | pauseAt | scene for the animator |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| hook | hook | 0 | 180 | Ten to ten. Omar cannot find the health centre. | | | Street in flat vector. you turns on the spot once (360 in 40 frames, feet sliding), a "?" bubble droops above. A wall clock graphic top-right reads ten to ten and ticks twice. The side street is visible at the left edge but unmarked. |
-| n1 | notice | 180 | 450 | Excuse me, how do I get to the health centre? | how do I get to | | sami enters from the right with a shopping bag. you's bubble, tail right: "Excuse me, how do I get to the health centre?" with "how do I get to" in ACCENT. The phrase types word by word on the narration; "Excuse me" arrives first and alone, with a small open-hand gesture from you. |
-| n2 | notice | 450 | 720 | Go straight on and take the second left. The second left. Thank you. | The second left | | sami's bubble, tail left, with the directions. As he speaks, a dotted ACCENT path draws along the street and turns down the second side street; two side-street mouths light in order, 1 then 2, with the second one holding. Then you's bubble repeats "The second left." and the dotted path flashes once to confirm. |
-| explain | explain | 720 | 1080 | Say the directions back. Then you know you heard them. | second left | | PAPER background, maya in the corner circle. Centre: two speech bubbles stacked, sami's above and you's below, with the words "second left" in both, joined by a vertical dotted line and a small return arrow. At frame 900 a tick stamps between them. The street plan sits small at the bottom with the dotted path. Nothing about grammar. |
-| practise | practise | 1080 | 1380 | Say it with me. How do I get to the health centre? | how do I get to | 1230 | Pale blue background, maya large in a white circle. Karaoke in 88 px, two lines, "get to" underlined in ACCENT. At 1230 the mic pulses and the player pauses. On resume the chemist sign and the health centre card slide in side by side with a leaf tick. |
-| recap | recap | 1380 | 1500 | Excuse me, how do I get to the health centre? | how do I get to | | ACCENT background, white card: "REMEMBER", then "Excuse me, how do I get to ...?" with a saffron dotted blank, and under it "... the second left. Thank you." Icons: open hand, dotted path, chemist cross. |
+Re-cut 26 October 2026 to **The attention law**, on the video spine. Both nine-second notice beats
+carried two speaker turns and are now two beats each; the twelve-second explain and ten-second practise
+come down to six and seven. The `predict` beat sits before the learner's own repeat-back, which is the
+half of the criterion that is easy to skip: the learner guesses what you say to check you heard it,
+then hears themselves do it.
+
+| id | kind | from | to | narration (TTS) | targets | ask | pauseAt | scene for the animator |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| hook | hook | 0 | 120 | Ten to ten. Omar cannot find the health centre. | | | | Street in flat vector. you turns on the spot once (360 in 40 frames, feet sliding), a "?" bubble droops above. A wall clock graphic top-right reads ten to ten and ticks twice. The side street is visible at the left edge but unmarked. Settled by 108. |
+| n1 | notice | 120 | 270 | Excuse me, how do I get to the health centre? | how do I get to | tap | 258 | sami enters from the right with a shopping bag. you's bubble, tail right: "Excuse me, how do I get to the health centre?" with "how do I get to" in ACCENT. The phrase types word by word on the narration; "Excuse me" arrives first and alone, with a small open-hand gesture from you. Settled by 240; the tap is "Excuse me" and "how do I get to". |
+| n2 | notice | 270 | 420 | Go straight on and take the second left. | The second left | say the word | 408 | sami's bubble, tail left, with the directions. As he speaks, a dotted ACCENT path draws along the street and turns down the second side street; two side-street mouths light in order, 1 then 2, with the second one holding by 390. The learner says "the second left" at 408. |
+| predict | predict | 420 | 540 | What do you say now? | The second left., Yes., Where? | predict | 528 | The prediction moment, placed on the half of the criterion a learner skips: checking that you heard it. sami waits with his eyebrows up and you's bubble is empty. Three chips: "The second left.", "Yes." and "Where?" Nothing is spoken in English; the caption asks in the learner's own language. The ask is one tap. A tap on the repeat-back lights it and the dotted path flashes once; a tap on "Yes." plays it and leaves sami's hand still raised, which shows what a bare yes does not do, with no cross anywhere. |
+| n3 | notice | 540 | 690 | The second left. Thank you. | The second left, Thank you | say the line | 678 | you's bubble fills with the repeat-back and the dotted path flashes once to confirm; sami nods and walks on. The learner says the whole line at 678, which is the criterion in one go: say the directions back, then thank them. |
+| explain | explain | 690 | 870 | Say the directions back. Then you know you heard them. | second left | tap | 858 | PAPER background, maya in the corner circle. Centre: two speech bubbles stacked, sami's above and you's below, with the words "second left" in both, joined by a vertical dotted line and a small return arrow. At frame 800 a tick stamps between them. The street plan sits small at the bottom with the dotted path. Nothing about grammar. The tap is the two "second left" chips. |
+| practise | practise | 870 | 1080 | Say it with me. How do I get to the chemist? | how do I get to | say it changed | 1068 | Pale blue background, maya large in a white circle. A new destination, so the frame has moved off the health centre and the learner is asking for somewhere they have not asked for. Karaoke in 88 px, two lines, "get to" underlined in ACCENT and "the chemist" in SAFFRON. Line complete by 1032, mic cue in by 1044. On resume the chemist sign and the health centre card slide in side by side with a leaf tick. |
+| recap | recap | 1080 | 1200 | You can ask the way and check you heard it. Again tomorrow. | | | | ACCENT background, white card: "Excuse me, how do I get to ...?" with a saffron dotted blank, and under it "... the second left. Thank you.", which is the check stem. Icons: open hand, dotted path, chemist cross. The narration is the self-efficacy close, in the learner's own language. Hold with nothing moving. |
 
 ### L1 captions
 
@@ -782,14 +845,18 @@ Cast for part two: **you** (Omar in the week-two atoms, the learner in the start
 | hook | العاشرة إلا عشر دقائق. عمر لا يجد المركز. | Las diez menos diez. Omar no encuentra el centro. | दस बजने में दस मिनट। उमर को रास्ता नहीं मिला। | Без десяти десять. Омар не находит центр. | Ona on var. Omar merkezi bulamıyor. | 九点五十。Omar 找不到诊所。 |
 | n1 | عفوًا، كيف أصل إلى المركز الصحي؟ | Perdone, ¿cómo llego al centro de salud? | माफ़ कीजिए, हेल्थ सेंटर कैसे जाऊँ? | Извините, как добраться до поликлиники? | Affedersiniz, sağlık merkezine nasıl giderim? | 请问，诊所怎么走？ |
 | n2 | امشِ مستقيمًا وخُذ الثاني يسارًا. | Siga recto y tome la segunda a la izquierda. | सीधे जाइए, दूसरा बाएँ लीजिए। | Идите прямо и второй поворот налево. | Düz gidin, ikinci soldan dönün. | 直走，第二个路口左转。 |
+| predict | ماذا تقول الآن؟ | ¿Qué dices ahora? | अब आप क्या कहेंगे? | Что вы скажете теперь? | Şimdi ne dersin? | 现在你会说什么？ |
+| n3 | الثاني يسارًا. شكرًا. | La segunda a la izquierda. Gracias. | दूसरा बाएँ। धन्यवाद। | Второй налево. Спасибо. | İkinci soldan. Teşekkürler. | 第二个路口左转。谢谢。 |
 | explain | أعد الاتجاهات لتتأكد أنك سمعتها. | Repite las indicaciones para comprobar. | दिशा दोहराओ, तब पक्का होगा। | Повтори направления для проверки. | Yolu tekrarla, böylece emin olursun. | 把路线重复一遍就确认了。 |
 | practise | قلها معي. | Dilo conmigo. | मेरे साथ बोलो। | Скажи со мной. | Benimle söyle. | 跟我一起说。 |
-| recap | اسأل عن الطريق، ثم أعده. | Pregunta el camino y repítelo. | रास्ता पूछो, फिर दोहराओ। | Спроси дорогу и повтори её. | Yolu sor, sonra tekrarla. | 问路，然后重复一遍。 |
+| recap | يمكنك سؤال الطريق والتأكد أنك سمعته. غدًا مرة أخرى. | Ya puedes preguntar el camino y comprobar que lo oíste. Mañana otra vez. | अब आप रास्ता पूछ सकते हैं और जाँच सकते हैं कि सही सुना। कल फिर। | Теперь вы можете спросить дорогу и проверить, что услышали. Завтра снова. | Artık yol sorup doğru duyduğunu kontrol edebilirsin. Yarın tekrar. | 你现在能问路并确认听懂了。明天再来。 |
 
 ### Interactive moments
 
 - Tappable words: all caption words; "second left" is one chip in both bubbles of the explain beat, so tapping either plays the same two words.
-- At the pause (frame 1230) the learner says: "Excuse me, how do I get to the health centre?" Model answer: the same line. Scored as read-aloud; `ITM-SPK-1401` then runs the same question as a live turn with sami, and `ITM-SPK-1404` adds the saying-back.
+- Five stops, growing: tap the key words at 258, say "the second left" at 408, predict what you say back at 528, say the whole repeat-back at 678, tap the two matching chips at 858, ask for a new place at 1068. The first ask lands at 8.6 s and no passive stretch runs longer than 8.6 s.
+- At 1068 the learner says: "How do I get to the chemist?" Scored as read-aloud; `ITM-SPK-1401` then runs the same question as a live turn with sami, and `ITM-SPK-1404` adds the saying-back.
+- Prediction (frame 528, `predict` beat): one tap among "The second left.", "Yes." and "Where?", before n3 shows the repeat-back. A tap on "Yes." plays it and leaves sami's hand still raised, which shows what a bare yes fails to do without telling the learner off. **Not wired yet**: needs the `predict` beat kind and ask kind, LP-46.
 - Extra tap: in n2 the two side-street mouths are tappable for 120 frames. Tapping the second one draws the dotted path and plays "the second left" (leaf glow); tapping the first dims it grey and replays the directions at 0.75x. The dotted path is never drawn wrongly, so a learner cannot be walked the wrong way.
 
 ---
