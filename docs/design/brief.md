@@ -243,3 +243,12 @@ inner edge. Never more than three glowing things on a screen.
 The engagement model (world, episodes, quests, collection, choices, surprises, classmates,
 momentum), the exercise interactions, Blobert's job, the pedagogy, reduced motion, 44 px targets,
 contrast at 4.5:1, British English, the left-edge gallery tab.
+
+## Flat cast and solid colour (board, 27 Oct)
+ST: "make the characters cleaner... be very granular... even if it is a simple design it needs to be
+perfect. Use more solid colours and not gradients everywhere." The cast is now flat: solid fills
+only, one light source (top left) shown by a single solid shade shape, built on a fixed grid (head
+circle r56 at 100,92; eyes 40 apart at y98; mouth at y120; shoulders from y158). Source of truth:
+`docs/design/cast/flat/cast.js`, with the expression sheet beside it. Buttons are solid with a solid
+darker underside; panels are solid translucent fills; props, scenes, the chest and Blobert are flat.
+Gradients are not used, except soft background glow.
