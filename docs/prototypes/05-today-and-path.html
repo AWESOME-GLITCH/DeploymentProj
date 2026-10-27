@@ -565,5 +565,8 @@ document.addEventListener('keydown',e=>{
 window.lp={setState(s){state=s;paint();},go,openLesson,closeLesson,setTheme};
 paint();
 </script>
+<!-- gallery-back -->
+<a class="lp-gallery-back" href="index.html" aria-label="Back to all prototypes" style="position:fixed;left:0;top:46%;z-index:2147483000;writing-mode:vertical-rl;transform:rotate(180deg);background:#121212;color:#fff;font:700 12px 'Plus Jakarta Sans',system-ui,sans-serif;letter-spacing:.6px;padding:12px 7px;border-radius:12px 0 0 12px;text-decoration:none;opacity:.92;box-shadow:0 2px 8px rgba(0,0,0,.25);line-height:1">‹ All</a>
+<script>(function(){document.querySelectorAll('button,a').forEach(function(b){var l=(b.getAttribute('aria-label')||b.title||'').toLowerCase();if(l==='back'||l.indexOf('back')===0||l==='go back'){b.addEventListener('click',function(e){e.preventDefault();location.href='index.html';});}});})();</script>
 </body>
 </html>
