@@ -54,7 +54,11 @@ export function Progress() {
   const earlier = achieved.slice(0, -1).slice(-3).reverse();
 
   return (
-    <div className="flex h-full flex-col justify-between gap-6 px-5 pb-4 pt-6">
+    // One column from the top with the action pinned to the bottom. An earlier
+    // justify-between spread the three blocks over the whole phone, which on
+    // day one (no can-do, no history yet) opened two holes in the middle; the
+    // board's rule is that dead space is never acceptable at 375x812.
+    <div className="flex h-full flex-col px-5 pb-4 pt-6">
       {/* What the learner can do now, with the trail behind it. This is the
           journey in words, and it leads. */}
       <div>
@@ -62,7 +66,9 @@ export function Progress() {
         <div className="mt-2">
           {canDo
             ? <LocText text={canDo} size="head" />
-            : <div className="lp-head" style={{ color: "var(--lp-paper-soft)" }}>{t("first_week")}</div>}
+            // Day one: the big type is kept for a real can-do, so the waiting
+            // line is set at body size and does not shout a sentence.
+            : <div className="lp-body" style={{ color: "var(--lp-paper-soft)" }}>{t("first_week")}</div>}
         </div>
         {earlier.length ? (
           <div className="mt-6">
@@ -81,7 +87,7 @@ export function Progress() {
 
       {/* The one chart on this screen: where the learner sits on the way to the
           next level, with the level itself in plain words. */}
-      <div>
+      <div className="mt-10">
         <div className="flex items-baseline justify-between gap-3">
           <span className="lp-small" style={{ color: "var(--lp-paper-faint)" }}>{t("level_estimate")}</span>
           <span className="lp-body" style={{ fontWeight: 600 }}>{level ? CEFR_LABEL[level] : ""}</span>
@@ -98,11 +104,15 @@ export function Progress() {
         {firstWeek && !state.checkpoints.length && canDo ? <div className="lp-small mt-3" style={{ color: "var(--lp-paper-faint)" }}>{t("first_week")}</div> : null}
       </div>
 
-      {/* Two quiet facts and the one action. */}
-      <div>
-        <div className="lp-small" style={{ color: "var(--lp-paper-faint)" }}>
-          {minutes < 120 ? `${Math.round(minutes)} ${t("minutes_so_far")}` : `${hours.toFixed(1)} ${t("hours_so_far")}`}
-        </div>
+      {/* Two quiet facts and the one action, held at the bottom. "0 minutes"
+          reads as though nothing was recorded, so the time line only appears
+          once there is time to report. */}
+      <div className="mt-auto">
+        {minutes >= 1 ? (
+          <div className="lp-small" style={{ color: "var(--lp-paper-faint)" }}>
+            {minutes < 120 ? `${Math.round(minutes)} ${t("minutes_so_far")}` : `${hours.toFixed(1)} ${t("hours_so_far")}`}
+          </div>
+        ) : null}
         <div className="lp-small mt-1" style={{ color: "var(--lp-paper-faint)" }}>{learnersToday} {t("learners_today")}</div>
         <div className="mt-4"><GlowButton secondary size="normal" onClick={download}><Download size={18} /> {t("download_report")}</GlowButton></div>
       </div>

@@ -349,7 +349,7 @@ learner's first go at it.
 | atom_id | ATM-A2-INT-0009 |
 | title | We're out of oat milk |
 | sublevel / strand | A2.1 / INT (Interaction) |
-| type | video, 54 s, 1620 frames |
+| type | video, 40 s, 1200 frames (re-cut from 54 s on 26 October) |
 | single target | "Do you have ... instead?" with instead at the end, answered with "That's fine, thank you." |
 | characters | leo (barista), you (customer), maya (explain beat only, corner circle) |
 | setting | The Shoreditch cafe set from Cafe.tsx (window, shelves, hanging sign, counter) plus a glass-door fridge with milk cartons behind leo |
@@ -357,28 +357,32 @@ learner's first go at it.
 
 ### Beats
 
-Re-cut 26 October 2026 to the board's attention rule, as the Cafe reference was:
-eleven beats of 2 to 7 seconds, every teaching beat ending on its stopping line
-with a `target` and a `pauseAt`, a prediction beat before the learner's line,
-the old twelve-second explain beat split in two, and two say-asks instead of one
-so the ask grows (the line, then the line with a new word in it). The recap
-narration is the self-efficacy close. Duration grew from 1500 to 1620 frames.
-Every `pauseAt` below is a settled frame: the composition holds it with nothing
-mid-move and the whole caption lit.
+Re-cut twice on 26 October 2026. The first pass answered the board's attention
+rule but ran to eleven beats and 1620 frames, which broke the 1200-frame cap and
+the 6-to-8 beat law in **The beat law** below it. This second pass puts it on the
+**nine-beat contrast grid**, which is the right spine because the criterion is two
+forms, `out of` to understand and `instead` to produce, and a meaning each needs
+its own explain beat. Every `pauseAt` is a settled frame.
 
-| id | kind | from | to | narration (TTS) | targets | pauseAt | scene for the animator |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| hook | hook | 0 | 120 | A latte with oat milk, please. | | | Cafe set. you at the counter (facing left), leo behind it waves. you's bubble (tail right): "A latte with oat milk, please." A small oat-milk carton icon (blue, with an oat sprig) bounces on the counter. Camera at rest. |
-| n1 | notice | 120 | 270 | Sorry, we're out of oat milk. | out of | 252 | leo turns to the fridge; the camera pans right with him. On the shelf, the oat-milk slot is empty: a dotted carton outline. Gag: leo lifts the last carton, turns it upside down, one drop falls with a tiny plink. leo's bubble (tail left): "Sorry, we're out of oat milk." with "out of" in ACCENT. leo shrugs, palms up. The whole gag lands by 246, so the stop at 252 holds a settled frame. |
-| predict | notice | 270 | 330 | What do you say? | | 318 | The prediction moment. Camera pans back to you, who is thinking. A thought cloud over you holds a big ACCENT "?" and the two milks they can see in the fridge, soy and almond. Nothing is said; the caption asks the question in the learner's own language. Carries no `target`, so the player plays it straight through until a "predict" ask kind exists; the intended ask is one tap on a carton. |
-| n2 | notice | 330 | 480 | Do you have soy milk instead? | instead | 456 | A soy carton (green) slides along the shelf from the right and stops in the empty slot with a soft bump, filling the dotted outline. you's bubble builds word by word and "instead" arrives last. you's arm "raise". |
-| n3 | notice | 480 | 570 | Yes, we do. | | | leo holds up the soy carton, nods twice. Bubble: "Yes, we do." A leaf tick pops over the carton. Short beat, no ask; hold on both characters smiling. |
-| n4 | notice | 570 | 720 | That's fine, thank you. | That's fine | 696 | you's bubble: "That's fine, thank you." with "That's fine" in ACCENT. leo pours the soy milk into a latte cup (steam from the Cafe.tsx `Steam` helper), slides it across the counter to you. |
-| explain | explain | 720 | 900 | Out of means none left. | Out of | 876 | PAPER background, maya small in the corner circle. A shelf with two slots, sitting in the middle of the frame while it is the only thing on the page. The oat carton fades to a dotted outline (750) and the label "out of = none left" appears under it in INK (786). Nothing else: one idea, one stop. |
-| explain2 | explain | 900 | 1080 | Instead means in its place. | Instead | 1056 | The soy carton slides into the dotted slot (906 to 950) and the label "instead = in its place" appears (956). The shelf lifts 140 px (976) to make room, and the question rolls in as a three-carriage train (1004): "Do you have" (engine) + "soy milk" (carriage) + "instead?" (last carriage, ACCENT, with a small flag), so the learner sees instead is always the last carriage. |
-| practise | practise | 1080 | 1296 | Say it with me. Do you have soy milk instead? | Do you have, instead | 1266 | Pale blue background, leo large in a white circle, listening pose. Karaoke of "Do you have soy milk instead?" in 96 px; "instead" rises 10 px and turns ACCENT as it is spoken. The line is complete by 1230 and the mic is up and pulsing by 1266, which is the frame the player holds. On resume leo gives a thumbs up and the soy carton pops a tick. |
-| again | practise | 1296 | 1476 | Do you have almond milk instead? | almond milk, instead | 1446 | The same frame with a new word in it: the ask grows. Eyebrow "NOW THIS ONE", karaoke of "Do you have almond milk instead?" with "almond" and "instead?" in ACCENT. Mic up by 1446. On resume the almond carton pops a tick. |
-| recap | recap | 1476 | 1620 | You can ask for another milk. Again tomorrow. | another milk | | ACCENT background, white card: "REMEMBER", line one "Do you have ... instead?" with the blank in saffron dots and "instead" in ACCENT, line two "That's fine." The card holds the check stem; the self-efficacy close is the narration, so it is spoken and captioned in the learner's own language. Below the card the dotted oat carton and the solid soy carton spring in side by side. |
+**Two beats cut, and what paid for them.** leo's "Yes, we do." has gone: it is not
+in the check stem, and holding up the carton with a nod says it without a second
+English line. The second practise beat ("almond milk") has gone as a separate
+beat and has become the practise itself, because the ask ladder carries one
+`say it changed` rung, not two; the growth it was doing is now word (`instead`)
+to line (`That's fine, thank you.`) to changed line (`almond milk instead`).
+Between them that is 270 frames, which is most of the 420 the atom had to lose.
+
+| id | kind | from | to | narration (TTS) | targets | ask | pauseAt | scene for the animator |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| hook | hook | 0 | 60 | A latte with oat milk, please. | | | | Cafe set. you at the counter (facing left), leo behind it waves. you's bubble (tail right): "A latte with oat milk, please." A small oat-milk carton icon (blue, with an oat sprig) bounces on the counter. Camera at rest. Two seconds, which is the hook floor on this grid. |
+| n1 | notice | 60 | 210 | Sorry, we're out of oat milk. | out of | tap | 198 | leo turns to the fridge; the camera pans right with him. On the shelf, the oat-milk slot is empty: a dotted carton outline. Gag: leo lifts the last carton, turns it upside down, one drop falls with a tiny plink. leo's bubble (tail left): "Sorry, we're out of oat milk." with "out of" in ACCENT. leo shrugs, palms up. The whole gag lands by 192, so the stop at 198 holds a settled frame. The tap is the chips "out" and "of". |
+| predict | predict | 210 | 300 | What do you say? | Do you have soy milk instead? | predict | 288 | The prediction moment. Camera pans back to you, who is thinking. A thought cloud over you holds a big ACCENT "?" and the two milks they can see in the fridge, soy and almond. Nothing is spoken in English; the caption asks the question in the learner's own language. The ask is one tap on a carton, and **both cartons are right**, which is the honest shape of this scene: either one lights leaf and slides towards the empty slot, and n2 then says the line with the one the learner chose. |
+| n2 | notice | 300 | 450 | Do you have soy milk instead? | instead | say the word | 438 | The chosen carton (soy green, or almond) slides along the shelf from the right and stops in the empty slot with a soft bump, filling the dotted outline. you's bubble builds word by word and "instead" arrives last, settled by 420. you's arm "raise". The learner says "instead" at 438, the one word and not yet the question. |
+| n3 | notice | 450 | 600 | That's fine, thank you. | That's fine, thank you | say the line | 588 | leo holds up the carton and nods twice, wordlessly, with a leaf tick over it. you's bubble: "That's fine, thank you." with "That's fine" in ACCENT. leo pours the milk into a latte cup (steam from the Cafe.tsx `Steam` helper) and slides it across the counter to you, settled by 570. The learner says the whole acceptance line at 588, which is the second half of the criterion. |
+| explain | explain | 600 | 750 | Out of means none left. | Out of | tap | 738 | PAPER background, maya small in the corner circle. A shelf with two slots, sitting in the middle of the frame while it is the only thing on the page. The oat carton fades to a dotted outline (620) and the label "out of = none left" appears under it in INK (660), settled by 720. Nothing else: one idea, one stop. The tap is the label and the dotted carton. |
+| explain2 | explain | 750 | 900 | Instead means in its place. | Instead | tap | 888 | The soy carton slides into the dotted slot (756 to 800) and the label "instead = in its place" appears (806). The shelf lifts 140 px (826) to make room, and the question rolls in as a three-carriage train (854): "Do you have" (engine) + "soy milk" (carriage) + "instead?" (last carriage, ACCENT, with a small flag), settled by 876, so the learner sees instead is always the last carriage. The tap is the three carriages. |
+| practise | practise | 900 | 1080 | Say it with me. Do you have almond milk instead? | almond milk, instead | say it changed | 1068 | Pale blue background, leo large in a white circle, listening pose. A new milk, so the learner is not reading back the line they have just heard. Karaoke of "Do you have almond milk instead?" in 96 px; "almond" in SAFFRON and "instead" rising 10 px and turning ACCENT as it is spoken. Line complete by 1032, mic cue in by 1044. On resume leo gives a thumbs up and the almond carton pops a tick. |
+| recap | recap | 1080 | 1200 | You can ask for another milk. Again tomorrow. | | | | ACCENT background, white card: "REMEMBER", line one "Do you have ... instead?" with the blank in saffron dots and "instead" in ACCENT, line two "That's fine." The card holds the check stem; the self-efficacy close is the narration, so it is spoken and captioned in the learner's own language. Below the card the dotted oat carton and the solid soy carton spring in side by side. |
 
 ### L1 captions
 
@@ -388,20 +392,18 @@ mid-move and the whole caption lit.
 | n1 | آسف، نفد حليب الشوفان. | Lo siento, no queda leche de avena. | माफ़ कीजिए, ओट मिल्क ख़त्म है। | Извините, овсяное молоко закончилось. | Üzgünüm, yulaf sütü bitti. | 抱歉，燕麦奶没了。 |
 | predict | ماذا تقول أنت؟ | ¿Qué dices tú? | आप क्या कहेंगे? | Что вы скажете? | Sen ne dersin? | 你会怎么说？ |
 | n2 | هل لديك حليب الصويا بدلًا منه؟ | ¿Tienes leche de soja en su lugar? | क्या इसकी जगह सोया मिल्क है? | А соевое молоко есть вместо него? | Onun yerine soya sütü var mı? | 那有豆奶吗？ |
-| n3 | نعم، لدينا. | Sí, tenemos. | हाँ, है। | Да, есть. | Evet, var. | 有的。 |
-| n4 | لا بأس، شكرًا. | Está bien, gracias. | ठीक है, धन्यवाद। | Хорошо, спасибо. | Tamam, teşekkürler. | 好的，谢谢。 |
+| n3 | لا بأس، شكرًا. | Está bien, gracias. | ठीक है, धन्यवाद। | Хорошо, спасибо. | Tamam, teşekkürler. | 好的，谢谢。 |
 | explain | Out of تعني لم يبقَ شيء. | Out of: no queda. | Out of मतलब ख़त्म। | Out of: ничего не осталось. | Out of: kalmadı. | Out of 表示没了。 |
 | explain2 | Instead تعني بدلًا منه. | Instead: en su lugar. | Instead मतलब उसकी जगह। | Instead: вместо него. | Instead: onun yerine. | Instead 表示代替。 |
 | practise | قلها معي. | Dilo conmigo. | मेरे साथ बोलो। | Скажи со мной. | Benimle söyle. | 跟我一起说。 |
-| again | هل لديك حليب اللوز بدلًا منه؟ | ¿Tienes leche de almendra en su lugar? | क्या इसकी जगह आमंड मिल्क है? | А миндальное молоко есть вместо него? | Onun yerine badem sütü var mı? | 那有杏仁奶吗？ |
 | recap | يمكنك أن تطلب حليبًا آخر. غدًا مرة أخرى. | Ya puedes pedir otra leche. Mañana otra vez. | अब आप दूसरा दूध माँग सकते हैं। कल फिर। | Теперь вы можете попросить другое молоко. Завтра снова. | Artık başka bir süt isteyebilirsin. Yarın tekrar. | 你现在可以要另一种奶了。明天再来。 |
 
 ### Interactive moments
 
 - Tappable words: all caption words; the two cartons in the explain beats are chips that play "out of oat milk" and "soy milk instead".
-- Six stops, growing: tap the key words at 252, say the line at 456 and 696, tap the meaning at 876 and 1056, say it at 1266, then say it with a new word at 1446. Nothing passive runs longer than 8.4 s and the first ask lands at 8.4 s.
-- At 1266 the learner says "Do you have soy milk instead?" and at 1446 "Do you have almond milk instead?" Both scored as read-aloud with "instead" weighted; the roleplay item ITM-INT-0904 then puts the learner opposite Leo for three turns.
-- Prediction (frame 318, `predict` beat): "What do you say?" with the thought cloud up, before n2 gives the line. The ask is one tap on the soy or almond carton, each playing "Do you have [soy/almond] milk instead?"; tapping the dotted oat carton makes it wobble and replays "we're out of oat milk". **Not wired yet**: `asksFor` has no predict kind and the `Beat` kind union in `Cafe.tsx` has no `predict` member, so the beat carries no `target` and plays straight through. Its `pauseAt` of 318 is where the stop belongs once both exist.
+- Seven stops, growing: tap the key words at 198, predict what you say at 288, say "instead" at 438, say the acceptance line at 588, tap the meaning at 738 and 888, say the question with a new milk at 1068. The first ask lands at 6.6 s and no passive stretch runs longer than 6.6 s.
+- At 588 the learner says "That's fine, thank you." and at 1068 "Do you have almond milk instead?" Both scored as read-aloud with "instead" weighted; the roleplay item ITM-INT-0904 then puts the learner opposite Leo for three turns.
+- Prediction (frame 288, `predict` beat): "What do you say?" with the thought cloud up, before n2 gives the line. The ask is one tap on the soy or almond carton, and **either is right**: the carton the learner picks is the one n2 then uses, which is the only atom in the set where the prediction changes what the video says next. Tapping the dotted oat carton makes it wobble and replays "we're out of oat milk". **Not wired yet**: `asksFor` has no predict kind and the `Beat` kind union in `Cafe.tsx` has no `predict` member, so until LP-46 lands the beat plays straight through; its `pauseAt` of 288 is where the stop belongs once both exist. The branching answer needs a `predict` ask that can carry a chosen token into the next beat, which is more than LP-46 currently asks for and is flagged on it.
 
 ---
 
@@ -1035,12 +1037,14 @@ else is on it is a real question about the scene rather than an invented one.
 | n3 | في المركز الصحي. | En el centro de salud. | हेल्थ सेंटर में। | В поликлинике. | Sağlık merkezinde. | 在诊所。 |
 | explain | ثلاث معلومات: اليوم، الوقت، المكان. | Tres datos: día, hora, lugar. | तीन बातें: दिन, समय, जगह। | Три факта: день, время, место. | Üç bilgi: gün, saat, yer. | 三件事：日子、时间、地点。 |
 | practise | قلها معي. | Dilo conmigo. | मेरे साथ बोलो। | Скажи со мной. | Benimle söyle. | 跟我一起说。 |
-| recap | قل الثلاثة، فلا يخطئ صديقك. | Di los tres y tu amigo no se equivoca. | तीनों कहो, दोस्त नहीं चूकेगा। | Назови все три, и друг не ошибётся. | Üçünü söyle, arkadaşın şaşırmaz. | 三件都说，朋友就不会错。 |
+| recap | يمكنك نقل ثلاث معلومات. غدًا مرة أخرى. | Ya puedes pasar tres datos. Mañana otra vez. | अब आप तीन बातें बता सकते हैं। कल फिर। | Теперь вы можете передать три факта. Завтра снова. | Artık üç bilgiyi aktarabilirsin. Yarın tekrar. | 你现在能转达三件事了。明天再来。 |
 
 ### Interactive moments
 
 - Tappable words: all caption words; the three cards are chips that play "Thursday", "half past six" and "the health centre"; the card itself is a chip that reads all three lines in order.
-- At the pause (frame 1200) the learner says: "On Thursday at half past six, at the health centre." Model answer: the same line. Scored as read-aloud; `ITM-MED-1701` then gives sami one question to answer live, and `ITM-MED-1704` asks for all three facts.
+- Six stops, growing: tap the key words at 258, say "half past six" at 438, predict the third fact at 558, say all three facts at 708, tap the three labels at 888, say it with a new day at 1068. The first ask lands at 8.6 s and no passive stretch runs longer than 8.6 s.
+- At 708 the learner says "On Thursday at half past six, at the health centre." and at 1068 the same sentence with Friday in it. Both scored as read-aloud; `ITM-MED-1701` then gives sami one question to answer live, and `ITM-MED-1704` asks for all three facts.
+- Prediction (frame 558, `predict` beat): one tap on the building, the price tag or the name badge, while the card's third line is still unresolved. The question is about the scene, not about English, which is what makes it safe at A2 in a mediation atom. **Not wired yet**: needs the `predict` beat kind and ask kind, LP-46.
 - Extra tap: in n2 "18.30" and the clock are a pair of chips for 120 frames. Tapping either plays "half past six" and flashes the other, which is the only place in the week where the 24-hour form and the spoken form are tied together. Tapping the "arrive 10 minutes early" line plays it and marks it on the clock as 6.20, ready for the relay item.
 
 ---
@@ -1052,7 +1056,7 @@ else is on it is a real question about the scene rather than an invented one.
 | atom_id | ATM-PA1-SPK-0018 |
 | title | Hello, I'm Ana |
 | sublevel / strand | PreA1.1 / SPK (Speaking) |
-| type | video, 35 s, 1050 frames |
+| type | video, 39 s, 1170 frames (re-cut from 35 s on 26 October) |
 | single target | Hello. I'm + your name |
 | characters | ana (new, the newcomer), you (the other new learner), maya (the teacher, in the doorway and the explain corner) |
 | setting | A community classroom in London on a Monday morning: six chairs in a half circle, a window with a plane tree, a whiteboard with nothing written on it |
@@ -1062,14 +1066,30 @@ Pre-A1 rules that override the shared conventions for this section and the next 
 
 ### Beats
 
-| id | kind | from | to | narration (TTS) | targets | pauseAt | scene for the animator |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| hook | hook | 0 | 120 | A new class. Monday morning. | | | The classroom in flat vector, empty chairs. maya stands by the door and opens it; light spills in. No words on screen, only a small calendar card top-left showing MONDAY. The plane tree moves 2 degrees in the window. |
-| n1 | notice | 120 | 390 | Hello. I'm Ana. | I'm | | ana steps in, stops, and waves (arm wave for 40 frames). Her bubble types "Hello." and holds for 30 frames, alone. Then "I'm Ana." types under it with "I'm" in ACCENT. A name badge pins itself to her top reading "Ana" with a small click. Nothing else moves while she speaks. |
-| n2 | notice | 390 | 630 | Hello. I'm Omar. | I'm | | you is already sitting; you stands, waves back, bubble: "Hello. I'm Omar." with "I'm" in ACCENT again and in exactly the same position on screen, so the shape repeats. A second badge pins on, reading "Omar". The two badges then sit side by side at the top of frame. |
-| explain | explain | 630 | 810 | What is your name? | What is your name? | | PAPER background, maya in the corner circle, hand open in a small question gesture. Centre: one badge card with the photo circle empty and a saffron dotted blank where the name goes. Above it the question types once, four words, each word a separate chip: "What / is / your / name?" At frame 760 an arrow points from the question to the blank. |
-| practise | practise | 810 | 990 | Say it with me. Hello. I'm Ana. | Hello, I'm | 900 | Pale blue background, ana large in a white circle. Karaoke in 96 px, one short line, with a 1 second gap between "Hello." and "I'm Ana." At 900 the player pauses and the mic pulses with "Your turn". On resume the empty badge from the explain beat fills with a leaf tick. |
-| recap | recap | 990 | 1050 | Hello. I'm ... | Hello, I'm | | ACCENT background, white card: "Hello." on the first line and "I'm ..." on the second with a saffron dotted blank. Two icons under it: a waving hand and a name badge. Hold on screen with no further movement. |
+Re-cut 26 October 2026 to **The attention law**, from six beats and one stop to
+eight beats and six. The old n1 ran nine seconds and n2 eight, with the learner's
+only act at 30 s. Duration grows from 1050 to 1170 frames, which is still inside
+the 1200 cap.
+
+**Pre-A1 needs the ladder more than anyone, and a gentler one.** This is the first
+thing a learner ever does, so the growth is deliberately small: two taps on things
+they have already heard, then one word on its own ("Hello"), then the model line,
+then the same line with their own name in it. Nothing in this atom can be answered
+wrongly, by design. The prediction is made **by picture, not by words**: ana's name
+badge pinned on in n1 is the cue, and the ask is whether Omar will give a name too.
+A Pre-A1 learner cannot read a choice of sentences, so the chips are a waving hand
+and a waving hand with a badge.
+
+| id | kind | from | to | narration (TTS) | targets | ask | pauseAt | scene for the animator |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| hook | hook | 0 | 120 | A new class. Monday morning. | | | | The classroom in flat vector, empty chairs. maya stands by the door and opens it; light spills in. No words on screen, only a small calendar card top-left showing MONDAY. The plane tree moves 2 degrees in the window. Settled by 114. |
+| n1 | notice | 120 | 270 | Hello. I'm Ana. | I'm | tap | 258 | ana steps in, stops, and waves (arm wave for 40 frames). Her bubble types "Hello." and holds for 20 frames, alone. Then "I'm Ana." types under it with "I'm" in ACCENT. A name badge pins itself to her top reading "Ana" with a small click at 228, which is the cue the next beat needs. Nothing else moves while she speaks. The tap is the two chips "Hello" and "I'm". |
+| predict | predict | 270 | 390 | What does Omar say? | I'm | predict | 378 | The prediction moment, by picture and not by words. ana turns to face you, who is sitting with no badge on. A thought cloud over you holds two chips: a waving hand on its own, and a waving hand beside a blank name badge. Nothing is spoken in English; the caption asks in the learner's own language, three words. The ask is one tap. A tap on the hand-and-badge chip lights it leaf; a tap on the hand alone plays "Hello." on its own and leaves both chips up, so the learner hears a greeting with no name in it. n2 answers it either way. |
+| n2 | notice | 390 | 570 | Hello. I'm Omar. | Hello | say the word | 558 | you stands, waves back, bubble: "Hello. I'm Omar." with "I'm" in ACCENT again and in exactly the same position on screen, so the shape repeats. A second badge pins on at 492, reading "Omar", which settles the prediction. The two badges then sit side by side at the top of frame. The learner says "Hello" on its own at 558, one word and nothing more. |
+| explain | explain | 570 | 750 | What is your name? | What is your name? | tap | 738 | PAPER background, maya in the corner circle, hand open in a small question gesture. Centre: one badge card with the photo circle empty and a saffron dotted blank where the name goes. Above it the question types once, four words, each word a separate chip: "What / is / your / name?" At frame 700 an arrow points from the question to the blank, settled by 726. The tap is the four chips, one at a time. |
+| practise | practise | 750 | 930 | Say it with me. Hello. I'm Ana. | Hello, I'm | say the line | 918 | Pale blue background, ana large in a white circle. Karaoke in 96 px, one short line, with a 1 second gap between "Hello." and "I'm Ana." Line complete by 882, mic cue in by 894. On resume the empty badge from the explain beat fills with a leaf tick. |
+| again | practise | 930 | 1080 | Now your name. Hello. I'm ... | Hello, I'm | say it changed | 1068 | The same frame with the learner's own name in it, which is the only change this atom can ask for and the gentlest possible step up. The badge on screen is blank with a saffron dotted line. Karaoke of "Hello. I'm ..." with the blank held open, complete by 1032, mic cue in by 1044. On resume the badge fills with a tick and no name is written, because the app does not know it. |
+| recap | recap | 1080 | 1170 | You can say your name. Again tomorrow. | | | | ACCENT background, white card: "Hello." on the first line and "I'm ..." on the second with a saffron dotted blank. Two icons under it: a waving hand and a name badge. The narration is the self-efficacy close, in the learner's own language. Hold on screen with no further movement. |
 
 ### L1 captions
 
@@ -1077,16 +1097,20 @@ Pre-A1 rules that override the shared conventions for this section and the next 
 | --- | --- | --- | --- | --- | --- | --- |
 | hook | صف جديد. صباح الاثنين. | Una clase nueva. Lunes. | नई क्लास। सोमवार सुबह। | Новый класс. Утро понедельника. | Yeni bir sınıf. Pazartesi. | 新班级。星期一早上。 |
 | n1 | مرحبًا. أنا آنا. | Hola. Soy Ana. | नमस्ते। मैं आना हूँ। | Здравствуйте. Я Ана. | Merhaba. Ben Ana. | 你好。我是 Ana。 |
+| predict | ماذا يقول عمر؟ | ¿Qué dice Omar? | ओमर क्या कहेगा? | Что скажет Омар? | Omar ne der? | Omar 会说什么？ |
 | n2 | مرحبًا. أنا عمر. | Hola. Soy Omar. | नमस्ते। मैं ओमर हूँ। | Здравствуйте. Я Омар. | Merhaba. Ben Omar. | 你好。我是 Omar。 |
 | explain | ما اسمك؟ | ¿Cómo te llamas? | तुम्हारा नाम क्या है? | Как вас зовут? | Adın ne? | 你叫什么名字？ |
 | practise | قلها معي. | Dilo conmigo. | मेरे साथ बोलो। | Скажи со мной. | Benimle söyle. | 跟我一起说。 |
-| recap | مرحبًا. أنا ... | Hola. Soy ... | नमस्ते। मैं ... हूँ। | Здравствуйте. Я ... | Merhaba. Ben ... | 你好。我是 ... |
+| again | قل اسمك. | Di tu nombre. | अपना नाम कहो। | Скажите своё имя. | Adını söyle. | 说你的名字。 |
+| recap | يمكنك قول اسمك. غدًا مرة أخرى. | Ya puedes decir tu nombre. Mañana otra vez. | अब आप अपना नाम कह सकते हैं। कल फिर। | Теперь вы можете назвать своё имя. Завтра снова. | Artık adını söyleyebilirsin. Yarın tekrar. | 你现在能说自己的名字了。明天再来。 |
 
 ### Interactive moments
 
 - Tappable words: every caption word, and both name badges (each plays its own "I'm ..." line). In the explain beat the four question chips can be tapped one at a time, which is the only place a Pre-A1 learner meets the words separately.
-- At the pause (frame 900) the learner says: "Hello. I'm ..." with their own name. Model answer: "Hello. I'm Ana." Scored as read-aloud on the two words "hello" and "I'm" only; the name is never scored, because no scorer can know it.
-- Extra tap: in n1 and n2 the badge is draggable onto the empty badge card for 90 frames; dropping it there plays that person's line again. Nothing can be answered wrongly in this atom, by design: it is the first thing a learner ever does.
+- Six stops, growing, and the growth is deliberately small because this is the first atom a learner ever meets: tap the two words at 258, predict by picture at 378, say "Hello" alone at 558, tap the four question chips at 738, say the model line at 918, say it with your own name at 1068. The first ask lands at 8.6 s and no passive stretch runs longer than 8.6 s.
+- At 918 the learner says "Hello. I'm Ana." and at 1068 "Hello. I'm ..." with their own name. Scored as read-aloud on the two words "hello" and "I'm" only; the name is never scored, because no scorer can know it.
+- Prediction (frame 378, `predict` beat): one tap between a waving hand and a waving hand with a name badge, decided from ana's badge pinning on in n1. No reading is required, which is the only way a prediction is honest at Pre-A1. A tap on the hand alone plays "Hello." with no name after it, so the learner hears the difference. **Not wired yet**: needs the `predict` beat kind and ask kind, LP-46.
+- Extra tap: in n1 and n2 the badge is draggable onto the empty badge card for 90 frames; dropping it there plays that person's line again. Nothing can be answered wrongly in this atom, by design.
 
 ---
 
@@ -1097,7 +1121,7 @@ Pre-A1 rules that override the shared conventions for this section and the next 
 | atom_id | ATM-PA1-INT-0019 |
 | title | Two, please |
 | sublevel / strand | PreA1.2 / INT (Talking with someone) |
-| type | video, 35 s, 1050 frames |
+| type | video, 40 s, 1200 frames (re-cut from 35 s on 26 October) |
 | single target | A number, the thing, then please: Two apples, please. |
 | characters | leo (behind the counter), ana (buying), you (next in the queue) |
 | setting | A small corner shop: a wooden counter, a crate of apples, a crate of bananas, a shelf of water bottles, a paper bag on a hook |
@@ -1105,30 +1129,52 @@ Pre-A1 rules that override the shared conventions for this section and the next 
 
 ### Beats
 
-| id | kind | from | to | narration (TTS) | targets | pauseAt | scene for the animator |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| hook | hook | 0 | 150 | A small shop. Ana wants apples. | | | The shop in flat vector. ana comes in from the left and stops at the apple crate; she looks at the apples, then at leo. Two apples lift slightly out of the crate and hover with a soft bob, so what she wants is obvious with no words at all. |
-| n1 | notice | 150 | 420 | Two apples, please. | Two apples, please | | ana at the counter. Her bubble types "Two apples, please." one word at a time on the narration, with "please" in ACCENT. As "Two" is said, a "2" chip stamps above the two hovering apples; as "apples" is said, the two apples fly into a paper bag. |
-| n2 | notice | 420 | 630 | Here you are. Thank you. | Thank you | | leo hands the bag over (arm arc, 30 frames). His bubble: "Here you are." Then ana's bubble: "Thank you." with "Thank you" in ACCENT. Both bubbles stay on screen together for 40 frames: the exchange is the unit, not the single phrase. |
-| explain | explain | 630 | 810 | One. Two. Three. The number, the thing, then please. | please | | PAPER background, leo in the corner circle. Centre: three slots in a row, each with an icon above it: a "2" chip, an apple, and a please chip in SAFFRON. At frame 700 the three chips drop into the slots left to right with a click each, and the line reads "Two apples, please." Then the apple swaps for a water bottle and the line re-reads itself, so the slot, not the word, is the pattern. |
-| practise | practise | 810 | 990 | Say it with me. Two apples, please. | Two apples, please | 900 | Pale blue background, leo large in a white circle. Karaoke in 96 px, one line, with the "2" chip above the word "Two". At 900 the player pauses and the mic pulses. On resume the paper bag from n1 lands under the line with a leaf tick. |
-| recap | recap | 990 | 1050 | Two apples, please. Thank you. | please, Thank you | | ACCENT background, white card: "... please." on the first line, "Thank you." on the second. Three icons under them: a number chip, an apple, a paper bag. Hold. |
+Re-cut 26 October 2026 to **The attention law**, from six beats and one stop to
+eight beats and six. The old n1 ran nine seconds, n2 seven, and the learner's
+only act was at 30 s. Duration grows from 1050 to 1200 frames, which is the cap
+exactly.
+
+**This one opens on its prediction**, the `ATM-A2-INT-0012` shape. The hook shows
+ana wanting two apples with no words at all, so the first ask is one tap on what
+she will say, at 7.6 s, and rules 2 and 3 are satisfied by the same beat. At
+Pre-A1 the chips are pictures, not sentences.
+
+**One line is cut to pay for the predict beat.** leo's "Here you are." has gone:
+it is not in the criterion ("Say it. Ask for two apples."), and at Pre-A1 a
+wordless hand-over of the bag is clearer than a second English line. This is the
+same trade the gas bill atom makes. The exchange is still an exchange, because
+ana's "Thank you." stays.
+
+| id | kind | from | to | narration (TTS) | targets | ask | pauseAt | scene for the animator |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| hook | hook | 0 | 120 | A small shop. Ana wants apples. | | | | The shop in flat vector. ana comes in from the left and stops at the apple crate; she looks at the apples, then at leo. Two apples lift slightly out of the crate and hover with a soft bob, so what she wants is obvious with no words at all. Settled by 114. |
+| predict | predict | 120 | 240 | What does Ana say? | Two apples, please | predict | 228 | The prediction moment, and the first ask of the video. ana stands at the counter, mouth closed. A thought cloud over her holds three picture chips: two apples, one apple, and a bunch of bananas. No words, because a Pre-A1 learner cannot read a choice. Nothing is spoken in English; the caption asks in the learner's own language, three words. The ask is one tap. A tap on the two apples lights it leaf; a tap on either other chip plays its own line ("One apple, please." / "Two bananas, please.") and leaves all three up, so a wrong guess is a sentence heard rather than a thing lost. n1 answers it either way. |
+| n1 | notice | 240 | 420 | Two apples, please. | Two apples, please | tap | 408 | ana at the counter. Her bubble types "Two apples, please." one word at a time on the narration, with "please" in ACCENT. As "Two" is said, a "2" chip stamps above the two hovering apples; as "apples" is said, the two apples fly into a paper bag, settled by 390. The tap is the three chips "Two", "apples" and "please". |
+| n2 | notice | 420 | 570 | Thank you. | Thank you | say the word | 558 | leo hands the bag over wordlessly (arm arc, 30 frames, a smile, no bubble). ana's bubble: "Thank you." with "Thank you" in ACCENT, alone on screen so there is one line to read. The learner says "Thank you" at 558, two words and nothing more. |
+| n3 | notice | 570 | 750 | Now you. Two apples, please. | Two apples, please | say the line | 738 | ana steps away with her bag and you, who has been next in the queue since the hook, steps up to the counter. leo looks up, open-handed. you's saffron bubble builds the same line in the same position on screen, so the shape repeats with a new speaker. Settled by 720. The learner says the whole line at 738, which is the criterion. |
+| explain | explain | 750 | 930 | One. Two. Three. The number, the thing, then please. | please | tap | 918 | PAPER background, leo in the corner circle. Centre: three slots in a row, each with an icon above it: a "2" chip, an apple, and a please chip in SAFFRON. At frame 810 the three chips drop into the slots left to right with a click each, and the line reads "Two apples, please." Then the apple swaps for a water bottle and the line re-reads itself, so the slot, not the word, is the pattern. Settled by 900. The tap is the three slots. |
+| practise | practise | 930 | 1110 | Say it with me. Two bananas, please. | Two bananas, please | say it changed | 1098 | Pale blue background, leo large in a white circle. The thing changes, so the learner is not reading back the line they have just said. Karaoke in 96 px, one line, with the "2" chip above the word "Two" and "bananas" in SAFFRON. Line complete by 1062, mic cue in by 1074. On resume the paper bag lands under the line with a leaf tick and a banana in it. |
+| recap | recap | 1110 | 1200 | You can ask for two. Again tomorrow. | | | | ACCENT background, white card: "... please." on the first line, "Thank you." on the second. Three icons under them: a number chip, an apple, a paper bag. The narration is the self-efficacy close, in the learner's own language. Hold with nothing moving. |
 
 ### L1 captions
 
 | beat | ar | es | hi | ru | tr | zh |
 | --- | --- | --- | --- | --- | --- | --- |
 | hook | متجر صغير. آنا تريد تفاحًا. | Una tienda pequeña. Ana quiere manzanas. | छोटी दुकान। आना को सेब चाहिए। | Маленький магазин. Ана хочет яблоки. | Küçük bir dükkan. Ana elma istiyor. | 一家小店。Ana 想买苹果。 |
+| predict | ماذا تقول آنا؟ | ¿Qué dice Ana? | आना क्या कहेगी? | Что скажет Ана? | Ana ne der? | Ana 会说什么？ |
 | n1 | تفاحتان، من فضلك. | Dos manzanas, por favor. | दो सेब, कृपया। | Два яблока, пожалуйста. | İki elma, lütfen. | 两个苹果，谢谢。 |
-| n2 | تفضل. شكرًا. | Aquí tienes. Gracias. | लीजिए। धन्यवाद। | Вот, пожалуйста. Спасибо. | Buyurun. Teşekkürler. | 给您。谢谢。 |
+| n2 | شكرًا. | Gracias. | धन्यवाद। | Спасибо. | Teşekkürler. | 谢谢。 |
+| n3 | الآن أنت. تفاحتان، من فضلك. | Ahora tú. Dos manzanas, por favor. | अब तुम। दो सेब, कृपया। | Теперь вы. Два яблока, пожалуйста. | Şimdi sen. İki elma, lütfen. | 现在你。两个苹果，谢谢。 |
 | explain | الرقم، ثم الشيء، ثم please. | El número, la cosa y please. | संख्या, चीज़, फिर please। | Число, предмет, потом please. | Sayı, şey, sonra please. | 数字、东西，再加 please。 |
 | practise | قلها معي. | Dilo conmigo. | मेरे साथ बोलो। | Скажи со мной. | Benimle söyle. | 跟我一起说。 |
-| recap | ... please. شكرًا. | ... please. Gracias. | ... please. धन्यवाद। | ... please. Спасибо. | ... please. Teşekkürler. | ... please。谢谢。 |
+| recap | يمكنك أن تطلب اثنين. غدًا مرة أخرى. | Ya puedes pedir dos. Mañana otra vez. | अब आप दो माँग सकते हैं। कल फिर। | Теперь вы можете попросить два. Завтра снова. | Artık iki tane isteyebilirsin. Yarın tekrar. | 你现在能要两个了。明天再来。 |
 
 ### Interactive moments
 
 - Tappable words: every caption word; the "2" chip plays "two", the apple plays "apples", the please chip plays "please", so the three parts of the sentence are audible separately.
-- At the pause (frame 900) the learner says: "Two apples, please." Model answer: the same line. Scored as read-aloud. `ITM-INT-1901` then runs the same request as a live turn with leo, and `ITM-INT-1904` adds the one problem to repair: no apples today.
+- Six stops, growing, and the first of them is the prediction: predict what she says at 228, tap the three words at 408, say "Thank you" at 558, say the whole line at 738, tap the three slots at 918, say it with a new thing at 1098. The first ask lands at 7.6 s and no passive stretch runs longer than 7.6 s.
+- At 738 the learner says "Two apples, please." and at 1098 "Two bananas, please." Both scored as read-aloud. `ITM-INT-1901` then runs the same request as a live turn with leo, and `ITM-INT-1904` adds the one problem to repair: no apples today.
+- Prediction (frame 228, `predict` beat): one tap among three pictures, decided from what the hook showed her looking at. A wrong tap plays its own sentence where it stands, so the learner hears "One apple, please." or "Two bananas, please." instead of being marked. **Not wired yet**: needs the `predict` beat kind and ask kind, LP-46.
 - Extra tap: in the explain beat the thing slot is a carousel for 120 frames. Tapping it swaps apple for water, tea or bananas and re-reads the whole line with the new word. The number slot swaps between 1 and 2 and the noun follows ("One apple", "Two apples"), which is the first time a learner sees the plural s do anything, two bands before it is ever tested.
 
 ---
@@ -1140,7 +1186,7 @@ Pre-A1 rules that override the shared conventions for this section and the next 
 | atom_id | ATM-A1-GRM-0020 |
 | title | I'm from Spain |
 | sublevel / strand | A1.1 / GRM (Grammar) |
-| type | word_tutorial, 30 s, 900 frames |
+| type | word_tutorial, 35 s, 1050 frames (re-cut from 30 s on 26 October) |
 | single target | I'm about me, you're about the other person |
 | characters | ana, you, maya (practise) |
 | setting | PAPER background with two badge cards side by side, and a simple world map strip along the bottom with Spain, Egypt and the United Kingdom marked |
@@ -1148,14 +1194,30 @@ Pre-A1 rules that override the shared conventions for this section and the next 
 
 ### Beats
 
-| id | kind | from | to | narration (TTS) | targets | pauseAt | scene for the animator |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| hook | hook | 0 | 120 | I'm Ana. I'm from Spain. | I'm | | ana steps into the left badge card, which fills with her name. Her bubble: "I'm Ana. I'm from Spain." with both "I'm" in ACCENT. A map pin drops on Spain on the strip below and a thin line joins the pin to her badge. |
-| w1 | word | 120 | 330 | I'm. I am. Say it about you. | I'm | | Word card at the top: "I'm = I am". Mini-scene: the "I'm" chip hops onto ana's badge, then onto the empty badge on the right and waits there, pointing at the learner. The two chips are the same object moving, not two chips, so the word belongs to whoever is speaking. |
-| w2 | word | 330 | 540 | You're. You are. Say it about one person. | you're | | Card: "you're = you are". Mini-scene: ana turns to face right and the "you're" chip flies from her mouth across to the right badge and sticks. An arrow between the two badges points right. Then the chip tries to land back on ana's own badge, slides off and returns to the right, so the direction is visible without a rule. |
-| w3 | word | 540 | 720 | From, for the country. In, for the city. | from, in | | Card: "from / in". Mini-scene: on the map strip, "from" sits under the Spain pin and "in" sits under a London pin; a dotted flight path arcs from Spain to London with a little plane. The badge on the right completes: "I'm ... I'm from ... I'm in London." with saffron dotted blanks. |
-| practise | practise | 720 | 860 | Say it with me. I'm Ana. I'm from Spain. I'm in London. | I'm, from, in | 800 | Pale blue background, ana large in a white circle. Karaoke in 80 px over three short lines, one fact each, with a half second gap between them. At 800 the mic pulses and the player pauses. On resume all three lines show a leaf tick together. |
-| recap | recap | 860 | 900 | I'm ... I'm from ... I'm in ... | I'm, from, in | | ACCENT background, white card with three lines and saffron dotted blanks, each with an icon: name badge, map pin on a country, map pin on a city. Under the card, small: "you're" with an arrow pointing away from the learner. Hold. |
+Re-cut 26 October 2026 to **The attention law**, on the word-tutorial spine, from
+six beats and one stop to eight beats and six. The old w3 taught `from` and `in`
+in one six-second beat, which is two targets in one beat and breaks rule 6; it is
+now two beats with the prediction between them. Duration grows from 900 to 1050
+frames.
+
+**One deviation, with its reason.** The `predict` beat sits at slot 5 rather than
+slot 4, because the thing it asks the learner to guess (`in`, for the city) is
+given in w4. A prediction placed where the spine puts it would come before `from`,
+which the hook has already said twice. This is the only atom in the set where the
+prediction is a choice between two *words* rather than two pictures; at A1.1 that
+is affordable because `from` has just been labelled under the Spain pin, so the
+question is whether the same word serves a city, and there are only two answers.
+
+| id | kind | from | to | narration (TTS) | targets | ask | pauseAt | scene for the animator |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| hook | hook | 0 | 90 | I'm Ana. I'm from Spain. | | | | ana steps into the left badge card, which fills with her name. Her bubble: "I'm Ana. I'm from Spain." with both "I'm" in ACCENT. A map pin drops on Spain on the strip below and a thin line joins the pin to her badge. Settled by 84. |
+| w1 | word | 90 | 240 | I'm. I am. Say it about you. | I'm | tap | 228 | Word card at the top: "I'm = I am". Mini-scene: the "I'm" chip hops onto ana's badge, then onto the empty badge on the right and waits there, pointing at the learner. The two chips are the same object moving, not two chips, so the word belongs to whoever is speaking. The tap is the chip in both positions. |
+| w2 | word | 240 | 390 | You're. You are. Say it about one person. | you're | say the word | 378 | Card: "you're = you are". Mini-scene: ana turns to face right and the "you're" chip flies from her mouth across to the right badge and sticks. An arrow between the two badges points right. Then the chip tries to land back on ana's own badge, slides off and returns to the right, so the direction is visible without a rule. Settled by 360. The learner says "you're" at 378. |
+| w3 | word | 390 | 540 | From. For the country. | from | say the word | 528 | Card: "from". Mini-scene: on the map strip, the "from" chip drops under the Spain pin with a click and a dotted line joins it to ana's badge, which completes to "I'm from Spain." The London pin is visible on the strip but unlabelled, which is what the next beat asks about. Settled by 510. |
+| predict | predict | 540 | 630 | And the city? | in | predict | 618 | The prediction moment. The London pin sits with an empty saffron dotted label under it and a small ACCENT ring pulses around it twice. Two chips wait above the strip: "from" and "in". Nothing is spoken in English; the caption asks in the learner's own language. The ask is one tap. A tap on "in" lights it leaf and it drops into the label; a tap on "from" slides it into the label, reads "I'm from London." aloud, then lifts it back out, so the learner hears why it does not fit rather than being told. w4 answers it either way. |
+| w4 | word | 630 | 780 | In. For the city. I'm in London. | in | say the line | 768 | Card: "in". The "in" chip settles under the London pin and a dotted flight path arcs from Spain to London with a little plane. The badge on the right completes to all three lines: "I'm Ana. / I'm from Spain. / I'm in London." with "I'm", "from" and "in" in ACCENT, settled by 750. The learner says all three lines at 768, which is the criterion. |
+| practise | practise | 780 | 960 | Say it with me. I'm Omar. I'm from Egypt. I'm in London. | I'm, from, in | say it changed | 948 | Pale blue background, ana large in a white circle. A new name and a new country, so the learner is not reading back ana's badge; on the second pass the blanks are theirs to fill. Karaoke in 80 px over three short lines, one fact each, with a half second gap between them, "Omar" and "Egypt" in SAFFRON. Lines complete by 912, mic cue in by 924. On resume all three lines show a leaf tick together. |
+| recap | recap | 960 | 1050 | You can say where you are from. Again tomorrow. | | | | ACCENT background, white card with three lines and saffron dotted blanks, each with an icon: name badge, map pin on a country, map pin on a city. Under the card, small: "you're" with an arrow pointing away from the learner. The narration is the self-efficacy close, in the learner's own language. Hold with nothing moving. |
 
 ### L1 captions
 
@@ -1164,14 +1226,18 @@ Pre-A1 rules that override the shared conventions for this section and the next 
 | hook | أنا آنا. أنا من إسبانيا. | Soy Ana. Soy de España. | मैं आना हूँ। मैं स्पेन से हूँ। | Я Ана. Я из Испании. | Ben Ana. İspanya'danım. | 我是 Ana。我来自西班牙。 |
 | w1 | I'm = I am. عن نفسك. | I'm = I am. Sobre ti. | I'm = I am। अपने लिए। | I'm = I am. О себе. | I'm = I am. Kendin için. | I'm = I am。说自己。 |
 | w2 | you're = you are. عن الآخر. | you're = you are. Sobre el otro. | you're = you are। दूसरे के लिए। | you're = you are. О другом. | you're = you are. Diğeri için. | you're = you are。说对方。 |
-| w3 | from للبلد، in للمدينة. | from para el país, in para la ciudad. | from देश के लिए, in शहर के लिए। | from о стране, in о городе. | from ülke, in şehir. | from 说国家，in 说城市。 |
+| w3 | from للبلد. | from para el país. | from देश के लिए। | from о стране. | from ülke için. | from 说国家。 |
+| predict | والمدينة؟ | ¿Y la ciudad? | और शहर? | А город? | Ya şehir? | 城市呢？ |
+| w4 | in للمدينة. أنا في لندن. | in para la ciudad. Estoy en Londres. | in शहर के लिए। मैं लंदन में हूँ। | in о городе. Я в Лондоне. | in şehir için. Londra'dayım. | in 说城市。我在伦敦。 |
 | practise | قلها معي. | Dilo conmigo. | मेरे साथ बोलो। | Скажи со мной. | Benimle söyle. | 跟我一起说。 |
-| recap | أنا ... أنا من ... أنا في ... | Soy ... Soy de ... Estoy en ... | मैं ... मैं ... से ... मैं ... में ... | Я ... Я из ... Я в ... | Ben ... ...danım ... ...deyim. | 我是 ... 我来自 ... 我在 ... |
+| recap | يمكنك أن تقول من أين أنت. غدًا مرة أخرى. | Ya puedes decir de dónde eres. Mañana otra vez. | अब आप बता सकते हैं आप कहाँ से हैं। कल फिर। | Теперь вы можете сказать, откуда вы. Завтра снова. | Artık nereli olduğunu söyleyebilirsin. Yarın tekrar. | 你现在能说你从哪里来了。明天再来。 |
 
 ### Interactive moments
 
 - Tappable words: all caption words; the "I'm" and "you're" chips play their full forms ("I am", "you are") when tapped, which is the only place the uncontracted form is heard.
-- At the pause (frame 800) the learner says: "I'm ... I'm from ... I'm in ..." with their own name, country and city. Model answer: "I'm Ana. I'm from Spain. I'm in London." Scored as shadow on "I'm", "from" and "in"; names and places are not scored.
+- Six stops, growing: tap the "I'm" chip at 228, say "you're" at 378, say "from" at 528, predict the city word at 618, say all three lines at 768, say them with your own name and country at 948. The first ask lands at 7.6 s and no passive stretch runs longer than 7.6 s.
+- At 768 the learner says "I'm Ana. I'm from Spain. I'm in London." and at 948 the same three lines with their own name, country and city. Scored as shadow on "I'm", "from" and "in"; names and places are not scored.
+- Prediction (frame 618, `predict` beat): one tap between "from" and "in" for the London pin, after "from" has been labelled under Spain. A tap on "from" drops it in, reads "I'm from London." aloud and lifts it back out, so the learner hears the mismatch instead of being marked for it. **Not wired yet**: needs the `predict` beat kind and ask kind, LP-46.
 - Extra tap: in w2 the "you're" chip is draggable for 90 frames. Dropped on the right badge it sticks and plays "You're Omar."; dropped on the learner's own badge it slides off and plays "I'm Omar." instead, so the wrong drop teaches the right word rather than marking anything.
 
 ---
