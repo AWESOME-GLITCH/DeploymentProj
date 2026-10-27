@@ -578,7 +578,7 @@ h1{margin:0;font-weight:800;font-size:36px;line-height:1.04;letter-spacing:-.02e
     if (reduced){
       blobert.style.transform = "translateX(" + dx + "px)";
       word.style.transition = "opacity .2s"; word.style.opacity = "0";
-      return wait(300).then(function(){ blobert.style.transform = ""; blobert.className = "blobert"; });
+      return wait(650).then(function(){ blobert.style.transform = ""; blobert.className = "blobert"; });
     }
     var fly = function(frames, ms, easing){ return move(word, frames, ms, easing || "cubic-bezier(.3,.6,.4,1)"); };
     return move(blobert, [{ transform: "translateX(0)" }, { transform: "translateX(" + dx + "px)" }], 300)

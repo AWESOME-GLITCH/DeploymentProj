@@ -232,7 +232,7 @@ h1{
 @keyframes gEat{0%{opacity:1} 100%{opacity:0; transform:translate(120px,-50px) scale(.15)}}
 @keyframes gMop{0%{opacity:1} 60%{opacity:.6; transform:translateY(6px) scaleY(.3)} 100%{opacity:0; transform:translateY(8px) scaleY(.1)}}
 /* his sound, a sticker: a "hup", a sweep, a burp */
-.hup{position:absolute; z-index:8; right:120px; bottom:calc(var(--bb,140px) + 110px); opacity:0; pointer-events:none}
+.hup{position:absolute; z-index:8; right:96px; bottom:calc(var(--bb,140px) + 64px); opacity:0; pointer-events:none}
 .hup.go{animation:burst 380ms var(--spring) both}
 
 /* ---------- dock: one ink pill, plus the typed fallback icon ---------- */
@@ -849,12 +849,14 @@ h1{
   /* ---------------- hooks so the prototype can be driven in a browser check ---------------- */
   window.addEventListener("lp:auto", (e) => {
     const ok = !(e.detail && e.detail.correct === false);
+    if (phase === "end"){ reset(); startLine(); }
+    if (phase === "intro") startLine();
     const t = LINES[lineNo].text.split(" ");
     if (phase === "maya" && skipLine) skipLine();
     if (phase === "ready" || phase === "typing" || phase === "duet"){
       if (rec){ try { rec.abort(); } catch(e2){} }
       bubble.classList.add("duet");
-      judge(ok ? LINES[lineNo].text : t.filter((w,i) => i !== Math.min(2, t.length - 1)).join(" "), 2600);
+      judge(ok ? LINES[lineNo].text : t.filter((w,i) => i !== Math.min(2, t.length - 1) && i !== t.length - 1).join(" "), 2600);
     }
   });
   window.__duet = {
@@ -870,7 +872,8 @@ h1{
     },
     gag: (which, word) => { forcedGag = which || null; tidyUp(word == null ? 4 : word); },
     finish: () => { totals.length = 0; totals.push([.8,.7,1]); lineNo = 3; finish(); },
-    state: () => phase
+    state: () => phase,
+    line: () => lineNo
   };
 
   reset();

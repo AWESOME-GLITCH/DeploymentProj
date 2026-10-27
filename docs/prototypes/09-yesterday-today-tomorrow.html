@@ -204,6 +204,8 @@ h1{margin:0;font-size:32px;line-height:1.05;font-weight:800;letter-spacing:-.02e
 
 /* ---------- the one button, plus the always-visible typed icon ---------- */
 .cta{flex:none;display:flex;gap:10px;align-items:center}
+.cta.hide{visibility:hidden}
+.cta.pop{animation:pop .36s var(--spring) both}
 .btn{
   flex:1;font-family:inherit;font-size:17px;font-weight:700;height:56px;
   display:flex;align-items:center;justify-content:center;gap:10px;
@@ -367,7 +369,7 @@ h1{margin:0;font-size:32px;line-height:1.05;font-weight:800;letter-spacing:-.02e
     </form>
   </div>
 
-  <div class="cta">
+  <div class="cta hide" id="cta">
     <button class="btn" id="mainBtn" disabled>
       <span id="btnLabel">Say it</span>
       <span id="btnIcon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="8.2" y="1.8" width="7.6" height="13" rx="3.8" fill="currentColor"/><path d="M4.8 11.2a7.2 7.2 0 0 0 14.4 0M12 18.4V22" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></span>
@@ -765,6 +767,7 @@ h1{margin:0;font-size:32px;line-height:1.05;font-weight:800;letter-spacing:-.02e
   function startSay() {
     phase = "say";
     knob.setAttribute("aria-disabled", "true");
+    $("cta").classList.remove("hide"); $("cta").classList.add("pop");
     sayIndex = 0;
     tries = 0;
     rail.hidden = true;
