@@ -87,27 +87,29 @@ export function Progress() {
 
       {/* The one chart on this screen: where the learner sits on the way to the
           next level, with the level itself in plain words. */}
-      <div className="mt-10">
-        <div className="flex items-baseline justify-between gap-3">
-          <span className="lp-small" style={{ color: "var(--lp-paper-faint)" }}>{t("level_estimate")}</span>
-          <span className="lp-body" style={{ fontWeight: 600 }}>{level ? CEFR_LABEL[level] : ""}</span>
+      {/* One sun block that earns the space. A hairline rule high on the page
+          left two thirds of the phone empty on day one; the brief's progress
+          visual is a single thick rounded bar in ink on the card colour, and
+          the card takes the height the screen has going spare. No row of six
+          CEFR codes under it: that read as a settings widget. Where the
+          learner is sits above the bar, where they are heading at its end. */}
+      <div className="lp-glass mt-8 flex min-h-[196px] flex-1 flex-col justify-center p-5"
+        style={{ background: "var(--lp-sun)", borderColor: "var(--lp-on-sun)", color: "var(--lp-on-sun)" }}>
+        <div className="lp-small" style={{ opacity: 0.75 }}>{t("level_estimate")}</div>
+        <div className="lp-head mt-1">{level ? CEFR_LABEL[level] : ""}</div>
+        <div className="mt-6 h-[18px] w-full overflow-hidden rounded-full" role="img"
+          style={{ background: "rgba(18, 18, 18, 0.18)" }}
+          aria-label={level ? `${t("level_estimate")}: ${CEFR_LABEL[level]}` : t("level_estimate")}>
+          <div className="h-full rounded-full" style={{ width: `${Math.max(6, levelPos * 100)}%`, background: "var(--lp-on-sun)" }} />
         </div>
-        {/* No row of six CEFR codes under the line: that read as a settings
-            widget. Where the learner is sits above it in plain words, where
-            they are heading sits at the far end. */}
-        <div className="relative mt-4 h-4" role="img" aria-label={level ? `${t("level_estimate")}: ${CEFR_LABEL[level]}` : t("level_estimate")}>
-          <div className="absolute inset-x-0 top-1 h-[3px] rounded-full" style={{ background: "var(--lp-track)" }} />
-          <div className="absolute top-1 h-[3px] rounded-full" style={{ width: `${levelPos * 100}%`, background: "var(--lp-sea)" }} />
-          <div className="absolute -top-[3px] h-[14px] w-[14px] -translate-x-1/2 rounded-full" style={{ left: `${levelPos * 100}%`, background: "var(--lp-marker)", boxShadow: "0 0 0 4px var(--lp-marker-tint)" }} />
-        </div>
-        {nextLevel ? <div className="lp-small mt-2 text-right" style={{ color: "var(--lp-paper-faint)" }}>{CEFR_LABEL[nextLevel]}</div> : null}
-        {firstWeek && !state.checkpoints.length && canDo ? <div className="lp-small mt-3" style={{ color: "var(--lp-paper-faint)" }}>{t("first_week")}</div> : null}
+        {nextLevel ? <div className="lp-small mt-3 text-right" style={{ opacity: 0.75 }}>{CEFR_LABEL[nextLevel]}</div> : null}
+        {firstWeek && !state.checkpoints.length && canDo ? <div className="lp-small mt-3" style={{ opacity: 0.75 }}>{t("first_week")}</div> : null}
       </div>
 
       {/* Two quiet facts and the one action, held at the bottom. "0 minutes"
           reads as though nothing was recorded, so the time line only appears
           once there is time to report. */}
-      <div className="mt-auto">
+      <div className="mt-6">
         {minutes >= 1 ? (
           <div className="lp-small" style={{ color: "var(--lp-paper-faint)" }}>
             {minutes < 120 ? `${Math.round(minutes)} ${t("minutes_so_far")}` : `${hours.toFixed(1)} ${t("hours_so_far")}`}

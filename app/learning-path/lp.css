@@ -60,6 +60,13 @@
   --lp-head-tracking: -0.03em;
   --lp-bg-image: #fff7e8;
 
+  /* Shared across modes: the sun block and the ink that always sits on it.
+     Both are fixed in both themes, because the brief keeps the card fills
+     bright in dark mode: text on a sun card is ink there too, never the page
+     colour, which in dark is cream and would vanish. */
+  --lp-sun: #ffd93d;
+  --lp-on-sun: #121212;
+
   /* Shared across modes: radius, spacing, motion. */
   --lp-r-sm: 12px;
   --lp-r-md: 18px;

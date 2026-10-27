@@ -9,29 +9,112 @@ The rule the whole timeline serves: **the learner says something out loud inside
 the first 90 seconds of pressing Continue.** Everything before that exists only
 to make the first sentence sayable.
 
+Since the board's attention rule of 26 October, the scene is no longer the
+passive part of that 90 seconds. The player stops at every beat that carries a
+target, so the learner's first act is a tap at **9.6 s** and the first thing they
+say out loud is at **14.6 s**, both inside the explainer. The rule is met by the
+scene, and the coach's turn is no longer the first time the learner speaks. See
+**The attention law** below for the lesson-side half of the board's six rules;
+`docs/explainers/storyboards.md` carries the explainer-side half.
+
 ## The timeline
 
 | From | Step | Sees | Hears | Says | Gets back |
 |---|---|---|---|---|---|
-| 0:00 | **Scene** | The explainer plays full screen. Maya in a Shoreditch cafe, one line of caption at a time. No buttons except a quiet Skip. | "Monday morning. Shoreditch. Coffee first." then "I'd like a coffee, please." three times in three shapes. | Nothing. Watching is allowed to be watching. | The scene ends on the frame it taught: `I'd like ... please.` |
-| 0:50 | **Notice** | One card. `I'd like` large, the rest of the sentence grey. One why line in the interface language. | The line once more, slowly. | Nothing, one tap to go on. | The tap. Nothing to get wrong. |
-| 1:00 | **Say it** | The coach, and one short task: "Order two large coffees." The model sentence sits under it until the learner starts. | The coach asks in her own voice, then listens. | "I'd like two large coffees, please." | One of three coach responses, below. A landed attempt gets a cafe reply, not a score: "Two large coffees. Anything else?" |
-| 1:40 | **Use it** | Two or three short tasks. Each one ends with the learner saying the whole sentence. A tap or a gap is allowed as a 20 second run-up, never as the finish. | The target line each time before the turn. | The target sentence, in a new shape each time: a tea instead of a coffee, a bill instead of a drink, the same words to a different person. | A coach response each time. The last task of the three is free: the learner chooses what to order. |
-| 3:10 | **Come back later** | The recall echo: six to eight lines from earlier days, one per screen. | Each line once. | The ones that are speakable, said aloud; the rest tapped. | A line that names the next return, not a score: "This comes back tomorrow." |
-| 4:10 | **Close** | The can-do ring moves. One sentence: "You can order a drink." Under it, when the lesson returns and where. | Nothing. | Nothing. | The road marker for the week advances by one. |
+| 0:00 | **Scene** | The explainer plays full screen. Maya in a Shoreditch cafe, one line of caption at a time. No buttons except a quiet Skip. It stops seven times and asks for something each time: see the ladder below. | "Monday morning. Shoreditch. Coffee first." then "I'd like a coffee, please." three times in three shapes. | Taps the key words at 0:10, then says the line at 0:15 and five more times before the scene ends. | A word in her voice each time, never a mark. The scene ends on the frame it taught: `I'd like ... please.` |
+| 1:27 | **Notice** | One card. `I'd like` large, the rest of the sentence grey. One why line in the interface language. | The line once more, slowly. | Nothing, one tap to go on. | The tap. Nothing to get wrong. |
+| 1:37 | **Say it** | The coach, and one short task: "Order two large coffees." The model sentence sits under it until the learner starts. | The coach asks in her own voice, then listens. | "I'd like two large coffees, please." | One of three coach responses, below. A landed attempt gets a cafe reply, not a score: "Two large coffees. Anything else?" |
+| 2:17 | **Use it** | Two or three short tasks. Each one ends with the learner saying the whole sentence. A tap or a gap is allowed as a 20 second run-up, never as the finish. | The target line each time before the turn. | The target sentence, in a new shape each time: a tea instead of a coffee, a bill instead of a drink, the same words to a different person. | A coach response each time. The last task of the three is free: the learner chooses what to order. |
+| 3:47 | **Come back later** | The recall echo: six to eight lines from earlier days, one per screen. | Each line once. | The ones that are speakable, said aloud; the rest tapped. | A line that names the next return, not a score: "This comes back tomorrow." |
+| 4:47 | **Close** | The can-do ring moves. One sentence: "You can order a drink." Under it, when the lesson returns and where. | Nothing. | Nothing. | The road marker for the week advances by one. |
 
-Total 4 to 5 minutes. First spoken turn at **1:00 to 1:10**, landed by **1:40**.
+First act at **0:10**, first spoken turn at **0:15**, both inside the scene. The
+coach's turn is at about **1:37**.
+
+### The scene's own ladder
+
+The seven stops in `ATM-A2-INT-0001`, computed from `asksFor` in
+`ExplainerPlayer.tsx` against the beats in `Cafe.tsx`. This is the first 52
+seconds of the lesson, and it is where the 90-second rule is now satisfied:
+
+| Beat | Stop | At | Ask | What the learner does |
+|---|---|---|---|---|
+| n1 | 288 | **0:09.6** | tap | Taps `I'd like` and `please` in the caption |
+| n2 | 438 | **0:14.6** | say | **Says "I'd like two coffees, please." The first spoken turn.** |
+| n3 | 588 | 0:19.6 | say | Says "Could I have a tea?" |
+| explain | 783 | 0:26.1 | tap | Taps the two chips in "I want is direct. I'd like is polite." |
+| polite | 978 | 0:32.6 | tap | Taps `please` |
+| practise | 1186 | 0:39.5 | say | Says "I'd like a coffee, please." |
+| again | 1320 | 0:44.0 | say | Says "I'd like a tea, please." |
+
+No passive stretch runs longer than 9.6 s, and the first ask is a tap, not a
+sentence, which is rules 1 and 2 met.
+
+**What this costs, stated plainly.** Seven stops add roughly 35 seconds of dwell
+to a 52-second video, so the scene now occupies about 0:00 to 1:27 of wall clock
+and the lesson runs 5 to 6 minutes, over the 3-to-5-minute chunk in
+`docs/learning-model.md`. The answer is not to undo the board's rule but to stop
+doing the same work twice after the scene: the **Notice** step now repeats the
+scene's own notice beat, and the first `controlled` run-up repeats its practise
+beat. Dropping the separate Notice step for any atom whose explainer already has
+a notice beat with a tap ask brings the lesson back to 4 to 5 minutes and removes
+nothing the learner has not already done. Recommended to the board rather than
+applied here, because the phase order landed on LEA-46 one change ago and should
+not move again in the same week without a ruling.
 
 ### Why this order
 
 | Step | Principle | One line |
 |---|---|---|
 | Scene before anything | Comprehensible input | The sentence has to mean something before it can be produced. |
+| An ask at the end of every beat | Attention decays without action | Nothing passive runs longer than ten seconds, so the scene is watched awake. |
+| The first ask is a tap, not a sentence | Foot in the door | A tiny first commitment makes the next one likely; starting with the hardest thing makes the learner quit. |
 | Notice one thing only | Attention is the bottleneck | One highlighted form per lesson, not four. |
+| Guess before the answer | Generation effect | A wrong guess that is then corrected is remembered better than a right answer read off the screen. |
 | Say it third, not last | Retrieval practice | Producing the sentence is the learning event, so it happens while attention is still fresh. |
 | Use it in changed shapes | Varied retrieval | Same function, new situation, so the sentence transfers out of the cafe. |
 | Come back later at the end | Spacing | Older material is retrieved after the new sentence has landed, so the two do not compete. |
 | A response to every turn | Immediate feedback | The learner never waits to find out whether they were understood. |
+| The close names the can-do and the return | Self-efficacy, and Zeigarnik | "You can order a coffee politely" is evidence the learner can act; naming tomorrow's return leaves the loop open. |
+| Every ask can be skipped | Autonomy | An ask the learner cannot refuse is a test. One they can refuse is an invitation, and more of them take it. |
+
+## The attention law
+
+Board rule, 26 October 2026, from behavioural psychology. It is law for every
+explainer and for this lesson flow. `docs/explainers/storyboards.md` carries the
+explainer-side half, beat by beat; this is the lesson-side half.
+
+| # | Board rule | What it means for the lesson | State |
+|---|---|---|---|
+| 1 | No passive stretch longer than 8 to 10 s. The learner acts at the end of every beat that teaches. | The scene was the only long passive stretch in the lesson and is now broken by seven stops, the longest gap 9.6 s. Everything after the scene is already one act per screen. | **Met.** Ladder above, computed from the player |
+| 2 | The first ask is tiny and inside the first 10 s, then the asks grow. Never start with the hardest thing. | The lesson's ask ladder runs across the whole 5 minutes, not just the scene: tap in the scene (0:10), say a line in the scene (0:15), the coach's own turn (1:37), the whole exchange with a problem to repair, then the delayed check. | **Met** |
+| 3 | Before the video gives the answer, ask the learner to predict it where the scene allows. | Inside the scene, the `predict` beat. In the lesson, the Say it step must ask **before** the model is spoken: the model sentence sits on screen as something to fall back on, never read aloud first, or the learner reads instead of retrieving. | Scene side **needs LP-46**; lesson side **met** |
+| 4 | Immediate specific feedback in words, never a mark. Max two tries, then move on kindly. No red, no loss. | The three responses below, in words, with the word that went wrong named. Two tries, then `coach_tries_spent` and the turn stays reopenable. No bars, no transcript, no percentage on any spoken turn. | **Met on screen**, not yet in the coach's voice: LEA-47 |
+| 5 | The close says what the learner can now do and names when it comes back, which keeps the loop open. | The Close step says the can-do ("You can order a drink.") and the return. The board's example names the **next situation** too, "Tomorrow: two coffees", which the current close does not. See the change below. | **Half met.** New string needed |
+| 6 | Tap any word to hear it, replay a beat, skip an ask. One target per beat, one line on screen. | The player gives all three in the scene. After the scene, every item screen carries one task and one line, and the board's element budget already holds that. An ask the learner cannot skip is a test, not an invitation. | **Met** |
+
+### The one change this rule asks of the close screen
+
+Rule 5 wants the return named as a situation, not only as a time. The current
+close screen says the can-do and then `close_returns`, "This comes back tomorrow,
+and again until you know it." True, and it keeps the loop open, but it does not
+say what is coming, and the thing that makes Zeigarnik work is knowing what the
+unfinished thing is.
+
+| Line | Key | Now | Wanted |
+|---|---|---|---|
+| Can-do | `close_cando` | "You can order a drink." | unchanged |
+| Return | `close_returns` | "This comes back tomorrow, and again until you know it." | keep as the fallback, for when there is no next situation to name |
+| Next situation | `close_next` (new) | — | "Tomorrow: two coffees." The noun phrase comes from the next due item, so the engine supplies it and the string is a frame, not a sentence |
+
+The scheduling work for this already exists: `dueItems(state, at)` is exported
+from `engine.ts` and is already called inside `composeSession` (line 359), so the
+next due item is known at the moment the session is built. What is missing is one
+field: the `close` phase is pushed with `check_items` and `can_do` only (lines
+377, 395, 407, 437), so it has nowhere to carry the situation. That is a small
+engine change on my side plus a string from the Copywriter and a slot from the
+Front-end Builder. Until all three land, the fallback above is correct and says
+nothing false.
 
 ## Where the coach speaks
 
@@ -186,20 +269,50 @@ tester hook, clock started at the Continue on the road screen.
 | **The coached production turn** | **62.1s** | "Order two large coffees", answered with the cafe's own reply "Coming right up." |
 | Delayed check, then close | 63.6s to 66.0s | |
 
-So the rule is **not yet met for a real learner**. The say-along mic inside the
-scene arrives in time. The turn where the learner produces the sentence
-themselves and gets a reply arrives at 62 seconds only because the four tapping
-items cost a second each under the tester hook. Priced at a learner's real pace
-those four items cost 60 to 80 seconds rather than 7, which puts the coached
-turn at roughly 115 to 135 seconds.
+That walkthrough is now two changes out of date and its verdict, "not yet met for
+a real learner", no longer holds. Two things have landed since:
 
-The fix was in the atoms, not in more engine work: putting `free_use` ahead of
-`controlled` puts the coached turn straight after the notice. That change has
-now landed in `content.ts` for all ten week-one atoms (LEA-46). On the data, the
-cafe atom's input runs 50 seconds and the notice about 10, so the spoken turn
-opens at about 1:00, and the longest input in the ten is 55 seconds, so no atom
-opens its spoken turn later than about 1:05. The figures above are the old
-walkthrough and still need re-measuring against the new order.
+**1. The phase order (LEA-46), verified in the data, not taken on trust.** All ten
+week-one atoms now read `input -> noticing -> free_use -> controlled -> free_use
+-> check`, and in every one of the ten the **first item the learner meets is a
+spoken one**, checked by walking each atom's phases and reading `modality` from
+`ITEM_BY_ID`:
+
+| Atom | First item | Type | Modality |
+|---|---|---|---|
+| ATM-A2-INT-0001 | `ITM-INT-0105` | say_it_see_it | spoken |
+| ATM-A2-GRM-0002 | `ITM-GRM-0205` | say_it_see_it | spoken |
+| ATM-A2-GRM-0003 | `ITM-GRM-0306` | dialogue_turn | spoken |
+| ATM-A2-LST-0004 | `ITM-LST-0405` | read_aloud | spoken |
+| ATM-A1-SPK-0005 | `ITM-SPK-0501` | shadow | spoken |
+| ATM-A2-RDG-0006 | `ITM-RDG-0605` | relay | spoken |
+| ATM-A2-WRT-0007 | `ITM-WRT-0706` | shadow | spoken |
+| ATM-A2-MED-0008 | `ITM-MED-0806` | dialogue_turn | spoken |
+| ATM-A2-INT-0009 | `ITM-INT-0906` | dialogue_turn | spoken |
+| ATM-A2-INT-0010 | `ITM-INT-1004` | say_it_see_it | spoken |
+
+Nothing tapping stands between the scene and the first coached turn in any of the
+ten. The six tapping screens in the walkthrough below are gone.
+
+**2. The board's attention rule, which moves the number that matters.** The scene
+itself now stops seven times and the learner speaks at **14.6 s**, so the first
+spoken turn no longer waits for the coach at all. The 90-second requirement is
+met with 75 seconds to spare, and it is met by the scene.
+
+The coached turn with Maya, by contrast, now arrives **later** than before, at
+about 1:37, because the scene's seven stops add dwell time. That is the right
+trade: the requirement is a speaking turn, and the learner gets one at 15
+seconds instead of at 62. It is also the reason the lesson now runs 5 to 6
+minutes, which is the one real cost of the board's rule and is written up under
+**The attention law** above with the change that pays for it.
+
+**Still outstanding: the end-to-end re-measure.** The figures in the table above
+are from the old order. Re-running `scripts/lp/run.sh` needs a clean build, and
+the checkout is being written by another run right now (`content.ts` is modified
+mid-flight), so a build taken this minute would measure someone else's
+half-finished tree. The two numbers this run could establish without a build are
+established: the scene's stop ladder, computed from `asksFor` against `Cafe.tsx`,
+and the phase order, read out of `content.ts`.
 
 ### Seen, not just measured
 
@@ -225,6 +338,16 @@ board means, and it is visible without reading a single number.
 The spoken turn itself, `light-22`, is now right: the coach, the sentence large,
 one quiet instruction line under it, the mic. No bars, no dots, no transcript, no
 score. That screen is the lesson the ticket asks for. It just arrives sixth.
+
+**Superseded, 26 October, and kept here as the before-picture.** The six tapping
+screens are gone from the data: `ITM-INT-0101`, `0102` and `0103` are out of the
+cafe atom's phases and the atom's first item is now the spoken `ITM-INT-0105`,
+checked in the table above. The shots themselves are from a build taken before
+that landed, so `light-16` to `light-21` no longer describe the lesson. A fresh
+walk will show the scene with its own asks and then the coach, and those shots
+are what should go to the board; the ones above are useful only as the contrast.
+The same walk also now stops seven times inside the explainer, which is what the
+QA run of 11:45 was seeing when it reported six ask sheets.
 
 ### Three things the walkthrough turned up
 
@@ -284,9 +407,16 @@ speaking turn; this shape *splits* `free_use` either side of it, so the learner
 speaks at 1:00, gets a run-up, then speaks the whole exchange. Adopt this shape,
 not the swap.
 
-Atoms 12 to 19 already read this way. **Atoms 1 to 10 do not**, and atom 1 is the
-cafe lesson at A2.1, which is the lesson in this ticket and the one the board is
-looking at. That split is the whole of the remaining gap.
+Atoms 12 to 19 already read this way, and **atoms 1 to 10 now do too**, verified
+item by item in the table under **Measured, not assumed**. The gap this section
+described is closed.
+
+One line in that table is now stale in a way worth naming: `free_use` is no
+longer "the first spoken turn". Since the board's attention rule, the first
+spoken turn is inside `input`, at 14.6 s, and `free_use` is the first spoken turn
+*with the coach*, at about 1:37. The slot is still right; the reason it is right
+has changed from "it is first" to "it is the first one with a reply from a
+person".
 
 ## What this asks of the build
 
@@ -296,11 +426,26 @@ looking at. That split is the whole of the remaining gap.
 | Copywriter (LP-70) | The exact strings in the three responses table, and the one close sentence. | LEA-48, ruled on LEA-50 | **Delivered.** Five keys live in `i18n.ts` with six translations; folded into this doc above |
 | CEFR Content Lead (LP-60) | Bring atoms 1 to 10 onto the five-phase shape above, and the item cut below. Atoms 12 to 19 already had it. | LEA-46 | **Done.** All ten read `input -> noticing -> free_use -> controlled -> free_use -> check`, each third phase opens on a spoken item, no item reference dangles, cut items survive in `ITEMS` and `target_items`, `tsc` clean |
 | Front-end Builder | `Coach.tsx`: the three responses named and nothing else; no score shown on a near attempt; both landed branches fall to `coach_clear`. | LEA-47 | **Open.** `"Good try."`, `"Good. Almost every word."` and `"Every word. Well done."` are all still in the file |
+| Front-end Builder | The explainer ask sheet needs its own opaque surface in both themes. It uses `.lp-glass`, which is `rgba(255,255,255,0.05)` in dark, so all seven ask sheets are unreadable over the bright scene. Not a token change: the colours in `lp.css` are frozen. | QA found it on LEA-52; the file is `ExplainerPlayer.tsx`, which is the builder's | **Open, and not mine.** Triaged to the builder; see the note below |
+| Front-end Builder / Motion | The cafe explainer runs 1560 frames, 52 s, against the 40 s cap in `docs/design/brief.md` and in the storyboard beat law. Its recap alone is 7 s. | `Cafe.tsx` | **Open.** Raised, not applied: `Cafe.tsx` is not mine to edit |
+| Front-end Builder (LP-46) | The `predict` beat kind and ask kind. Every one of the eighteen storyboards now has a `predict` beat and none of them can play, because `asksFor` has no predict kind and the `Beat` union has no `predict` member. | LP-46 | **Open.** This is now the single thing blocking rule 3 across every explainer |
+| Learning Designer | One field on the `close` phase to carry the next situation, so the close screen can say "Tomorrow: two coffees". | this ticket, after a ruling on the close wording | **Specified, not applied.** See **The attention law** |
 
-The 90-second rule is now met in the engine and in the content data: nothing
-tapping stands between the scene and the first spoken turn in any of the ten
-atoms. What is outstanding is the evidence, not the change. The walkthrough
-needs re-running against the new order to replace the 115 to 135 second figure
-with a measured one, and that measurement is the last item on this ticket.
+**The 90-second rule is met**, and by a route the ticket did not anticipate: not
+by shortening what comes before the coach, but by the scene itself asking the
+learner to speak at 14.6 seconds. Both halves are verified without a build, one
+from `asksFor` against `Cafe.tsx` and one from `content.ts`. The end-to-end
+re-measure is still owed and is the last item on this ticket; it needs a clean
+build, and the checkout is mid-write by another run.
+
+**On the ask-sheet failure QA asked me to place (LEA-52).** It is not this
+ticket's, and it is not mine. The pause panel lives in `ExplainerPlayer.tsx`,
+which the Front-end Builder owns under LP-46; I am asked not to touch that file
+or `Cafe.tsx`. QA is right on both counts: it is dark-only, and it must not be
+fixed by editing the frozen `lp.css` tokens. One correction for the next run,
+offered because it changes the count rather than the finding: the cafe explainer
+stops **seven** times, not six. The seventh is the `again` beat at frame 1320,
+"I'd like a tea, please.", and a driver that watches to the end should catch it
+failing in dark as well.
 LEA-47 does not move the number; it is about which words the coach says once the
 learner has spoken.

@@ -741,10 +741,12 @@ const GAGS: Record<BlobertGag, Timeline> = {
       word: [
         { t: 0, x: 0, y: 0, s: 1, o: 1 },
         { t: 348, x: 0, y: 0, s: 1, o: 1 },
+        // It stays readable all the way into his mouth: below about half
+        // scale the tile and its word crush together into a grey smudge.
         { t: 464, x: -56, y: -6, s: 0.78, o: 1 },
-        { t: 540, x: -103, y: -2, s: 0.4, o: 1 },
-        { t: 560, x: -103, y: -2, s: 0.26, o: 0 },
-        { t: 880, x: -103, y: -2, s: 0.26, o: 0 },
+        { t: 540, x: -103, y: -2, s: 0.56, o: 1 },
+        { t: 560, x: -103, y: -2, s: 0.5, o: 0 },
+        { t: 880, x: -103, y: -2, s: 0.5, o: 0 },
       ],
       star: [
         { t: 0, y: 0, s: 0.5, o: 0 },

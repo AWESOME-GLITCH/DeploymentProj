@@ -101,16 +101,27 @@ const pairing =
   `</div>`;
 
 /* --------------------------------------------------------- Blobert */
+// Each gag tile holds two drawings: the still poster frame on the stage, and
+// the whole 880 ms miss in a <template>. Pressing the caption swaps the
+// template in, which starts the generated keyframes from zero, then puts the
+// poster back. No framework, no timing copy: the component owns both.
 const blobert =
+  `<p><button type="button" class="pill" id="playall">Play all six &#9654;</button></p>` +
   `<div class="grid wide">` +
   BLOBERT_GAGS.map((gag, i) => {
     const bg = BLOCKS[i % BLOCKS.length][1];
     // He takes the cream, never the block colour he is standing on, or he
     // disappears into the card.
+    const common = { pose: "gag", gag, word: "goed", fill: ART.cream, size: 230, seed: 3 + i };
+    // Held early in the gag core: late enough that the tool is working, early
+    // enough that the wrong word is still readable behind it.
+    const still = r(h(Blobert, { ...common, scripted: false, progress: 0.38 }));
+    const playing = r(h(Blobert, { ...common, play: true, idle: true, title: `Blobert, the ${gag} gag` }));
     return (
-      `<figure class="tile" style="background:${bg}">` +
-      r(h(Blobert, { pose: "gag", gag, word: "goed", fill: ART.cream, size: 230, seed: 3 + i, scripted: false, progress: 0.45 })) +
-      `<figcaption>${esc(gag)}</figcaption></figure>`
+      `<figure class="tile gag" data-gag="${esc(gag)}" style="background:${bg}">` +
+      `<div class="stage">${still}</div>` +
+      `<template>${playing}</template>` +
+      `<button type="button" class="cap">${esc(gag)} &#9654;</button></figure>`
     );
   }).join("") +
   `</div>` +
@@ -169,9 +180,19 @@ code{font:700 12.5px ui-monospace,SFMono-Regular,Menlo,monospace; background:#ff
 /* the short poses have no gag to the right, so crop his own box */
 .tile.left{align-items:flex-start}
 .tile.left svg{width:205%; max-width:none; margin-left:-6%}
-figcaption{align-self:stretch; background:var(--ink); color:var(--cream);
+figcaption,.cap{align-self:stretch; background:var(--ink); color:var(--cream);
   font-size:11.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase;
   text-align:center; padding:6px 4px}
+/* the caption bar is the play button: one element, not two */
+.cap{border:0; font-family:inherit; cursor:pointer; min-height:44px}
+.cap:focus-visible{outline:3px solid #FF5A2D; outline-offset:-5px}
+/* the gag furniture runs to the edge of his box, so inset the stage or the
+   ink line lands on the ink border and reads as cut off */
+.gag .stage{align-self:stretch; padding:6px 10px 2px}
+.gag .stage svg{display:block; width:100%; height:auto}
+.pill{height:52px; padding:0 28px; border:0; border-radius:99px; background:var(--ink);
+  color:var(--cream); font:800 16px/1 "Plus Jakarta Sans",system-ui,sans-serif; cursor:pointer}
+.pill:focus-visible{outline:3px solid #FF5A2D; outline-offset:3px}
 .pair{position:relative; height:420px; border:3px solid var(--ink); border-radius:28px;
   overflow:hidden; margin:12px 0 4px; max-width:420px}
 .pair-art{position:absolute; left:-4%; bottom:-20%; width:120%}
@@ -217,7 +238,8 @@ ${doodleSection}
 <h2>Blobert, and his six gags</h2>
 <p>Blobert is custom, drawn in the sketchy ink of the doodles. He is the only thing that handles a
 mistake, so a miss is never red and never a loss. One gag per miss, never the same twice in a row,
-each under ${BLOBERT_GAG_MS} ms. The frames below are held at the middle of each gag.</p>
+each under ${BLOBERT_GAG_MS} ms. Each tile holds a frame of its gag. Press one to play the whole
+miss: he pops in, looks at the wrong word, does the gag, waves and slides out.</p>
 ${blobert}
 
 <h2>Stickers</h2>
@@ -243,6 +265,47 @@ ${stickers}
   </ul></div>
 </div>
 
+<script>
+(function () {
+  // Reduced motion replaces every timeline with one 360 ms fade, so hold the
+  // animated copy for that long instead of the whole gag.
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var hold = reduced ? 420 : ${BLOBERT_GAG_MS} + 90;
+
+  var plays = [].slice.call(document.querySelectorAll(".gag")).map(function (fig) {
+    var stage = fig.querySelector(".stage");
+    var tpl = fig.querySelector("template");
+    var button = fig.querySelector(".cap");
+    var still = stage.innerHTML;
+    var timer = null;
+
+    function play(then) {
+      if (timer) window.clearTimeout(timer);
+      stage.innerHTML = tpl.innerHTML;
+      button.disabled = true;
+      timer = window.setTimeout(function () {
+        stage.innerHTML = still;
+        button.disabled = false;
+        timer = null;
+        if (then) then();
+      }, hold);
+    }
+
+    button.addEventListener("click", function () { play(); });
+    return play;
+  });
+
+  var all = document.getElementById("playall");
+  all.addEventListener("click", function () {
+    all.disabled = true;
+    var i = 0;
+    (function step() {
+      if (i >= plays.length) { all.disabled = false; return; }
+      plays[i++](function () { window.setTimeout(step, 170); });
+    })();
+  });
+})();
+</script>
 </body>
 </html>
 `;

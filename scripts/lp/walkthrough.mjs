@@ -346,7 +346,15 @@ class Run {
     if (sig !== null && sig === this.lastSig && slug(screen) !== this.lastScreen) {
       fail(`the walk never left "${this.lastScreen}": this is that same screen photographed again, not ${slug(screen)}`);
     }
-    if (sig !== null) { this.lastSig = sig; this.lastScreen = slug(screen); }
+    if (sig !== null) {
+      this.lastSig = sig;
+      this.lastScreen = slug(screen);
+      // runStretch shoots any signature it has not seen. A stage that opens
+      // with an explicit shot and then hands over to runStretch would
+      // otherwise have its first screen photographed twice, under two names:
+      // "placement-first-item" and then "placement-choice-01" for one screen.
+      this.seen.add(sig);
+    }
 
     for (const m of opts.notes ?? []) notes.push(m);
     if (opts.status === "FAIL") status = "FAIL";
