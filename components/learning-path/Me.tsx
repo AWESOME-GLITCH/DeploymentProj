@@ -33,8 +33,9 @@ function Seg<T extends string | number>({ value, options, onChange }: { value: T
 
 function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void }) {
   return (
-    <button type="button" role="switch" aria-checked={on} onClick={() => onChange(!on)} className="relative h-8 w-14 rounded-full" style={{ background: on ? "var(--lp-sea)" : "var(--lp-track)", border: "1px solid var(--lp-line)", transition: "background var(--lp-t-swap) var(--lp-ease)" }}>
-      <span className="absolute top-1 h-6 w-6 rounded-full" style={{ left: on ? 30 : 4, background: "#fff", boxShadow: "0 1px 3px rgba(10,26,24,0.3)", transition: "left var(--lp-t-swap) var(--lp-ease)" }} />
+    <button type="button" role="switch" aria-checked={on} onClick={() => onChange(!on)} className="relative h-9 w-16 rounded-full" style={{ background: on ? "var(--lp-sea-tint)" : "var(--lp-track)", border: "var(--lp-border-w) solid var(--lp-ink)", transition: "background var(--lp-t-swap) var(--lp-ease)" }}>
+      {/* The knob keeps its own outline, so it reads on the track either way. */}
+      <span className="absolute top-1 h-6 w-6 rounded-full" style={{ left: on ? 32 : 4, background: "var(--lp-bg-0)", border: "var(--lp-border-w) solid var(--lp-ink)", transition: "left var(--lp-t-swap) var(--lp-ease)" }} />
     </button>
   );
 }
