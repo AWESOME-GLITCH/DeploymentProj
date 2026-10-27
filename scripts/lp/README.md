@@ -15,6 +15,20 @@ scripts/lp/run.sh --no-build      # reuse the snapshot already built
 Exit codes: `0` every screen passed, `1` at least one screen failed, `10`
 typecheck broke, `11` the build broke, `12`–`14` the server would not start.
 
+**Do not wrap `run.sh` in `flock /tmp/lp-build.lock`.** It takes that lock
+itself, around the build only, so an outer `flock` on the same file deadlocks:
+the inner one waits for a lock its own parent will not release until the script
+it is waiting for returns, and the pair starve every other agent's build for
+the full timeout. `run.sh` now detects an ancestor holding the lock and falls
+back to a private one, but the plain `scripts/lp/run.sh` is still the right way
+to call it.
+
+A `10` or an `11` is retried twice, 60s apart, before the run gives up. A dozen
+agents write this checkout at once, so catching a file part way through a save
+is routine and clears on its own; a break that survives all three attempts is
+real and belongs on somebody's ticket. Set `LP_BUILD_ATTEMPTS=1` to skip the
+retries when you already know the branch is red.
+
 Output lands in `scripts/lp/out/`:
 
 | file | what |
@@ -23,7 +37,8 @@ Output lands in `scripts/lp/out/`:
 | `report.txt` | one PASS/WARN/FAIL line per screen |
 | `report.md` | the table, plus the evidence and the likely source file (with `git log -1`) for each failure |
 | `report.json` | the same, for whatever reads it next |
-| `build.log`, `typecheck.log`, `server.log` | when a step fails |
+| `build.log`, `typecheck.log`, `server.log` | the last attempt, when a step fails |
+| `typecheck-first-failure.log`, `build-first-failure.log` | the first attempt, when a retry happened. Errors in both files are a real break; errors only in the first were somebody mid-save |
 
 ## What it walks
 
@@ -43,6 +58,14 @@ window.dispatchEvent(new CustomEvent("lp:auto", { detail: { correct: true } }))
 It never imports app source and never keys off a hand-written list of screens,
 so it survives other agents moving the markup about. Screens are named from
 what is on them, so a new screen shows up in the report on its own.
+
+Every shot also checks that the walk actually moved. Two shots in a row with
+the same page signature under different names means the app did not advance, so
+the second one is failed as "the walk never left X" rather than passed under a
+name it never reached. Without that check a lesson stuck behind one disabled
+button quietly produced `PASS road`, `PASS classmates` and `PASS home-day-2`,
+all of them photographs of the same stuck explainer. A false pass is the one
+outcome this run exists to prevent, so the check errs towards failing.
 
 ## How a failure finds its owner
 

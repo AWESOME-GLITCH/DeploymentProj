@@ -14,6 +14,7 @@ const FILES = {
   "ATM-A2-LST-0004": "../../components/learning-path/explainer/ATM_A2_LST_0004.tsx",
   "ATM-A2-RDG-0006": "../../components/learning-path/explainer/ATM_A2_RDG_0006.tsx",
   "ATM-A2-WRT-0007": "../../components/learning-path/explainer/ATM_A2_WRT_0007.tsx",
+  "ATM-A2-MED-0008": "../../components/learning-path/explainer/ATM_A2_MED_0008.tsx",
   "ATM-A2-INT-0009": "../../components/learning-path/explainer/ATM_A2_INT_0009.tsx",
   "ATM-A2-INT-0010": "../../components/learning-path/explainer/ATM_A2_INT_0010.tsx",
 };

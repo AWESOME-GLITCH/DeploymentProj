@@ -273,6 +273,10 @@ class Run {
     this.n = 0;
     this.console = []; // since the last shot
     this.seen = new Set();
+    // The screen the last shot actually photographed. A stage that asks for a
+    // shot without having moved off it is not a pass, whatever it calls itself.
+    this.lastSig = null;
+    this.lastScreen = null;
   }
 
   take(msgs) { this.console.push(...msgs); }
@@ -327,6 +331,22 @@ class Run {
       if (!info.visualAid && !opts.mayHaveNoVisual) warn("no visual aid on this screen");
       if (info.text.length < 2 && !opts.mayBeWordless) warn("almost no text on the screen");
     }
+
+    // Is this even the screen it says it is? `shot` used to judge the screen's
+    // quality without ever checking the walk had moved, so when the first
+    // lesson got stuck on 27 Oct the stages after it kept photographing that
+    // one stuck explainer and filing it as PASS light/22 road, PASS
+    // light/23 classmates, PASS light/32 home-day-2 and three more. A report
+    // that passes screens it never reached is worse than no report: it is the
+    // one failure mode the whole run exists to prevent. Two shots in a row with
+    // the same signature under different names means the app did not move, so
+    // the second one names a screen the walk never got to.
+    let sig = null;
+    try { sig = await signature(page); } catch { /* the page is gone; other checks have said so */ }
+    if (sig !== null && sig === this.lastSig && slug(screen) !== this.lastScreen) {
+      fail(`the walk never left "${this.lastScreen}": this is that same screen photographed again, not ${slug(screen)}`);
+    }
+    if (sig !== null) { this.lastSig = sig; this.lastScreen = slug(screen); }
 
     for (const m of opts.notes ?? []) notes.push(m);
     if (opts.status === "FAIL") status = "FAIL";
@@ -400,11 +420,21 @@ async function driveExplainer(run) {
     if (await page.locator(".lp-video .lp-glass").count()) {
       asks += 1;
       await run.shotOnce(`explainer-ask-${asks}`, `lesson-explainer-say-it-with-me-${asks}`, { settle: 400 });
-      // It may want the key words tapped before the mic appears.
+      // It may want the key words tapped before the mic appears. Tap only the
+      // word chips: Continue and Skip live in the same panel, and a selector
+      // that swept them up would "answer" the ask by skipping it, which looks
+      // identical to a pass in the report. Tap one at a time and stop as soon
+      // as Continue enables, the way a learner does; the screen itself opens
+      // the gate after two wrong guesses, so this always terminates without
+      // the driver having to know the answer.
       if (!(await page.locator(".lp-video .lp-mic").count())) {
-        const words = page.locator(".lp-video .lp-glass button");
-        const n = Math.min(await words.count(), 8);
-        for (let i = 0; i < n; i++) await words.nth(i).click({ timeout: 2000 }).catch(() => {});
+        const words = page.locator(".lp-video .lp-glass button:not(.lp-btn-primary):not(.lp-small)");
+        const n = Math.min(await words.count(), 10);
+        for (let i = 0; i < n; i++) {
+          if (await page.locator(".lp-video button.lp-btn-primary:not([disabled])").count()) break;
+          await words.nth(i).click({ timeout: 2000 }).catch(() => {});
+          await sleep(250);
+        }
         await sleep(400);
       }
       await fire(page);
@@ -449,14 +479,16 @@ async function driveExplainer(run) {
 /** One pass of "do whatever this screen needs". */
 async function act(run) {
   const page = run.page;
-  if (await page.locator(".lp-wordline").count()) {
+  // Any gated player is the explainer, so it all goes through driveExplainer.
+  // This used to key on `.lp-wordline` and fall back to a thinner "video
+  // stand-in" branch that only pressed play and waited for the gate. That
+  // fallback knew nothing about the ask, so when the cafe explainer grew a
+  // "Tap the key words." stop whose Continue stays disabled until the learner
+  // taps, the walk sat in front of it until the stuck check fired. The gate is
+  // what identifies the screen; the wordline is just one thing on it.
+  if (await page.locator(".lp-wordline").count() ||
+      (await page.locator(".lp-video").count() && await page.locator(".lp-btn-gated").count())) {
     await driveExplainer(run);
-  } else if (await page.locator(".lp-video").count() && await page.locator(".lp-btn-gated").count()) {
-    // The video stand-in: press play and let it run to the gate.
-    const play = page.locator('.lp-video button[aria-label="Listen"]');
-    if (await play.count()) await play.first().click({ timeout: 4000 }).catch(() => {});
-    const t0 = Date.now();
-    while (Date.now() - t0 < 60000 && (await page.locator(".lp-btn-gated").count())) await sleep(700);
   }
   // Answer whatever is on screen. Harmless when nothing is listening.
   await fire(page);

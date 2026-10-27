@@ -14,6 +14,39 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO="$(cd "$HERE/../.." && pwd)"
 cd "$REPO"
 
+# One id for this run's build, its server and its --stop, so build-and-serve.sh
+# keeps its pid and snapshot under .run/$LP_RUN_ID and cannot reach into a walk
+# another agent is in the middle of. See the header of build-and-serve.sh.
+export LP_RUN_ID="${LP_RUN_ID:-$$}"
+
+# run.sh takes /tmp/lp-build.lock itself, around the build only. Wrapping the
+# whole script in `flock /tmp/lp-build.lock scripts/lp/run.sh` therefore
+# self-deadlocks: the inner flock waits for a lock its own parent is holding
+# and will not release until the script it is waiting for returns. The pair sit
+# there for the full timeout and starve every other agent's build, which is
+# what happened at 07:30 on 27 Oct. Detect an ancestor holding the lock and
+# switch to a private one: the outer flock is already serialising us, so the
+# inner lock has nothing left to do.
+lock_held_by_ancestor() {
+  local target pid
+  target="$(readlink -f "${LP_BUILD_LOCK:-/tmp/lp-build.lock}" 2>/dev/null)" || return 1
+  [ -n "$target" ] || return 1
+  pid=$PPID
+  while [ -n "$pid" ] && [ "$pid" -gt 1 ] 2>/dev/null; do
+    local fd
+    for fd in /proc/$pid/fd/*; do
+      [ "$(readlink -f "$fd" 2>/dev/null)" = "$target" ] && return 0
+    done
+    pid="$(awk '{print $4}' "/proc/$pid/stat" 2>/dev/null)" || return 1
+  done
+  return 1
+}
+if lock_held_by_ancestor; then
+  echo "[lp] a parent process already holds ${LP_BUILD_LOCK:-/tmp/lp-build.lock}." >&2
+  echo "[lp] run.sh locks the build itself, so do not wrap it in flock. Using a private lock for this run." >&2
+  export LP_BUILD_LOCK="/tmp/lp-build-nested-$LP_RUN_ID.lock"
+fi
+
 BUILD_ARGS=()
 WALK_ARGS=()
 while [ $# -gt 0 ]; do

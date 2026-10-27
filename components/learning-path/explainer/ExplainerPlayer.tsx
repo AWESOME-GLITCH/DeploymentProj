@@ -15,9 +15,7 @@ import { EXPLAINER as GRM_0003 } from "./ATM_A2_GRM_0003";
 import { EXPLAINER as LST_0004 } from "./ATM_A2_LST_0004";
 import { EXPLAINER as RDG_0006 } from "./ATM_A2_RDG_0006";
 import { EXPLAINER as WRT_0007 } from "./ATM_A2_WRT_0007";
-// ATM_A2_MED_0008 is on disk but does not typecheck yet (LP-46 registers only
-// atoms that compile); add its import and its "ATM-A2-MED-0008" entry below
-// once its owner has fixed it.
+import { EXPLAINER as MED_0008 } from "./ATM_A2_MED_0008";
 import { EXPLAINER as INT_0009 } from "./ATM_A2_INT_0009";
 import { EXPLAINER as INT_0010 } from "./ATM_A2_INT_0010";
 
@@ -82,6 +80,7 @@ export const EXPLAINERS: Record<string, ExplainerDef> = {
   "ATM-A2-LST-0004": LST_0004,
   "ATM-A2-RDG-0006": RDG_0006,
   "ATM-A2-WRT-0007": WRT_0007,
+  "ATM-A2-MED-0008": MED_0008,
   "ATM-A2-INT-0009": INT_0009,
   "ATM-A2-INT-0010": INT_0010,
   "ATM-A2-INT-0001": {

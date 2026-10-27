@@ -1,0 +1,875 @@
+<!doctype html>
+<html lang="en-GB" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FFF7E8">
+<title>At the cafe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ------------------------------------------------------------------
+   At the cafe: the explainer video screen.
+   One sun card, ink and cream, the Open Peeps cast inlined, a 25 s
+   timeline rendered from a single clock so every beat replays the same.
+   Built from docs/prototypes/src/02-explainer.html with src/build.mjs.
+   ------------------------------------------------------------------ */
+:root{
+  --sun:#FFD93D; --ink:#121212; --cream:#FFF7E8; --paper:#FFFFFF;
+  --indigo:#3A2FB8;
+  --page:var(--cream); --on-page:var(--ink);
+  --pill:var(--ink); --on-pill:#FFFFFF;
+  --spring:cubic-bezier(.2,1.4,.4,1);
+  --ease:cubic-bezier(.2,.7,.3,1);
+}
+html[data-theme="dark"]{
+  --page:#121212; --on-page:#FFF7E8;
+  --pill:#FFF7E8; --on-pill:#121212;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  margin:0;overflow:hidden;
+  background:var(--page);color:var(--on-page);
+  font-family:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-weight:600;
+  transition:background .3s var(--ease),color .3s var(--ease);
+}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
+:focus-visible{outline:3px solid var(--on-page);outline-offset:3px}
+.sr{position:absolute;left:-9999px}
+
+/* ---------- shell: 390 x 844, no page scroll ---------- */
+.app{
+  height:100dvh;height:100vh;max-width:430px;margin:0 auto;
+  padding:10px 16px 14px;
+  display:flex;flex-direction:column;gap:8px;
+}
+.top{display:flex;align-items:center;justify-content:space-between;height:44px;flex:none}
+.icon{
+  width:44px;height:44px;border-radius:50%;border:2.5px solid var(--on-page);
+  display:grid;place-items:center;flex:none;
+  transition:transform .25s var(--spring);
+}
+.icon:active{transform:scale(.9)}
+.icon svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.head{flex:none;padding:0 2px}
+h1{margin:0;font-size:36px;line-height:1.05;font-weight:800;letter-spacing:-.02em}
+.sub{margin:4px 0 0;font-size:16px;font-weight:600;opacity:.8}
+
+/* ---------- the card ---------- */
+.frame{flex:1 1 auto;min-height:0;display:flex;align-items:center;justify-content:center}
+.stage{
+  position:relative;width:100%;aspect-ratio:3/4;max-height:100%;
+  background:var(--sun);border:3px solid var(--ink);border-radius:28px;
+  overflow:hidden;color:var(--ink);
+  animation:cardIn .5s var(--spring) both;
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(18px) scale(.94)} to{opacity:1;transform:none}}
+/* everything inside is laid out on a 360 x 480 grid and scaled to fit */
+.world{position:absolute;left:0;top:0;width:360px;height:480px;transform-origin:0 0}
+.cam{position:absolute;inset:0;transform-origin:50% 55%;will-change:transform}
+.set{position:absolute;inset:0;transition:opacity .35s var(--ease),transform .4s var(--ease)}
+.stage[data-beat="4"] .set,.stage[data-beat="5"] .set,.stage[data-beat="6"] .set{opacity:0;transform:scale(.94)}
+
+/* ink line defaults for the props */
+.prop{position:absolute}
+.prop svg{display:block;width:100%;height:100%;overflow:visible}
+.ink{fill:none;stroke:#121212;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.paper{fill:#FFFFFF;stroke:#121212;stroke-width:3;stroke-linejoin:round}
+.cream{fill:#FFF7E8;stroke:#121212;stroke-width:3;stroke-linejoin:round}
+.fillink{fill:#121212}
+
+/* entrance: the room draws itself in on beat 1 */
+.ent{animation:popIn .45s var(--spring) both}
+@keyframes popIn{from{opacity:0;transform:translateY(16px) scale(.86)} to{opacity:1;transform:none}}
+.e1{animation-delay:.05s}.e2{animation-delay:.11s}.e3{animation-delay:.17s}.e4{animation-delay:.23s}.e5{animation-delay:.29s}
+
+/* the cast: inlined Open Peeps busts, one div per face, swapped by JS */
+.char{position:absolute}
+.char .sway{width:100%;height:100%;position:relative;animation:sway 3s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:translateY(0) rotate(-.8deg)} 50%{transform:translateY(-4px) rotate(.8deg)}}
+.char .face{position:absolute;inset:0;opacity:0}
+.char .face.on{opacity:1}
+.art{width:100%;height:100%;display:block}
+.leo{left:-44px;top:50px;width:290px;height:290px;clip-path:inset(0 0 44px 0)}
+.you{left:188px;top:168px;width:336px;height:336px;transform:scaleX(-1)}
+.you .sway{animation-delay:1.2s}
+
+/* counter: a cream line Leo stands behind */
+.counter{position:absolute;left:-6px;right:-6px;top:296px;height:24px;background:#FFF7E8;border:3px solid #121212;border-radius:6px}
+.counter-shade{position:absolute;left:0;right:0;top:320px;height:4px;background:#121212;opacity:.18}
+
+/* cups on the counter, steam rising */
+.steam{opacity:.9;animation:steam 2.2s ease-in-out infinite}
+.steam.b{animation-delay:.7s}
+@keyframes steam{0%{transform:translateY(0);opacity:0} 20%{opacity:.9} 100%{transform:translateY(-9px);opacity:0}}
+
+/* the cup Leo slides over, and the second one with its 2 */
+.ocup{position:absolute;left:44px;top:244px;width:56px;height:58px;opacity:0;transform:translateX(0) scale(.4)}
+.ocup.in{opacity:1;animation:slide .6s var(--spring) both}
+@keyframes slide{0%{opacity:0;transform:translateX(-30px) scale(.5)} 55%{opacity:1;transform:translateX(106px) scale(1.05)} 75%{transform:translateX(96px) scale(.97)} 100%{transform:translateX(100px) scale(1)}}
+.ocup2{position:absolute;left:200px;top:246px;width:56px;height:58px;opacity:0;transform:scale(.3)}
+.ocup2.in{opacity:1;transform:none;transition:opacity .2s,transform .4s var(--spring)}
+.badge{
+  position:absolute;left:182px;top:218px;width:38px;height:38px;border-radius:50%;
+  background:#121212;color:#FFD93D;font-size:22px;font-weight:800;display:grid;place-items:center;
+  opacity:0;transform:scale(.2) rotate(-30deg);
+}
+.badge.in{opacity:1;transform:none;transition:opacity .15s,transform .45s var(--spring)}
+
+/* stickers: black, few, placed */
+.stk{position:absolute;color:#121212}
+.stk svg{display:block;width:100%;height:100%}
+.tw{animation:twinkle 4s ease-in-out infinite}
+@keyframes twinkle{0%,100%{transform:scale(1) rotate(0)} 40%{transform:scale(1.18) rotate(12deg)} 70%{transform:scale(.9) rotate(-6deg)}}
+.heart{opacity:0;transform:scale(.2)}
+.heart.in{opacity:1;transform:none;transition:opacity .15s,transform .4s var(--spring)}
+
+/* speech bubble from the learner: the line builds word by word */
+.bubble{
+  position:absolute;left:172px;top:98px;width:176px;padding:12px 14px 13px;
+  background:#FFF7E8;border:3px solid #121212;border-radius:20px;
+  font-size:22px;line-height:1.15;font-weight:800;color:#121212;letter-spacing:-.01em;
+  opacity:0;transform:scale(.5);transform-origin:55% 100%;
+}
+.bubble.in{opacity:1;transform:none;transition:opacity .15s,transform .4s var(--spring)}
+.bubble:after{
+  content:"";position:absolute;left:98px;bottom:-19px;width:16px;height:16px;
+  background:#FFF7E8;border-right:3px solid #121212;border-bottom:3px solid #121212;
+  transform:rotate(45deg);
+}
+.w{display:inline-block;opacity:0;transform:translateY(8px) scale(.8);margin-right:.22em}
+.w.on{opacity:1;transform:none;transition:opacity .15s,transform .35s var(--spring)}
+.w.hi{color:var(--indigo)}
+
+/* ---------- beat 4: kinetic typography ---------- */
+.explain{position:absolute;inset:0;opacity:0;pointer-events:none;color:#121212}
+.stage[data-beat="4"] .explain{opacity:1;transition:opacity .25s}
+.ex{position:absolute;left:0;right:0;text-align:center;font-weight:800;letter-spacing:-.02em;opacity:0}
+.ex-want{top:58px;font-size:50px;transform:scale(.7)}
+.ex-want span{position:relative;display:inline-block;padding:0 6px}
+.ex-want span:after{content:"";position:absolute;left:0;top:54%;height:6px;width:0;background:#121212;border-radius:4px;transform:rotate(-4deg)}
+.explain[data-step="1"] .ex-want,.explain[data-step="2"] .ex-want,.explain[data-step="3"] .ex-want,.explain[data-step="4"] .ex-want,.explain[data-step="5"] .ex-want{opacity:1;transform:none;transition:opacity .15s,transform .4s var(--spring)}
+.explain[data-step="2"] .ex-want,.explain[data-step="3"] .ex-want,.explain[data-step="4"] .ex-want,.explain[data-step="5"] .ex-want{opacity:.38}
+.explain[data-step="2"] .ex-want span:after,.explain[data-step="3"] .ex-want span:after,.explain[data-step="4"] .ex-want span:after,.explain[data-step="5"] .ex-want span:after{width:100%;transition:width .28s var(--ease)}
+.ex-like{top:130px;font-size:62px;color:var(--indigo);transform:translateY(30px) scale(.5)}
+.explain[data-step="3"] .ex-like,.explain[data-step="4"] .ex-like,.explain[data-step="5"] .ex-like{opacity:1;transform:none;transition:opacity .15s,transform .45s var(--spring)}
+.ex-please{top:212px;font-size:44px;color:var(--indigo);transform:scale(.3) rotate(-8deg)}
+.explain[data-step="4"] .ex-please,.explain[data-step="5"] .ex-please{opacity:1;transform:none;transition:opacity .15s,transform .45s var(--spring)}
+.dial{position:absolute;left:118px;top:286px;width:168px;height:100px;opacity:0;transform:translateY(12px)}
+.explain[data-step="4"] .dial,.explain[data-step="5"] .dial{opacity:1;transform:none;transition:opacity .2s,transform .35s var(--spring)}
+.dial svg{display:block;width:100%;height:100%;overflow:visible}
+.needle{transform-origin:84px 78px;transform:rotate(-74deg);transition:transform .9s var(--spring)}
+.explain[data-step="5"] .needle{transform:rotate(74deg)}
+.dial b{position:absolute;top:84px;font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.dial b.l{left:-6px}.dial b.r{right:-14px}
+
+/* ---------- beat 5 and 6: Maya turns to the learner ---------- */
+.coach{position:absolute;inset:0;opacity:0;pointer-events:none;transition:opacity .25s}
+.stage[data-beat="4"] .coach,.stage[data-beat="5"] .coach,.stage[data-beat="6"] .coach{opacity:1}
+.maya{left:-30px;top:126px;width:420px;height:420px;transform-origin:50% 90%;transition:transform .45s var(--spring),left .45s var(--spring),top .45s var(--spring),width .45s var(--spring),height .45s var(--spring)}
+/* in the explain beat she presents from a corner circle, then grows to face the learner */
+.stage[data-beat="4"] .maya{left:14px;top:304px;width:92px;height:92px;clip-path:circle(46% at 50% 54%);background:#FFF7E8;border-radius:50%}
+.stage[data-beat="4"] .maya:before{content:"";position:absolute;inset:0;border-radius:50%;border:3px solid #121212}
+.stage[data-beat="5"][data-mode="listen"] .maya{transform:translateY(12px) scale(1.06) rotate(-2.5deg)}
+.stage[data-beat="5"][data-mode="good"] .maya{transform:translateY(-6px) scale(1.04)}
+.stage[data-beat="6"] .maya{top:160px;transform:scale(1.04)}
+.say{
+  position:absolute;left:26px;right:26px;top:26px;padding:14px 18px;
+  background:#FFF7E8;border:3px solid #121212;border-radius:22px;
+  font-size:26px;line-height:1.15;font-weight:800;color:#121212;letter-spacing:-.01em;text-align:center;
+  opacity:0;transform:scale(.5);transform-origin:40% 100%;
+}
+.say.in{opacity:1;transform:none;transition:opacity .15s,transform .4s var(--spring)}
+.say:after{content:"";position:absolute;left:60px;bottom:-19px;width:16px;height:16px;background:#FFF7E8;border-right:3px solid #121212;border-bottom:3px solid #121212;transform:rotate(45deg)}
+.stage[data-beat="6"] .say{display:none}
+.ear{position:absolute;left:286px;top:160px;width:64px;height:64px;opacity:0;transform:scale(.4)}
+.stage[data-mode="listen"] .ear{opacity:1;transform:none;transition:opacity .2s,transform .4s var(--spring)}
+.burst{position:absolute;left:226px;top:236px;width:136px;height:136px;opacity:0;pointer-events:none}
+.burst.go{animation:burst .75s var(--spring) both}
+@keyframes burst{0%{opacity:0;transform:scale(.3) rotate(-30deg)} 55%{opacity:1;transform:scale(1.15) rotate(10deg)} 100%{opacity:0;transform:scale(1.3) rotate(16deg)}}
+
+/* what the learner said */
+.heard{
+  position:absolute;left:30px;right:30px;top:26px;padding:12px 16px;
+  background:#FFFFFF;border:3px solid #121212;border-radius:20px;color:#121212;
+  font-size:19px;font-weight:700;text-align:center;
+  opacity:0;transform:translateY(-8px) scale(.9);transition:opacity .2s,transform .35s var(--spring)
+}
+.heard.on{opacity:1;transform:none}
+.heard.swept{opacity:0;transform:translateX(-420px) rotate(-14deg);transition:transform .32s cubic-bezier(.5,0,.8,.2),opacity .3s}
+
+/* three ink bars: Sounds, Rhythm, Words */
+.score{
+  position:absolute;left:18px;right:18px;top:96px;padding:14px 16px 16px;
+  background:#FFF7E8;border:3px solid #121212;border-radius:22px;color:#121212;
+  opacity:0;transform:translateY(20px) scale(.9);pointer-events:none
+}
+.score.in{opacity:1;transform:none;transition:opacity .2s,transform .4s var(--spring)}
+.bar{display:grid;grid-template-columns:76px 1fr;align-items:center;gap:10px}
+.bar + .bar{margin-top:9px}
+.bar b{font-size:12px;font-weight:800;letter-spacing:.09em;text-transform:uppercase}
+.track{height:16px;border:3px solid #121212;border-radius:99px;background:#FFFFFF;overflow:hidden}
+.fill{display:block;height:100%;width:0;background:#121212;border-radius:99px;transition:width .8s var(--spring)}
+
+/* Blobert: pops in from the edge, sweeps the miss away, waves, leaves. Under 900 ms. */
+.blobert{position:absolute;left:230px;top:300px;width:170px;height:156px;opacity:0;pointer-events:none;transform-origin:50% 100%}
+.blobert svg{display:block;width:100%;height:100%;overflow:visible}
+.blobert.go{animation:gag .88s cubic-bezier(.2,1.2,.4,1) both}
+@keyframes gag{
+  0%{opacity:0;transform:translateX(150px) scale(.6)}
+  22%{opacity:1;transform:translateX(0) scale(1.06)}
+  36%{transform:translateX(-6px) scale(1) rotate(-7deg)}
+  52%{transform:translateX(6px) scale(1) rotate(6deg)}
+  66%{transform:translateX(0) scale(1) rotate(0)}
+  80%{opacity:1;transform:translateX(0) scale(1)}
+  100%{opacity:0;transform:translateX(170px) scale(.7)}
+}
+.blobert.go [id^="broom"]{animation:sweep .88s ease-in-out both;transform-origin:216px 148px}
+@keyframes sweep{0%,22%{transform:rotate(0)} 36%{transform:rotate(-48deg)} 52%{transform:rotate(26deg)} 66%{transform:rotate(-10deg)} 80%,100%{transform:rotate(0)}}
+.blobert.go [id^="arm-left"]{animation:wave .88s ease-in-out both;transform-origin:62px 128px}
+@keyframes wave{0%,60%{transform:rotate(0)} 70%{transform:rotate(-30deg)} 80%{transform:rotate(10deg)} 90%,100%{transform:rotate(0)}}
+.hup{position:absolute;left:262px;top:268px;padding:4px 10px;background:#121212;color:#FFD93D;border-radius:99px;font-size:15px;font-weight:800;opacity:0;transform:scale(.3) rotate(-8deg)}
+.hup.go{animation:hup .88s var(--spring) both}
+@keyframes hup{0%,20%{opacity:0;transform:scale(.3) rotate(-8deg)} 34%{opacity:1;transform:scale(1) rotate(-8deg)} 70%{opacity:1} 100%{opacity:0;transform:scale(.6)}}
+
+/* recap headline */
+.recap{position:absolute;left:22px;right:22px;top:24px;opacity:0;transform:translateY(12px);color:#121212;pointer-events:none}
+.stage[data-beat="6"] .recap{opacity:1;transform:none;transition:opacity .2s,transform .4s var(--spring)}
+.recap h2{margin:0;font-size:38px;line-height:1.02;font-weight:800;letter-spacing:-.02em}
+.recap p{margin:10px 0 0;font-size:20px;font-weight:700}
+.recap p i{font-style:normal;color:var(--indigo)}
+
+/* caption: one line at the bottom of the card */
+.cap{
+  position:absolute;left:14px;right:14px;bottom:14px;height:40px;padding:0 16px;
+  background:#FFF7E8;border:3px solid #121212;border-radius:99px;color:#121212;
+  font-size:15px;font-weight:700;line-height:34px;text-align:center;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  transition:opacity .2s,transform .3s var(--spring)
+}
+.cap:empty,.stage[data-beat="6"] .cap,.stage[data-mode="good"] .cap{opacity:0;transform:translateY(10px)}
+
+/* ---------- beat pills and the thin progress bar ---------- */
+.beats{display:flex;gap:6px;flex:none}
+.beat{
+  position:relative;flex:1 1 0;height:44px;min-width:44px;border-radius:99px;
+  border:2.5px solid var(--on-page);overflow:hidden;display:grid;place-items:center;
+  transition:transform .25s var(--spring)
+}
+.beat:active{transform:scale(.94)}
+.beat .bf{position:absolute;inset:0;right:auto;width:0;background:var(--on-page)}
+.beat[data-state="done"] .bf{width:100%}
+.beat .n{position:relative;font-size:15px;font-weight:800;color:#fff;mix-blend-mode:difference}
+.beat[aria-current="true"]{box-shadow:0 0 0 2.5px var(--on-page)}
+.rail{height:5px;border-radius:99px;background:var(--on-page);opacity:.18;overflow:hidden;flex:none;position:relative}
+.rail i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--on-page)}
+.railwrap{position:relative;height:5px;flex:none}
+.railwrap .rail{position:absolute;inset:0}
+.railwrap .pos{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:99px;background:var(--on-page)}
+
+/* ---------- dock: one pill, the typed icon always beside it ---------- */
+.dock{flex:none;display:flex;flex-direction:column;gap:8px}
+.row{display:flex;gap:10px;align-items:center}
+.pill{
+  flex:1;height:56px;border-radius:99px;background:var(--pill);color:var(--on-pill);
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  font-size:19px;font-weight:800;letter-spacing:-.01em;position:relative;
+  transition:transform .14s var(--spring)
+}
+.pill:active{transform:translateY(2px) scale(.985)}
+.pill svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.pill .chev{font-size:22px;line-height:1;margin-top:-2px}
+.pill .ring{position:absolute;inset:-3px;border-radius:99px;border:3px solid var(--pill);opacity:0;pointer-events:none}
+.pill.live .ring{animation:ring 1.5s ease-out infinite}
+.pill.live .ring.b{animation-delay:.75s}
+@keyframes ring{0%{opacity:.5;transform:scale(1)} 100%{opacity:0;transform:scale(1.12)}}
+.icon.key{width:56px;height:56px}
+.icon.key[aria-pressed="true"]{background:var(--on-page);color:var(--page)}
+.typed{display:none;gap:8px}
+.typed.show{display:flex}
+.typed input{
+  flex:1;min-width:0;height:50px;padding:0 16px;border-radius:99px;
+  border:3px solid var(--on-page);background:var(--paper);color:var(--ink);
+  font:inherit;font-size:17px;font-weight:700
+}
+.typed button{height:50px;padding:0 18px;border-radius:99px;background:var(--pill);color:var(--on-pill);font-size:16px;font-weight:800;flex:none}
+.hint{height:20px;font-size:14px;font-weight:700;opacity:.8;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+@media (prefers-reduced-motion:reduce){
+  .sway,.tw,.steam,.pill.live .ring{animation:none !important}
+  .cam{transform:none !important}
+  *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+}
+@media (max-height:760px){ h1{font-size:30px} .sub{display:none} }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="top">
+    <button class="icon" id="back" aria-label="Back to the lesson">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7"/></svg>
+    </button>
+    <button class="icon" id="theme" aria-label="Dark mode" aria-pressed="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z"/></svg>
+    </button>
+  </header>
+
+  <div class="head">
+    <h1>At the cafe</h1>
+    <p class="sub">One line to order politely. 25 seconds.</p>
+  </div>
+
+  <div class="frame">
+    <div class="stage" id="stage" data-beat="0" data-mode="poster" role="img" aria-label="Leo the barista and you at the cafe counter. Maya the coach joins to practise the line: I'd like a coffee, please.">
+      <div class="world" id="world">
+        <div class="cam" id="cam">
+          <div class="set">
+
+            <!-- back wall: menu board and three jars, crisp ink -->
+            <div class="prop ent e1" style="left:22px;top:26px;width:118px;height:72px">
+              <svg viewBox="0 0 118 72" aria-hidden="true">
+                <rect class="paper" x="1.5" y="1.5" width="115" height="69" rx="12"/>
+                <path class="ink" d="M16 22h46M16 36h58M16 50h34"/>
+                <path class="paper" d="M84 40h18l-3 16H87Z"/><path class="ink" d="M102 44c7 0 7 9 0 9"/>
+                <path class="ink" d="M90 34c-3-4 3-5 0-9M96 34c-3-4 3-5 0-9" stroke-width="2.4"/>
+              </svg>
+            </div>
+            <div class="prop ent e2" style="left:198px;top:34px;width:142px;height:72px">
+              <svg viewBox="0 0 142 72" aria-hidden="true">
+                <rect class="cream" x="8" y="26" width="34" height="42" rx="6"/><rect class="cream" x="13" y="18" width="24" height="10" rx="3"/>
+                <rect class="cream" x="54" y="12" width="34" height="56" rx="6"/><rect class="cream" x="59" y="4" width="24" height="10" rx="3"/>
+                <rect class="cream" x="100" y="30" width="32" height="38" rx="6"/><rect class="cream" x="105" y="22" width="22" height="10" rx="3"/>
+                <g class="fillink"><circle cx="20" cy="50" r="2.4"/><circle cx="30" cy="58" r="2.4"/><circle cx="66" cy="44" r="2.4"/><circle cx="76" cy="56" r="2.4"/><circle cx="71" cy="34" r="2.4"/><circle cx="112" cy="54" r="2.4"/><circle cx="121" cy="46" r="2.4"/></g>
+                <path class="ink" d="M0 70h142" stroke-width="3.5"/>
+              </svg>
+            </div>
+
+            <!-- stickers with intent -->
+            <div class="stk tw ent e3" style="left:160px;top:34px;width:30px;height:30px"><svg viewBox="0 0 30 30" aria-hidden="true"><path fill="currentColor" d="M15 1l3.6 10.4L29 15l-10.4 3.6L15 29l-3.6-10.4L1 15l10.4-3.6Z"/></svg></div>
+            <div class="stk tw ent e4" style="left:324px;top:136px;width:22px;height:22px;animation-delay:1.3s"><svg viewBox="0 0 22 22" aria-hidden="true"><path fill="currentColor" d="M11 0l2.2 8.8L22 11l-8.8 2.2L11 22l-2.2-8.8L0 11l8.8-2.2Z"/></svg></div>
+            <div class="stk ent e2" style="left:14px;top:118px;width:46px;height:14px"><svg viewBox="0 0 46 14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" d="M2 9c5-8 9-8 14 0s9 8 14 0 9-8 14 0"/></svg></div>
+
+            <!-- Leo the barista, behind the counter -->
+            <div class="char leo ent e3" id="leo" data-who="leo">
+              <div class="sway">
+                <div class="face on" data-face="idle"><!--cast:leo-idle--></div>
+                <div class="face" data-face="talk"><!--cast:leo-talk--></div>
+                <div class="face" data-face="happy"><!--cast:leo-happy--></div>
+                <div class="face" data-face="listen"><!--cast:leo-listen--></div>
+              </div>
+            </div>
+
+            <div class="counter ent e4"></div>
+            <div class="counter-shade"></div>
+
+            <!-- two cups on the counter, steam up -->
+            <div class="prop ent e5" style="left:6px;top:338px;width:126px;height:78px">
+              <svg viewBox="0 0 104 64" aria-hidden="true">
+                <path class="cream" d="M6 30h38l-4 30H10Z"/><path class="ink" d="M44 36c10 0 10 14 0 14"/>
+                <path class="cream" d="M56 36h34l-3 24H59Z"/><path class="ink" d="M90 41c9 0 9 12 0 12"/>
+                <g class="ink steam" stroke-width="2.6"><path d="M18 22c-4-5 4-7 0-13M30 22c-4-5 4-7 0-13"/></g>
+                <g class="ink steam b" stroke-width="2.6"><path d="M66 29c-4-5 4-7 0-13M78 29c-4-5 4-7 0-13"/></g>
+              </svg>
+            </div>
+
+            <!-- the cup Leo slides over, the second cup and its 2 -->
+            <div class="prop ocup" id="ocup">
+              <svg viewBox="0 0 56 58" aria-hidden="true">
+                <path class="paper" d="M6 26h38l-4 30H10Z"/><path class="ink" d="M44 32c11 0 11 15 0 15"/>
+                <path class="ink" d="M8 36h34" stroke-width="2.4"/>
+                <g class="ink steam" stroke-width="2.6"><path d="M18 18c-4-5 4-7 0-13M30 18c-4-5 4-7 0-13"/></g>
+              </svg>
+            </div>
+            <div class="prop ocup2" id="ocup2">
+              <svg viewBox="0 0 56 58" aria-hidden="true">
+                <path class="paper" d="M6 26h38l-4 30H10Z"/><path class="ink" d="M44 32c11 0 11 15 0 15"/>
+                <path class="ink" d="M8 36h34" stroke-width="2.4"/>
+                <g class="ink steam b" stroke-width="2.6"><path d="M18 18c-4-5 4-7 0-13M30 18c-4-5 4-7 0-13"/></g>
+              </svg>
+            </div>
+            <div class="badge" id="badge" aria-hidden="true">2</div>
+
+            <!-- you, the learner, in the foreground facing Leo -->
+            <div class="char you" id="you" data-who="you">
+              <div class="sway">
+                <div class="face on" data-face="idle"><!--cast:you-idle--></div>
+                <div class="face" data-face="talk"><!--cast:you-talk--></div>
+                <div class="face" data-face="happy"><!--cast:you-happy--></div>
+              </div>
+            </div>
+
+            <!-- a heart when the cup arrives -->
+            <div class="stk heart" id="heart" style="left:208px;top:214px;width:30px;height:28px"><svg viewBox="0 0 30 28" aria-hidden="true"><path fill="currentColor" d="M15 27C6 20 1 15 1 9a7 7 0 0 1 14-2 7 7 0 0 1 14 2c0 6-5 11-14 18Z"/></svg></div>
+
+            <!-- the learner's line, built word by word -->
+            <div class="bubble" id="bubble"></div>
+          </div>
+        </div>
+
+        <!-- beat 4: the rule as moving type -->
+        <div class="explain" id="explain" data-step="0" aria-hidden="true">
+          <div class="ex ex-want"><span>I want</span></div>
+          <div class="ex ex-like">I'd like</div>
+          <div class="ex ex-please">+ please</div>
+          <div class="dial">
+            <svg viewBox="0 0 168 100" aria-hidden="true">
+              <path class="ink" d="M14 78a70 70 0 0 1 140 0" stroke-width="5"/>
+              <path class="ink" d="M24 60l6 3M46 34l4 5M84 10v7M122 34l-4 5M144 60l-6 3" stroke-width="3"/>
+              <g class="needle"><path class="ink" d="M84 78V24" stroke-width="5"/><circle cx="84" cy="24" r="6" fill="#121212"/></g>
+              <circle cx="84" cy="78" r="8" fill="#121212"/>
+              <path fill="#121212" d="M160 72c-5-4-8-7-8-10a3.7 3.7 0 0 1 7.4-1 3.7 3.7 0 0 1 7.4 1c0 3-3 6-6.8 10Z" transform="translate(-6 -2)"/>
+            </svg>
+            <b class="l">rude</b><b class="r">polite</b>
+          </div>
+        </div>
+
+        <!-- beats 5 and 6: Maya, the coach -->
+        <div class="coach" id="coach">
+          <div class="char maya" id="maya" data-who="maya">
+            <div class="sway">
+              <div class="face on" data-face="idle"><!--cast:maya-idle--></div>
+              <div class="face" data-face="talk"><!--cast:maya-talk--></div>
+              <div class="face" data-face="listen"><!--cast:maya-listen--></div>
+              <div class="face" data-face="happy"><!--cast:maya-happy--></div>
+            </div>
+          </div>
+          <div class="stk ear" aria-hidden="true"><svg viewBox="0 0 64 64"><path fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" d="M22 46c-8-8-8-20 0-28M12 54c-13-13-13-31 0-44"/><path fill="currentColor" d="M44 20l3.5 9.5L57 33l-9.5 3.5L44 46l-3.5-9.5L31 33l9.5-3.5Z"/></svg></div>
+          <div class="stk burst" id="burst" aria-hidden="true"><svg viewBox="0 0 136 136"><path fill="currentColor" d="M68 4l15 41 41 15-41 15-15 41-15-41L12 60l41-15Z"/><circle cx="112" cy="28" r="6" fill="currentColor"/><circle cx="22" cy="104" r="5" fill="currentColor"/></svg></div>
+          <div class="say" id="say"></div>
+          <div class="recap">
+            <h2>You can now<br>order politely</h2>
+            <p><i>I'd like</i> a coffee, <i>please</i>.</p>
+          </div>
+        </div>
+
+        <div class="heard" id="heard" aria-live="polite"></div>
+        <div class="score" id="score" aria-hidden="true">
+          <div class="bar"><b>Sounds</b><div class="track"><i class="fill" id="b1"></i></div></div>
+          <div class="bar"><b>Rhythm</b><div class="track"><i class="fill" id="b2"></i></div></div>
+          <div class="bar"><b>Words</b><div class="track"><i class="fill" id="b3"></i></div></div>
+        </div>
+        <div class="blobert" id="blobert" aria-hidden="true"><!--cast:blobert--></div>
+        <div class="hup" id="hup" aria-hidden="true">hup!</div>
+
+        <div class="cap" id="cap" aria-live="polite"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="beats" id="beats" role="group" aria-label="Beats. Tap one to play it again."></div>
+  <div class="railwrap" aria-hidden="true"><div class="rail"></div><div class="pos" id="pos"></div></div>
+
+  <div class="dock">
+    <div class="typed" id="typed">
+      <label class="sr" for="typedIn">Type the line</label>
+      <input id="typedIn" type="text" autocomplete="off" autocapitalize="sentences" placeholder="I'd like a coffee, please." enterkeyhint="done">
+      <button id="typedGo" type="button">Check</button>
+    </div>
+    <div class="row">
+      <button class="pill" id="main" aria-label="Play">
+        <span class="ring"></span><span class="ring b"></span>
+        <svg id="mainIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5 19 12 7 19.5Z" fill="currentColor"/></svg>
+        <span id="mainLabel">Play</span>
+      </button>
+      <button class="icon key" id="keyBtn" aria-label="Type it instead" aria-pressed="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2.5"/><path d="M7 10h.01M11 10h.01M15 10h.01M7 14h10"/></svg>
+      </button>
+    </div>
+    <div class="hint" id="hint">Tap a number to play that beat again.</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- the 25 second timeline ---------- */
+  var BEATS = [
+    {t:0,    d:3.4, label:"Leo says hello"},
+    {t:3.4,  d:5.8, label:"You order"},
+    {t:9.2,  d:4.4, label:"Two coffees"},
+    {t:13.6, d:6.6, label:"Why I'd like"},
+    {t:20.2, d:4.8, label:"Say it with me"},
+    {t:25,   d:0,   label:"You can now"}
+  ];
+  var TOTAL = 25;
+  var LINE1 = [["I'd",1],["like",1],["a",0],["coffee,",0],["please.",1]];
+  var LINE2 = [["I'd",1],["like",1],["two",0],["coffees,",0],["please.",1]];
+  var TARGET = ["i'd","like","a","coffee","please"];
+
+  /* speech cues: who talks, when, what. Captions come from the same list. */
+  var CUES = [
+    {at:0.15, who:"leo",  say:"Hi! What would you like?"},
+    {at:3.6,  who:"you",  say:"I'd like a coffee, please."},
+    {at:7.4,  who:"leo",  say:"Here you are."},
+    {at:9.4,  who:"you",  say:"I'd like two coffees, please."},
+    {at:13.9, who:"maya", say:"Not I want. I'd like. And please."},
+    {at:20.3, who:"maya", say:"Say it with me."},
+    {at:22.0, who:"maya", say:"I'd like a coffee, please.", rate:0.9}
+  ];
+
+  var $ = function(id){ return document.getElementById(id); };
+  var stage = $("stage"), world = $("world"), cam = $("cam"), bubble = $("bubble");
+  var explain = $("explain"), say = $("say"), cap = $("cap"), heard = $("heard");
+  var ocup = $("ocup"), ocup2 = $("ocup2"), badge = $("badge"), heart = $("heart");
+  var score = $("score"), blobert = $("blobert"), hup = $("hup"), burst = $("burst");
+  var beatsEl = $("beats"), pos = $("pos"), mainBtn = $("main"), mainIco = $("mainIcon"), mainLbl = $("mainLabel");
+  var hint = $("hint"), typed = $("typed"), typedIn = $("typedIn"), keyBtn = $("keyBtn");
+  var chars = {leo:$("leo"), you:$("you"), maya:$("maya")};
+
+  var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var t = 0, prevT = -1, beat = -1, playing = false, last = 0, mode = "poster", tries = 0;
+  var ICONS = {
+    play:'<path d="M7 4.5 19 12 7 19.5Z" fill="currentColor"/>',
+    pause:'<path d="M9 5v14M15 5v14"/>',
+    mic:'<path d="M12 4a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V7a3 3 0 0 1 3-3Z"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
+    again:'<path d="M20 11a8 8 0 1 0-2 6"/><path d="M20 5v6h-6"/>',
+    next:''
+  };
+
+  /* ---------- fit the 360 x 480 world to the card ---------- */
+  function fit(){
+    var k = stage.clientWidth / 360;
+    world.style.transform = "scale(" + k + ")";
+  }
+  window.addEventListener("resize", fit);
+  fit();
+
+  /* ---------- beat pills ---------- */
+  BEATS.forEach(function(b, i){
+    var el = document.createElement("button");
+    el.className = "beat"; el.type = "button";
+    el.setAttribute("aria-label", "Beat " + (i + 1) + ", " + b.label + ", play it again");
+    el.innerHTML = '<span class="bf"></span><span class="n">' + (i + 1) + '</span>';
+    el.addEventListener("click", function(){ seek(i); });
+    beatsEl.appendChild(el);
+  });
+  var beatEls = Array.prototype.slice.call(beatsEl.children);
+
+  /* ---------- helpers ---------- */
+  function setAttr(el, name, val){
+    val = String(val);
+    if (el.getAttribute(name) !== val) el.setAttribute(name, val);
+  }
+  function cls(el, name, on){ el.classList.toggle(name, !!on); }
+  function setFace(who, face){
+    var faces = chars[who].querySelectorAll(".face");
+    for (var i = 0; i < faces.length; i++) faces[i].classList.toggle("on", faces[i].getAttribute("data-face") === face);
+  }
+  function fillWords(el, words){
+    el.innerHTML = words.map(function(w){
+      return '<span class="w' + (w[1] ? " hi" : "") + '">' + w[0] + '</span>';
+    }).join("");
+  }
+  function showWords(el, n){
+    var ws = el.children;
+    for (var i = 0; i < ws.length; i++) ws[i].classList.toggle("on", i < n);
+  }
+  function setMode(m){ mode = m; setAttr(stage, "data-mode", m); }
+
+  /* ---------- render: everything on the card from t alone ---------- */
+  function beatAt(time){
+    for (var i = BEATS.length - 1; i >= 0; i--) if (time >= BEATS[i].t) return i;
+    return 0;
+  }
+  function render(){
+    var b = Math.min(4, beatAt(t));
+    var o = t - BEATS[b].t;
+    if (b !== beat){ beat = b; setAttr(stage, "data-beat", b + 1); }
+    cam.style.transform = reduced ? "" : "scale(" + (1 + 0.08 * t / TOTAL).toFixed(4) + ")";
+
+    // beat 2 and 3: the learner's bubble builds word by word, then the cup
+    var inOrder = b === 1 || b === 2;
+    if (inOrder){
+      var words = b === 1 ? LINE1 : LINE2;
+      if (bubble.getAttribute("data-line") !== String(b)){ fillWords(bubble, words); bubble.setAttribute("data-line", b); }
+      cls(bubble, "in", o >= 0.15);
+      showWords(bubble, o < 0.5 ? 0 : Math.min(5, Math.floor((o - 0.5) / 0.42) + 1));
+    } else { cls(bubble, "in", false); if (b < 1) bubble.setAttribute("data-line", ""); }
+    cls(ocup, "in", (b === 1 && o >= 3.9) || b === 2);
+    cls(heart, "in", (b === 1 && o >= 4.5) || b === 2);
+    cls(ocup2, "in", b === 2 && o >= 2.9);
+    cls(badge, "in", b === 2 && o >= 3.15);
+
+    // beat 4: kinetic typography steps
+    var step = 0;
+    if (b === 3) step = o < 0.2 ? 0 : o < 1.3 ? 1 : o < 2.4 ? 2 : o < 3.6 ? 3 : o < 4.6 ? 4 : 5;
+    setAttr(explain, "data-step", step);
+
+    // beat 5: Maya turns to the learner
+    if (b === 4){
+      if (o < 1.8){
+        if (say.getAttribute("data-s") !== "a"){ say.textContent = "Say it with me."; say.setAttribute("data-s", "a"); }
+        cls(say, "in", o >= 0.2);
+      } else {
+        if (say.getAttribute("data-s") !== "b"){ fillWords(say, LINE1); say.setAttribute("data-s", "b"); }
+        cls(say, "in", true);
+        showWords(say, Math.min(5, Math.floor((o - 1.8) / 0.4) + 1));
+      }
+    } else if (b < 4){ cls(say, "in", false); say.setAttribute("data-s", ""); }
+
+    // caption: the latest cue
+    var c = "";
+    for (var i = 0; i < CUES.length; i++) if (CUES[i].at <= t + 0.05 && CUES[i].at >= BEATS[b].t - 0.05) c = CUES[i].say;
+    if (cap.textContent !== c) cap.textContent = c;
+
+    // progress
+    beatEls.forEach(function(el, n){
+      setAttr(el, "data-state", n < b ? "done" : (n === b ? "now" : "next"));
+      if (n === b) setAttr(el, "aria-current", "true"); else el.removeAttribute("aria-current");
+      var w = n < b ? 100 : n > b ? 0 : Math.max(0, Math.min(1, o / BEATS[b].d)) * 100;
+      el.firstChild.style.width = w + "%";
+    });
+    pos.style.width = (t / TOTAL * 100) + "%";
+  }
+
+  /* ---------- speech and the talking faces ---------- */
+  var sound = true, talkTimer = null, talkWho = null, talkOpen = false, talkEnd = null;
+  function stopTalk(){
+    if (talkTimer){ clearInterval(talkTimer); talkTimer = null; }
+    if (talkEnd){ clearTimeout(talkEnd); talkEnd = null; }
+    if (talkWho){ setFace(talkWho, mode === "listen" && talkWho === "maya" ? "listen" : "idle"); talkWho = null; }
+  }
+  function startTalk(who, ms){
+    stopTalk();
+    talkWho = who; talkOpen = false;
+    talkTimer = setInterval(function(){ talkOpen = !talkOpen; setFace(who, talkOpen ? "talk" : "idle"); }, 125);
+    talkEnd = setTimeout(stopTalk, ms);
+  }
+  function speak(cue){
+    var ms = 90 * cue.say.length / (cue.rate || 1) + 250;
+    startTalk(cue.who, ms);
+    if (!sound || !("speechSynthesis" in window)) return;
+    try {
+      window.speechSynthesis.cancel();
+      var u = new SpeechSynthesisUtterance(cue.say);
+      u.lang = "en-GB"; u.rate = cue.rate || 1; u.pitch = cue.who === "leo" ? 0.9 : 1.05;
+      u.onend = function(){ if (talkWho === cue.who) stopTalk(); };
+      window.speechSynthesis.speak(u);
+    } catch (e) {}
+  }
+  function stopSpeech(){ stopTalk(); try { window.speechSynthesis.cancel(); } catch (e) {} }
+  function fireCues(){
+    CUES.forEach(function(c){ if (c.at > prevT && c.at <= t) speak(c); });
+    prevT = t;
+  }
+
+  /* ---------- the clock ---------- */
+  function frame(now){
+    if (!playing) return;
+    var dt = Math.min(0.1, (now - last) / 1000); last = now;
+    t = Math.min(TOTAL, t + dt);
+    render(); fireCues();
+    if (t >= TOTAL){ practise(); return; }
+    requestAnimationFrame(frame);
+  }
+  function play(){
+    if (mode === "done" || mode === "recap"){ seek(0); return; }
+    if (t >= TOTAL) t = 0;
+    playing = true; setMode("playing");
+    cls(stage, "won", false);
+    last = performance.now();
+    setButton("pause", "Pause");
+    hint.textContent = "Tap a number to play that beat again.";
+    requestAnimationFrame(frame);
+  }
+  function pause(){
+    playing = false; setMode("paused");
+    stopSpeech();
+    setButton("play", "Play");
+  }
+  function clearPractice(){
+    stopRecog(); stopSpeech();
+    heard.className = "heard"; heard.textContent = "";
+    cls(score, "in", false); cls(blobert, "go", false); cls(hup, "go", false); cls(burst, "go", false);
+    cls(mainBtn, "live", false);
+    typed.classList.remove("show"); keyBtn.setAttribute("aria-pressed", "false");
+    setFace("maya", "idle");
+  }
+  function seek(i){
+    clearPractice();
+    if (i >= 5){ recap(); return; }
+    // rewind every sub-state so the beat's pop-ins replay from nothing
+    t = BEATS[i].t; prevT = t - 0.001; beat = -1;
+    bubble.setAttribute("data-line", ""); say.setAttribute("data-s", ""); cls(bubble, "in", false);
+    cls(say, "in", false); cls(ocup, "in", false); cls(ocup2, "in", false); cls(badge, "in", false); cls(heart, "in", false);
+    setAttr(explain, "data-step", 0);
+    void stage.offsetWidth;
+    render();
+    play();
+  }
+
+  /* ---------- the talk-like pause ---------- */
+  function practise(){
+    playing = false; setMode("listen");
+    setFace("maya", "listen");
+    setButton("mic", hasSpeech() ? "Speak" : "Type it");
+    cls(mainBtn, "live", true);
+    hint.textContent = "Say it: I'd like a coffee, please.";
+    if (!hasSpeech()) openTyped();
+  }
+  function setButton(icon, label, chev){
+    mainIco.innerHTML = ICONS[icon]; mainIco.style.display = icon === "next" ? "none" : "";
+    mainLbl.innerHTML = label + (chev ? ' <span class="chev">»</span>' : "");
+    mainBtn.setAttribute("aria-label", label);
+  }
+  function openTyped(){
+    typed.classList.add("show"); keyBtn.setAttribute("aria-pressed", "true");
+    if (mode !== "listen"){ playing = false; t = TOTAL; render(); practise(); }
+    setMode("listen"); setFace("maya", "listen");
+    cls(mainBtn, "live", false);
+    hint.textContent = "Type the line, then tap Check.";
+    typedIn.value = ""; typedIn.focus();
+  }
+
+  /* ---------- scoring: three ink bars, never a number ---------- */
+  function norm(s){ return (s || "").toLowerCase().replace(/[^a-z'\s]/g, " ").replace(/\s+/g, " ").trim(); }
+  function lev(a, b){
+    var m = a.length, n = b.length, d = [], i, j;
+    for (i = 0; i <= m; i++){ d[i] = [i]; }
+    for (j = 1; j <= n; j++) d[0][j] = j;
+    for (i = 1; i <= m; i++) for (j = 1; j <= n; j++)
+      d[i][j] = Math.min(d[i-1][j] + 1, d[i][j-1] + 1, d[i-1][j-1] + (a[i-1] === b[j-1] ? 0 : 1));
+    return d[m][n];
+  }
+  function judge(text){
+    var said = norm(text), ws = said ? said.split(" ") : [];
+    var words = TARGET.filter(function(w){ return ws.indexOf(w) > -1 || (w === "i'd" && ws.indexOf("id") > -1); }).length / TARGET.length;
+    var tgt = TARGET.join(" ");
+    var sounds = Math.max(0, 1 - lev(said, tgt) / Math.max(said.length, tgt.length));
+    var rhythm = Math.max(0, 1 - Math.abs(ws.length - 5) / 5);
+    return {sounds:sounds, rhythm:rhythm, words:words, good: words >= 0.6};
+  }
+  function showBars(r){
+    cls(score, "in", true);
+    requestAnimationFrame(function(){
+      $("b1").style.width = Math.round(20 + 80 * r.sounds) + "%";
+      $("b2").style.width = Math.round(20 + 80 * r.rhythm) + "%";
+      $("b3").style.width = Math.round(100 * Math.max(.1, r.words)) + "%";
+    });
+  }
+  function answer(text){
+    stopRecog();
+    if (mode !== "listen") return;
+    typed.classList.remove("show"); keyBtn.setAttribute("aria-pressed", "false");
+    cls(mainBtn, "live", false);
+    var r = judge(text);
+    cls(say, "in", false);
+    heard.textContent = text ? "“" + text.trim() + "”" : "…";
+    heard.className = "heard on";
+    tries++;
+    if (r.good || tries >= 2){
+      setMode("good");
+      setFace("maya", "happy");
+      showBars(r);
+      cls(burst, "go", r.good);
+      hint.textContent = r.good ? "You did it. That is the polite way." : "Nearly. Keep going, it comes back later.";
+      setButton("next", "Next", true);
+      speak({who:"maya", say: r.good ? "You did it." : "Nearly. Let's keep going."});
+    } else {
+      miss();
+    }
+  }
+  /* a miss: Blobert sweeps it away in one gag, then the line replays slower */
+  function miss(){
+    setMode("miss");
+    hint.textContent = "Nearly. Listen once more.";
+    setButton("mic", "Speak");
+    void blobert.offsetWidth;
+    cls(blobert, "go", true); cls(hup, "go", true);
+    setTimeout(function(){ heard.classList.add("swept"); }, 300);
+    setTimeout(function(){
+      cls(blobert, "go", false); cls(hup, "go", false);
+      heard.className = "heard"; heard.textContent = "";
+      cls(say, "in", true);
+      speak({who:"maya", say:"I'd like a coffee, please.", rate:0.75});
+      setMode("listen"); cls(mainBtn, "live", true);
+      hint.textContent = "Now you. Tap Speak.";
+    }, 900);
+  }
+  function recap(){
+    playing = false; t = TOTAL; render();
+    setAttr(stage, "data-beat", 6); beat = 6;
+    setMode("recap");
+    setFace("maya", "happy");
+    cls(score, "in", false); heard.className = "heard";
+    beatEls.forEach(function(el, n){ setAttr(el, "data-state", n < 5 ? "done" : "now"); if (n === 5) setAttr(el, "aria-current", "true"); else el.removeAttribute("aria-current"); el.firstChild.style.width = "100%"; });
+    pos.style.width = "100%";
+    setButton("again", "Play again");
+    hint.textContent = "It comes back in Practice tomorrow.";
+  }
+
+  /* ---------- Web Speech, with the typed fallback always a tap away ---------- */
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition, recog = null;
+  function hasSpeech(){ return !!SR; }
+  function listen(){
+    if (!SR){ openTyped(); return; }
+    try {
+      recog = new SR();
+      recog.lang = "en-GB"; recog.interimResults = true; recog.maxAlternatives = 1;
+      recog.onresult = function(e){
+        var txt = "";
+        for (var i = 0; i < e.results.length; i++) txt += e.results[i][0].transcript;
+        heard.textContent = "“" + txt.trim() + "”"; heard.className = "heard on";
+        if (e.results[e.results.length - 1].isFinal) answer(txt.trim());
+      };
+      recog.onerror = function(){ openTyped(); };
+      recog.start();
+      setButton("mic", "Listening");
+      heard.textContent = "Listening…"; heard.className = "heard on";
+    } catch (err){ openTyped(); }
+  }
+  function stopRecog(){ if (recog){ try { recog.stop(); } catch (e) {} recog = null; } }
+
+  /* ---------- controls ---------- */
+  mainBtn.addEventListener("click", function(){
+    if (mode === "playing") pause();
+    else if (mode === "listen") listen();
+    else if (mode === "good") recap();
+    else if (mode === "miss") return;
+    else play();
+  });
+  keyBtn.addEventListener("click", function(){
+    if (typed.classList.contains("show")){ typed.classList.remove("show"); keyBtn.setAttribute("aria-pressed", "false"); if (mode === "listen") cls(mainBtn, "live", true); return; }
+    if (mode === "playing") pause();
+    if (mode === "good" || mode === "recap" || mode === "miss") return;
+    openTyped();
+  });
+  $("typedGo").addEventListener("click", function(){ answer(typedIn.value); });
+  typedIn.addEventListener("keydown", function(e){ if (e.key === "Enter"){ e.preventDefault(); answer(typedIn.value); } if (e.key === "Escape") keyBtn.click(); });
+
+  document.addEventListener("keydown", function(e){
+    if (typeof e.key !== "string" || e.target.tagName === "INPUT") return;
+    var k = e.key.toLowerCase();
+    if (k === " " || e.key === "Spacebar"){ if (e.target.tagName === "BUTTON") return; e.preventDefault(); mainBtn.click(); }
+    else if (k === "arrowright"){ e.preventDefault(); seek(Math.min(5, Math.max(0, beat) + 1)); }
+    else if (k === "arrowleft"){ e.preventDefault(); seek(Math.max(0, Math.min(5, beat) - 1)); }
+    else if (k === "r"){ e.preventDefault(); seek(Math.min(5, Math.max(0, beat))); }
+    else if (k === "t"){ e.preventDefault(); keyBtn.click(); }
+  });
+
+  $("theme").addEventListener("click", function(){
+    var dark = document.documentElement.getAttribute("data-theme") === "dark";
+    document.documentElement.setAttribute("data-theme", dark ? "light" : "dark");
+    this.setAttribute("aria-pressed", String(!dark));
+    this.setAttribute("aria-label", dark ? "Dark mode" : "Light mode");
+    document.querySelector('meta[name="theme-color"]').setAttribute("content", dark ? "#FFF7E8" : "#121212");
+  });
+  $("back").addEventListener("click", function(){ pause(); clearPractice(); t = 0; prevT = -1; beat = -1; render(); setMode("poster"); setButton("play", "Play"); });
+
+  /* tester hooks */
+  window.PROTO = {
+    seek: seek, play: play, pause: pause, answer: answer, recap: recap,
+    at: function(time){ pause(); clearPractice(); hint.textContent = "Tap a number to play that beat again."; t = time; prevT = time; beat = -1; render(); if (time >= TOTAL) practise(); },
+    state: function(){ return mode; }, time: function(){ return t; }
+  };
+
+  render();
+})();
+</script>
+</body>
+</html>

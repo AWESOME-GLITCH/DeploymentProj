@@ -27,6 +27,10 @@ export const OUTCOMES: Outcome[] = [
   { outcome_id: "OUT-PreA1.1-SPK-14", strand: "SPK", sublevel: "PreA1.1", icon: "👋", can_do: { en: "Can say hello and give my name", ar: "يمكنني قول مرحبًا وذكر اسمي", es: "Puedo saludar y decir mi nombre", hi: "मैं नमस्ते कह सकता हूँ और अपना नाम बता सकता हूँ", ru: "Могу поздороваться и назвать своё имя", tr: "Merhaba deyip adımı söyleyebilirim", zh: "我能打招呼并说出名字" }, criteria: ["CRI-PreA1.1-SPK-14-01"] },
   { outcome_id: "OUT-PreA1.2-INT-15", strand: "INT", sublevel: "PreA1.2", icon: "🛍️", can_do: { en: "Can ask for one thing in a shop", ar: "يمكنني طلب شيء واحد في المتجر", es: "Puedo pedir una cosa en una tienda", hi: "मैं दुकान में एक चीज़ माँग सकता हूँ", ru: "Могу попросить одну вещь в магазине", tr: "Bir dükkanda bir şey isteyebilirim", zh: "我能在商店要一样东西" }, criteria: ["CRI-PreA1.2-INT-15-01"] },
   { outcome_id: "OUT-A1.1-GRM-16", strand: "GRM", sublevel: "A1.1", icon: "🙂", can_do: { en: "Can say who I am and where I am from", ar: "يمكنني قول من أنا ومن أين أنا", es: "Puedo decir quién soy y de dónde soy", hi: "मैं बता सकता हूँ कि मैं कौन हूँ और कहाँ से हूँ", ru: "Могу сказать, кто я и откуда", tr: "Kim olduğumu ve nereli olduğumu söyleyebilirim", zh: "我能说我是谁、我来自哪里" }, criteria: ["CRI-A1.1-GRM-16-01"] },
+  // Week three of A2.1 (LEA-27): one can-do, three criteria, six atoms, five
+  // days. Appended for the same reason as week two: pickWeekCanDo keeps a
+  // stable sort, so the earlier weeks are still offered first.
+  { outcome_id: "OUT-A2.1-INT-17", strand: "INT", sublevel: "A2.1", icon: "🔁", can_do: { en: "Can take something back to a shop", ar: "يمكنني إعادة شيء إلى المتجر", es: "Puedo devolver algo a una tienda", hi: "मैं कोई चीज़ दुकान में वापस कर सकता हूँ", ru: "Могу вернуть вещь в магазин", tr: "Bir şeyi dükkana geri götürebilirim", zh: "我能把东西拿回店里" }, criteria: ["CRI-A2.1-INT-17-01", "CRI-A2.1-INT-17-02", "CRI-A2.1-INT-17-03"] },
 ];
 
 export const CRITERIA: Criterion[] = [
@@ -56,6 +60,12 @@ export const CRITERIA: Criterion[] = [
   { criterion_id: "CRI-PreA1.1-SPK-14-01", outcome_id: "OUT-PreA1.1-SPK-14", strand: "SPK", type: "communicative", mastery_rule: "ai", prerequisites: [], descriptor: { en: "Say hello, give your name, and answer What is your name?", ar: "قل مرحبًا، اذكر اسمك، وأجب على What is your name؟", es: "Saludar, decir tu nombre y responder a What is your name?" } },
   { criterion_id: "CRI-PreA1.2-INT-15-01", outcome_id: "OUT-PreA1.2-INT-15", strand: "INT", type: "communicative", mastery_rule: "ai", prerequisites: ["CRI-PreA1.1-SPK-14-01"], descriptor: { en: "Ask for a thing with a number and please, and say thank you", ar: "اطلب شيئًا مع رقم و please، وقل thank you", es: "Pedir algo con un número y please, y decir thank you" } },
   { criterion_id: "CRI-A1.1-GRM-16-01", outcome_id: "OUT-A1.1-GRM-16", strand: "GRM", type: "grammar", mastery_rule: "ai", prerequisites: ["CRI-PreA1.2-INT-15-01"], descriptor: { en: "Use I'm and you're to say who you are and where you are from", ar: "استخدم I'm و you're لتقول من أنت ومن أين أنت", es: "Usar I'm y you're para decir quién eres y de dónde eres" } },
+  // Week three. All three are `ai` for the reason given above: the delayed
+  // check in every atom is a spoken say-it, and `complete_session` drops
+  // spoken attempts from a keyed sitting.
+  { criterion_id: "CRI-A2.1-INT-17-01", outcome_id: "OUT-A2.1-INT-17", strand: "INT", type: "communicative", mastery_rule: "ai", prerequisites: ["CRI-A2.1-INT-01-01"], descriptor: { en: "Say what is wrong with it: this one doesn't work, or it is too small", ar: "قل ما هو الخطأ: this one doesn't work أو it is too small", es: "Decir qué le pasa: this one doesn't work o it is too small" } },
+  { criterion_id: "CRI-A2.1-INT-17-02", outcome_id: "OUT-A2.1-INT-17", strand: "INT", type: "communicative", mastery_rule: "ai", prerequisites: ["CRI-A2.1-INT-17-01"], descriptor: { en: "Ask them to change it for another one, and take what they offer", ar: "اطلب تبديله بآخر، واقبل ما يعرضونه", es: "Pedir que lo cambien por otro y aceptar lo que ofrezcan" } },
+  { criterion_id: "CRI-A2.1-INT-17-03", outcome_id: "OUT-A2.1-INT-17", strand: "INT", type: "communicative", mastery_rule: "ai", prerequisites: ["CRI-A2.1-INT-17-02"], descriptor: { en: "Show the receipt and say when you bought it", ar: "أظهر الإيصال وقل متى اشتريته", es: "Mostrar el recibo y decir cuándo lo compraste" } },
 ];
 
 const I = (
@@ -244,6 +254,83 @@ export const ITEMS: Item[] = [
   I("ITM-GRM-2004", "CRI-A1.1-GRM-16-01", "GRM", "magnet_tiles", { stem: { en: "Build the question." }, options: ["from?", "Where", "you", "are"], key: "Where are you from", modality: "cued", why: { en: "Where are you from? Are comes before you.", ar: "Where are you from? تأتي are قبل you.", es: "Where are you from? Are va antes de you." } }),
   I("ITM-GRM-2005", "CRI-A1.1-GRM-16-01", "GRM", "open_response", { stem: { en: "Say your name, your country, your city. 20 seconds." }, config: { targets: ["i'm", "from", "in"], need: 2, min_sentences: 2, seconds: 20, variants: ["Say your name, your country, your city. 20 seconds.", "A new classmate asks about you. Say your name, your country and your city. 20 seconds."] }, modality: "spoken", why: { en: "I'm Ana. I'm from Spain. I'm in London.", ar: "I'm Ana. I'm from Spain. I'm in London.", es: "I'm Ana. I'm from Spain. I'm in London." } }),
   I("ITM-GRM-2006", "CRI-A1.1-GRM-16-01", "GRM", "read_aloud", { stem: { en: "Say it. Name, country, city." }, key: "I'm Ana. I'm from Spain. I'm in London.", modality: "spoken", why: { en: "I'm Ana. I'm from Spain. I'm in London.", ar: "I'm Ana. I'm from Spain. I'm in London.", es: "I'm Ana. I'm from Spain. I'm in London." } }),
+
+  // ===== A2.1, week three: take something back to a shop ==================
+  // LEA-27. Five days on the spine of docs/learning-model.md §1.2, one new
+  // thing a day (§1.1): day 1 a phrase, day 2 a pattern, day 3 a phrase,
+  // day 4 a phrase, day 5 a sound. The item template per teaching atom is
+  // eight items: one dialogue turn for step 3, four run-up items for step 4
+  // (shadow, build, gap, say it), one dialogue turn and one roleplay for
+  // step 5, one say-it for the delayed check. Six of the eight are spoken,
+  // one is cued and one is recognition, which is the split docs/exercises.md
+  // asks for. `say_it_see_it` is not used anywhere in the week: its scene
+  // renderer (items.tsx `CafeScene`) only knows cafe ordering intents, so a
+  // shop return would speak to an empty counter.
+
+  // Day 1, atom 21: It doesn't work (INT-17-01). New thing: the phrase
+  // "This one doesn't work."
+  I("ITM-INT-2101", "CRI-A2.1-INT-17-01", "INT", "dialogue_turn", { stem: { en: "Your new lamp is dark. Tell Leo." }, config: { character: "Leo", turns: [{ say: "Hello. How can I help?", keywords: ["doesn't work", "does not work", "not working", "doesn't", "broken", "this one", "lamp"] }], need: 1 }, modality: "spoken", why: { en: "This one doesn't work.", ar: "This one doesn't work.", es: "This one doesn't work." } }),
+  I("ITM-INT-2102", "CRI-A2.1-INT-17-01", "INT", "shadow", { stem: { en: "Speak along with Maya." }, key: "Excuse me. This one doesn't work.", modality: "spoken", why: { en: "exCUSE me. This ONE doesn't WORK.", ar: "exCUSE me. This ONE doesn't WORK.", es: "exCUSE me. This ONE doesn't WORK." } }),
+  I("ITM-INT-2103", "CRI-A2.1-INT-17-01", "INT", "magnet_tiles", { stem: { en: "Build the sentence, then say it." }, options: ["work", "This", "doesn't", "one"], key: "This one doesn't work", modality: "cued", why: { en: "This one doesn't work. The thing first, then the problem.", ar: "This one doesn't work. الشيء أولًا ثم المشكلة.", es: "This one doesn't work. Primero la cosa, luego el problema." } }),
+  I("ITM-INT-2104", "CRI-A2.1-INT-17-01", "INT", "gap_fill", { stem: { en: "This one ___ work." }, audio: "This one doesn't work.", options: ["doesn't", "don't", "not"], key: 0, modality: "recognition", why: { en: "One thing: doesn't. Two things: don't.", ar: "شيء واحد: doesn't. شيئان: don't.", es: "Una cosa: doesn't. Dos cosas: don't." } }),
+  I("ITM-INT-2105", "CRI-A2.1-INT-17-01", "INT", "read_aloud", { stem: { en: "Say it to the shop." }, key: "Excuse me. This lamp doesn't work.", modality: "spoken", why: { en: "exCUSE me. This LAMP doesn't WORK.", ar: "exCUSE me. This LAMP doesn't WORK.", es: "exCUSE me. This LAMP doesn't WORK." } }),
+  I("ITM-INT-2106", "CRI-A2.1-INT-17-01", "INT", "dialogue_turn", { stem: { en: "Leo thinks you dropped it. Say what happened." }, config: { character: "Leo", turns: [{ say: "Did you drop it?", keywords: ["no", "didn't", "did not", "never", "new", "first day", "box", "still"] }], need: 1 }, modality: "spoken", why: { en: "No, I didn't. It doesn't work.", ar: "No, I didn't. It doesn't work.", es: "No, I didn't. It doesn't work." } }),
+  I("ITM-INT-2107", "CRI-A2.1-INT-17-01", "INT", "roleplay", { stem: { en: "Take the lamp back. Leo asks two questions." }, config: { character: "Leo", turns: [{ say: "Morning. How can I help?", keywords: ["doesn't work", "does not work", "not working", "doesn't", "broken", "lamp", "excuse me"] }, { say: "Did you try another bulb?", keywords: ["yes", "no", "still", "same", "tried", "doesn't work", "nothing"] }, { say: "I see. Let me look at it for you.", keywords: ["thank", "thanks", "please", "ok", "okay", "doesn't work", "here"] }], need: 2 }, modality: "spoken", why: { en: "This one doesn't work. I tried another bulb and it still doesn't work.", ar: "This one doesn't work. I tried another bulb and it still doesn't work.", es: "This one doesn't work. I tried another bulb and it still doesn't work." } }),
+  I("ITM-INT-2108", "CRI-A2.1-INT-17-01", "INT", "read_aloud", { stem: { en: "Say it. Three words for the problem." }, key: "This one doesn't work.", modality: "spoken", why: { en: "This ONE doesn't WORK.", ar: "This ONE doesn't WORK.", es: "This ONE doesn't WORK." } }),
+
+  // Day 2, atom 22: Too small, too big (INT-17-01). New thing: the pattern
+  // too plus an adjective.
+  I("ITM-INT-2201", "CRI-A2.1-INT-17-01", "INT", "dialogue_turn", { stem: { en: "The shoes do not fit. Tell Leo." }, config: { character: "Leo", turns: [{ say: "Hello. Is everything all right with the shoes?", keywords: ["too small", "too big", "too", "small", "big", "don't fit", "do not fit", "tight"] }], need: 1 }, modality: "spoken", why: { en: "These shoes are too small.", ar: "These shoes are too small.", es: "These shoes are too small." } }),
+  I("ITM-INT-2202", "CRI-A2.1-INT-17-01", "INT", "shadow", { stem: { en: "Speak along with Maya." }, key: "These shoes are too small.", modality: "spoken", why: { en: "These SHOES are too SMALL.", ar: "These SHOES are too SMALL.", es: "These SHOES are too SMALL." } }),
+  I("ITM-INT-2203", "CRI-A2.1-INT-17-01", "INT", "sentence_build", { stem: { en: "Build the sentence, then say it." }, options: ["too", "These", "are", "small", "shoes"], key: "These shoes are too small", modality: "cued", why: { en: "These shoes are too small. Too comes in front of the small word.", ar: "These shoes are too small. تأتي too قبل كلمة الوصف.", es: "These shoes are too small. Too va delante de la palabra pequeña." } }),
+  I("ITM-INT-2204", "CRI-A2.1-INT-17-01", "INT", "gap_fill", { stem: { en: "This jacket is ___ big for me." }, audio: "This jacket is too big for me.", options: ["too", "two", "to"], key: 0, modality: "recognition", why: { en: "Too big: more big than you need. Two is the number 2.", ar: "Too big: أكبر مما تحتاج. أما two فهو الرقم 2.", es: "Too big: más grande de lo que necesitas. Two es el número 2." } }),
+  I("ITM-INT-2205", "CRI-A2.1-INT-17-01", "INT", "read_aloud", { stem: { en: "Say both problems." }, key: "This jacket is too big. These shoes are too small.", modality: "spoken", why: { en: "This jacket is too BIG. These shoes are too SMALL.", ar: "This jacket is too BIG. These shoes are too SMALL.", es: "This jacket is too BIG. These shoes are too SMALL." } }),
+  I("ITM-INT-2206", "CRI-A2.1-INT-17-01", "INT", "dialogue_turn", { stem: { en: "Leo offers the same shoes in brown. Say the problem again." }, config: { character: "Leo", turns: [{ say: "We have the same shoes in brown. Is that all right?", keywords: ["too small", "small", "size", "bigger", "no", "still", "too"] }], need: 1 }, modality: "spoken", why: { en: "The colour is fine, but they are too small.", ar: "The colour is fine, but they are too small.", es: "The colour is fine, but they are too small." } }),
+  I("ITM-INT-2207", "CRI-A2.1-INT-17-01", "INT", "roleplay", { stem: { en: "Take the shoes back. Say what is wrong with them." }, config: { character: "Leo", turns: [{ say: "Hello. What can I do for you?", keywords: ["too small", "too", "small", "shoes", "don't fit", "do not fit", "excuse me"] }, { say: "They look like the right size to me.", keywords: ["too small", "small", "tight", "no", "still", "size", "feet"] }, { say: "All right. What size do you need?", keywords: ["bigger", "size", "forty", "thirty", "eight", "nine", "please", "one"] }], need: 2 }, modality: "spoken", why: { en: "These shoes are too small. I need a bigger size, please.", ar: "These shoes are too small. I need a bigger size, please.", es: "These shoes are too small. I need a bigger size, please." } }),
+  I("ITM-INT-2208", "CRI-A2.1-INT-17-01", "INT", "read_aloud", { stem: { en: "Say it. One problem, one sentence." }, key: "These shoes are too small.", modality: "spoken", why: { en: "These SHOES are too SMALL.", ar: "These SHOES are too SMALL.", es: "These SHOES are too SMALL." } }),
+
+  // Day 3, atom 23: Could I change it? (INT-17-02). New thing: the phrase
+  // "Could I change it for a bigger one?" The Could I shape is the cafe's,
+  // so only change it for is new (CRI-A2.1-INT-01-01 is the prerequisite).
+  I("ITM-INT-2301", "CRI-A2.1-INT-17-02", "INT", "dialogue_turn", { stem: { en: "Leo knows the problem. Ask him to change it." }, config: { character: "Leo", turns: [{ say: "So they are too small. What would you like to do?", keywords: ["change", "bigger", "could i", "can i", "another", "swap", "different size"] }], need: 1 }, modality: "spoken", why: { en: "Could I change it for a bigger one?", ar: "Could I change it for a bigger one?", es: "Could I change it for a bigger one?" } }),
+  I("ITM-INT-2302", "CRI-A2.1-INT-17-02", "INT", "shadow", { stem: { en: "Speak along with Maya." }, key: "Could I change it for a bigger one?", modality: "spoken", why: { en: "Could I CHANGE it for a BIGger one?", ar: "Could I CHANGE it for a BIGger one?", es: "Could I CHANGE it for a BIGger one?" } }),
+  I("ITM-INT-2303", "CRI-A2.1-INT-17-02", "INT", "magnet_tiles", { stem: { en: "Build the question, then say it." }, options: ["change", "Could", "for", "I", "it", "bigger", "a", "one"], key: "Could I change it for a bigger one", modality: "cued", why: { en: "Could I, then change it for, then the thing you want.", ar: "Could I ثم change it for ثم الشيء الذي تريده.", es: "Could I, luego change it for y después lo que quieres." } }),
+  I("ITM-INT-2304", "CRI-A2.1-INT-17-02", "INT", "gap_fill", { stem: { en: "Could I change it ___ a bigger one?" }, audio: "Could I change it for a bigger one?", options: ["for", "to", "with"], key: 0, modality: "recognition", why: { en: "Change it for: you give one thing and take another.", ar: "Change it for: تعطي شيئًا وتأخذ آخر.", es: "Change it for: das una cosa y te llevas otra." } }),
+  I("ITM-INT-2305", "CRI-A2.1-INT-17-02", "INT", "read_aloud", { stem: { en: "Say the problem and the question together." }, key: "This one is too small. Could I change it for a bigger one?", modality: "spoken", why: { en: "This one is too SMALL. Could I CHANGE it for a BIGger one?", ar: "This one is too SMALL. Could I CHANGE it for a BIGger one?", es: "This one is too SMALL. Could I CHANGE it for a BIGger one?" } }),
+  I("ITM-INT-2306", "CRI-A2.1-INT-17-02", "INT", "dialogue_turn", { stem: { en: "The bigger one is only in black. Answer Leo." }, config: { character: "Leo", turns: [{ say: "We only have the bigger one in black.", keywords: ["fine", "ok", "okay", "black", "thank", "yes", "please", "take"] }], need: 1 }, modality: "spoken", why: { en: "Black is fine, thank you.", ar: "Black is fine, thank you.", es: "Black is fine, thank you." } }),
+  I("ITM-INT-2307", "CRI-A2.1-INT-17-02", "INT", "roleplay", { stem: { en: "Ask Leo to change the shoes. He has a problem with the size." }, config: { character: "Leo", turns: [{ say: "Hello again. How can I help?", keywords: ["change", "could i", "can i", "bigger", "too small", "another", "swap"] }, { say: "Let me see. We have no bigger ones in blue today.", keywords: ["another", "colour", "color", "black", "brown", "tomorrow", "ok", "fine", "then", "could i"] }, { say: "Black it is. Shall I put them in a bag?", keywords: ["yes", "please", "thank", "thanks", "bag", "no", "fine"] }], need: 2 }, modality: "spoken", why: { en: "Could I change it for a bigger one? Black is fine, thank you.", ar: "Could I change it for a bigger one? Black is fine, thank you.", es: "Could I change it for a bigger one? Black is fine, thank you." } }),
+  I("ITM-INT-2308", "CRI-A2.1-INT-17-02", "INT", "read_aloud", { stem: { en: "Say it. Ask for the bigger one." }, key: "Could I change it for a bigger one?", modality: "spoken", why: { en: "Could I CHANGE it for a BIGger one?", ar: "Could I CHANGE it for a BIGger one?", es: "Could I CHANGE it for a BIGger one?" } }),
+
+  // Day 4, atom 24: Here's the receipt (INT-17-03). New thing: the phrase
+  // "Here's the receipt. I bought it on Saturday." The run-up carries day 2
+  // and day 3 back (spaced return inside a new scene, §1.1).
+  I("ITM-INT-2401", "CRI-A2.1-INT-17-03", "INT", "dialogue_turn", { stem: { en: "Leo asks for the receipt. Give it to him." }, config: { character: "Leo", turns: [{ say: "Of course. Do you have the receipt?", keywords: ["here", "receipt", "yes", "bought", "saturday", "here's"] }], need: 1 }, modality: "spoken", why: { en: "Here's the receipt. I bought it on Saturday.", ar: "Here's the receipt. I bought it on Saturday.", es: "Here's the receipt. I bought it on Saturday." } }),
+  I("ITM-INT-2402", "CRI-A2.1-INT-17-03", "INT", "shadow", { stem: { en: "Speak along with Maya." }, key: "Here's the receipt. I bought it on Saturday.", modality: "spoken", why: { en: "Here's the reCEIPT. I BOUGHT it on SATurday.", ar: "Here's the reCEIPT. I BOUGHT it on SATurday.", es: "Here's the reCEIPT. I BOUGHT it on SATurday." } }),
+  I("ITM-INT-2403", "CRI-A2.1-INT-17-03", "INT", "sentence_build", { stem: { en: "Build the sentence, then say it." }, options: ["bought", "I", "Saturday", "it", "on"], key: "I bought it on Saturday", modality: "cued", why: { en: "I bought it, then on and the day.", ar: "I bought it ثم on واليوم.", es: "I bought it, luego on y el día." } }),
+  I("ITM-INT-2404", "CRI-A2.1-INT-17-03", "INT", "gap_fill", { stem: { en: "I ___ it on Saturday." }, audio: "I bought it on Saturday.", options: ["bought", "buy", "buyed"], key: 0, modality: "recognition", why: { en: "Yesterday and before: bought. There is no buyed.", ar: "للماضي نقول bought. ولا توجد كلمة buyed.", es: "Para el pasado: bought. Buyed no existe." } }),
+  I("ITM-INT-2405", "CRI-A2.1-INT-17-03", "INT", "read_aloud", { stem: { en: "Say it with a different day." }, key: "Here's the receipt. I bought it last week.", modality: "spoken", why: { en: "Here's the reCEIPT. I BOUGHT it last WEEK.", ar: "Here's the reCEIPT. I BOUGHT it last WEEK.", es: "Here's the reCEIPT. I BOUGHT it last WEEK." } }),
+  I("ITM-INT-2406", "CRI-A2.1-INT-17-03", "INT", "dialogue_turn", { stem: { en: "Leo says the receipt is from another shop. Put it right." }, config: { character: "Leo", turns: [{ say: "Sorry, this receipt is from another shop.", keywords: ["sorry", "here", "this one", "receipt", "bought", "saturday", "here's", "right one"] }], need: 1 }, modality: "spoken", why: { en: "Sorry, here's the right one. I bought it here on Saturday.", ar: "Sorry, here's the right one. I bought it here on Saturday.", es: "Sorry, here's the right one. I bought it here on Saturday." } }),
+  I("ITM-INT-2407", "CRI-A2.1-INT-17-03", "INT", "roleplay", { stem: { en: "The whole thing: say what is wrong, ask to change it, show the receipt." }, config: { character: "Leo", turns: [{ say: "Good morning. How can I help?", keywords: ["too small", "too big", "doesn't work", "too", "change", "could i", "back"] }, { say: "I can change it. Do you have the receipt?", keywords: ["here", "receipt", "here's", "bought", "saturday", "yes", "last week"] }, { say: "Thank you. We change things in thirty days, so that is fine.", keywords: ["thank", "thanks", "good", "great", "ok", "okay", "bigger", "please"] }], need: 2 }, modality: "spoken", why: { en: "This one is too small. Could I change it for a bigger one? Here's the receipt.", ar: "This one is too small. Could I change it for a bigger one? Here's the receipt.", es: "This one is too small. Could I change it for a bigger one? Here's the receipt." } }),
+  I("ITM-INT-2408", "CRI-A2.1-INT-17-03", "INT", "read_aloud", { stem: { en: "Say it. The receipt and the day." }, key: "Here's the receipt. I bought it on Saturday.", modality: "spoken", why: { en: "Here's the reCEIPT. I BOUGHT it on SATurday.", ar: "Here's the reCEIPT. I BOUGHT it on SATurday.", es: "Here's the reCEIPT. I BOUGHT it on SATurday." } }),
+
+  // Day 4 use atom 25: Saturday jobs. Nothing new. Its own five items are
+  // recombinations across three strands (INT, LST, MED) and its run-up calls
+  // three earlier atoms back, which is the interleaving of §4.6 rule 5.
+  I("ITM-INT-2501", "CRI-A2.1-INT-17-01", "INT", "dialogue_turn", { stem: { en: "A different shop. Your phone does not charge. Tell Fatima." }, config: { character: "Fatima", turns: [{ say: "Hello. What can I do for you?", keywords: ["doesn't work", "does not work", "doesn't", "not working", "charge", "phone", "broken"] }], need: 1 }, modality: "spoken", why: { en: "This phone doesn't work. It doesn't charge.", ar: "This phone doesn't work. It doesn't charge.", es: "This phone doesn't work. It doesn't charge." } }),
+  I("ITM-LST-2502", "CRI-A2.1-LST-03-01", "LST", "read_aloud", { stem: { en: "Say the price on the receipt. Stress the end of fourteen." }, key: "The receipt says fourteen pounds, not forty.", modality: "spoken", why: { en: "fourTEEN pounds, not FORty.", ar: "fourTEEN pounds, not FORty.", es: "fourTEEN pounds, not FORty." } }),
+  I("ITM-INT-2503", "CRI-A2.1-INT-17-02", "INT", "roleplay", { stem: { en: "Back in the shoe shop. Sort it out in three turns." }, config: { character: "Leo", turns: [{ say: "Hello. Are you all right there?", keywords: ["too small", "too big", "doesn't work", "too", "back", "change", "could i"] }, { say: "Of course. Have you got the receipt with you?", keywords: ["here", "receipt", "here's", "bought", "saturday", "yes", "last week"] }, { say: "Thank you. A bigger one, then?", keywords: ["yes", "bigger", "please", "thank", "change", "could i", "that's right"] }], need: 2 }, modality: "spoken", why: { en: "These are too small. Could I change them for a bigger pair? Here's the receipt.", ar: "These are too small. Could I change them for a bigger pair? Here's the receipt.", es: "These are too small. Could I change them for a bigger pair? Here's the receipt." } }),
+  I("ITM-MED-2504", "CRI-A2.1-MED-06-01", "MED", "relay", { stem: { en: "Sami wants to take his kettle back. Tell him what the shop said." }, config: { source: "We change things in thirty days. Keep the receipt. Bring the box.", questions: [{ q: "How long has he got?", keywords: ["thirty", "30", "days", "month"] }, { q: "What must he keep?", keywords: ["receipt"] }, { q: "What must he bring?", keywords: ["box"] }], need: 2, character: "Sami" }, modality: "spoken", why: { en: "Thirty days, keep the receipt, and bring the box.", ar: "Thirty days, keep the receipt, and bring the box.", es: "Thirty days, keep the receipt, and bring the box." } }),
+  I("ITM-INT-2505", "CRI-A2.1-INT-17-03", "INT", "read_aloud", { stem: { en: "Say it. The receipt and the day." }, key: "Here's the receipt. I bought it on Saturday.", modality: "spoken", why: { en: "Here's the reCEIPT. I BOUGHT it on SATurday.", ar: "Here's the reCEIPT. I BOUGHT it on SATurday.", es: "Here's the reCEIPT. I BOUGHT it on SATurday." } }),
+
+  // Day 5 atom 26: Back to the shop, the week's free-use performance. The one
+  // new thing is a sound, not new language: the problem word carries the
+  // stress. Every item is spoken.
+  I("ITM-INT-2601", "CRI-A2.1-INT-17-03", "INT", "shadow", { stem: { en: "Speak along with Maya. Hit the problem word." }, key: "This one doesn't work.", modality: "spoken", why: { en: "This one doesn't WORK. The problem word is the loud one.", ar: "This one doesn't WORK. كلمة المشكلة هي الأعلى صوتًا.", es: "This one doesn't WORK. La palabra del problema es la fuerte." } }),
+  I("ITM-INT-2602", "CRI-A2.1-INT-17-03", "INT", "read_aloud", { stem: { en: "Say both. Hit the last word each time." }, key: "It's not too big. It's too small.", modality: "spoken", why: { en: "It's not too BIG. It's too SMALL.", ar: "It's not too BIG. It's too SMALL.", es: "It's not too BIG. It's too SMALL." } }),
+  I("ITM-INT-2603", "CRI-A2.1-INT-17-03", "INT", "dialogue_turn", { stem: { en: "Leo asks when you bought it. Tell him." }, config: { character: "Leo", turns: [{ say: "We can change it in thirty days. When did you buy it?", keywords: ["saturday", "bought", "last week", "monday", "friday", "days", "yesterday"] }], need: 1 }, modality: "spoken", why: { en: "I bought it on Saturday.", ar: "I bought it on Saturday.", es: "I bought it on Saturday." } }),
+  I("ITM-INT-2604", "CRI-A2.1-INT-17-03", "INT", "roleplay", { stem: { en: "Take the jacket back on your own. Four turns, no help." }, config: { character: "Leo", turns: [{ say: "Good afternoon. How can I help?", keywords: ["too big", "too small", "doesn't work", "too", "back", "jacket", "excuse me"] }, { say: "Let me see it. What would you like to do?", keywords: ["change", "could i", "can i", "smaller", "bigger", "another", "one"] }, { say: "No problem. Have you got the receipt?", keywords: ["here", "receipt", "here's", "bought", "saturday", "last week"] }, { say: "Here is the smaller one. Is that better?", keywords: ["yes", "thank", "thanks", "good", "better", "fine", "perfect"] }], need: 3 }, modality: "spoken", why: { en: "This jacket is too big. Could I change it for a smaller one? Here's the receipt.", ar: "This jacket is too big. Could I change it for a smaller one? Here's the receipt.", es: "This jacket is too big. Could I change it for a smaller one? Here's the receipt." } }),
+  I("ITM-INT-2605", "CRI-A2.1-INT-17-03", "INT", "open_response", { stem: { en: "Tell Maya how to take something back to a shop. 30 seconds." }, config: { targets: ["doesn't work", "too", "change it", "receipt", "bought"], need: 3, min_sentences: 2, seconds: 30, teach_back: true, variants: ["Tell Maya how to take something back to a shop. 30 seconds.", "A new classmate bought the wrong size. Tell her what to say in the shop. 30 seconds."] }, modality: "spoken", why: { en: "Say the problem, ask to change it, then show the receipt.", ar: "Say the problem, ask to change it, then show the receipt.", es: "Say the problem, ask to change it, then show the receipt." } }),
+  I("ITM-INT-2606", "CRI-A2.1-INT-17-03", "INT", "read_aloud", { stem: { en: "Say it. The whole thing in two sentences." }, key: "This one is too small. Could I change it for a bigger one?", modality: "spoken", why: { en: "This one is too SMALL. Could I CHANGE it for a BIGger one?", ar: "This one is too SMALL. Could I CHANGE it for a BIGger one?", es: "This one is too SMALL. Could I CHANGE it for a BIGger one?" } }),
 ];
 
 // ===== A2.1, week one =====================================================
@@ -716,6 +803,140 @@ export const ATOMS: Atom[] = [
       { kind: "check", items: ["ITM-GRM-2006"], delayed: true },
     ],
   },
+  // ===== A2.1, week three: take something back to a shop ==================
+  // LEA-27. Six atoms on the §1.2 spine. Days 1 to 4 are scene-led teaching
+  // atoms with the full six steps. Atom 25 is day 4's use atom and atom 26 is
+  // day 5's performance; both are built from old material, so neither has a
+  // `noticing` step for new language (26 notices a sound on known sentences,
+  // which is the day's one new thing). Prerequisites, not a date, hold the
+  // week in shape: each atom needs the criterion before it at Consolidating,
+  // which is `prerequisitesMet`'s level 2.
+  {
+    atom_id: "ATM-A2-INT-0021", version: 1, criterion_id: "CRI-A2.1-INT-17-01", strand: "INT", sublevel: "A2.1", type: "video", variant: "standard", language_use: true, status: "published",
+    title: { en: "It doesn't work", ar: "إنه لا يعمل", es: "No funciona", hi: "यह काम नहीं करता", ru: "Он не работает", tr: "Bu çalışmıyor", zh: "这个坏了" },
+    target_items: ["ITM-INT-2101", "ITM-INT-2102", "ITM-INT-2103", "ITM-INT-2104", "ITM-INT-2105", "ITM-INT-2106", "ITM-INT-2107", "ITM-INT-2108"],
+    prerequisites: ["CRI-A2.1-INT-01-01"],
+    phases: [
+      { kind: "input", media: { kind: "video", title: "It doesn't work", presenter: "Maya, a small shop in Leeds", duration_sec: 50, l1_card: { en: "Telling a shop that something is broken", ar: "إخبار المتجر بأن شيئًا ما معطل", es: "Decir en una tienda que algo está roto", hi: "दुकान को बताना कि चीज़ ख़राब है", ru: "Сказать в магазине, что вещь сломана", tr: "Dükkana bir şeyin bozuk olduğunu söylemek", zh: "告诉店家东西坏了" }, lines: [
+        { text: "Tuesday. Leeds. The new lamp is dark.", at: 0 },
+        { text: "Excuse me. This one doesn't work.", at: 6, target: true },
+        { text: "Let me see. Did you try another bulb?", at: 12 },
+        { text: "Yes. It still doesn't work.", at: 18, target: true },
+        { text: "Doesn't work means it does nothing at all.", at: 23 },
+        { text: "Say it with me. This one doesn't work.", at: 31, target: true },
+        { text: "This one doesn't work.", at: 43, target: true },
+      ] } },
+      { kind: "noticing", highlight: "This one doesn't work.", why: { en: "Say the problem in three words. Then the shop can help.", ar: "قل المشكلة في ثلاث كلمات. عندها يمكن للمتجر مساعدتك.", es: "Di el problema en tres palabras. Así la tienda te ayuda.", hi: "समस्या तीन शब्दों में कहें। फिर दुकान मदद कर सकती है।", ru: "Скажите проблему тремя словами. Тогда вам помогут.", tr: "Sorunu üç kelimeyle söyle. Sonra dükkan yardım eder.", zh: "用三个词说出问题。店家就能帮你。" } },
+      { kind: "free_use", items: ["ITM-INT-2101"] },
+      { kind: "controlled", items: ["ITM-INT-2102", "ITM-INT-2103", "ITM-INT-2104", "ITM-INT-2105"] },
+      { kind: "free_use", items: ["ITM-INT-2106", "ITM-INT-2107"] },
+      { kind: "check", items: ["ITM-INT-2108"], delayed: true },
+    ],
+  },
+  {
+    atom_id: "ATM-A2-INT-0022", version: 1, criterion_id: "CRI-A2.1-INT-17-01", strand: "INT", sublevel: "A2.1", type: "word_tutorial", variant: "standard", language_use: false, status: "published",
+    title: { en: "Too small, too big", ar: "صغير جدًا، كبير جدًا", es: "Demasiado pequeño, demasiado grande", hi: "बहुत छोटा, बहुत बड़ा", ru: "Слишком мал, слишком велик", tr: "Çok küçük, çok büyük", zh: "太小，太大" },
+    target_items: ["ITM-INT-2201", "ITM-INT-2202", "ITM-INT-2203", "ITM-INT-2204", "ITM-INT-2205", "ITM-INT-2206", "ITM-INT-2207", "ITM-INT-2208"],
+    prerequisites: ["CRI-A2.1-INT-01-01"],
+    phases: [
+      { kind: "input", media: { kind: "word_tutorial", cards: [
+        { word: "too small", emoji: "👟", meaning: { en: "Smaller than you need. A problem.", ar: "أصغر مما تحتاج. مشكلة.", es: "Más pequeño de lo que necesitas. Un problema.", hi: "ज़रूरत से छोटा। एक समस्या।", ru: "Меньше, чем нужно. Это проблема.", tr: "İhtiyacından küçük. Bir sorun.", zh: "比你需要的小。有问题。" }, examples: ["These shoes are too small.", "This desk is too small for two.", "The room is too small for the class."] },
+        { word: "too big", emoji: "🧥", meaning: { en: "Bigger than you need. Also a problem.", ar: "أكبر مما تحتاج. مشكلة أيضًا.", es: "Más grande de lo que necesitas. También un problema.", hi: "ज़रूरत से बड़ा। यह भी समस्या है।", ru: "Больше, чем нужно. Тоже проблема.", tr: "İhtiyacından büyük. Bu da bir sorun.", zh: "比你需要的大。也有问题。" }, examples: ["This jacket is too big.", "The box is too big for the bag.", "My coat is too big now."] },
+        { word: "too tight", emoji: "👖", meaning: { en: "Close on your body. It hurts a little.", ar: "ضيق على جسمك. يؤلم قليلًا.", es: "Apretado en el cuerpo. Molesta un poco.", hi: "शरीर पर कसा हुआ। थोड़ा चुभता है।", ru: "Жмёт. Немного больно.", tr: "Vücuda dar geliyor. Biraz acıtıyor.", zh: "勒着身体。有点难受。" }, examples: ["These jeans are too tight.", "The shoes are too tight at work.", "This shirt is too tight for me."] },
+        { word: "too expensive", emoji: "💷", meaning: { en: "More money than you want to pay.", ar: "أغلى مما تريد أن تدفع.", es: "Más dinero del que quieres pagar.", hi: "आप जितना देना चाहते हैं उससे महँगा।", ru: "Дороже, чем вы хотите платить.", tr: "Ödemek istediğinden pahalı.", zh: "比你想付的贵。" }, examples: ["That one is too expensive.", "The big size is too expensive for me.", "Lunch at work is too expensive."] },
+      ] } },
+      { kind: "noticing", highlight: "too small, too big", why: { en: "Too says there is a problem. Very does not.", ar: "Too تعني أن هناك مشكلة. أما very فلا.", es: "Too dice que hay un problema. Very no.", hi: "Too बताता है कि समस्या है। Very नहीं।", ru: "Too говорит, что есть проблема. Very нет.", tr: "Too bir sorun olduğunu söyler. Very söylemez.", zh: "Too 表示有问题。Very 不表示。" } },
+      { kind: "free_use", items: ["ITM-INT-2201"] },
+      { kind: "controlled", items: ["ITM-INT-2202", "ITM-INT-2203", "ITM-INT-2204", "ITM-INT-2205"] },
+      { kind: "free_use", items: ["ITM-INT-2206", "ITM-INT-2207"] },
+      { kind: "check", items: ["ITM-INT-2208"], delayed: true },
+    ],
+  },
+  {
+    atom_id: "ATM-A2-INT-0023", version: 1, criterion_id: "CRI-A2.1-INT-17-02", strand: "INT", sublevel: "A2.1", type: "video", variant: "standard", language_use: true, status: "published",
+    title: { en: "Could I change it?", ar: "هل يمكنني تبديله؟", es: "¿Podría cambiarlo?", hi: "क्या मैं इसे बदल सकता हूँ?", ru: "Можно обменять?", tr: "Değiştirebilir miyim?", zh: "可以换吗？" },
+    target_items: ["ITM-INT-2301", "ITM-INT-2302", "ITM-INT-2303", "ITM-INT-2304", "ITM-INT-2305", "ITM-INT-2306", "ITM-INT-2307", "ITM-INT-2308"],
+    prerequisites: ["CRI-A2.1-INT-01-01"],
+    phases: [
+      { kind: "input", media: { kind: "video", title: "Could I change it?", presenter: "Maya, a shoe shop in Leeds", duration_sec: 50, l1_card: { en: "Asking the shop to change it for another one", ar: "طلب تبديله بآخر", es: "Pedir en la tienda que lo cambien por otro", hi: "दुकान से दूसरी चीज़ से बदलने को कहना", ru: "Попросить обменять на другой", tr: "Dükkandan başkasıyla değiştirmesini istemek", zh: "请店家换一个" }, lines: [
+        { text: "Same shop, Wednesday. The shoes are too small.", at: 0 },
+        { text: "Could I change it for a bigger one?", at: 6, target: true },
+        { text: "Of course. What size do you need?", at: 12 },
+        { text: "Could I is the cafe question again.", at: 18 },
+        { text: "Change it for: you give one, you take another.", at: 24 },
+        { text: "Say it with me. Could I change it for a bigger one?", at: 32, target: true },
+        { text: "Could I change it for a bigger one?", at: 44, target: true },
+      ] } },
+      { kind: "noticing", highlight: "Could I change it for a bigger one?", why: { en: "Could I, then change it for, then the one you want.", ar: "Could I ثم change it for ثم ما تريده.", es: "Could I, luego change it for y lo que quieres.", hi: "Could I, फिर change it for, फिर जो चाहिए।", ru: "Could I, затем change it for, затем то, что нужно.", tr: "Could I, sonra change it for, sonra istediğin.", zh: "先 Could I，再 change it for，最后说要哪个。" } },
+      { kind: "free_use", items: ["ITM-INT-2301"] },
+      { kind: "controlled", items: ["ITM-INT-2302", "ITM-INT-2303", "ITM-INT-2304", "ITM-INT-2305"] },
+      { kind: "free_use", items: ["ITM-INT-2306", "ITM-INT-2307"] },
+      { kind: "check", items: ["ITM-INT-2308"], delayed: true },
+    ],
+  },
+  {
+    atom_id: "ATM-A2-INT-0024", version: 1, criterion_id: "CRI-A2.1-INT-17-03", strand: "INT", sublevel: "A2.1", type: "video", variant: "standard", language_use: true, status: "published",
+    title: { en: "Here's the receipt", ar: "هذا هو الإيصال", es: "Aquí está el recibo", hi: "यह रही रसीद", ru: "Вот чек", tr: "Buyurun, fiş", zh: "这是收据" },
+    target_items: ["ITM-INT-2401", "ITM-INT-2402", "ITM-INT-2403", "ITM-INT-2404", "ITM-INT-2405", "ITM-INT-2406", "ITM-INT-2407", "ITM-INT-2408"],
+    prerequisites: ["CRI-A2.1-INT-01-01"],
+    phases: [
+      { kind: "input", media: { kind: "video", title: "Here's the receipt", presenter: "Maya, a shoe shop in Leeds", duration_sec: 50, l1_card: { en: "Showing the receipt and saying when you bought it", ar: "إظهار الإيصال وقول متى اشتريته", es: "Mostrar el recibo y decir cuándo lo compraste", hi: "रसीद दिखाना और बताना कि कब ख़रीदा", ru: "Показать чек и сказать, когда купили", tr: "Fişi göstermek ve ne zaman aldığını söylemek", zh: "出示收据并说出购买日期" }, lines: [
+        { text: "The shoes are too small. Leo needs one more thing.", at: 0 },
+        { text: "Do you have the receipt?", at: 6 },
+        { text: "Here's the receipt. I bought it on Saturday.", at: 11, target: true },
+        { text: "The receipt is the paper from the till.", at: 18 },
+        { text: "Bought is the yesterday word for buy.", at: 24 },
+        { text: "Say it with me. Here's the receipt. I bought it on Saturday.", at: 31, target: true },
+        { text: "Here's the receipt. I bought it on Saturday.", at: 43, target: true },
+      ] } },
+      { kind: "noticing", highlight: "Here's the receipt. I bought it on Saturday.", why: { en: "Give the paper, then say the day you bought it.", ar: "أعطِ الورقة ثم قل يوم الشراء.", es: "Da el papel y di el día de la compra.", hi: "काग़ज़ दें, फिर ख़रीदने का दिन बताएँ।", ru: "Дайте чек, потом скажите день покупки.", tr: "Kağıdı ver, sonra aldığın günü söyle.", zh: "先给收据，再说买的那天。" } },
+      { kind: "free_use", items: ["ITM-INT-2401"] },
+      // The run-up calls day 2 and day 3 back inside today's scene.
+      { kind: "controlled", items: ["ITM-INT-2402", "ITM-INT-2403", "ITM-INT-2404", "ITM-INT-2205", "ITM-INT-2405"] },
+      { kind: "free_use", items: ["ITM-INT-2406", "ITM-INT-2407"] },
+      { kind: "check", items: ["ITM-INT-2408"], delayed: true },
+    ],
+  },
+  // Day 4 use atom: three strands in one scene, nothing new.
+  {
+    atom_id: "ATM-A2-INT-0025", version: 1, criterion_id: "CRI-A2.1-INT-17-02", strand: "INT", sublevel: "A2.1", type: "practice", variant: "standard", language_use: true, status: "published",
+    title: { en: "Saturday jobs", ar: "مهام يوم السبت", es: "Recados del sábado", hi: "शनिवार के काम", ru: "Субботние дела", tr: "Cumartesi işleri", zh: "周六的几件事" },
+    target_items: ["ITM-INT-2501", "ITM-LST-2502", "ITM-INT-2503", "ITM-MED-2504", "ITM-INT-2505"],
+    prerequisites: ["CRI-A2.1-INT-17-01"],
+    phases: [
+      { kind: "input", media: { kind: "video", title: "Saturday jobs", presenter: "Maya, a Saturday in Leeds", duration_sec: 35, l1_card: { en: "Three shops, three things to sort out", ar: "ثلاثة متاجر وثلاثة أمور لحلها", es: "Tres tiendas, tres cosas que resolver", hi: "तीन दुकानें, तीन काम", ru: "Три магазина, три дела", tr: "Üç dükkan, üç iş", zh: "三家店，三件事" }, lines: [
+        { text: "Saturday. Three jobs before lunch.", at: 0 },
+        { text: "The phone doesn't work.", at: 5, target: true },
+        { text: "The shoes are too small.", at: 10, target: true },
+        { text: "And the receipt says fourteen pounds, not forty.", at: 15, target: true },
+        { text: "Same words, three different shops.", at: 22 },
+        { text: "Your turn now.", at: 29 },
+      ] } },
+      { kind: "free_use", items: ["ITM-INT-2501"] },
+      // Interleaved run-up: this week's day 2 and day 3, week one's cafe and
+      // the teen against ty sound. Four criteria, three strands, no two
+      // neighbours from the same one.
+      { kind: "controlled", items: ["ITM-INT-2205", "ITM-LST-2502", "ITM-INT-2305", "ITM-INT-0105"] },
+      { kind: "free_use", items: ["ITM-INT-2503", "ITM-MED-2504"] },
+      { kind: "check", items: ["ITM-INT-2505"], delayed: true },
+    ],
+  },
+  // Day 5 performance: the can-do, done once, on the learner's own.
+  {
+    atom_id: "ATM-A2-INT-0026", version: 1, criterion_id: "CRI-A2.1-INT-17-03", strand: "INT", sublevel: "A2.1", type: "practice", variant: "standard", language_use: true, status: "published",
+    title: { en: "Back to the shop", ar: "العودة إلى المتجر", es: "De vuelta a la tienda", hi: "वापस दुकान पर", ru: "Снова в магазин", tr: "Dükkana dönüş", zh: "回到店里" },
+    target_items: ["ITM-INT-2601", "ITM-INT-2602", "ITM-INT-2603", "ITM-INT-2604", "ITM-INT-2605", "ITM-INT-2606"],
+    prerequisites: ["CRI-A2.1-INT-17-02"],
+    phases: [
+      // No scene: the week's four scenes are the input, and the day's one new
+      // thing is a sound on sentences the learner already says.
+      { kind: "noticing", highlight: "It's too SMALL.", why: { en: "The problem word is the loud one. It carries the meaning.", ar: "كلمة المشكلة هي الأعلى صوتًا. هي التي تحمل المعنى.", es: "La palabra del problema es la fuerte. Lleva el sentido.", hi: "समस्या वाला शब्द ज़ोर से। वही अर्थ देता है।", ru: "Слово проблемы произносится громче. В нём смысл.", tr: "Sorun kelimesi vurgulu söylenir. Anlamı o taşır.", zh: "问题的那个词说得重。意思靠它。" } },
+      { kind: "controlled", items: ["ITM-INT-2601", "ITM-INT-2602", "ITM-INT-2603"] },
+      { kind: "free_use", items: ["ITM-INT-2604"] },
+      { kind: "free_use", items: ["ITM-INT-2605"] },
+      { kind: "check", items: ["ITM-INT-2606"], delayed: true },
+    ],
+  },
   // Stories (no items, 98% known words)
   {
     atom_id: "STO-A2-0001", version: 1, criterion_id: "CRI-A2.1-INT-01-01", strand: "RDG", sublevel: "A2.1", type: "story", variant: "standard", language_use: true, status: "published",
@@ -746,6 +967,12 @@ export const ATOMS: Atom[] = [
     title: { en: "Ana and Omar", ar: "آنا وعمر", es: "Ana y Omar", hi: "आना और ओमर", ru: "Ана и Омар", tr: "Ana ve Omar", zh: "Ana 和 Omar" },
     target_items: [], prerequisites: [], phases: [],
     story: { coverage: 0.98, text: "Hello. I'm Ana. I'm from Spain. I'm in London. I'm in a shop. \"Two apples, please.\" \"Here you are.\" \"Thank you.\" Omar is in the shop. \"Hello. I'm Omar.\" \"Hello. I'm Ana. I'm from Spain.\" \"I'm from Egypt.\"" },
+  },
+  {
+    atom_id: "STO-A2-0006", version: 1, criterion_id: "CRI-A2.1-INT-17-02", strand: "RDG", sublevel: "A2.1", type: "story", variant: "standard", language_use: true, status: "published",
+    title: { en: "The big jacket", ar: "السترة الكبيرة", es: "La chaqueta grande", hi: "बड़ी जैकेट", ru: "Большая куртка", tr: "Büyük ceket", zh: "那件大外套" },
+    target_items: [], prerequisites: [], phases: [],
+    story: { coverage: 0.98, text: "Saturday. Nadia buys a jacket in Leeds. At home, the jacket is too big. On Monday she is back in the shop. \"Hello. This jacket is too big. Could I change it for a smaller one?\" \"Of course. Do you have the receipt?\" \"Here's the receipt. I bought it on Saturday.\" The man brings a smaller jacket. It is not too big and it is not too small. \"Thank you,\" says Nadia." },
   },
 ];
 
@@ -964,6 +1191,66 @@ export const ITEM_CEFR: Record<string, CefrNote> = {
   "ITM-GRM-2004": { level: "A1.1", descriptor: "Grammatical accuracy A1: question with are before you" },
   "ITM-GRM-2005": { level: "A1.1", descriptor: "Describing experience A1: name, country and city in connected phrases" },
   "ITM-GRM-2006": { level: "A1.1", descriptor: "Phonological control A1: three connected I sentences" },
+
+  // Week three, atom 21: It doesn't work. Stating a problem with goods is
+  // Transactions A2; the negative present simple with doesn't is Core
+  // Inventory A1, so the gap item is revision inside an A2.1 atom.
+  "ITM-INT-2101": { level: "A2.1", descriptor: "Transactions to obtain goods and services A2: can say what is wrong with something bought" },
+  "ITM-INT-2102": { level: "A1.2", descriptor: "Phonological control A1 to A2: repeats a two-part model with the stress on the problem word" },
+  "ITM-INT-2103": { level: "A1.2", descriptor: "Grammatical accuracy A1: word order in a short negative statement" },
+  "ITM-INT-2104": { level: "A1.2", descriptor: "Grammatical accuracy A1: doesn't with a singular subject" },
+  "ITM-INT-2105": { level: "A2.1", descriptor: "Phonological control A2: says the whole complaint aloud with excuse me" },
+  "ITM-INT-2106": { level: "A2.1", descriptor: "Transactions A2: answers a question about what happened, holding the complaint" },
+  "ITM-INT-2107": { level: "A2.1", descriptor: "Transactions A2: deals with a shop assistant over three turns, one of them a repair" },
+  "ITM-INT-2108": { level: "A2.1", descriptor: "Overall spoken production A2: the whole target sentence, delayed by a day" },
+
+  // Atom 22: Too small, too big. too plus an adjective is Core Inventory A2.
+  "ITM-INT-2201": { level: "A2.1", descriptor: "Transactions A2: states the problem with a size when asked" },
+  "ITM-INT-2202": { level: "A2.1", descriptor: "Phonological control A2: repeats a too plus adjective model" },
+  "ITM-INT-2203": { level: "A2.1", descriptor: "Grammatical accuracy A2: too in front of the adjective" },
+  "ITM-INT-2204": { level: "A2.1", descriptor: "Vocabulary control A2: too against the homophones two and to" },
+  "ITM-INT-2205": { level: "A2.1", descriptor: "Overall spoken production A2: two problems in two connected sentences" },
+  "ITM-INT-2206": { level: "A2.1", descriptor: "Transactions A2: keeps the complaint when offered the wrong fix" },
+  "ITM-INT-2207": { level: "A2.1", descriptor: "Transactions A2: three turns about a size, including a disagreement" },
+  "ITM-INT-2208": { level: "A2.1", descriptor: "Overall spoken production A2: the target sentence, delayed by a day" },
+
+  // Atom 23: Could I change it? Requesting an exchange is Transactions A2.
+  // The Could I frame is week one, so only change it for is new here.
+  "ITM-INT-2301": { level: "A2.1", descriptor: "Transactions to obtain goods and services A2: asks for an exchange" },
+  "ITM-INT-2302": { level: "A2.1", descriptor: "Phonological control A2: repeats the request with a rising end" },
+  "ITM-INT-2303": { level: "A2.1", descriptor: "Grammatical accuracy A2: Could I plus verb plus for plus noun phrase" },
+  "ITM-INT-2304": { level: "A2.1", descriptor: "Grammatical accuracy A2: the preposition for after change it" },
+  "ITM-INT-2305": { level: "A2.1", descriptor: "Overall spoken production A2: problem and request in one turn" },
+  "ITM-INT-2306": { level: "A2.1", descriptor: "Transactions A2: accepts the alternative the shop offers" },
+  "ITM-INT-2307": { level: "A2.1", descriptor: "Transactions A2: three turns to agree an exchange, one of them a repair" },
+  "ITM-INT-2308": { level: "A2.1", descriptor: "Overall spoken production A2: the request, delayed by a day" },
+
+  // Atom 24: Here's the receipt. Past simple with a time marker is A2
+  // (Core Inventory); bought is English Vocabulary Profile A1.
+  "ITM-INT-2401": { level: "A2.1", descriptor: "Transactions A2: produces the proof of purchase when asked for it" },
+  "ITM-INT-2402": { level: "A2.1", descriptor: "Phonological control A2: repeats a two-sentence model" },
+  "ITM-INT-2403": { level: "A2.1", descriptor: "Grammatical accuracy A2: past simple plus on plus the day" },
+  "ITM-INT-2404": { level: "A2.1", descriptor: "Grammatical accuracy A2: the irregular past bought" },
+  "ITM-INT-2405": { level: "A2.1", descriptor: "Overall spoken production A2: the same sentence with a different time marker" },
+  "ITM-INT-2406": { level: "A2.1", descriptor: "Transactions A2: repairs a misunderstanding about the receipt" },
+  "ITM-INT-2407": { level: "A2.1", descriptor: "Transactions A2: the full exchange, problem to proof, over three turns" },
+  "ITM-INT-2408": { level: "A2.1", descriptor: "Overall spoken production A2: the target sentences, delayed by a day" },
+
+  // Atom 25: Saturday jobs, the day 4 interleave. Nothing new, three strands.
+  "ITM-INT-2501": { level: "A2.1", descriptor: "Transactions A2: the day 1 complaint in a shop the learner has not seen" },
+  "ITM-LST-2502": { level: "A2.1", descriptor: "Phonological control A2: teen against ty, retrieved from week one inside a new task" },
+  "ITM-INT-2503": { level: "A2.1", descriptor: "Transactions A2: complaint, exchange and receipt in one three-turn task" },
+  "ITM-MED-2504": { level: "A2.1", descriptor: "Relaying specific information in speech A2: passes on three conditions a friend must meet" },
+  "ITM-INT-2505": { level: "A2.1", descriptor: "Overall spoken production A2: the receipt sentences, delayed by a day" },
+
+  // Atom 26: Back to the shop, the day 5 performance. The only new thing is
+  // contrastive stress, which is Phonological control A2.
+  "ITM-INT-2601": { level: "A2.1", descriptor: "Phonological control A2: stresses the word that carries the problem" },
+  "ITM-INT-2602": { level: "A2.1", descriptor: "Phonological control A2: contrastive stress across a not against is pair" },
+  "ITM-INT-2603": { level: "A2.1", descriptor: "Transactions A2: answers when did you buy it with a day" },
+  "ITM-INT-2604": { level: "A2.1", descriptor: "Transactions to obtain goods and services A2: the whole return, four turns, unaided" },
+  "ITM-INT-2605": { level: "A2.1", descriptor: "Relaying specific information in speech A2: teaches the routine back to a classmate" },
+  "ITM-INT-2606": { level: "A2.1", descriptor: "Overall spoken production A2: problem and request together, delayed by a day" },
 
   // Placement ladder, one item per band, Pre-A1 to B1 plus a B2 ceiling probe.
   "PLC-01": { level: "PreA1.1", descriptor: "Reception, Pre-A1: recognises a very frequent everyday word said slowly" },

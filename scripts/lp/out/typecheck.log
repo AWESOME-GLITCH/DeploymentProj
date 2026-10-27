@@ -1,4 +1,0 @@
-components/learning-path/explainer/ATM_A2_MED_0008.tsx(624,60): error TS2552: Cannot find name 'PINK'. Did you mean 'INK'?
-components/learning-path/explainer/ATM_A2_MED_0008.tsx(854,34): error TS2304: Cannot find name 'n4'.
-components/learning-path/explainer/ATM_A2_MED_0008.tsx(855,21): error TS2304: Cannot find name 'n4'.
-components/learning-path/explainer/ATM_A2_MED_0008.tsx(886,8): error TS2304: Cannot find name 'n4'.

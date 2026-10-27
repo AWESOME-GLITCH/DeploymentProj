@@ -27,7 +27,7 @@ import { AbsoluteFill, useCurrentFrame } from "remotion";
 import type { CSSProperties, ReactNode } from "react";
 import {
   ACCENT, BeatProgress, blink, CaptionBar, Character, Confetti, CREAM, Cup, EASE, Eyebrow, FAINT, FOG,
-  FONT, hash, Highlight, INK, karaoke, KineticText, PAPER, SAFFRON, SEA, SpeechBubble, springIn,
+  FONT, hash, Highlight, INK, karaoke, KineticText, PAPER, PINK, SAFFRON, SEA, SpeechBubble, springIn,
   Stage, TapCue, Transition, tween, WOOD, WOOD_DARK, WOOD_LIGHT,
 } from "./lib";
 
@@ -808,13 +808,18 @@ function KitchenScene({ frame }: { frame: number }) {
       {predict ? (
         <Layer zoom={zoom} depth={0.15}>
           <Stage>
+            {/* the cloud has to clear the beat bar above it and the letter
+                below, which leaves a band of about 310: the rim puffs stand 68
+                above the body and 16 below it, so the body is 226 tall and the
+                three icons are sized to sit inside it rather than hang out of
+                the bottom, where the letter would cover them */}
             <ThoughtCloud
-              frame={frame} from={278} cx={600} cy={300} w={620} h={300}
-              tail={[{ x: 880, y: 760 }, { x: 912, y: 650 }, { x: 918, y: 530 }]}
+              frame={frame} from={278} cx={600} cy={326} w={600} h={226}
+              tail={[{ x: 880, y: 760 }, { x: 906, y: 660 }, { x: 916, y: 560 }]}
             />
-            <PhoneIcon frame={frame} from={300} x={400} y={300} />
-            <ShopIcon frame={frame} from={316} x={600} y={312} />
-            <StampedEnvelope frame={frame} from={332} x={822} y={300} />
+            <PhoneIcon frame={frame} from={300} x={400} y={251} w={84} />
+            <ShopIcon frame={frame} from={316} x={600} y={257} w={120} />
+            <StampedEnvelope frame={frame} from={332} x={800} y={326} w={130} />
           </Stage>
         </Layer>
       ) : null}
@@ -840,8 +845,10 @@ function KitchenScene({ frame }: { frame: number }) {
       {n3 ? (
         <Layer zoom={zoom} depth={0.15}>
           <Stage>
-            <g transform={`translate(150 352) scale(${springIn(frame, 552, { damping: 11, stiffness: 150 })}) translate(-150 -352)`}>
-              <RefTag frame={frame} from={552} x={-10} y={300} w={360} stampFrom={588} stampEvery={12} />
+            <g transform={`translate(190 352) scale(${springIn(frame, 552, { damping: 11, stiffness: 150 })}) translate(-190 -352)`}>
+              {/* the camera has crept to 1.13 by here, so the tag has to live
+                  between the left edge and the letter: x 86 to 306 on the stage */}
+              <RefTag frame={frame} from={552} x={86} y={300} w={220} stampFrom={588} stampEvery={12} />
             </g>
           </Stage>
         </Layer>
@@ -851,8 +858,8 @@ function KitchenScene({ frame }: { frame: number }) {
         <Stage>
           <Sami
             x={172} y={FEET_Y} scale={1.2} facing={1} frame={frame} enter={0} seed={23}
-            arm={hook ? "hold" : n4 ? "point" : "idle"} armAt={hook ? 0 : 646}
-            leanAt={n4 ? 700 : undefined} smile={frame >= 724}
+            arm={hook ? "hold" : n3 ? "point" : "idle"} armAt={hook ? 0 : 646}
+            leanAt={n3 ? 660 : undefined} smile={frame >= 600}
             nodAt={n1 ? 212 : n2 ? 400 : undefined}
           />
           <Character
@@ -871,19 +878,23 @@ function KitchenScene({ frame }: { frame: number }) {
       <Layer zoom={zoom} depth={0.8}>
         <Stage>
           <g transform={`translate(${LETTER_X} ${LETTER_Y + lift}) rotate(${tilt} ${LETTER_W / 2} ${LETTER_H / 2}) scale(${LETTER_S})`}>
-            <Letter frame={frame} resolve={{ header: 160, when: 320, how: 480, ref: 650 }} tagStamp={666} />
+            {/* each fact resolves just after its own beat opens and well before
+                that beat's stop frame, so nothing is given away early: the
+                header in the hook, "when" in n1, "how" in n2 (after the
+                `predict` ask, not during it), the number in n3 */}
+            <Letter frame={frame} resolve={{ header: 90, when: 180, how: 440, ref: 600 }} tagStamp={612} />
           </g>
           {/* the mark drops a little once the props take the top-left corner */}
           <ThoughtMark frame={frame} from={24} x={214} y={hook ? 686 : 722} size={markSize} glyph={markGlyph} />
         </Stage>
       </Layer>
 
-      {/* the hook carries no bubble: sami's "?" says it, and the beat has one
-          thing to read in five seconds */}
-      {n1 ? <SpeechBubble text="This is your gas bill." targets={["gas bill"]} x={354} y={182} w={640} from={142} frame={frame} tail="right" tailX={486} size={50} /> : null}
-      {n2 ? <SpeechBubble text="Please pay by 30 May." targets={["pay by"]} x={354} y={182} w={640} from={292} frame={frame} tail="right" tailX={486} size={50} /> : null}
-      {n3 ? <SpeechBubble text="You can pay online or at the shop." targets={["online", "at the shop"]} x={344} y={158} w={660} from={466} frame={frame} tail="right" tailX={496} size={46} /> : null}
-      {n4 ? <SpeechBubble text="Use reference number 4471." targets={["reference number"]} x={348} y={170} w={650} from={640} frame={frame} tail="right" tailX={492} size={48} /> : null}
+      {/* One bubble per notice, on the re-cut beat ids: the hook carries none
+          (sami's "?" says it) and neither does `predict`, where the ask is the
+          whole point and a bubble would answer it. */}
+      {n1 ? <SpeechBubble text="Please pay by 30 May." targets={["pay by"]} x={354} y={182} w={640} from={142} frame={frame} tail="right" tailX={486} size={50} /> : null}
+      {n2 ? <SpeechBubble text="You can pay online or at the shop." targets={["online", "at the shop"]} x={344} y={158} w={660} from={412} frame={frame} tail="right" tailX={496} size={46} /> : null}
+      {n3 ? <SpeechBubble text="Use reference number 4471." targets={["reference number"]} x={348} y={170} w={650} from={562} frame={frame} tail="right" tailX={492} size={48} /> : null}
     </AbsoluteFill>
   );
 }
@@ -1206,7 +1217,9 @@ export function GasBillExplainer({ l1 }: { l1?: Record<string, string> }) {
   const font: CSSProperties = { fontFamily: FONT };
   return (
     <AbsoluteFill style={{ ...font, background: PAPER, overflow: "hidden" }}>
-      {beat.kind === "hook" || beat.kind === "notice" ? <KitchenScene frame={frame} /> : null}
+      {/* the kitchen carries the hook, the three notices and the `predict` beat
+          between them, so the re-cut plays as one continuous take */}
+      {beat.kind === "hook" || beat.kind === "notice" || beat.kind === "predict" ? <KitchenScene frame={frame} /> : null}
       {beat.id === "explain" ? <ExplainScene frame={frame} /> : null}
       {beat.id === "explain2" ? <Explain2Scene frame={frame} /> : null}
       {beat.kind === "practise" ? <PractiseScene frame={frame} /> : null}
@@ -1228,81 +1241,71 @@ export function GasBillExplainer({ l1 }: { l1?: Record<string, string> }) {
 }
 
 // ---------------------------------------------------------------- L1 captions
-// One short line per beat, ten of them. The storyboard's six languages, with
-// explain2 taking the wording of the noticing card in content.ts and the recap
-// line carrying the self-efficacy close rather than the stem, so a learner
-// reading captions hears what they can now do in their own language.
+// One short line per beat, eight of them, on the same ids as MED8_BEATS: the
+// 26 October re-cut folded "This is your gas bill." into the hook and added the
+// `predict` ask, so the captions follow that cut. The storyboard's six
+// languages, with the recap line carrying the self-efficacy close rather than
+// the stem, so a learner reading captions hears what they can now do in their
+// own language.
 export const MED8_L1: Record<string, Record<string, string>> = {
   ar: {
     hook: "لدى سامي رسالة. لا يستطيع قراءتها.",
-    n1: "هذه فاتورة الغاز الخاصة بك.",
-    n2: "يرجى الدفع بحلول 30 مايو.",
-    n3: "يمكنك الدفع عبر الإنترنت أو في المتجر.",
-    n4: "استخدم الرقم المرجعي 4471.",
+    n1: "يرجى الدفع بحلول 30 مايو.",
+    predict: "كيف يمكنه الدفع؟",
+    n2: "يمكنك الدفع عبر الإنترنت أو في المتجر.",
+    n3: "استخدم الرقم المرجعي 4471.",
     explain: "ثلاثة أشياء: متى، كيف، والرقم.",
-    explain2: "Pay by تعني في ذلك اليوم أو قبله.",
     practise: "قلها معي.",
-    again: "والآن الرقم المرجعي: 4471.",
     recap: "يمكنك قراءة الرسالة وإخباره. غدًا مرة أخرى.",
   },
   es: {
     hook: "Sami tiene una carta. No puede leerla.",
-    n1: "Esta es tu factura del gas.",
-    n2: "Pague antes del 30 de mayo.",
-    n3: "Puedes pagar en línea o en la tienda.",
-    n4: "Usa el número de referencia 4471.",
+    n1: "Pague antes del 30 de mayo.",
+    predict: "¿Cómo puede pagar?",
+    n2: "Puedes pagar en línea o en la tienda.",
+    n3: "Usa el número de referencia 4471.",
     explain: "Tres cosas: cuándo, cómo y el número.",
-    explain2: "Pay by significa ese día o antes.",
     practise: "Dilo conmigo.",
-    again: "Ahora el número de referencia: 4471.",
     recap: "Ya puedes leer la carta y contárselo. Mañana otra vez.",
   },
   hi: {
     hook: "सामी के पास एक चिट्ठी है। वह पढ़ नहीं पाता।",
-    n1: "यह आपका गैस बिल है।",
-    n2: "कृपया 30 मई तक भुगतान करें।",
-    n3: "आप ऑनलाइन या दुकान पर भुगतान कर सकते हैं।",
-    n4: "रेफ़रेंस नंबर 4471 इस्तेमाल करें।",
+    n1: "कृपया 30 मई तक भुगतान करें।",
+    predict: "वह कैसे भुगतान कर सकता है?",
+    n2: "आप ऑनलाइन या दुकान पर भुगतान कर सकते हैं।",
+    n3: "रेफ़रेंस नंबर 4471 इस्तेमाल करें।",
     explain: "तीन बातें: कब, कैसे, और नंबर।",
-    explain2: "Pay by का मतलब उस दिन या उससे पहले।",
     practise: "मेरे साथ बोलो।",
-    again: "अब रेफ़रेंस नंबर: 4471।",
     recap: "अब आप चिट्ठी पढ़कर उसे बता सकते हैं। कल फिर।",
   },
   ru: {
     hook: "У Сами письмо. Он не может его прочитать.",
-    n1: "Это ваш счёт за газ.",
-    n2: "Оплатите до 30 мая.",
-    n3: "Можно оплатить онлайн или в магазине.",
-    n4: "Укажите номер ссылки 4471.",
+    n1: "Оплатите до 30 мая.",
+    predict: "Как он может заплатить?",
+    n2: "Можно оплатить онлайн или в магазине.",
+    n3: "Укажите номер ссылки 4471.",
     explain: "Три вещи: когда, как и номер.",
-    explain2: "Pay by значит в этот день или раньше.",
     practise: "Скажи со мной.",
-    again: "Теперь номер ссылки: 4471.",
     recap: "Теперь вы можете прочитать письмо и рассказать ему. Завтра снова.",
   },
   tr: {
     hook: "Sami'nin bir mektubu var. Okuyamıyor.",
-    n1: "Bu sizin gaz faturanız.",
-    n2: "Lütfen 30 Mayıs'a kadar ödeyin.",
-    n3: "İnternetten veya dükkandan ödeyebilirsiniz.",
-    n4: "4471 referans numarasını kullanın.",
+    n1: "Lütfen 30 Mayıs'a kadar ödeyin.",
+    predict: "Nasıl ödeyebilir?",
+    n2: "İnternetten veya dükkandan ödeyebilirsiniz.",
+    n3: "4471 referans numarasını kullanın.",
     explain: "Üç şey: ne zaman, nasıl ve numara.",
-    explain2: "Pay by: o gün ya da öncesi.",
     practise: "Benimle söyle.",
-    again: "Şimdi referans numarası: 4471.",
     recap: "Artık mektubu okuyup ona anlatabilirsin. Yarın tekrar.",
   },
   zh: {
     hook: "Sami 有一封信。他看不懂。",
-    n1: "这是你的燃气账单。",
-    n2: "请在 5 月 30 日前付款。",
-    n3: "可以在线支付或在店里支付。",
-    n4: "使用参考号 4471。",
+    n1: "请在 5 月 30 日前付款。",
+    predict: "他可以怎么付款？",
+    n2: "可以在线支付或在店里支付。",
+    n3: "使用参考号 4471。",
     explain: "三件事：什么时候、怎么付、号码。",
-    explain2: "Pay by 表示当天或之前。",
     practise: "跟我一起说。",
-    again: "现在说参考号：4471。",
     recap: "你现在可以读信并告诉他。明天再来。",
   },
 };
