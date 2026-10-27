@@ -51,9 +51,12 @@ const file = "file://" + path.join(root, "docs/prototypes/01-talk-with-maya.html
   await page.evaluate(() => {
     window.PROTO.start();
   });
+  // One turn is answered loosely, so the end card shows three different bars
+  // and not three full ones.
+  const SAID = ["A coffee, please.", "Take away", "No, thank you."];
   for (let i = 0; i < 3; i++) {
     await page.waitForFunction(() => window.PROTO.state() === "listen", null, { timeout: 9000 });
-    await page.evaluate(() => window.PROTO.answer());
+    await page.evaluate((t) => window.PROTO.answer(t), SAID[i]);
     await wait(260);
     if (i < 2) await page.click("#go");
   }
