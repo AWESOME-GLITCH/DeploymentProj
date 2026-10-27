@@ -154,7 +154,6 @@ h1{margin:0;font-size:32px;line-height:1.05;font-weight:800;letter-spacing:-.02e
 @keyframes twinkle{0%,100%{transform:scale(1) rotate(0)}42%{transform:scale(1.2) rotate(11deg)}68%{transform:scale(.93) rotate(-5deg)}}
 .s-star{top:18px;right:18px}
 .s-squig{bottom:150px;right:14px;animation-delay:1.1s}
-.s-heart{bottom:34px;left:16px;animation-delay:2s}
 .burst{position:absolute;z-index:5;width:72px;height:72px;color:var(--ink);pointer-events:none;opacity:0}
 .burst svg{width:100%;height:100%;display:block}
 .burst.go{animation:burst .55s var(--spring) both}
@@ -252,11 +251,11 @@ h1{margin:0;font-size:32px;line-height:1.05;font-weight:800;letter-spacing:-.02e
 #bl-arm-right,#bl-broom{transform-box:view-box;transform-origin:184px 120px}
 #bl-stars{opacity:0}
 .blob.sweep #bl-arm-right,.blob.sweep #bl-broom{animation:sweep .34s ease-in-out both}
-@keyframes sweep{0%{transform:rotate(0)}50%{transform:rotate(88deg)}100%{transform:rotate(60deg)}}
+@keyframes sweep{0%{transform:rotate(40deg)}50%{transform:rotate(118deg)}100%{transform:rotate(80deg)}}
 .blob.crane #bl-arm-right,.blob.crane #bl-broom{animation:crane .36s var(--ease) both}
-@keyframes crane{0%{transform:rotate(0)}45%{transform:rotate(96deg)}100%{transform:rotate(-30deg)}}
+@keyframes crane{0%{transform:rotate(0)}40%{transform:rotate(112deg)}100%{transform:rotate(-20deg)}}
 .blob.flick #bl-arm-right,.blob.flick #bl-broom{animation:flick .3s var(--ease) both}
-@keyframes flick{0%{transform:rotate(80deg)}60%{transform:rotate(-70deg)}100%{transform:rotate(-40deg)}}
+@keyframes flick{0%{transform:rotate(110deg)}60%{transform:rotate(-50deg)}100%{transform:rotate(-20deg)}}
 .blob.eat #bl-mouth{transform-box:fill-box;transform-origin:50% 30%;animation:chomp .32s ease-in-out both}
 @keyframes chomp{0%{transform:scale(1)}40%{transform:scale(1.5,2.2)}70%{transform:scale(1.1,1.4)}100%{transform:scale(1)}}
 .blob.eat #bl-stars{animation:burp .4s var(--ease) .3s both}
@@ -346,7 +345,6 @@ h1{margin:0;font-size:32px;line-height:1.05;font-weight:800;letter-spacing:-.02e
     <!-- stickers -->
     <span class="stick s-star tw" aria-hidden="true"><svg width="40" height="40" viewBox="0 0 24 24"><path d="M12.4.9 14.4 9.5 22.9 12.1 15.1 14.3 12.4 23.5 9.7 15 1.1 12 9.2 9.7Z" fill="currentColor"/></svg></span>
     <span class="stick s-squig tw" aria-hidden="true"><svg width="50" height="30" viewBox="0 0 50 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"><path d="M2.5 16C7 4.2 14.5 20.9 20.5 11.1 24.4 4.8 31 17.5 36 9.4c2.6-4.2 7-1.4 11.5-4.4"/></svg></span>
-    <span class="stick s-heart tw" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M11.7 21.6C1.5 13.4 3.1 3.9 12 7.9c8.2-4.8 10.7 5.6.4 14.1Z" fill="currentColor"/></svg></span>
     <span class="burst" id="burst" aria-hidden="true"></span>
     <div class="bubble" id="bubble" hidden></div>
   </div>
@@ -608,6 +606,7 @@ h1{margin:0;font-size:32px;line-height:1.05;font-weight:800;letter-spacing:-.02e
   function blobertGag(tile, done) {
     var g;
     do { g = Math.floor(Math.random() * GAGS.length); } while (g === lastGag);
+    if (window.__forceGag && GAGS.indexOf(window.__forceGag) >= 0) g = GAGS.indexOf(window.__forceGag);
     lastGag = g;
     var gag = GAGS[g];
     var tr = tile.getBoundingClientRect();
@@ -615,9 +614,9 @@ h1{margin:0;font-size:32px;line-height:1.05;font-weight:800;letter-spacing:-.02e
     // he stands on the side with room, his broom hand level with the tile
     var fromRight = tr.left + tr.width / 2 < window.innerWidth / 2;
     var flip = fromRight ? "scaleX(-1) " : "";
-    var left = fromRight ? tr.right - 30 : tr.left - bw + 30;
-    var top = tr.top - 104;
-    if (gag === "eat") { left = tr.left + tr.width / 2 - bw / 2 + (fromRight ? 8 : -8); top = tr.top - 112; }
+    var left = fromRight ? tr.right - 44 : tr.left - bw + 44;
+    var top = tr.top - 150;
+    if (gag === "eat") { left = tr.left + tr.width / 2 - bw / 2 + (fromRight ? 8 : -8); top = tr.top - 124; }
     blob.style.left = left + "px"; blob.style.top = top + "px";
     blob.className = "blob " + gag;
     var fromX = fromRight ? -120 : 120;
@@ -765,6 +764,7 @@ h1{margin:0;font-size:32px;line-height:1.05;font-weight:800;letter-spacing:-.02e
   var sayIndex = 0;
   function startSay() {
     phase = "say";
+    knob.setAttribute("aria-disabled", "true");
     sayIndex = 0;
     tries = 0;
     rail.hidden = true;
@@ -879,7 +879,7 @@ h1{margin:0;font-size:32px;line-height:1.05;font-weight:800;letter-spacing:-.02e
     if (phase === "build") {
       if (built[t]) { var left = [0, 1, 2].filter(function (i) { return !built[i]; }); if (left.length) setTime(left[0], true); }
       if (ok) pickTile(tiles[t]);
-      else pickTile(tiles[(t + 1) % 3]);
+      else { var wrong = [0, 1, 2].filter(function (i) { return i !== t && !built[i]; }); pickTile(tiles[wrong.length ? wrong[0] : (t + 1) % 3]); }
     } else if (phase === "say") {
       if (busy && typed.hidden) { clearInterval(talkTimer); if (synth) { try { synth.cancel(); } catch (x) {} } }
       judge(ok ? sentence(t) : "I shop");

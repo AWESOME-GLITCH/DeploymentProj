@@ -108,7 +108,7 @@ Spacing is carried by the engine's half-life ladder; what the content decides is
 
 ## 7. How the path reaches each atom
 
-No date and no hard-coded week number: prerequisites hold the shape. `prerequisitesMet` (`engine.ts`) passes a criterion at Consolidating or better, which is level 2.
+No date and no hard-coded week number: prerequisites and the authored order hold the shape. `prerequisitesMet` (`engine.ts`) passes a criterion at Consolidating or better, which is level 2.
 
 | Atom | `prerequisites` | Earliest day it can be served |
 | --- | --- | --- |
@@ -127,7 +127,7 @@ Five days composed with `composeSession` against a learner who has week one at K
 
 | # | Finding | Evidence from the run | Proposed fix | Owner |
 | --- | --- | --- | --- | --- |
-| 1 | A single-can-do week loses to strand balancing from day 2. The week bonus is 0.25 and the strand-deficit term is worth up to 0.30, so once the week's strand has had one day's work, any week-one atom in an untouched strand outscores the week's own next atom | Day 2 served `ATM-A2-GRM-0002` (score 1.01) ahead of `ATM-A2-INT-0022` (0.95), and day 3 served `ATM-A2-LST-0004` | Inside the week's can-do, strand balance is not the engine's business. Treat `deficit` as 1 for an atom whose criterion is in `week_can_do`. With that one line changed, the same run serves 0021, 0022 and 0023 on days 1, 2 and 3 | Dev |
+| 1 | A single-can-do week loses to strand balancing from day 2. The week bonus is 0.25 and the strand-deficit term is worth up to 0.30, so once the week's strand has had one day's work, any week-one atom in an untouched strand outscores the week's own next atom | Day 2 served `ATM-A2-GRM-0002` (score 1.01) ahead of `ATM-A2-INT-0022` (0.96, strand deficit 0.00 against 1.00), and day 3 served `ATM-A2-LST-0004` | Inside the week's can-do, strand balance is not the engine's business. Treat `deficit` as 1 for an atom whose criterion is in `week_can_do`. With that one line changed, the same run serves 0021, 0022 and 0023 on days 1, 2 and 3 | Dev |
 | 2 | New content pauses on day 4 and stays paused. The recall echo serves 8 items a day, a session creates about 20, so the overdue count crosses the 25 cap on day 3 and never comes down | Day 4 reported 45 overdue, day 5 the same. Raising the echo to 16 changes nothing, because only 10 due items are eligible: `isRecallable` excludes `shadow`, `roleplay`, `relay` and `say_it_see_it`, which is most of a spoken week. Counting only recallable items still leaves 34 against the cap of 25 | Two parts. Count only items the echo can actually serve in the pause test, and schedule the chunk rather than every item: `Item.retrieves` is in `types.ts` and is read nowhere, so a run-up item that retrieves the atom's target sentence should credit that target instead of opening a schedule of its own. §0 of the learning model already calls the chunk the unit of scheduling | Dev, with me on the scheduling rule |
 | 3 | `composeSession` hard-codes `ATM-A2-INT-0011` as the day-5 use atom, which is week one's cafe teach-it-back | Day 5 served the cafe performance to a learner who spent the week in a shop | Serve the performance atom of the week's own can-do, found through `week_can_do`, and exclude it from `LEARNING_ATOMS` the way 0011 and the fluency atom already are | Dev |
 

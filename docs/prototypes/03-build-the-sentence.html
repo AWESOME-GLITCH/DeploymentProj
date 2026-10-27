@@ -102,7 +102,7 @@ h1{margin:0;font-weight:800;font-size:36px;line-height:1.04;letter-spacing:-.02e
 .score .row:nth-child(2){animation-delay:.06s}.score .row:nth-child(3){animation-delay:.12s}
 .score .track{height:16px;border:3px solid var(--ink);border-radius:999px;overflow:hidden}
 .score .track i{display:block;height:100%;width:0;background:var(--ink);border-radius:999px;transition:width .5s var(--spring)}
-.said{margin:0 0 8px;font-size:15px;font-weight:700;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;animation:rise .36s var(--spring) both}
+.said{margin:0 0 8px;font-size:14px;letter-spacing:-.01em;font-weight:700;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;animation:rise .36s var(--spring) both}
 .said q{quotes:"\201C" "\201D"}
 
 /* ---------- Leo, oversized and cropped at the card edge ----------
@@ -137,7 +137,8 @@ h1{margin:0;font-weight:800;font-size:36px;line-height:1.04;letter-spacing:-.02e
 .stick svg{display:block}
 .tw{animation:twinkle 4s ease-in-out infinite}
 @keyframes twinkle{0%,100%{transform:scale(1) rotate(0)}42%{transform:scale(1.2) rotate(11deg)}68%{transform:scale(.93) rotate(-5deg)}}
-.s-star{top:20px;right:24px}
+.s-star{top:20px;right:24px;transition:opacity .2s}
+.card.burst-on .s-star{opacity:0}
 .s-squiggle{top:232px;left:18px;animation-delay:.9s}
 .s-heart{bottom:34px;left:24px;animation-delay:1.8s}
 .card.tall .s-squiggle{top:268px}
@@ -162,7 +163,7 @@ h1{margin:0;font-weight:800;font-size:36px;line-height:1.04;letter-spacing:-.02e
 @keyframes blink{0%,92%,100%{transform:scaleY(1)}94%,98%{transform:scaleY(.1)}}
 .blobert #bl-arm-right,.blobert #bl-broom{transform-origin:184px 120px;transition:transform .16s var(--spring)}
 .blobert.sweep #bl-arm-right,.blobert.sweep #bl-broom{animation:sweep .7s var(--spring) 1 both}
-@keyframes sweep{0%{transform:rotate(-55deg)}45%{transform:rotate(48deg)}100%{transform:rotate(0)}}
+@keyframes sweep{0%{transform:rotate(-30deg)}40%{transform:rotate(95deg)}70%{transform:rotate(70deg)}100%{transform:rotate(0)}}
 .blobert #bl-arm-left{transform-origin:62px 128px}
 .blobert.wave #bl-arm-left{animation:wave .32s ease-in-out 2}
 @keyframes wave{0%,100%{transform:rotate(0)}50%{transform:rotate(-70deg)}}
@@ -323,7 +324,7 @@ h1{margin:0;font-weight:800;font-size:36px;line-height:1.04;letter-spacing:-.02e
         </g>
         <g id="bl-arm-left"><path d="M62 128c-16 4-26 16-24 30"/><circle cx="36" cy="160" r="8" fill="#CDB8FF"/></g>
         <g id="bl-arm-right"><path d="M184 120c16 2 28 12 30 26"/><circle cx="216" cy="148" r="8" fill="#CDB8FF"/></g>
-        <g id="bl-broom" transform="rotate(-24 216 148)"><path d="M216 148l10-70" stroke-width="6"/><path fill="#FFD93D" d="M214 78l24 0 8 30-40 0z"/><path d="M222 108l-2 14M232 108l0 14M242 108l2 14" stroke-width="4"/></g>
+        <g id="bl-broom"><g transform="rotate(-24 216 148)"><path d="M216 148l10-70" stroke-width="6"/><path fill="#FFD93D" d="M214 78l24 0 8 30-40 0z"/><path d="M222 108l-2 14M232 108l0 14M242 108l2 14" stroke-width="4"/></g></g>
         <g id="bl-stars" fill="#121212" stroke="none"><path d="M40 60l4 10 10 4-10 4-4 10-4-10-10-4 10-4z"/><path d="M196 44l3 7 7 3-7 3-3 7-3-7-7-3 7-3z"/></g>
       </svg>
     </div>
@@ -427,6 +428,12 @@ h1{margin:0;font-weight:800;font-size:36px;line-height:1.04;letter-spacing:-.02e
     lastSticker = keys[Math.floor(Math.random() * keys.length)];
     return lastSticker;
   }
+  function popStar(size, shape){
+    var cr = card.getBoundingClientRect();
+    card.classList.add("burst-on");
+    setTimeout(function(){ card.classList.remove("burst-on"); }, 1700);
+    return popSticker(cr.width - 24 - size + 2, 20 - (size - 44) / 2, size, shape);
+  }
   function popSticker(x, y, size, shape){
     var s = document.createElement("span");
     s.className = "burst go";
@@ -522,6 +529,8 @@ h1{margin:0;font-weight:800;font-size:36px;line-height:1.04;letter-spacing:-.02e
     return lastGag;
   }
   function caption(text, x, y){
+    var sr = slip.getBoundingClientRect(), cr = card.getBoundingClientRect();
+    y = Math.max(y, sr.top - cr.top - 16); x = Math.min(Math.max(x, 12), cr.width - 90);
     var c = document.createElement("span");
     c.className = "cap"; c.textContent = text;
     c.style.left = x + "px"; c.style.top = y + "px";
@@ -633,8 +642,7 @@ h1{margin:0;font-weight:800;font-size:36px;line-height:1.04;letter-spacing:-.02e
     mood("happy"); pose("happy");
     slip.style.transform = "rotate(1deg) scale(1.03)";
     setTimeout(function(){ slip.style.transform = ""; }, 500);
-    var sr = slip.getBoundingClientRect(), cr = card.getBoundingClientRect();
-    popSticker(sr.right - cr.left - 56, sr.top - cr.top - 34, 64, "burst");
+    popStar(72, "burst");
     setHead("That's it", "Now say it to Leo.");
     announce("Sentence complete. " + SENTENCE);
     bank.classList.add("out");
@@ -675,7 +683,7 @@ h1{margin:0;font-weight:800;font-size:36px;line-height:1.04;letter-spacing:-.02e
     phase = "speak"; mood("listen"); pose("listen");
     setHead("Your turn", "Say: " + SENTENCE);
     listening(false);
-    bank.hidden = true; typed.hidden = false; cta.disabled = true; key.hidden = true;
+    bank.hidden = true; typed.hidden = false; cta.disabled = true; key.hidden = true; $("cta-row").hidden = true;
     say.value = ""; say.focus();
   }
   typed.onsubmit = function(e){ e.preventDefault(); if (say.value.trim()) scored(say.value); };
@@ -706,8 +714,7 @@ h1{margin:0;font-weight:800;font-size:36px;line-height:1.04;letter-spacing:-.02e
     setHead(good ? "Nice one" : "Nearly", good ? "Leo got it the first time." : "Try it with me once more.");
     progress(7);
     if (good){
-      var cr = card.getBoundingClientRect(), r2 = score.getBoundingClientRect();
-      popSticker(r2.right - cr.left - 30, r2.top - cr.top - 50, 56);
+      popStar(64);
     }
     announce((good ? "Nice one. " : "Nearly. ") + "Sounds " + Math.round(s * 100) + ", rhythm " + Math.round(r * 100) + ", words " + Math.round(w * 100) + " out of 100.");
     listening(false);
