@@ -1,67 +1,71 @@
-/* Learning Path: the Quiet Horizon tokens. See design/direction.md.
-   A drawn journey on calm paper by day and night air by dark. One teal primary
-   action in both modes, a cyan "you are here" marker by day and a soft yellow
-   one by night, emerald for known and correct, a cool tint for review, fog for
-   the road not yet walked. No purple, no orange, no red. Only one thing glows. */
+/* Learning Path: the brief's tokens. See docs/design/brief.md (board, 26 Oct).
+   Cream page, bold flat colour-block cards, 2px ink outlines with a hard offset
+   shadow, black pill buttons, sun for the coach's world, mint for known, lilac
+   for review, deep tangerine for the one highlighted form. Dark mode flips the
+   page to ink and the outlines to cream; the block fills stay bright.
+   The token names are the old ones so every call site keeps working: what
+   changed is what they mean. --lp-glow is now simply "the ink pill". */
 
 .lp-root {
-  /* Light: paper with white cards and ink-tinted shadows. */
-  --lp-ink: #101f1d;
-  --lp-bg-0: #f3f6f5;
-  --lp-paper: #101f1d;
-  --lp-paper-soft: #425c58;
-  --lp-paper-faint: #56736f;
-  --lp-glow: #0b7a6c;
-  --lp-glow-2: #0a6a5e;
-  --lp-on-glow: #ffffff;
-  --lp-glow-tint: rgba(11, 122, 108, 0.1);
-  --lp-glow-line: rgba(11, 122, 108, 0.45);
-  --lp-glow-shadow: rgba(11, 122, 108, 0.38);
-  --lp-accent: #0b6f8f;
-  --lp-accent-tint: rgba(11, 111, 143, 0.1);
-  --lp-accent-line: rgba(11, 111, 143, 0.4);
-  --lp-sea: #157f62;
-  --lp-sea-deep: #0f6a51;
-  --lp-sea-tint: rgba(21, 127, 98, 0.12);
-  --lp-sea-line: rgba(21, 127, 98, 0.55);
-  --lp-sea-shadow: rgba(21, 127, 98, 0.45);
-  --lp-sand: #2f7d93;
-  --lp-fog: #aebfbb;
-  --lp-marker: #0d7f9c;
-  --lp-marker-tint: rgba(13, 127, 156, 0.14);
-  --lp-marker-shadow: rgba(13, 127, 156, 0.45);
-  --lp-shade: #0b1a18;
-  --lp-road: #e0e9e7;
-  --lp-s-GRM: #0b7a6c; --lp-s-RDG: #2f6fb0; --lp-s-WRT: #6f8f3c; --lp-s-LST: #1f8fb3; --lp-s-SPK: #12a0a8; --lp-s-MED: #2a8f5f; --lp-s-INT: #37558f;
+  /* Light: cream page, white and block-colour cards, ink everything. */
+  --lp-ink: #121212;
+  --lp-bg-0: #fff7e8;
+  --lp-paper: #121212;
+  --lp-paper-soft: #3b3b36;
+  --lp-paper-faint: #65655a;
+  --lp-glow: #121212;
+  --lp-glow-2: #2a2a2a;
+  --lp-on-glow: #fff7e8;
+  --lp-glow-tint: #ffd93d;
+  --lp-glow-line: #121212;
+  --lp-glow-shadow: rgba(18, 18, 18, 0.3);
+  --lp-accent: #b5330b;
+  --lp-accent-tint: #ffe0d4;
+  --lp-accent-line: #121212;
+  --lp-sea: #121212;
+  --lp-sea-deep: #121212;
+  --lp-sea-tint: #a8f0c6;
+  --lp-sea-line: #121212;
+  --lp-sea-shadow: rgba(18, 18, 18, 0.3);
+  --lp-sand: #cdb8ff;
+  --lp-fog: #e3d7be;
+  --lp-marker: #ffd93d;
+  --lp-marker-tint: rgba(255, 217, 61, 0.55);
+  --lp-marker-shadow: rgba(18, 18, 18, 0.3);
+  --lp-shade: #121212;
+  --lp-road: #efe3ca;
+  --lp-s-GRM: #121212; --lp-s-RDG: #121212; --lp-s-WRT: #121212; --lp-s-LST: #121212; --lp-s-SPK: #121212; --lp-s-MED: #121212; --lp-s-INT: #121212;
   --lp-glass: #ffffff;
-  --lp-glass-strong: #fbfcfc;
-  --lp-line: rgba(16, 31, 29, 0.08);
-  --lp-line-strong: rgba(16, 31, 29, 0.16);
-  --lp-track: rgba(16, 31, 29, 0.07);
-  --lp-well: rgba(16, 31, 29, 0.04);
-  --lp-dim: rgba(255, 255, 255, 0.55);
+  --lp-glass-strong: #ffffff;
+  --lp-line: #121212;
+  --lp-line-strong: #121212;
+  --lp-track: #efe3ca;
+  --lp-well: #fbf1dc;
+  --lp-dim: rgba(255, 247, 232, 0.6);
   --lp-surface: #ffffff;
-  --lp-caption-bg: rgba(255, 255, 255, 0.94);
-  --lp-nav-bg: rgba(255, 255, 255, 0.88);
-  --lp-video-bg: #e9f1ef;
-  --lp-floor: rgba(11, 122, 108, 0.07);
-  --lp-floor-line: rgba(11, 122, 108, 0.16);
-  --lp-btn-shadow: none;
-  --lp-card-shadow: none;
-  --lp-tile-shadow: none;
+  --lp-caption-bg: #ffffff;
+  --lp-nav-bg: #fff7e8;
+  --lp-video-bg: #ffd93d;
+  --lp-floor: rgba(18, 18, 18, 0.05);
+  --lp-floor-line: #121212;
+  --lp-btn-shadow: 4px 4px 0 #121212;
+  --lp-card-shadow: 4px 4px 0 #121212;
+  --lp-tile-shadow: 3px 3px 0 #121212;
   --lp-glass-top: transparent;
-  --lp-border-w: 1px;
+  --lp-border-w: 2px;
+  /* The one line that is allowed to be quiet: the hint under a tappable word. */
+  --lp-hair: rgba(18, 18, 18, 0.25);
   --lp-blur: none;
-  --lp-head-weight: 600;
-  --lp-head-tracking: -0.018em;
-  --lp-bg-image: #f3f6f5;
+  --lp-head-weight: 800;
+  --lp-head-tracking: -0.03em;
+  --lp-bg-image: #fff7e8;
 
   /* Shared across modes: radius, spacing, motion. */
-  --lp-r-sm: 10px;
-  --lp-r-md: 14px;
-  --lp-r-lg: 20px;
+  --lp-r-sm: 12px;
+  --lp-r-md: 18px;
+  --lp-r-lg: 24px;
   --lp-r-xl: 28px;
-  --lp-radius: var(--lp-r-lg);
+  --lp-radius: var(--lp-r-xl);
   --lp-sp-1: 4px; --lp-sp-2: 8px; --lp-sp-3: 12px; --lp-sp-4: 16px;
   --lp-sp-5: 20px; --lp-sp-6: 24px; --lp-sp-7: 32px; --lp-sp-8: 40px;
   --lp-ease: cubic-bezier(0.2, 0, 0, 1);
@@ -82,53 +86,57 @@
 }
 
 .lp-root[data-theme="dark"] {
-  /* Dark: night air. Same teal primary; the marker becomes the soft yellow lamp. */
-  --lp-ink: #eaf4f1;
-  --lp-bg-0: #07100f;
-  --lp-paper: #eaf4f1;
-  --lp-paper-soft: #a4bcb7;
-  --lp-paper-faint: #71908a;
-  --lp-glow: #2fb89f;
-  --lp-glow-2: #45cdb1;
-  --lp-on-glow: #04201c;
-  --lp-glow-tint: rgba(47, 184, 159, 0.14);
-  --lp-glow-line: rgba(47, 184, 159, 0.5);
-  --lp-glow-shadow: rgba(47, 184, 159, 0.4);
-  --lp-accent: #4fc3dd;
-  --lp-accent-tint: rgba(79, 195, 221, 0.12);
-  --lp-accent-line: rgba(79, 195, 221, 0.42);
-  --lp-sea: #3cc89c;
-  --lp-sea-deep: #2aa97f;
-  --lp-sea-tint: rgba(60, 200, 156, 0.14);
-  --lp-sea-line: rgba(60, 200, 156, 0.5);
-  --lp-sea-shadow: rgba(60, 200, 156, 0.4);
-  --lp-sand: #d8b86a;
-  --lp-fog: #2b3b39;
-  --lp-marker: #f0d070;
-  --lp-marker-tint: rgba(240, 208, 112, 0.16);
-  --lp-marker-shadow: rgba(240, 208, 112, 0.4);
+  /* Dark: the page goes to ink and the outlines to cream. The block fills stay
+     bright, the sun stays the sun, and the pill flips to cream on ink. The hard
+     offset shadow is off: on ink it reads as a smear, and the cream outline is
+     already doing its job. */
+  --lp-ink: #fff7e8;
+  --lp-bg-0: #121212;
+  --lp-paper: #fff7e8;
+  --lp-paper-soft: #cfc7b6;
+  --lp-paper-faint: #a79f8e;
+  --lp-glow: #fff7e8;
+  --lp-glow-2: #ffffff;
+  --lp-on-glow: #121212;
+  --lp-glow-tint: rgba(255, 217, 61, 0.26);
+  --lp-glow-line: #fff7e8;
+  --lp-glow-shadow: rgba(255, 247, 232, 0.3);
+  --lp-accent: #ff8a5c;
+  --lp-accent-tint: rgba(255, 90, 45, 0.22);
+  --lp-accent-line: #fff7e8;
+  --lp-sea: #a8f0c6;
+  --lp-sea-deep: #a8f0c6;
+  --lp-sea-tint: rgba(168, 240, 198, 0.2);
+  --lp-sea-line: #fff7e8;
+  --lp-sea-shadow: rgba(168, 240, 198, 0.3);
+  --lp-sand: #cdb8ff;
+  --lp-fog: #2b2b28;
+  --lp-marker: #ffd93d;
+  --lp-marker-tint: rgba(255, 217, 61, 0.26);
+  --lp-marker-shadow: rgba(255, 217, 61, 0.4);
   --lp-shade: #000000;
-  --lp-road: rgba(255, 255, 255, 0.07);
-  --lp-s-GRM: #3fc4ab; --lp-s-RDG: #6aa8e8; --lp-s-WRT: #a9c76a; --lp-s-LST: #5cc4e8; --lp-s-SPK: #44cfd6; --lp-s-MED: #4fd1a3; --lp-s-INT: #7f9ff0;
-  --lp-glass: rgba(255, 255, 255, 0.05);
-  --lp-glass-strong: rgba(255, 255, 255, 0.08);
-  --lp-line: rgba(255, 255, 255, 0.09);
-  --lp-line-strong: rgba(255, 255, 255, 0.18);
-  --lp-track: rgba(255, 255, 255, 0.1);
-  --lp-well: rgba(0, 0, 0, 0.22);
+  --lp-road: #2a2a28;
+  --lp-s-GRM: #fff7e8; --lp-s-RDG: #fff7e8; --lp-s-WRT: #fff7e8; --lp-s-LST: #fff7e8; --lp-s-SPK: #fff7e8; --lp-s-MED: #fff7e8; --lp-s-INT: #fff7e8;
+  --lp-glass: #1c1c1a;
+  --lp-glass-strong: #232320;
+  --lp-line: #fff7e8;
+  --lp-line-strong: #fff7e8;
+  --lp-track: #2e2e2a;
+  --lp-well: #1a1a18;
   --lp-dim: rgba(0, 0, 0, 0.45);
-  --lp-surface: #0f1b1a;
-  --lp-caption-bg: rgba(7, 16, 15, 0.9);
-  --lp-nav-bg: rgba(10, 22, 21, 0.85);
-  --lp-video-bg: #102221;
-  --lp-floor: rgba(47, 184, 159, 0.07);
-  --lp-floor-line: rgba(47, 184, 159, 0.18);
+  --lp-surface: #1c1c1a;
+  --lp-caption-bg: #1c1c1a;
+  --lp-nav-bg: #121212;
+  --lp-video-bg: #ffd93d;
+  --lp-floor: rgba(255, 247, 232, 0.05);
+  --lp-floor-line: #fff7e8;
   --lp-btn-shadow: none;
   --lp-card-shadow: none;
   --lp-tile-shadow: none;
   --lp-glass-top: transparent;
+  --lp-hair: rgba(255, 247, 232, 0.3);
   --lp-blur: none;
-  --lp-bg-image: #07100f;
+  --lp-bg-image: #121212;
   color-scheme: dark;
 }
 
@@ -143,13 +151,15 @@
 .lp-root input, .lp-root textarea { font-family: inherit; }
 .lp-root[data-reduce-motion="true"] * { transition: none !important; animation: none !important; }
 
-/* Type scale 13.5, 17, 22, 28, 34, scalable to 130%. Tracking tightens as the
-   size grows and relaxes at small sizes. */
-.lp-body { font-size: calc(17px * var(--lp-scale)); line-height: 1.45; font-weight: 400; }
-.lp-lesson { font-size: calc(22px * var(--lp-scale)); line-height: 1.35; font-weight: 500; letter-spacing: -0.01em; }
-.lp-head { font-size: calc(28px * var(--lp-scale)); line-height: 1.14; font-weight: var(--lp-head-weight); letter-spacing: var(--lp-head-tracking); }
-.lp-display { font-size: calc(34px * var(--lp-scale)); line-height: 1.08; font-weight: 700; letter-spacing: -0.03em; }
-.lp-small { font-size: calc(13.5px * var(--lp-scale)); line-height: 1.4; font-weight: 500; letter-spacing: 0.005em; }
+/* Type scale 13.5, 17, 22, 28, 36, scalable to 130%. Tracking tightens as the
+   size grows and relaxes at small sizes.
+   The brief's type: Plus Jakarta Sans, display 800 with tight leading, body
+   600. Three sizes do the whole app (board element budget, 26 Oct). */
+.lp-body { font-size: calc(17px * var(--lp-scale)); line-height: 1.45; font-weight: 600; }
+.lp-lesson { font-size: calc(22px * var(--lp-scale)); line-height: 1.3; font-weight: 700; letter-spacing: -0.015em; }
+.lp-head { font-size: calc(28px * var(--lp-scale)); line-height: 1.08; font-weight: var(--lp-head-weight); letter-spacing: var(--lp-head-tracking); }
+.lp-display { font-size: calc(36px * var(--lp-scale)); line-height: 1.05; font-weight: 800; letter-spacing: -0.035em; }
+.lp-small { font-size: calc(13.5px * var(--lp-scale)); line-height: 1.4; font-weight: 600; letter-spacing: 0.005em; }
 /* Was a tracked uppercase eyebrow. The board struck tracked caps off every
    learner-facing screen (26 Oct), so any label left in the app now reads as a
    plain quiet line in sentence case. */
@@ -166,23 +176,25 @@
 }
 .lp-glass-glow { border-color: var(--lp-glow-line); box-shadow: var(--lp-card-shadow), 0 0 24px -8px var(--lp-glow-shadow); }
 
-/* Buttons: 48dp targets, 56dp primary, one glowing primary per screen */
+/* Buttons: ink pills, 56dp primary, one per screen. The pill is the only filled
+   thing on a screen besides the card itself, so the next action is never a
+   guess. The secondary is the same pill in reverse, never a second filled one. */
 .lp-btn-primary, .lp-btn-secondary {
   display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-  width: 100%; border-radius: var(--lp-r-md); font-weight: 600; font-size: calc(17px * var(--lp-scale)); letter-spacing: -0.005em;
-  border: var(--lp-border-w) solid transparent; cursor: pointer; padding: 0 22px;
+  width: 100%; border-radius: 999px; font-weight: 700; font-size: calc(17px * var(--lp-scale)); letter-spacing: -0.005em;
+  border: var(--lp-border-w) solid var(--lp-ink); cursor: pointer; padding: 0 22px;
   transition: transform var(--lp-t-press) var(--lp-ease), box-shadow var(--lp-t-swap) var(--lp-ease), opacity var(--lp-t-swap) var(--lp-ease), background var(--lp-t-swap) var(--lp-ease);
 }
 .lp-btn-56 { min-height: 56px; }
 .lp-btn-48 { min-height: 48px; }
-/* One accent, used once per screen. Flat: no gradient, no glow. */
+/* The ink pill. Flat fill, hard offset shadow, no gradient and no glow. */
 .lp-btn-primary {
   color: var(--lp-on-glow);
   background: var(--lp-glow);
-  border-color: transparent;
-  box-shadow: none;
+  border-color: var(--lp-ink);
+  box-shadow: var(--lp-btn-shadow);
 }
-.lp-btn-primary:active { transform: scale(0.985); }
+.lp-btn-primary:active { transform: translate(2px, 2px); box-shadow: none; }
 /* A disabled primary is still the thing the learner reads, so it loses its
    colour and keeps its contrast instead of fading to 40% (QA, 26 Oct). */
 .lp-btn-primary:disabled { opacity: 1; background: var(--lp-track); color: var(--lp-paper-soft); box-shadow: none; cursor: default; }
@@ -199,8 +211,9 @@
   transition: background var(--lp-t-move) var(--lp-ease-emph);
 }
 .lp-btn-secondary {
-  color: var(--lp-paper); background: var(--lp-glass-strong); border-color: var(--lp-line-strong); box-shadow: var(--lp-tile-shadow);
+  color: var(--lp-paper); background: var(--lp-bg-0); border-color: var(--lp-ink); box-shadow: none;
 }
+.lp-btn-secondary:active { transform: translate(2px, 2px); }
 .lp-btn-secondary:disabled { opacity: 1; color: var(--lp-paper-faint); background: var(--lp-well); }
 
 .lp-icon-btn {
@@ -241,7 +254,7 @@
   /* The underline rides the text rather than the 44px tap box, so the line
      stays attached to the word instead of floating below it. */
   text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 4px;
-  text-decoration-color: var(--lp-line-strong);
+  text-decoration-color: var(--lp-hair);
   transition: color var(--lp-t-press) var(--lp-ease), text-decoration-color var(--lp-t-press) var(--lp-ease);
 }
 .lp-word:active { color: var(--lp-accent); text-decoration-color: var(--lp-accent); }
@@ -284,8 +297,9 @@
 }
 .lp-turn-miss { background: var(--lp-well); border-color: var(--lp-line); }
 
+/* A word chip: an ink outline pill, filled when it has been placed. */
 .lp-tile {
-  display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 8px 16px; border-radius: var(--lp-r-sm);
+  display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 8px 18px; border-radius: 999px;
   background: var(--lp-glass-strong); border: var(--lp-border-w) solid var(--lp-line); box-shadow: var(--lp-tile-shadow); font-size: calc(20px * var(--lp-scale)); font-weight: 500; cursor: pointer;
   transition: transform var(--lp-t-press) var(--lp-ease), background var(--lp-t-swap) var(--lp-ease), opacity var(--lp-t-swap) var(--lp-ease);
 }
@@ -308,9 +322,9 @@
 .lp-input:focus { border-color: var(--lp-accent-line); }
 
 /* Progress and bars */
-.lp-progress-line { height: 4px; width: 100%; background: var(--lp-track); border-radius: 99px; overflow: hidden; }
+.lp-progress-line { height: 6px; width: 100%; background: var(--lp-track); border-radius: 99px; overflow: hidden; }
 .lp-progress-line > div { height: 100%; background: var(--lp-glow); border-radius: 99px; transition: width var(--lp-t-move) var(--lp-ease-emph); }
-.lp-bar { height: 10px; border-radius: 99px; background: var(--lp-track); overflow: hidden; }
+.lp-bar { height: 16px; border-radius: 99px; border: var(--lp-border-w) solid var(--lp-ink); background: var(--lp-track); overflow: hidden; }
 .lp-bar > div { height: 100%; border-radius: 99px; background: var(--lp-sea); transition: width var(--lp-t-move) var(--lp-ease-emph); }
 .lp-bar > div.lp-bar-review { background: var(--lp-sand); }
 
@@ -318,9 +332,10 @@
 .lp-dot-on { background: var(--lp-sea); border-color: var(--lp-sea); }
 .lp-dot-today { outline: 2px solid var(--lp-marker); outline-offset: 2px; }
 
-.lp-pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; letter-spacing: 0.01em; border: var(--lp-border-w) solid var(--lp-line); background: var(--lp-glass); }
-.lp-pill-glow { color: var(--lp-accent); border-color: var(--lp-accent-line); background: var(--lp-accent-tint); }
-.lp-pill-good { color: var(--lp-sea-deep); border-color: var(--lp-sea-line); background: var(--lp-sea-tint); }
+.lp-pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: 0.01em; border: var(--lp-border-w) solid var(--lp-ink); background: var(--lp-bg-0); color: var(--lp-paper); }
+/* Sun is sun in both modes, so anything on it keeps the literal ink. */
+.lp-pill-glow { color: #121212; border-color: var(--lp-ink); background: var(--lp-marker); }
+.lp-pill-good { color: var(--lp-paper); border-color: var(--lp-ink); background: var(--lp-sea-tint); }
 
 /* Segmented control: one bordered group on the settings rows, in place of a
    row of tinted pills. The chosen segment is filled with the ink, so the state
@@ -338,7 +353,7 @@
 
 /* Mic: the one lit thing on a speaking screen */
 .lp-mic { width: 92px; height: 92px; border-radius: 999px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
-  background: var(--lp-glow); color: var(--lp-on-glow); border: none; box-shadow: none;
+  background: var(--lp-glow); color: var(--lp-on-glow); border: var(--lp-border-w) solid var(--lp-ink); box-shadow: var(--lp-btn-shadow);
   transition: transform var(--lp-t-press) var(--lp-ease); }
 .lp-mic:active { transform: scale(0.97); }
 /* Recording used to breathe. The board's motion budget (26 Oct) allows no
@@ -353,7 +368,7 @@
 /* The only feedback that moves is the tick scaling in when it is earned.
    Card and text fades are off; the class stays inert at its call sites. */
 .lp-fade-in { animation: none; }
-.lp-tick { width: 40px; height: 40px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; color: #fff; background: var(--lp-sea); animation: lp-tick var(--lp-t-move) var(--lp-ease-emph) both; }
+.lp-tick { width: 40px; height: 40px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; color: var(--lp-bg-0); background: var(--lp-sea); animation: lp-tick var(--lp-t-move) var(--lp-ease-emph) both; }
 @keyframes lp-tick { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: scale(1); } }
 
 /* Video stand-in */
@@ -383,12 +398,12 @@
    today's stop. The class is kept inert for the call site in Road. */
 .lp-marker-breathe { animation: none; }
 
-/* Nav: three tabs on a flat bar, one line above the thumb. The active tab is
-   the ink and the accent; the others are quiet. No glass, no shadow. */
-.lp-nav { display: grid; grid-template-columns: repeat(3, 1fr); margin: 0; padding: 2px 8px 6px; border-top: 1px solid var(--lp-line); background: var(--lp-bg-0); }
-.lp-nav button { min-height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; background: none; border: none; border-radius: var(--lp-r-md); cursor: pointer; font-size: calc(12px * var(--lp-scale)); font-weight: 500; letter-spacing: 0; color: var(--lp-paper-faint); transition: color var(--lp-t-swap) var(--lp-ease), background var(--lp-t-swap) var(--lp-ease); }
+/* Nav: three tabs on a flat bar, one line above the thumb. The tab you are on
+   is a filled ink pill, the other two are quiet. No glass, no shadow. */
+.lp-nav { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 0; padding: 6px 10px 8px; border-top: var(--lp-border-w) solid var(--lp-line); background: var(--lp-bg-0); }
+.lp-nav button { min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; background: none; border: none; border-radius: 999px; cursor: pointer; font-size: calc(12px * var(--lp-scale)); font-weight: 700; letter-spacing: 0; color: var(--lp-paper-faint); transition: color var(--lp-t-swap) var(--lp-ease), background var(--lp-t-swap) var(--lp-ease); }
 .lp-nav button svg { width: 22px; height: 22px; transition: transform var(--lp-t-swap) var(--lp-ease); }
-.lp-nav button[data-active="true"] { color: var(--lp-glow); font-weight: 600; }
+.lp-nav button[data-active="true"] { color: var(--lp-on-glow); background: var(--lp-glow); }
 
 /* Scrollbars inside the phone */
 .lp-root ::-webkit-scrollbar { width: 6px; height: 6px; }
