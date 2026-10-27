@@ -114,11 +114,7 @@ h1{
 .card[data-state="listen"] .scene{transform:translateY(16px) scale(1.07) rotate(-2.5deg)}
 .card[data-state="good"] .scene{transform:translateY(-6px) scale(1.04)}
 .card[data-state="miss"] .scene{transform:translateY(10px) scale(1.05) rotate(2deg)}
-/* the spotlight disc sits behind her head and holds the lean-in with her */
-.disc{
-  position:absolute; z-index:0; left:50%; width:352px; height:352px; margin-left:-176px; top:100px;
-  border-radius:50%; background:var(--cream); border:3px solid var(--ink);
-}
+/* No disc behind her: the card is one block colour and she is cropped straight into it. */
 .sway{width:100%; height:100%; animation:sway 3.4s ease-in-out infinite}
 @keyframes sway{0%,100%{transform:rotate(-1.1deg) translateY(0)} 50%{transform:rotate(1.1deg) translateY(-5px)}}
 .face{position:absolute; inset:0; opacity:0}
@@ -168,7 +164,8 @@ h1{
   transition:transform .14s var(--spring), opacity .2s;
 }
 .pill:active{transform:translateY(2px) scale(.985)}
-.pill[disabled]{opacity:.42; cursor:default}
+/* Dimmed, but the label still clears 4.5:1 against the pill. */
+.pill[disabled]{opacity:.68; cursor:default; box-shadow:none}
 .pill .chev{font-size:22px; line-height:1; margin-top:-2px}
 .pill svg{width:22px; height:22px; display:block}
 .pill .ring{
@@ -222,7 +219,6 @@ h1{
     </div>
 
     <div class="scene" id="scene">
-      <span class="disc" aria-hidden="true"></span>
       <div class="sway" id="sway">
         <div class="face on" data-face="idle"><!--cast:maya-idle--></div>
         <div class="face" data-face="talk"><!--cast:maya-talk--></div>
@@ -337,7 +333,8 @@ h1{
     var at = 0, beat = 125 / (rate || 1);
     (function next(i) {
       if (i >= words.length) {
-        later(function () { stopMouth(); setFace("idle"); done(); }, 420 / (rate || 1));
+        // `at` has accumulated the whole line by now: wait for the last word, then hand over.
+        later(function () { stopMouth(); setFace("idle"); done(); }, at + 420 / (rate || 1));
         return;
       }
       var hold = (190 + syllables(words[i].textContent) * 150) / (rate || 1);
