@@ -531,7 +531,10 @@ export function Coach({ item, onAnswer, onNext, dayParity = 0 }: ItemProps) {
                 className="inline-flex items-center justify-center"
                 style={bigWord
                   ? { minHeight: 64, padding: "0 10px", fontSize: "calc(40px * var(--lp-scale))", fontWeight: 700, color: "var(--lp-accent)" }
-                  : { minHeight: 44, minWidth: 44, padding: "0 3px", fontSize: "calc(22px * var(--lp-scale))", fontWeight: 500 }}
+                  // The 44px tap box comes from the padding, not from a
+                  // minimum width: a min-width pushed "I" and "a" out to 44px
+                  // and blew gaps through the middle of her line.
+                  : { minHeight: 44, padding: "0 5px", fontSize: "calc(22px * var(--lp-scale))", fontWeight: 600 }}
               >
                 {w}
               </button>
@@ -586,7 +589,7 @@ function CoachStage({ frame, talking, gesture, mood, bow, label, onTap, tapLabel
     : "idle";
   const listening = gesture === "listen";
   return (
-    <div className="lp-video flex min-h-0 flex-1 items-end justify-center" style={{ maxHeight: 330 }}>
+    <div className="lp-video flex min-h-0 flex-1 items-end justify-center" style={{ minHeight: 300 }}>
       <button type="button" onClick={onTap} aria-label={tapLabel} className="relative flex h-full w-full items-end justify-center overflow-hidden" style={{ background: "none", border: "none", padding: 0, cursor: "pointer" }}>
         <Face
           face={face}
