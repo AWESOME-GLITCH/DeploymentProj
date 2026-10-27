@@ -175,3 +175,20 @@ The path is the learner's map of how skills connect, not a row of dots.
   is a visible place, not a number.
 - The whole path fits on one phone screen scrolled vertically, with the next stop always in view
   on open.
+
+## Engagement is the platform's job (board, 27 Oct)
+
+ST: "engaging learning is not about the user having to speak, it is more about how the platform
+keeps me engaged." And: "the face is still there." So:
+- No more giant portrait heroes. The hero of a screen is a scene in the learner's world (a place,
+  characters in it, something happening), with full-body characters at scene scale. A close-up face
+  is reserved for a reaction beat, never the resting state of a card.
+- Speaking is one activity type among tap, listen, build, pick, slide, read and story. The engine
+  of return is the world, not the mic.
+- The platform keeps the learner engaged through: a world that opens up stop by stop (places light
+  up, characters move in), a story in weekly episodes with a part each day and a cliffhanger, a
+  daily ritual of three small quests with a reward at the end, a collection shelf of things earned
+  (a coffee cup, a metro card, a receipt), choices (pick one of two next steps), surprises (a
+  character knocks with a two-minute challenge, a golden sticker), classmates visible in the world,
+  a momentum meter instead of a streak flame, level gates as places, and "You can now..." ledgers
+  that grow. Every screen must show at least two of these.
