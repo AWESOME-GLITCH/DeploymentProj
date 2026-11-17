@@ -63,6 +63,13 @@
       "sourceType": "github",
       "skillPath": "higgsfield-youtube-thumbnail/SKILL.md",
       "computedHash": "e95fdabc5eb58b61ef75cc844ccde91e0162082a907d5164d260ba201cab2b71"
+    },
+    "lemo-opuscar": {
+      "source": "lemomo-ai/lemo-opuscar",
+      "commit": "00a7f9ec99c8686265a8ca4ed9a3fdaaf27ea6f4",
+      "sourceType": "github",
+      "skillPath": "plugin/skills/lemo-opuscar/SKILL.md",
+      "computedHash": "5bacd1b5b158501bae3cd00d1492a9bd9437c45096c6a5d21235f3b767520835"
     }
   }
 }
